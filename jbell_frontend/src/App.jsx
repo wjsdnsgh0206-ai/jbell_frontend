@@ -2,8 +2,9 @@ import './App.css';
 import UserLayout from './layouts/user/UserLayout';
 import UserPageMain from './pages/user/UserPageMain';
 import UserMap from './pages/user/UserMap';
-import { Routes, Route } from 'react-router-dom';
 import FAQPage from './pages/user/FAQPage';
+import { Routes, Route } from 'react-router-dom';
+
 
 function App() {
   return (
