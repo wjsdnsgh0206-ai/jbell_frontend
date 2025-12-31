@@ -5,6 +5,7 @@ import UserMap from './pages/user/UserMap';
 import FAQPage from './pages/user/FAQPage';
 import FAQDetailPage from './pages/user/FAQDetailPage';
 import QnAListPage from './pages/user/QnAListPage';
+import QnADetailPage from './pages/user/QnADetailPage';
 import { Routes, Route } from 'react-router-dom';
 
 

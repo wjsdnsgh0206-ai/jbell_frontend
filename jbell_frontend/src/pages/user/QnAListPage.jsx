@@ -62,9 +62,9 @@ const QnAListPage = () => {
   };
 
   // 상세 페이지 이동 핸들러 (추후 구현 시 사용)
-  const handleItemClick = (id) => {
-    // navigate(`/inquiry/${id}`); 
-    console.log(`Maps to inquiry ${id}`);
+  const QnADetailClick = (id) => {
+    navigate(`/qna/${id}`); 
+    
   };
 
   return (
@@ -138,7 +138,7 @@ const QnAListPage = () => {
           {inquiries.map((item) => (
             <div 
               key={item.id} 
-              onClick={() => handleItemClick(item.id)}
+              onClick={() => QnADetailClick(item.id)}
               className="border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow cursor-pointer bg-white"
             >
               {/* Top: Status & Category */}
