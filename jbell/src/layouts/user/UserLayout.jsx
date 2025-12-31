@@ -1,6 +1,6 @@
 import React from 'react';
-import UserHeader from './UserHeader';
-import UserFooter from './UserFooter';
+import UserHeader from '../../components/user/UserHeader';
+import UserFooter from '../../components/user/UserFooter';
 
 const UserLayout = () => {
   return (
