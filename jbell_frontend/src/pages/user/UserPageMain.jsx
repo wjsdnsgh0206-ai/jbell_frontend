@@ -2,7 +2,7 @@ import React from 'react';
 import UserHeader from '../../layouts/user/UserHeader';
 import UserFooter from '../../layouts/user/UserFooter';
 
-const UserLayout = () => {
+const UserPageMain = () => {
   return (
     <>
       {/* 1. 상단 알림 및 날씨 섹션 (배경을 흰색으로 분리해서 넓어 보이게) */}
@@ -154,4 +154,4 @@ const UserLayout = () => {
   );
 };
 
-export default UserLayout;
+export default UserPageMain;
