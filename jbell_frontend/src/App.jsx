@@ -4,6 +4,7 @@ import UserPageMain from './pages/user/UserPageMain';
 import UserMap from './pages/user/UserMap';
 import FAQPage from './pages/user/FAQPage';
 import FAQDetailPage from './pages/user/FAQDetailPage';
+import InquiryListPage from './pages/user/InquiryListPage';
 import { Routes, Route } from 'react-router-dom';
 
 
@@ -15,6 +16,7 @@ function App() {
         <Route path="/map" element={<UserMap />} />
         <Route path="/faq" element={<FAQPage/>} />
         <Route path="/faq/:id" element={<FAQDetailPage/>} />
+        <Route path="/inquiry " element={<InquiryListPage/>} />
       </Route>
     </Routes>
     
