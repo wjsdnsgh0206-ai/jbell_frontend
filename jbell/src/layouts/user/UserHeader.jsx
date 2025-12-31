@@ -1,4 +1,4 @@
-import React from 'react';
+import { Link } from 'react-router-dom';
 
 const UserHeader = () => {
   return (
@@ -21,7 +21,7 @@ const UserHeader = () => {
         <div className="max-w-[1200px] mx-auto h-20 flex items-center justify-between px-4">
           <div className="flex items-center gap-2 cursor-pointer">
             <div className="w-10 h-10 bg-gradient-to-t from-blue-600 to-red-500 rounded-full" />
-            <span className="text-2xl font-black tracking-tighter text-[#222]">JBELL</span>
+           <Link to="/"><span className="text-2xl font-black tracking-tighter text-[#222]">JBELL</span></Link> 
           </div>
           
           <nav className="flex items-center gap-10">
