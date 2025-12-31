@@ -4,6 +4,7 @@ const UserMap = () => {
 
   return (
     <>
+
       <div className="flex flex-1 relative overflow-hidden">
         {/* 2. 좌측 사이드바 */}
         <aside className="w-[380px] bg-white border-r z-10 flex flex-col shadow-xl">
