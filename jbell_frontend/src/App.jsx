@@ -17,6 +17,7 @@ function App() {
         <Route path="/faq" element={<FAQPage/>} />
         <Route path="/faq/:id" element={<FAQDetailPage/>} />
         <Route path="/qna" element={<QnAListPage/>} />
+         <Route path="/qna/:id" element={<QnADetailPage/>} />
       </Route>
     </Routes>
     

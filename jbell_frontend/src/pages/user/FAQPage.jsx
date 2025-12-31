@@ -36,7 +36,7 @@ const FAQPage = () => {
     }
   ];
     // [추가] 상세 페이지 이동 핸들러
-  const handleItemClick = (id) => {
+  const FAQDetailClick = (id) => {
     navigate(`/faq/${id}`);
   };
     
@@ -110,7 +110,7 @@ const FAQPage = () => {
         <div className="space-y-4">
           {faqData.map((item) => (
             <div key={item.id} 
-            onClick={() => handleItemClick(item.id)}
+            onClick={() => FAQDetailClick(item.id)}
             className="border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
               {/* Question */}
               <div className="flex items-start gap-3 mb-3">
