@@ -1,12 +1,10 @@
 import React from 'react';
-import UserHeader from '../../components/user/UserHeader';
-import UserFooter from '../../components/user/UserFooter';
+import UserHeader from '../../layouts/user/UserHeader';
+import UserFooter from '../../layouts/user/UserFooter';
 
-const UserLayout = () => {
+const UserPageMain = () => {
   return (
-    <div className="min-h-screen bg-[#f8f9fb] font-sans text-gray-900">
-      <UserHeader />
-
+    <>
       {/* 1. 상단 알림 및 날씨 섹션 (배경을 흰색으로 분리해서 넓어 보이게) */}
       <section className="w-full bg-white border-b border-gray-100 pb-12">
         <div className="mx-auto max-w-[1200px] px-4 pt-8">
@@ -152,9 +150,8 @@ const UserLayout = () => {
         </div>
       </section>
 
-      <UserFooter />
-    </div>
+    </>
   );
 };
 
-export default UserLayout;
+export default UserPageMain;

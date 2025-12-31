@@ -1,34 +1,9 @@
-import UserHeader from '../../components/user/UserHeader';
-import UserFooter from '../../components/user/UserFooter';
-
-import React, { useState, useEffect } from 'react';
 import { Search, Menu, MapPin, Navigation, Info, User, Layers } from 'lucide-react';
-
 
 const UserMap = () => {
 
-    // 카카오 지도 UseEffect(20251231_12:09)
-    useEffect(() => {
-    if (!window.kakao || !window.kakao.maps) {
-      console.log('카카오 맵 SDK 아직 안 로드됨');
-      return;
-    }
-
-    const container = document.getElementById('kakao-map');
-
-    const options = {
-      center: new window.kakao.maps.LatLng(37.5665, 126.9780),
-      level: 5,
-    };
-
-    new window.kakao.maps.Map(container, options);
-  }, []);
-
   return (
-    <div className="flex flex-col h-screen w-full overflow-hidden font-sans text-slate-800">
-      {/* 1. 상단 헤더 (GNB) */}
-      <UserHeader />
-      
+    <>
       <div className="flex flex-1 relative overflow-hidden">
         {/* 2. 좌측 사이드바 */}
         <aside className="w-[380px] bg-white border-r z-10 flex flex-col shadow-xl">
@@ -37,7 +12,6 @@ const UserMap = () => {
               <h2 className="font-bold text-lg">지도 검색</h2>
               <button className="text-slate-400 hover:text-slate-600"><Info size={18}/></button>
             </div>
-            
             {/* 검색창 */}
             <div className="relative group">
               <button className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 bg-blue-600 text-white rounded-md">
@@ -72,14 +46,14 @@ const UserMap = () => {
 
         {/* 3. 지도 영역 (우측 전체) */}
         <main className="flex-1 relative bg-slate-200">
-          
-          {/* 실제 카카오 지도 */}
-            <div
-              id="kakao-map"
-              className="absolute inset-0"
-            ></div>
-           {/* 오버레이 효과 */}
+          {/* 실제 지도가 들어갈 자리 (배경 이미지 처리) */}
+          <div
+            className="absolute inset-0 bg-cover bg-center transition-all grayscale-[20%] brightness-90"
+            style={{ backgroundImage: `url('https://api.mapbox.com/styles/v1/mapbox/satellite-v9/static/127.1,36.5,7,0/1200x800?access_token=YOUR_TOKEN')` }}
+          >
+            {/* 오버레이 효과 */}
             <div className="absolute inset-0 bg-blue-900/10 pointer-events-none"></div>
+          </div>
 
           {/* 지도 위 컨트롤 버튼들 */}
           <div className="absolute right-6 bottom-10 flex flex-col gap-3">
@@ -87,11 +61,11 @@ const UserMap = () => {
               <button className="p-3 hover:bg-slate-50 border-b text-slate-600">+</button>
               <button className="p-3 hover:bg-slate-50 text-slate-600">-</button>
             </div>
-            
+
             <button className="p-3 bg-white rounded-xl shadow-2xl border border-slate-200 text-slate-600 hover:text-blue-600">
               <User size={20} />
             </button>
-            
+
             <button className="p-3 bg-white rounded-xl shadow-2xl border border-slate-200 text-slate-600 hover:text-blue-600">
               <Navigation size={20} className="rotate-45" />
             </button>
@@ -103,8 +77,7 @@ const UserMap = () => {
           </div>
         </main>
       </div>
-      <UserFooter/>
-    </div>
+    </>
   );
 };
 
