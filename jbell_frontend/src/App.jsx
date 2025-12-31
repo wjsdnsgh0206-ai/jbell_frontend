@@ -16,7 +16,7 @@ function App() {
         <Route path="/map" element={<UserMap />} />
         <Route path="/faq" element={<FAQPage/>} />
         <Route path="/faq/:id" element={<FAQDetailPage/>} />
-        <Route path="/inquiry " element={<InquiryListPage/>} />
+        <Route path="/inquiry" element={<InquiryListPage/>} />
       </Route>
     </Routes>
     
