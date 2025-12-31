@@ -12,10 +12,16 @@ const UserMap = () => {
               <h2 className="font-bold text-lg">지도 검색</h2>
               <button className="text-slate-400 hover:text-slate-600"><Info size={18}/></button>
             </div>
-            {/* 검색창 */}
-            <div className="relative group">
-              <button className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 bg-blue-600 text-white rounded-md">
-                <Search size={20} />
+
+            {/* 검색창 - 가로로 긴 형태 */}
+            <div className="relative mt-4">
+              <input
+                type="text"
+                placeholder="장소, 주소, 건물 명을 입력해주세요."
+                className="w-full h-12 pl-4 pr-12 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm"
+              />
+              <button className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-blue-600">
+                <Search size={22} />
               </button>
             </div>
 
