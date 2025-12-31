@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 const menus = [
   { name: "지도", path: "/map" },
-  { name: "서비스신청", path: "/" },
+  { name: "d", path: "/map" },
   { name: "정책정보", path: "/" },
   { name: "기관소개", path: "/" },
   { name: "고객센터", path: "/" },
