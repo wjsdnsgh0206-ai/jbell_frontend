@@ -1,5 +1,12 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
+const menus = [
+  { name: "지도", path: "/map" },
+  { name: "서비스신청", path: "/" },
+  { name: "정책정보", path: "/" },
+  { name: "기관소개", path: "/" },
+  { name: "고객센터", path: "/" },
+];
 const UserHeader = () => {
   return (
     <header className="w-full bg-white">
@@ -21,14 +28,22 @@ const UserHeader = () => {
         <div className="max-w-[1200px] mx-auto h-20 flex items-center justify-between px-4">
           <div className="flex items-center gap-2 cursor-pointer">
             <div className="w-10 h-10 bg-gradient-to-t from-blue-600 to-red-500 rounded-full" />
-           <Link to="/"><span className="text-2xl font-black tracking-tighter text-[#222]">JBELL</span></Link> 
+            <Link to="/">
+              <span className="text-2xl font-black tracking-tighter text-[#222]">
+                JBELL
+              </span>
+            </Link>
           </div>
-          
+
           <nav className="flex items-center gap-10">
-            {['민원', '서비스신청', '정책정보', '기관소개', '고객센터'].map((menu) => (
-              <button key={menu} className="text-[18px] font-bold text-[#333] hover:text-blue-600 transition-colors">
-                {menu}
-              </button>
+            {menus.map((menu) => (
+              <Link
+                key={menu.name}
+                to={menu.path}
+                className="text-[18px] font-bold text-[#333] hover:text-blue-600 transition-colors"
+              >
+                {menu.name}
+              </Link>
             ))}
             <button className="ml-4 text-xl">🔍</button>
           </nav>
