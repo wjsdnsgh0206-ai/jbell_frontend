@@ -2,7 +2,7 @@ import React from 'react';
 import { Search, Home, ChevronRight, ChevronLeft, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const InquiryListPage = () => {
+const QnAListPage = () => {
   const navigate = useNavigate();
 
   // 샘플 데이터
@@ -194,4 +194,4 @@ const InquiryListPage = () => {
   );
 };
 
-export default InquiryListPage;
+export default QnAListPage;
