@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import UserHeader from '../../components/user/UserHeader';
-import UserFooter from '../../components/user/UserFooter';
 
 const UserOpenSpaceLi = () => {
   // 검색 상태 관리
@@ -20,9 +18,9 @@ const UserOpenSpaceLi = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white text-gray-800 font-sans flex flex-col">
-      {/* 공통 헤더 */}
-      <UserHeader />
+    /* <div className="min-h-screen bg-white text-gray-800 font-sans flex flex-col">
+    */
+      <>
 
       {/* 브레드크럼 (Breadcrumb) */}
       <div className="bg-gray-50 border-b border-gray-200 py-3">
@@ -142,9 +140,7 @@ const UserOpenSpaceLi = () => {
         </div>
       </main>
 
-      {/* 공통 푸터 */}
-      <UserFooter />
-    </div>
+      </>
   );
 };
 
