@@ -2,42 +2,37 @@ import React from 'react';
 
 const UserHeader = () => {
   return (
-    <header className="w-full border-b border-gray-200 bg-white">
-      {/* 상단 유틸리티 라인 */}
-      <div className="mx-auto flex max-w-7xl items-center justify-end gap-4 py-2 text-xs text-gray-600 px-4">
-        <button>Language</button>
-        <button>지점</button>
-        <button>글자·화면 설정</button>
-        <div className="flex items-center gap-3 ml-4">
-          <button className="flex items-center gap-1 font-medium text-black">
-            <span>🔍</span> 통합검색
-          </button>
-          <button className="flex items-center gap-1">
-            <span>🔑</span> 로그인
-          </button>
-          <button className="flex items-center gap-1">
-            <span>👤</span> 회원가입
-          </button>
+    <header className="w-full bg-white">
+      {/* 최상단 유틸리티 (회색 배경으로 가로 꽉 채움) */}
+      <div className="w-full bg-[#f4f4f4] border-b border-gray-200">
+        <div className="max-w-[1200px] mx-auto h-10 flex items-center justify-end gap-5 px-4 text-[13px] text-[#666]">
+          <button>Language</button>
+          <button>지점</button>
+          <button>글자·화면 설정</button>
+          <div className="flex gap-4 ml-2">
+            <button className="font-bold text-black">로그인</button>
+            <button>회원가입</button>
+          </div>
         </div>
       </div>
 
-      {/* 메인 네비게이션 */}
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-        <div className="flex items-center gap-2">
-          {/* 정부 로고 (가상) */}
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 via-white to-blue-500 border border-gray-200" />
-            <span className="text-xl font-bold tracking-tight">대한민국정부</span>
+      {/* 메인 로고 및 메뉴 (1200px 정렬) */}
+      <div className="w-full border-b border-gray-200">
+        <div className="max-w-[1200px] mx-auto h-20 flex items-center justify-between px-4">
+          <div className="flex items-center gap-2 cursor-pointer">
+            <div className="w-10 h-10 bg-gradient-to-t from-blue-600 to-red-500 rounded-full" />
+            <span className="text-2xl font-black tracking-tighter text-[#222]">JBELL</span>
           </div>
+          
+          <nav className="flex items-center gap-10">
+            {['민원', '서비스신청', '정책정보', '기관소개', '고객센터'].map((menu) => (
+              <button key={menu} className="text-[18px] font-bold text-[#333] hover:text-blue-600 transition-colors">
+                {menu}
+              </button>
+            ))}
+            <button className="ml-4 text-xl">🔍</button>
+          </nav>
         </div>
-        
-        <nav className="flex items-center gap-8 font-semibold text-gray-800">
-          <button className="hover:text-blue-600 flex items-center gap-1">민원 <span className="text-[10px]">▼</span></button>
-          <button className="hover:text-blue-600 flex items-center gap-1">서비스신청 <span className="text-[10px]">▼</span></button>
-          <button className="hover:text-blue-600 flex items-center gap-1">정책정보 <span className="text-[10px]">▼</span></button>
-          <button className="hover:text-blue-600 flex items-center gap-1">기관소개 <span className="text-[10px]">▼</span></button>
-          <button className="hover:text-blue-600 flex items-center gap-1">고객센터 <span className="text-[10px]">▼</span></button>
-        </nav>
       </div>
     </header>
   );

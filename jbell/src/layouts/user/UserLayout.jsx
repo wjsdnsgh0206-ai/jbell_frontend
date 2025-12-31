@@ -9,7 +9,7 @@ const UserLayout = () => {
 
       {/* 1. 상단 알림 및 날씨 섹션 (배경을 흰색으로 분리해서 넓어 보이게) */}
       <section className="w-full bg-white border-b border-gray-100 pb-12">
-        <div className="mx-auto max-w-[1440px] px-8 pt-8">
+        <div className="mx-auto max-w-[1200px] px-4 pt-8">
           <div className="flex flex-col lg:flex-row gap-8">
             
             {/* 재난고속보 - 폭을 더 넓게 조정 */}
