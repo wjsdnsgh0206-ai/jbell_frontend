@@ -14,7 +14,7 @@ function App() {
         <Route index element={<UserPageMain />} />
         <Route path="/map" element={<UserMap />} />
         <Route path="/faq" element={<FAQPage/>} />
-        <Route path="/faqdetail" element={<FAQDetailPage/>} />
+        <Route path="/faq/:id" element={<FAQDetailPage/>} />
       </Route>
     </Routes>
     

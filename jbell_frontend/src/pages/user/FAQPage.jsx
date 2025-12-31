@@ -1,37 +1,46 @@
+import React from 'react';
 import { Search, Home, ChevronRight, ChevronLeft, ChevronDown, Menu, User, Globe, MessageCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const FAQPage = () => {
+  const navigate = useNavigate();
   // 샘플 데이터 (이미지 내용을 기반으로 생성)
   const faqData = [
     {
       id: 1,
       question: "사람은 어떻게 태어나는 건가요?",
-      answer: "사람은 태어나는 것이 아닌 하늘에서 비를 뿌리면 땅에서 새싹이나 멸치를 맺으면 열매와 함께 나는 꽃봉우리 안에 생깁니다.",
+      answer: "사람은 태어나는 것이 아닌 하늘에서 비를 뿌리면...",
       date: "2023.11.01",
       tag: "질문 유형"
     },
     {
       id: 2,
-      question: "질문1",
-      answer: "아 마담1",
+      question: "비밀번호를 변경하고 싶어요.",
+      answer: "마이페이지 > 회원정보 수정 메뉴에서 변경 가능합니다.",
       date: "2023.11.01",
       tag: "질문 유형"
     },
     {
       id: 3,
-      question: "질문2",
-      answer: "A 마담2",
+      question: "환불 규정이 어떻게 되나요?",
+      answer: "결제 후 7일 이내에는 100% 환불이 가능합니다.",
       date: "2023.11.01",
       tag: "질문 유형"
     },
     {
       id: 4,
-      question: "질문3",
-      answer: "A 마담3",
+      question: "서비스 이용 시간이 궁금해요.",
+      answer: "24시간 언제든지 이용 가능합니다.",
       date: "2023.11.01",
       tag: "질문 유형"
-    },
+    }
   ];
+    // [추가] 상세 페이지 이동 핸들러
+  const handleItemClick = (id) => {
+    navigate(`/faq/${id}`);
+  };
+    
+  
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-800">
@@ -100,7 +109,9 @@ const FAQPage = () => {
         {/* FAQ List */}
         <div className="space-y-4">
           {faqData.map((item) => (
-            <div key={item.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
+            <div key={item.id} 
+            onClick={() => handleItemClick(item.id)}
+            className="border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
               {/* Question */}
               <div className="flex items-start gap-3 mb-3">
                 <span className="text-xl font-bold text-gray-900">Q</span>
@@ -155,5 +166,8 @@ const FAQPage = () => {
     </div>
   );
 };
+
+
+
 
 export default FAQPage;
