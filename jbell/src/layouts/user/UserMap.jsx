@@ -1,10 +1,28 @@
 import UserHeader from '../../components/user/UserHeader';
 import UserFooter from '../../components/user/UserFooter';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Menu, MapPin, Navigation, Info, User, Layers } from 'lucide-react';
 
+
 const UserMap = () => {
+
+    // 카카오 지도 UseEffect(20251231_12:09)
+    useEffect(() => {
+    if (!window.kakao || !window.kakao.maps) {
+      console.log('카카오 맵 SDK 아직 안 로드됨');
+      return;
+    }
+
+    const container = document.getElementById('kakao-map');
+
+    const options = {
+      center: new window.kakao.maps.LatLng(37.5665, 126.9780),
+      level: 5,
+    };
+
+    new window.kakao.maps.Map(container, options);
+  }, []);
 
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden font-sans text-slate-800">
