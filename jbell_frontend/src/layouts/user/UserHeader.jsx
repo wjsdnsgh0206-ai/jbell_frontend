@@ -6,7 +6,7 @@ const UserHeader = () => {
   const navigationItems = [
     {
       label: "재난사고 속보",
-      path: "/",
+      path: "/UserDisasterModal",
       icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
     },
     {
