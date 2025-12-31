@@ -31,7 +31,7 @@ const UserHeader = () => {
     },
     {
       label: "열린마당",
-      path: "/",
+      path: "/UserOpenSpaceLi",
       icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
     },
     {
@@ -52,10 +52,10 @@ const UserHeader = () => {
 
   return (
     <div className="flex flex-col w-[1920px] items-center relative flex-[0_0_auto]">
-      <div className="flex flex-col h-[204px] items-center relative self-stretch w-full bg-white">
-        <div className="flex flex-col items-center relative flex-1 self-stretch w-full grow bg-secondarysecondary-5" />
+      <div className="flex flex-col h-[170px] items-center relative self-stretch w-full bg-white">
+        <div className="flex flex-col items-center relative flex-1 mb-2 self-stretch w-full grow bg-secondarysecondary-5" />
 
-        <header className="flex flex-col w-[1280px] items-start justify-center gap-1 pt-0 pb-4 px-0 relative flex-[0_0_auto] bg-transparent">
+        <header className="flex flex-col mt-2 w-[1280px] items-start justify-center gap-1 pt-0 pb-4 px-0 relative flex-[0_0_auto] bg-transparent">
           <nav
             className="items-center gap-2 self-stretch w-full flex-[0_0_auto] flex relative"
             aria-label="Main navigation"
