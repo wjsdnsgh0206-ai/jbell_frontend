@@ -9,6 +9,7 @@ function App() {
     <Routes>
       <Route path="/" element={<UserLayout />}>
         <Route index element={<UserPageMain />} />
+        <Route path="/map" element={<UserMap />} />
       </Route>
     </Routes>
     
