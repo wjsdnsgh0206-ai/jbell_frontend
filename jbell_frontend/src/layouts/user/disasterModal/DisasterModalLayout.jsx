@@ -50,7 +50,7 @@ const DisasterModalLayout = () => {
           <header className="bg-white px-8 py-4 border-b flex justify-between items-center">
             <h2 className="font-black text-gray-800">재난사고속보</h2>
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => navigate("/")}
               className="text-xl font-bold"
             >
               ✕
