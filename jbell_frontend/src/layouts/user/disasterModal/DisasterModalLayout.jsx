@@ -1,7 +1,8 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 
 const DisasterModalLayout = () => {
   const navigate = useNavigate();
+  const location = useLocation(); // ⭐ 추가
 
   const menuList = [
     { label: "사고속보", path: "/disaster/accident" },
@@ -15,11 +16,10 @@ const DisasterModalLayout = () => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
-      
       {/* 배경 */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={() => navigate(-1)}
+        onClick={() => navigate("/")}
       />
 
       {/* 모달 */}
@@ -32,16 +32,27 @@ const DisasterModalLayout = () => {
           </div>
 
           <nav className="flex-1 mt-4">
-            {menuList.map((menu) => (
-              <button
-                key={menu.label}
-                onClick={() => navigate(menu.path)}
-                className="w-full flex items-center justify-between px-6 py-4 text-sm font-medium text-gray-300 hover:bg-white/10 transition-colors"
-              >
-                {menu.label}
-                <span className="text-gray-500">&gt;</span>
-              </button>
-            ))}
+            {menuList.map((menu) => {
+              const isActive = location.pathname === menu.path;
+
+              return (
+                <button
+                  key={menu.label}
+                  onClick={() => navigate(menu.path)}
+                  className={`
+                    w-full flex items-center justify-between px-6 py-4 text-sm font-medium transition-colors
+                    ${isActive
+                      ? "bg-white text-[#2d3e5d] font-bold"
+                      : "text-gray-300 hover:bg-white/10"}
+                  `}
+                >
+                  {menu.label}
+                  <span className={isActive ? "text-[#2d3e5d]" : "text-gray-500"}>
+                    &gt;
+                  </span>
+                </button>
+              );
+            })}
           </nav>
         </aside>
 
@@ -49,11 +60,8 @@ const DisasterModalLayout = () => {
         <div className="flex-1 flex flex-col">
           <header className="bg-white px-8 py-4 border-b flex justify-between items-center">
             <h2 className="font-black text-gray-800">재난사고속보</h2>
-            <button
-              onClick={() => navigate("/")}
-              className="text-xl font-bold"
-            >
-              ✕
+            <button onClick={() => navigate("/")} className="text-md">
+              닫기
             </button>
           </header>
 
@@ -61,7 +69,6 @@ const DisasterModalLayout = () => {
             <Outlet />
           </div>
         </div>
-
       </div>
     </div>
   );
