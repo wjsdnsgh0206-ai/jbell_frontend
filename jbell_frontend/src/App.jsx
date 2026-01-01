@@ -4,7 +4,10 @@ import UserPageMain from './pages/user/UserPageMain';
 import UserMap from './pages/user/UserMap';
 import UserFacilityDetail from './pages/user/UserFacilityDetail';
 import UserOpenSpaceLi from './pages/user/UserOpenSpaceLi';
-import UserDisasterModal from './pages/user/UserDisasterModal';
+// import UserDisasterModal from './pages/user/UserDisasterModal';
+import DisasterModalLayout from './layouts/user/disasterModal/DisasterModalLayout';
+import AccidentNews from './components/user/disasterModal/AccidentNews';
+import Earthquake from './components/user/disasterModal/Earthquake';
 import { Routes, Route } from 'react-router-dom';
 
 function App() {
@@ -15,7 +18,13 @@ function App() {
         <Route path="/map" element={<UserMap />} />
         <Route path="/UserFacilityDetail" element={<UserFacilityDetail/>}/>
         <Route path="/UserOpenSpaceLi" element={<UserOpenSpaceLi/>}/>
-        <Route path="/UserDisasterModal" element={<UserDisasterModal/>}/>
+        {/* <Route path="/UserDisasterModal" element={<UserDisasterModal/>}/> */}
+
+        {/* 모달 전용 경로 */}
+          <Route path="disaster" element={<DisasterModalLayout />}>
+      <Route path="accident" element={<AccidentNews />} />
+      <Route path="earthquake" element={<Earthquake />} />
+    </Route>
       </Route>
     </Routes>
     

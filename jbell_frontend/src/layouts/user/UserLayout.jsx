@@ -11,7 +11,6 @@ const UserLayout = () => {
       data-model-id="11141:18786" 
     >
       <UserHeader />
-      
         <Outlet />
       <UserFooter />
     </div>

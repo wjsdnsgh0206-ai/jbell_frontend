@@ -1,70 +1,10 @@
-import React from 'react';
+// ------------ 지진 컨텐츠 ------------ //
 
-const UserDisasterModal = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center">
-      {/* 배경 레이어 (클릭 시 닫힘) */}
-      <div 
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" 
-        onClick={onClose}
-      />
-
-      {/* 모달 컨텐츠 바디 */}
-      <div className="relative w-[95%] max-w-[1280px] h-[90vh] bg-[#f4f7fa] rounded-[32px] shadow-2xl overflow-hidden flex animate-in fade-in zoom-in duration-300">
-        
-        {/* 1. 왼쪽 사이드바 (이미지 레이아웃 유지) */}
-        <aside className="w-[240px] bg-[#2d3e5d] text-white flex flex-col shrink-0">
-          <div className="p-6 border-b border-white/10">
-            <h1 className="text-xl font-bold tracking-tight">전주시안전누리</h1>
-          </div>
-          <nav className="flex-1 mt-4">
-            {[
-              { name: '사고속보', active: false },
-              { name: '지진', active: true },
-              { name: '태풍', active: false },
-              { name: '호우', active: false },
-              { name: '홍수', active: false },
-              { name: '산사태', active: false },
-              { name: '산불', active: false },
-            ].map((item) => (
-              <button
-                key={item.name}
-                className={`w-full flex items-center justify-between px-6 py-4 text-sm font-medium transition-colors
-                  ${item.active ? 'bg-white text-[#2d3e5d]' : 'hover:bg-white/5 text-gray-300'}`}
-              >
-                {item.name}
-                <span className={item.active ? 'text-[#2d3e5d]' : 'text-gray-500'}>&gt;</span>
-              </button>
-            ))}
-          </nav>
-        </aside>
-
-        {/* 2. 메인 컨텐츠 영역 */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          
-          {/* 상단 헤더 */}
-          <header className="bg-white px-8 py-4 flex justify-between items-center border-b border-gray-200">
-            <h2 className="text-xl font-black text-gray-800">재난사고속보</h2>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-xl">🔔</div>
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">9</span>
-              </div>
-              <button 
-                onClick={onClose}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl text-sm font-bold transition-colors"
-              >
-                닫기
-              </button>
-            </div>
-          </header>
-
-          {/* 모달 내부 스크롤 영역 */}
-          <div className="p-8 overflow-y-auto custom-scrollbar">
+const Earthquake = () => {
+    return (
+        <>
             <div className="grid grid-cols-12 gap-6">
-              
               {/* 왼쪽/중앙 정보 (지도 등) */}
               <div className="col-span-12 lg:col-span-8 flex flex-col gap-6">
                 <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 min-h-[450px] relative">
@@ -138,13 +78,10 @@ const UserDisasterModal = ({ isOpen, onClose }) => {
                   </div>
                 </div>
               </div>
+              </div>
+          </>
+    )
+}
 
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
 
-export default UserDisasterModal;
+export default Earthquake;

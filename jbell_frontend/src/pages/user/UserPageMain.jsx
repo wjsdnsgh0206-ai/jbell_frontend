@@ -1,15 +1,22 @@
-import UserDisasterModal from './UserDisasterModal';
+import DisasterModalLayout 
+  from "../../layouts/user/disasterModal/DisasterModalLayout";
 import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom";
+
 const UserLayout = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+   const navigate = useNavigate();
+
   return (
     <div className="w-full bg-gray-50 min-h-screen font-sans">
       {/* 모달 컴포넌트 삽입 */}
-      <UserDisasterModal 
+      {/* <DisasterModalLayout 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-      />
-
+      /> */}
+    {/* <button onClick={() => navigate("/disaster/accident")}>
+      사고속보 열기
+    </button> */}
 
       {/* 1. 상단 알림 및 날씨 섹션 */}
       <section className="w-full bg-white border-b border-gray-100">
@@ -24,7 +31,7 @@ const UserLayout = () => {
                   <span className="bg-blue-50 text-blue-600 text-xs font-bold px-3 py-1 rounded-full">LIVE</span>
                 </div>
                 {/* 더보기 클릭시 재난사고속보 모달창 열기 */}
-                <button className="text-gray-400 hover:text-black transition-colors text-sm" onClick={() => setIsModalOpen(true)}>더보기 +</button>
+                <button className="text-gray-400 hover:text-black transition-colors text-sm" onClick={() => navigate("/disaster/accident")}>더보기 +</button>
               </div>
               <div className="space-y-4">
                 {[1, 2, 3, 4, 5].map((item) => (
