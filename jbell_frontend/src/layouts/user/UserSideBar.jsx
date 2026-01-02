@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const UserSideBar = () => {
+  // 현재 탬  + 활성화된 메뉴 + 하위메뉴 + 메뉴 명 배열로 받아서 요소의 수만큼 반복 하여 배열로 반환 하면 여기서 자동으로 만들어줌
   // 현재 열려있는 메인 카테고리 관리 (기본값: '재난별행동요령')
   const [openCategory, setOpenCategory] = useState('재난별행동요령');
 
