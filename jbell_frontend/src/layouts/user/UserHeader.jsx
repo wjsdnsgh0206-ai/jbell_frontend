@@ -31,7 +31,7 @@ const UserHeader = () => {
               <Link to="/">
                 <img
                   className="relative w-32 sm:w-40 lg:w-[199px] h-8 sm:h-10 lg:h-12 cursor-pointer"
-                  alt="대한민국정부 로고"
+                  alt="전북안전누리 로고"
                   src="https://c.animaapp.com/PZUA6SpP/img/------.svg"
                 />
               </Link>
