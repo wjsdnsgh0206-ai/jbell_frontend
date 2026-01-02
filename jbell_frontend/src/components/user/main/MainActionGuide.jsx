@@ -28,7 +28,7 @@ const GUIDE_DATA = {
   ],
 };
 
-const ActionGuide = () => {
+const MainActionGuide = () => {
   const [activeTab, setActiveTab] = useState("생활안전");
 
   return (
@@ -91,4 +91,4 @@ const ActionGuide = () => {
   );
 };
 
-export default ActionGuide;
+export default MainActionGuide;
