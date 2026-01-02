@@ -7,7 +7,7 @@ const LoginMain = () => {
       <div className="max-w-2xl w-full">
         {/* Header Section */}
         <header className="mb-10 text-left">
-          <p className="text-sm text-gray-500 mb-2 font-medium">대한민국 디지털정부 사용자 로그인</p>
+          <p className="text-sm text-gray-500 mb-2 font-medium">전북안전누리 사용자 로그인</p>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-6 leading-tight">
             로그인 방식을 선택해주세요.
           </h1>
