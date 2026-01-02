@@ -270,7 +270,7 @@ const UserMap = () => {
         </div>
 
         {/* [3. 하단 고정 영역] 메뉴가 선택되었을 때만 검색하기 버튼 표시 */}
-        {activeMenu && (
+        {activeMenu === 'address' && (
           <div className="p-4 border-t bg-slate-50">
             <button className="w-full bg-blue-600 text-white py-3 rounded-md font-bold hover:bg-blue-700 transition-all shadow-lg active:scale-95">
               검색하기
