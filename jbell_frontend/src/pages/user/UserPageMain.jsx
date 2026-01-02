@@ -1,22 +1,10 @@
-import DisasterModalLayout 
-  from "../../layouts/user/disasterModal/DisasterModalLayout";
-import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 
 const UserLayout = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
    const navigate = useNavigate();
 
   return (
     <div className="w-full bg-gray-50 min-h-screen font-sans">
-      {/* 모달 컴포넌트 삽입 */}
-      {/* <DisasterModalLayout 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-      /> */}
-    {/* <button onClick={() => navigate("/disaster/accident")}>
-      사고속보 열기
-    </button> */}
 
       {/* 1. 상단 알림 및 날씨 섹션 */}
       <section className="w-full bg-white border-b border-gray-100">
