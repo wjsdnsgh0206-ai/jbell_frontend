@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-const UserNoticeDetail = () => {
+const UserPressRelDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -10,55 +10,50 @@ const UserNoticeDetail = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  // 1. 전체 데이터 리스트 (백엔드 연동을 고려한 데이터 구조)
+  // 1. 보도자료용 데이터 리스트 (이미지 시안 데이터 반영)
   const allNotices = [
     { 
-      id: 7, 
-      title: "행정안전부 재난안전데이터 공유플랫폼 안내", 
+      id: 1, 
+      title: "전북특별자치도 지진방재 국제세미나 개최", 
       author: "관리자", 
-      date: "2025-04-11", 
+      date: "2025-11-11", 
       files: [
-        { name: "재난안전데이터 공유플랫폼 리플렛.pdf", url: "/files/leaflet.pdf" }
+        { name: "전북특별자치도_지진방재국제세미나계획.hwp", url: "/files/press_01.hwp" }
       ],
-      content: `행정안전부 재난안전데이터 공유플랫폼 안내 본문입니다.
+      content: `전북특별자치도 지진방재 국제세미나 개최
 
-○ 근거
-가. 재난 및 안전관리 기본법 제 74조의4(재난안전데이터의 수집 등)
-나. 동법 시행령 제83조의 3(재난안전데이터통합관리시스템의 운영 등)
+□ 개요
+ ○ (행사주제) 지진위험을 고려한 내진설계와 단층조사의 실질적 해법 모색
+ ○ (일시/장소) '25.11.22.(수) 13:40~17:00 / 공연장
+ ○ (주최/주관) 행정안전부, (사)한국지진공학회 공동 주최
+    - 국립재난안전연구원, 전북특별자치도, 한국지질자원연구원, (주)한국지진공학회
+ ○ (참석자) 국외(일본, 캐나다, 뉴질랜드) 내진/단층 전문가, 국내 중앙 및 시·군 공무원, 대학, 연구기관 및 기업 관계자 등 200여명
 
-○ 행정안전부에서는 위 법령에 근거하여 기관별 분산되어있는 재난안전데이터를 한 곳에 모아 통합 제공하고자, 재난안전유형 62종에 대한 1,800여 개의 재난안전데이터를 오픈API 방식으로 제공하는 재난안전데이터 공유플랫폼을 구축, '25년 1월부로 정식서비스를 게시하였습니다.
-
-○ 점점 복잡하고 다양해지는 재난에 효과적으로 대응하기 위하여 데이터를 활용한 과학적이고 체계적인 재난안전 관리체계로의 전환이 필요한 시점으로, 재난안전데이터 공유플랫폼을 통해 데이터 활용을 위한 기초적인 기반을 마련하였으며 올해를 재난안전데이터 활용의 원년으로 삼아, 데이터 활용 우수 사례를 적극 발굴하여 전파하고 실효성 있는 재난안전데이터를 지속 개발·하기 위해 노력하고 있습니다.
-
-* 기관별 파일데이터 등록 또는 API, ESB, DB2DB 방식으로 데이터 연계 및 개방 가능
-○ 이에 공공·민간에서 활용*할 수 있도록 재난안전데이터 공유플랫폼(www.safetydata.go.kr)에 대하여 안내 드리오니 많은 관심부탁드립니다.
-* 데이터 시각화 및 분석, 앱·시스템 개발, 논문·연구, 수업, 공부, 과제 등
-
-출처 : 서울안전누리 (https://safecity.seoul.go.kr/board/ntcMttr/boardNtcMttrDetail.page)`
+출처 : 전북재난안전대책본부 (https://safe.jeonbuk.go.kr/index.php?menu=page&menu_id=notice_view&idx=12345)`
     }, 
     { 
-      id: 8, 
-      title: "전북특별자치도 '25년도 11월 재난 현황 정리입니다", 
+      id: 2, 
+      title: "전북특별자치도, 2026년 재해예방사업 국비 1,054억 확보", 
       author: "관리자", 
-      date: "2025-12-08", 
+      date: "2025-11-11", 
       files: [
-        { name: "25년11월_재난현황.pdf", url: "/files/report_nov.pdf" },
-        { name: "참고이미지.png", url: "/files/reference_img.png" }
+        { name: "2026년_재해예방사업_국비확보내역.pdf", url: "/files/press_02.pdf" }
       ],
-      content: `2025년 11월 전북특별자치도 재난 현황 정리 내역입니다.
-한 달간 발생한 주요 사건사고를 공유드립니다. 
+      content: `전북특별자치도가 2026년 재해예방사업을 위한 국비 1,054억 원을 확보했습니다.
 
-상세 내용은 첨부된 PDF 파일을 확인해 주시기 바랍니다.` 
+이번 예산 확보를 통해 도내 기습 폭우 및 상습 침수 구역에 대한 정비 사업이 가속화될 전망입니다. 
+도민들의 생명과 재산을 보호하기 위해 노후 위험 시설 보강에 최선을 다하겠습니다.` 
     },
     { 
-      id: 1, 
-      title: "전북특별자치도 새롭게 추가된 쉼터 목록입니다", 
+      id: 3, 
+      title: "전북특별자치도 여름철 자연재난 인명피해 '0명'", 
       author: "관리자", 
-      date: "2025-12-06", 
-      files: [{ name: "25년11월_쉼터 목록.pdf", url: "/files/report_nov.pdf" },
-        { name: "참고이미지_쉼터목록.png", url: "/files/reference_img.png" }],
-      content: `새롭게 지정된 전북 지역 내 무더위/한파 쉼터 목록을 안내드립니다.
-도민 여러분께서는 인근 쉼터 위치를 미리 확인하시어 안전한 겨울 보내시기 바랍니다.` 
+      date: "2025-11-11", 
+      files: [{ name: "여름철_자연재난_대응실적보고.pdf", url: "/files/press_03.pdf" }],
+      content: `전북특별자치도는 올 여름철 자연재난 대책 기간 동안 철저한 상황 관리와 
+선제적인 통제를 통해 단 한 명의 인명피해도 발생하지 않았음을 알려드립니다.
+
+민·관이 합심하여 이루어낸 결과이며, 앞으로도 재난 없는 전북을 위해 노력하겠습니다.` 
     }
   ];
 
@@ -85,7 +80,7 @@ const UserNoticeDetail = () => {
       <div className="py-20 text-center">
         <p className="text-gray-500">게시글을 찾을 수 없습니다.</p>
         <button 
-          onClick={() => navigate('/userOpenSpaceLi')} 
+          onClick={() => navigate('/userPressLi')} 
           className="mt-4 text-blue-600 underline"
         >
           목록으로 돌아가기
@@ -96,19 +91,19 @@ const UserNoticeDetail = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      {/* 상단 브레드크럼 */}
+      {/* 상단 브레드크럼: 보도자료로 텍스트 변경 */}
       <div className="bg-white py-3 border-b border-gray-100 font-sans">
         <div className="max-w-5xl mx-auto px-4 flex items-center gap-2 text-[13px] text-gray-600">
           <span className="cursor-pointer" onClick={() => navigate('/')}>🏠 홈</span>
           <span className="text-gray-300 text-[10px]">&gt;</span>
           <span>열린마당</span>
           <span className="text-gray-300 text-[10px]">&gt;</span>
-          <span className="font-medium text-gray-800 cursor-pointer" onClick={() => navigate('/userOpenSpaceLi')}>공지사항</span>
+          <span className="font-medium text-gray-800 cursor-pointer" onClick={() => navigate('/userPressLi')}>보도자료</span>
         </div>
       </div>
 
       <main className="flex-grow max-w-5xl w-full mx-auto px-4 py-12">
-        <h2 className="text-3xl font-bold text-gray-900 mb-10">공지사항</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-10 tracking-tight">보도자료</h2>
 
         {/* 게시글 헤더 영역 */}
         <div className="border-t-2 border-gray-800 py-8 px-4 bg-[#fcfcfc] border-b border-gray-200">
@@ -168,10 +163,10 @@ const UserNoticeDetail = () => {
           </div>
         </div>
 
-        {/* 하단 목록 버튼 */}
+        {/* 하단 목록 버튼: 보도자료 목록 페이지로 이동 */}
         <div className="flex justify-center mt-12 pt-8 border-t border-gray-100">
           <button 
-            onClick={() => navigate('/userOpenSpaceLi')}
+            onClick={() => navigate('/userPressLi')}
             className="bg-[#2b79f3] text-white px-12 py-2.5 rounded text-[15px] font-medium hover:bg-blue-700 transition shadow-sm"
           >
             목록
@@ -182,4 +177,4 @@ const UserNoticeDetail = () => {
   );
 };
 
-export default UserNoticeDetail;
+export default UserPressRelDetail;
