@@ -192,7 +192,8 @@ const SignupForm = () => {
 
           <div className="flex gap-3 pt-4">
             <button type="button" onClick={() => navigate(-1)} className="flex-1 h-14 bg-white border border-slate-300 text-slate-600 rounded-2xl font-bold hover:bg-slate-50">취소</button>
-            <button type="submit" className="flex-1 h-14 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-200 active:scale-95 transition-all">가입하기</button>
+            <button onClick={() => navigate('/signupSuccess')}
+                    type="submit" className="flex-1 h-14 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-200 active:scale-95 transition-all">가입하기</button>
           </div>
         </form>
       </div>
