@@ -1,6 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Menu, MapPin, Navigation, Info, User, Layers, ChevronDown } from 'lucide-react';
 
+
+// 1. 셀렉트 박스 부품 정의
+const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-xs text-slate-500 ml-1">{label}</label>
+      <select
+        disabled={disabled}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`w-full p-3 border rounded-md text-sm transition-all ${
+          disabled ? 'bg-slate-50 text-slate-400 cursor-not-allowed' : 'bg-white text-slate-900'
+        }`}
+      >
+        <option value="">{label}</option>
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};
+
+
+
 const UserMap = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -18,6 +45,11 @@ const UserMap = () => {
   // 3. 선택된 값들
   const [selectedSido, setSelectedSido] = useState('시도 선택');
   const [selectedGoo, setSelectedGoo] = useState('구 선택');
+
+    // [추가] 도로명 주소 검색용 상태
+  const [selectedInitial, setSelectedInitial] = useState(''); // 초성 선택
+  const [selectedRoad, setSelectedRoad] = useState('');       // 도로명 선택
+
 
 
 
@@ -78,7 +110,7 @@ const UserMap = () => {
         {/* 2. 좌측 사이드바 */}
         <aside className="w-[380px] bg-white border-r z-10 flex flex-col shadow-xl">
         
-
+        {/* 좌측 사이드바 최상단 고정 메뉴 */}
 
         {/* 상단 탭 (도로명 검색 / 지번 검색) */}
             <div className="flex border-b text-sm font-medium">
@@ -127,113 +159,11 @@ const UserMap = () => {
             </div>
 
           
-          {/* 여기 */}
+          {/* 여 아래 손 좀 보자 */}
 
-          {/* 2. (밀리는 영역) */}
-          <div className="flex-1 overflow-y-auto"> {/* 스크롤이 생겨야 하므로 flex-1과 overflow-y-auto 권장 */}
-            
-            {/* 주소 검색 버튼이 눌렸을 때만 '파바박' 나타남 */}
-            {activeMenu === 'address' && (
-              <div className="p-4 space-y-4 animate-in fade-in slide-in-from-top-2">
-                
-                {/* 시도 선택 박스 */}
-                <div>
-                  <button 
-                    onClick={() => setIsSidoOpen(!isSidoOpen)}
-                    className="w-full flex justify-between items-center p-3 border rounded-md"
-                  >
-                    <span>{selectedSido}</span>
-                    <ChevronDown size={16} />
-                  </button>
-
-                  {/* [중요] 이 조건부 렌더링 때문에 아래 요소들이 밀림 */}
-                  {isSidoOpen && (
-                    <div className="mt-2 border rounded-md shadow-lg bg-white overflow-hidden">
-                      {['전주시', '군산시', '익산시', '정읍시', '남원시', '김제시', 
-                      '완주군', '고창군', '부안군', '순창군', '임실군', '무주군', '진안군', '장수군'].map((city) => (
-                        <div 
-                          key={city}
-                          className="p-3 hover:bg-slate-50 cursor-pointer border-b last:border-0"
-                          onClick={() => {
-                            setSelectedSido(city);
-                            setIsSidoOpen(false);
-                          }}
-                        >
-                          {city}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* 구 선택 박스 (시도 선택 아래에 있으므로, 위가 열리면 자동으로 아래로 밀림) */}
-                <div className="mt-4">
-                  <label className="text-xs text-slate-500 mb-1 block">구 선택</label>
-
-                  <button 
-                  onClick={() => {
-                    // 전주시와 같이 구 데이터가 있는 지역(전주시)일 때만 클릭 가능
-                    if (REGION_DATA[selectedSido]?.length > 0) {
-                      setIsGooOpen(!isGooOpen);
-                    }
-                  }}
-                  // 구가 없는 지역이면 배경색을 slate-50으로 바꾸고, 클릭 안 되는 커서(not-allowed)를 보여줌
-                  className={`w-full flex justify-between items-center p-3 border rounded-md text-sm transition-all ${
-                    REGION_DATA[selectedSido]?.length === 0 
-                      ? 'bg-slate-50 text-slate-400 cursor-not-allowed' 
-                      : 'bg-white text-slate-900'
-                  }`}
-                  disabled={REGION_DATA[selectedSido]?.length === 0} // HTML 속성으로도 비활성화
-                >
-                  <span>{selectedGoo}</span>
-                  <ChevronDown size={16} className={REGION_DATA[selectedSido]?.length === 0 ? 'text-slate-300' : 'text-slate-500'} />
-                </button>
-
-
-                {/* 구 선택 리스트: 데이터가 있을 때만 맵 돌리기 */}
-                  {isGooOpen && REGION_DATA[selectedSido]?.length > 0 && (
-                    <div className="mt-2 border rounded-md shadow-lg bg-white overflow-hidden animate-in fade-in zoom-in-95">
-                      {REGION_DATA[selectedSido].map((goo) => (
-                        <div 
-                          key={goo}
-                          className="p-3 hover:bg-blue-50 cursor-pointer border-b last:border-0 text-sm"
-                          onClick={() => {
-                            setSelectedGoo(goo);
-                            setIsGooOpen(false);
-                          }}
-                        >
-                          {goo}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 검색 결과 영역 (스크롤 가능) */}
-          <div className="flex-1 overflow-y-auto p-4 bg-slate-50/50">
-            <div className="text-center py-12 sm:py-20 text-slate-400">
-              <p className="text-xs sm:text-sm">주변 정보를 찾으려면<br/>검색어를 입력해 주세요.</p>
-            </div>
-          </div>
+          
+   
         </aside>
-
-        {/* 3. 지도 영역 (우측 전체) */}
-        // 1. 최상단 부모 컨테이너에 h-screen(전체 높이)을 주어 스크롤을 방지합니다.
-      <div className="flex flex-col h-screen overflow-hidden">
-        {/* 여기에 기존 정부 사이트 상단 GNB(헤더)가 들어감 */}
-        <header className="h-16 border-b bg-white"> ... </header>
-        <div className="flex flex-1 overflow-hidden"> {/* 스크롤 방지 */}
-          <aside className="w-[400px] border-r bg-white z-20 shadow-lg overflow-y-auto">
-            {/* 여기에 검색/셀렉트 박스들 */}
-          </aside>
-          <main className="flex-1 relative">
-            <div id="map" className="w-full h-full"></div> {/* 지도가 꽉 차게! */}
-          </main>
-        </div>
-      </div>
 
 
 
