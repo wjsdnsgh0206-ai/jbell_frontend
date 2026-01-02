@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import React, { Suspense, useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
-const DisasterModalLayout = () => {
+const DisasterModalLayout = ( {children} ) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -84,7 +84,9 @@ const DisasterModalLayout = () => {
           {/* 4. 스크롤이 발생하는 진짜 본문 영역 */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-white">
             <div className="max-w-full mx-auto">
-              <Outlet />
+              <Suspense>
+                {children}
+              </Suspense>
             </div>
           </div>
 
@@ -107,6 +109,6 @@ const DisasterModalLayout = () => {
       </div>
     </div>
   );
-};
+}
 
 export default DisasterModalLayout;
