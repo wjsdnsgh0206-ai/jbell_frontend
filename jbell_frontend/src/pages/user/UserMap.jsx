@@ -2,60 +2,65 @@ import React, { useState, useEffect } from 'react';
 import { Search, Menu, MapPin, Navigation, Info, User, Layers, ChevronDown } from 'lucide-react';
 
 
-// 1. 셀렉트 박스 부품 정의
-const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
-  return (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs text-slate-500 ml-1">{label}</label>
-      <select
-        disabled={disabled}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={`w-full p-3 border rounded-md text-sm transition-all ${
-          disabled ? 'bg-slate-50 text-slate-400 cursor-not-allowed' : 'bg-white text-slate-900'
-        }`}
-      >
-        <option value="">{label}</option>
-        {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-};
-
-
-
-const UserMap = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  const [addressType, setAddressType] = useState('road'); // 'road' 또는 'jibun'
-
-  // 1. 어떤 메인 메뉴가 선택되었는지 (기본값: 주소검색)
-  const [activeMenu, setActiveMenu] = useState('address'); 
   
-  // 2. 시도/구 선택 드롭다운이 열렸는지
-  const [isSidoOpen, setIsSidoOpen] = useState(false);
-  const [isSigunOpen, setIsSigunOpen] = useState(false);
-  const [isGooOpen, setIsGooOpen] = useState(false);
+  /*<=========================================== const SelectBox ===========================================> */  
+    // 1. 셀렉트 박스 부품 정의
+    const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
+      return (
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-slate-500 ml-1">{label}</label>
+          <select
+            disabled={disabled}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className={`w-full p-3 border rounded-md text-sm transition-all ${
+              disabled ? 'bg-slate-50 text-slate-400 cursor-not-allowed' : 'bg-white text-slate-900'
+            }`}
+          >
+            <option value="">{label}</option>
+            {options.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </div>
+      );
+    };
+  /*<=========================================== const SelectBox ===========================================> */
 
-  // 3. 선택된 값들
-  const [selectedSido, setSelectedSido] = useState('시도 선택');
-  const [selectedSigun, setSelectedSigun] = useState('시군 선택');
-  const [selectedGoo, setSelectedGoo] = useState('구 선택');
-
-  // [추가] 도로명 주소 검색용 상태
-  const [selectedInitial, setSelectedInitial] = useState(''); // 초성 선택
-  const [selectedRoad, setSelectedRoad] = useState('');       // 도로명 선택
-
-  // [추가] 지번 주소 검색용 상태
-  const [selectedDong, setSelectedDong] = useState('읍면동 선택');
 
 
+  /*<=========================================== const UserMap ===========================================> */
+  const UserMap = () => {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const [addressType, setAddressType] = useState('road'); // 'road' 또는 'jibun'
+
+    // 1. 어떤 메인 메뉴가 선택되었는지 (기본값: 주소검색)
+    const [activeMenu, setActiveMenu] = useState('address'); 
+    
+    // 2. 시도/구 선택 드롭다운이 열렸는지
+    const [isSidoOpen, setIsSidoOpen] = useState(false);
+    const [isSigunOpen, setIsSigunOpen] = useState(false);
+    const [isGooOpen, setIsGooOpen] = useState(false);
+
+    // 3. 선택된 값들
+    const [selectedSido, setSelectedSido] = useState('시도 선택');
+    const [selectedSigun, setSelectedSigun] = useState('시군 선택');
+    const [selectedGoo, setSelectedGoo] = useState('구 선택');
+
+    // [추가] 도로명 주소 검색용 상태
+    const [selectedInitial, setSelectedInitial] = useState(''); // 초성 선택
+    const [selectedRoad, setSelectedRoad] = useState('');       // 도로명 선택
+
+    // [추가] 지번 주소 검색용 상태
+    const [selectedDong, setSelectedDong] = useState('읍면동 선택');
+  /*<=========================================== const UserMap ===========================================> */
 
 
+
+  /*<=========================================== 셀렉트 내부에서 나오는 지역 리스트 관련 ===========================================> */
   // 데이터 정의
       const REGION_DATA = {
         '전주시': ['완산구', '덕진구'],
@@ -73,8 +78,25 @@ const UserMap = () => {
         '진안군': [],
         '장수군': [],
       };
+  // 시군 -> 구 -> 읍면동까지 이어지는 계층 데이터
+  // 근데 이건 API 연결을 하지 않으면 엄청난 노가다 예상...(읍면동을 언제 수기로 다 적어...)
+      const DETAILED_DATA = {
+        '전주시': {
+          '완산구': ['중앙동', '풍남동', '노송동', '완산동'],
+          '덕진구': ['우아동', '호성동', '송천동', '덕진동'],
+        },
+        '군산시': {
+          '기본': ['해신동', '월명동', '신풍동', '조촌동'] // 구가 없는 지역은 '기본' 키를 활용
+        },
+        '익산시': {
+          '기본': ['중앙동', '인화동', '마동', '남중동']
+        }
+      };
+  /*<=========================================== 셀렉트 내부에서 나오는 지역 리스트 관련 ===========================================> */
 
-      
+
+
+  /*<=========================================== 셀렉트 내부에서 나오는 지역 리스트 관련 ===========================================> */
       // ... 컴포넌트 내부
       const handleSigunSelect = (city) => {
         setSelectedSigun(city);
@@ -85,9 +107,25 @@ const UserMap = () => {
           setSelectedGoo('구 선택');   
           setIsGooOpen(false);
       };
+      // 읍면동 목록을 결정하는 로직
+      const getDongOptions = () => {
+        if (selectedSigun === '시군 선택') return [];
+
+        // 전주시처럼 구가 있는 경우
+        if (REGION_DATA[selectedSigun]?.length > 0) {
+          if (selectedGoo === '구 선택') return [];
+          return DETAILED_DATA[selectedSigun][selectedGoo] || [];
+        } 
+        
+        // 군산시처럼 구가 없는 경우
+        return DETAILED_DATA[selectedSigun]?.['기본'] || [];
+      };
+  /*<=========================================== 셀렉트 내부에서 나오는 지역 리스트 관련 ===========================================> */
+
+
       
-  
-      useEffect(() => {
+  /*<=========================================== 카카오 맵 API ===========================================> */
+      const useEffect = (() => {
         // kakao 객체가 로드되었는지 확인하는 안전장치
         if (window.kakao && window.kakao.maps) {
           const container = document.getElementById('map'); // 지도를 담을 영역
@@ -104,6 +142,7 @@ const UserMap = () => {
          // 나중에 검색 기능 등을 위해 map 객체를 상태로 저장
         // setMapObj(map);
       }, []);
+  /*<=========================================== 카카오 맵 API ===========================================> */
 
   
 
@@ -203,36 +242,39 @@ const UserMap = () => {
               )}
 
             {/* 지번 검색 섹션 */}
-              {addressType === 'jibun' && (
-                <div class="space-y-5">
-                <SelectBox 
-                  label="시도 선택" 
-                  value={selectedSido} 
-                  options={['전북특별자치도']} // 예시 데이터
-                  onChange={setSelectedSido} 
-                />
-                <SelectBox 
-                  label="시군 선택" 
-                  value={selectedSido} 
-                  options={['전주시', '군산시', '익산시', '정읍시', '남원시', '김제시', 
-                    '완주군', '고창군', '부안군', '순창군', '임실군', '무주군', '진안군', '장수군']} // 선택할 모든 전북 행정지역 목록
-                  onChange={handleSigunSelect} 
-                />
-                <SelectBox 
-                  label="구 선택" 
-                  value={selectedGoo} 
-                  options={REGION_DATA[selectedSido] || []}
-                  disabled={REGION_DATA[selectedSido]?.length === 0}
-                  onChange={setSelectedGoo}
-                />
-                <SelectBox
-                  label="읍면동 선택" 
-                  value={selectedDong} 
-                  options={['중앙동', '풍남동', '노송동']} // 실제 데이터는 나중에 SQL이나 API로!
-                  onChange={setSelectedDong}
-                />
-              </div>
-              )}
+  
+                
+
+                
+                {addressType === 'jibun' && (
+                  <div className="space-y-5">
+                    {/* 시군 선택 */}
+                    <SelectBox 
+                      label="시군 선택" 
+                      value={selectedSigun} 
+                      options={Object.keys(REGION_DATA)} 
+                      onChange={handleSigunSelect} 
+                    />
+
+                    {/* 구 선택 (전주시일 때만 활성화) */}
+                    <SelectBox 
+                      label="구 선택" 
+                      value={selectedGoo} 
+                      options={REGION_DATA[selectedSigun] || []}
+                      disabled={!REGION_DATA[selectedSigun] || REGION_DATA[selectedSigun].length === 0}
+                      onChange={setSelectedGoo}
+                    />
+
+                    {/* 읍면동 선택 (상위 지역이 골라졌을 때만 활성화) */}
+                    <SelectBox
+                      label="읍면동 선택" 
+                      value={selectedDong} 
+                      options={getDongOptions()} // 위에서 만든 함수 실행!
+                      disabled={getDongOptions().length === 0}
+                      onChange={setSelectedDong}
+                    />
+                  </div>
+                )}
             </div>
 
             {/* 하단 검색 버튼 (고정) */}
@@ -241,12 +283,6 @@ const UserMap = () => {
                 검색하기
               </button>
             </div>
-
-          
-          {/* 여 아래 손 좀 보자 */}
-
-          
-   
         </aside>
 
 
