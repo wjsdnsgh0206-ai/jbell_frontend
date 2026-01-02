@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Home, ChevronRight, ChevronLeft, ChevronDown } from 'lucide-react';
+import { Search, Home, ChevronRight, ChevronLeft, ChevronDown, Menu, User, Globe, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const QnAListPage = () => {
@@ -61,17 +61,17 @@ const QnAListPage = () => {
     }
   };
 
-  // 상세 페이지 이동 핸들러 (추후 구현 시 사용)
+  // [추가] 상세 페이지 이동 핸들러 
   const QnADetailClick = (id) => {
     navigate(`/qna/${id}`); 
     
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-800">
+    <div className="w-full bg-white font-sans text-gray-800">
       {/* ================= Breadcrumb ================= */}
-      <div className="bg-gray-50 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center text-gray-500 text-sm">
+      <div className="w-full bg-gray-50 border-b border-gray-200">
+        <div className="max-w-[1280px] mx-auto px-4 py-3 flex items-center text-gray-500 text-sm">
           <Home size={16} />
           <ChevronRight size={16} className="mx-2" />
           <span className="font-medium text-gray-900">고객센터</span>
@@ -81,7 +81,7 @@ const QnAListPage = () => {
       </div>
 
       {/* ================= Main Content ================= */}
-      <main className="max-w-7xl mx-auto px-4 py-10">
+      <main className="max-w-[1280px] mx-auto px-4 py-10">
         <h1 className="text-3xl font-bold mb-8 text-gray-900">1:1문의</h1>
 
         {/* Search Bar (FAQPage 스타일 통일) */}

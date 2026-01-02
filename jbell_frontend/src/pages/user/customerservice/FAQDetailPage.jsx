@@ -1,7 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Home, ChevronRight, ArrowLeft } from 'lucide-react';
-
+import { Search, Home, ChevronRight, ChevronLeft, ChevronDown, Menu, User, Globe, MessageCircle,ArrowLeft  } from 'lucide-react';
 const FAQDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -21,10 +20,10 @@ const FAQDetailPage = () => {
     return <div className="p-10 text-center">게시글을 찾을 수 없습니다.</div>;
   }
  return (
-    <div className="min-h-screen bg-white font-sans text-gray-800">
+    <div className="w-full bg-white font-sans text-gray-800">
       {/* Breadcrumb */}
-      <div className="bg-gray-50 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center text-gray-500 text-sm">
+      <div className="w-full bg-gray-50 border-b border-gray-200">
+        <div className="max-w-[1280px] mx-auto px-4 py-3 flex items-center text-gray-500 text-sm">
           <Home size={16} />
           <ChevronRight size={16} className="mx-2" />
           <span className="font-medium text-gray-900">고객센터</span>
@@ -35,7 +34,7 @@ const FAQDetailPage = () => {
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-4 py-10">
+      <main className="max-w-[1280px] mx-auto px-4 py-10">
         {/* Title Area */}
         <div className="border-b-2 border-gray-800 pb-6 mb-8">
             <div className="flex items-center gap-2 mb-2">
