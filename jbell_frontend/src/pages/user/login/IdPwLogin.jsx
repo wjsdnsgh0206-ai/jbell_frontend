@@ -1,18 +1,37 @@
 import React, { useState } from 'react';
-import { ChevronRight, Info, User, Lock, ExternalLink } from 'lucide-react';
+import { ChevronRight, Info, User, Lock } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 
 const IdPwLogin = () => {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [saveId, setSaveId] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogin = (e) => {
     e.preventDefault();
-    console.log('로그인 시도:', { userId, password, saveId });
-  };
+    
+    // 1. 유효성 검사
+    if (!userId || !password) {
+      alert('아이디와 비밀번호를 모두 입력해주세요.');
+      return;
+    }
 
-  const navigate = useNavigate();
+    // 2. 로그인 시뮬레이션 (실제 프로젝트에서는 API 호출)
+    console.log('로그인 시도:', { userId, password, saveId });
+
+    // 3. 로그인 상태 저장 (핵심 포인트)
+    // LocalStorage에 저장하면 브라우저를 새로고침해도 로그인이 유지됩니다.
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('userName', userId); // 마이페이지 등에서 이름을 띄우기 위해 저장
+
+    // 4. 성공 알림 및 페이지 이동
+    alert(`${userId}님, 환영합니다!`);
+    navigate('/'); 
+    
+    // 5. 상태 즉시 반영을 위한 새로고침 (헤더의 UI를 바꾸기 위함)
+    window.location.reload();
+  };
 
   return (
     <div className="min-h-screen bg-white flex justify-center py-10 px-5 sm:py-20 font-sans text-gray-900">
@@ -29,7 +48,6 @@ const IdPwLogin = () => {
 
         {/* Main Content */}
         <div className="flex flex-col md:flex-row gap-10 lg:gap-16 mb-10">
-          {/* Login Form Section */}
           <div className="flex-1 order-1">
             <form onSubmit={handleLogin} className="space-y-5 text-left">
               <div className="space-y-2">
@@ -73,9 +91,7 @@ const IdPwLogin = () => {
                 </label>
               </div>
 
-              {/* 추후 검증 로직 */}
               <button
-                onClick={() => navigate('/#')}
                 type="submit"
                 className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 active:scale-[0.99] transition-all shadow-lg shadow-blue-100"
               >
@@ -83,19 +99,15 @@ const IdPwLogin = () => {
               </button>
 
               <div className="flex justify-center gap-4 text-sm text-gray-500 font-medium pt-2">
-                <button onClick={() => navigate('/findIdCheck')}
-                        type="button" className="hover:text-blue-600">아이디 찾기</button>
+                <button onClick={() => navigate('/findIdCheck')} type="button" className="hover:text-blue-600">아이디 찾기</button>
                 <span className="text-gray-200">|</span>
-                <button onClick={() => navigate('/findPwCheck')}
-                        type="button" className="hover:text-blue-600">비밀번호 찾기</button>
+                <button onClick={() => navigate('/findPwCheck')} type="button" className="hover:text-blue-600">비밀번호 찾기</button>
                 <span className="text-gray-200">|</span>
-                <button onClick={() => navigate('/signupAgreement')}
-                        type="button" className="hover:text-blue-600">회원가입</button>
+                <button onClick={() => navigate('/signupAgreement')} type="button" className="hover:text-blue-600">회원가입</button>
               </div>
             </form>
           </div>
 
-          {/* Sidebar Info Section */}
           <div className="flex-1 md:border-l border-gray-100 md:pl-10 order-2">
             <ul className="space-y-6 text-left">
               {[
@@ -114,7 +126,6 @@ const IdPwLogin = () => {
 
         <hr className="border-t border-gray-200 my-8" />
 
-        {/* Switch Method */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-8 text-left">
           <h3 className="text-lg font-bold">원하는 로그인 방법이 아니신가요?</h3>
           <button onClick={() => navigate('/loginMain')}
@@ -123,25 +134,14 @@ const IdPwLogin = () => {
           </button>
         </div>
 
-        {/* Help Box */}
         <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-left">
           <div className="flex items-center gap-2 font-bold text-blue-900 mb-4">
             <Info size={18} />
             <span>로그인에 어려움이 있으신가요?</span>
           </div>
           <ul className="space-y-3 text-sm text-gray-600">
-            <li className="flex gap-2">
-              <span className="text-blue-300">•</span>
-              <span>이전에 이용한 로그인 수단이 안 보인다면 상단 <button className="underline text-blue-600">통합 로그인 사용</button>을 꺼보세요.</span>
-            </li>
-            <li className="flex gap-2">
-              <span className="text-blue-300">•</span>
-              <span>로그인 관련 <button className="underline text-blue-600">도움말</button>이나 <button className="underline text-blue-600">자주 찾는 질문</button>을 확인해보세요.</span>
-            </li>
-            <li className="flex gap-2">
-              <span className="text-blue-300">•</span>
-              <span>02-3703-2500 (내선번호 4번) 서비스에 로그인할 수 있도록 도와드리겠습니다.</span>
-            </li>
+            <li className="flex gap-2"><span className="text-blue-300">•</span> 이전에 이용한 로그인 수단이 안 보인다면 상단 <button className="underline text-blue-600">통합 로그인 사용</button>을 꺼보세요.</li>
+            <li className="flex gap-2"><span className="text-blue-300">•</span> 로그인 관련 <button className="underline text-blue-600">도움말</button>이나 <button className="underline text-blue-600">자주 찾는 질문</button>을 확인해보세요.</li>
           </ul>
         </div>
       </div>

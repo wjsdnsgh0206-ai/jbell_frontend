@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   UserCircle, 
   MapPinned, 
-  IdentificationCard, 
+  IdCard, Contact,
   Mail, 
   Settings2,
   CalendarDays
@@ -91,7 +91,7 @@ const MyProfile = () => {
           {/* 아이디 */}
           <div className="space-y-2 text-left">
             <label className="text-xs font-semibold text-slate-500 ml-1 flex items-center gap-1">
-              <IdentificationCard size={13} /> 아이디
+              <IdCard size={13} /> 아이디
             </label>
             <div className="h-11 flex items-center px-4 bg-slate-50 border border-slate-100 rounded-lg text-sm text-slate-600 font-medium cursor-default">
               {userData.id}
