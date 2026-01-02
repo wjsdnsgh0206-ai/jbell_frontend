@@ -111,6 +111,45 @@ const UserMap = () => {
         <aside className="w-[380px] bg-white border-r z-10 flex flex-col shadow-xl">
         
         {/* 좌측 사이드바 최상단 고정 메뉴 */}
+        {/* [최상단 고정 영역] 검색창 & 대표 3개 메뉴 */}
+        <div className="p-4 border-b space-y-4 bg-white">
+          {/* 1. 통합 검색창 */}
+          <div className="relative">
+            <input 
+              type="text" 
+              placeholder="장소, 주소, 건물 명을 입력해주세요." 
+              className="w-full p-3 pr-10 border rounded-md text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <Search className="absolute right-3 top-3 text-slate-400" size={18} />
+          </div>
+
+          {/* 2. 대표 3개 메뉴 아이콘 (피그마 스타일) */}
+          <div className="flex justify-around items-center pt-2">
+            <button 
+              onClick={() => setActiveMenu('path')}
+              className={`flex flex-col items-center gap-1 group ${activeMenu === 'path' ? 'text-blue-600' : 'text-slate-500'}`}
+            >
+              <Navigation size={20} className="group-hover:scale-110 transition-transform" />
+              <span className="text-[11px] font-medium">길 찾기</span>
+            </button>
+
+            <button 
+              onClick={() => setActiveMenu('address')}
+              className={`flex flex-col items-center gap-1 group px-4 py-1 rounded-md ${activeMenu === 'address' ? 'text-blue-600 bg-blue-50' : 'text-slate-500'}`}
+            >
+              <MapPin size={20} className="group-hover:scale-110 transition-transform" />
+              <span className="text-[11px] font-medium">주소검색</span>
+            </button>
+
+            <button 
+              onClick={() => setActiveMenu('shelter')}
+              className={`flex flex-col items-center gap-1 group ${activeMenu === 'shelter' ? 'text-blue-600' : 'text-slate-500'}`}
+            >
+              <Layers size={20} className="group-hover:scale-110 transition-transform" />
+              <span className="text-[11px] font-medium">대피소</span>
+            </button>
+          </div>
+        </div>
 
         {/* 상단 탭 (도로명 검색 / 지번 검색) */}
             <div className="flex border-b text-sm font-medium">
@@ -136,6 +175,12 @@ const UserMap = () => {
                     label="시도 선택" 
                     value={selectedSido} 
                     options={['전북특별자치도']} // 예시 데이터
+                    onChange={handleSidoSelect} 
+                  />
+                    <SelectBox 
+                    label="시군 선택" 
+                    value={selectedSido} 
+                    options={['전주시', '군산시', '익산시']} // 예시 데이터
                     onChange={handleSidoSelect} 
                   />
                   <SelectBox 
