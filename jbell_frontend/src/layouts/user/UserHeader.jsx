@@ -1,24 +1,50 @@
 import { Link, useNavigate } from "react-router-dom";
 import navigationItems from '@/routes/user/navigationItems';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const UserHeader = () => {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // 1. 로그인 상태 관리 (초기값은 localStorage 확인)
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const authButtons = [
-    { label: "로그인", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20.svg", lnk: "/loginMain" },
-    { label: "회원가입", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-1.svg", lnk: "/signupAgreement" },
-  ];
+  useEffect(() => {
+    // 페이지 로드 시 로그인 상태 체크
+    const status = localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(status);
+  }, []);
+
+  // 2. 로그아웃 핸들러
+  const handleLogout = () => {
+    if (window.confirm("로그아웃 하시겠습니까?")) {
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('userName');
+      setIsLoggedIn(false);
+      navigate('/');
+      window.location.reload(); // 상태 동기화를 위한 새로고침
+    }
+  };
+
+  // 3. 상태에 따른 인증 버튼 구성
+  const authButtons = isLoggedIn 
+    ? [
+        { label: "마이페이지", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20.svg", lnk: "/myProfile" },
+        { label: "로그아웃", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-1.svg", action: handleLogout },
+      ]
+    : [
+        { label: "로그인", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20.svg", lnk: "/loginMain" },
+        { label: "회원가입", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-1.svg", lnk: "/signupAgreement" },
+      ];
 
   return (
     <div className="flex flex-col w-full items-center relative z-50">
       <div className="flex flex-col items-center relative w-full bg-white">
-        {/* 최상단 띠 정보창 (모바일에서는 생략 가능하므로 h-2~5 조절) */}
+        {/* 최상단 띠 정보창 */}
         <div className="flex flex-col items-center relative w-full bg-secondarysecondary-5 h-2 md:h-5" />
 
         <header className="flex w-full max-w-[1280px] items-center justify-between py-4 px-4 sm:px-6 lg:px-8 relative bg-transparent">
-          {/* 로고: 좌측 정렬 */}
+          {/* 로고 */}
           <div className="flex items-center relative">
             <Link to="/">
               <img
@@ -29,12 +55,12 @@ const UserHeader = () => {
             </Link>
           </div>
 
-          {/* 1. 데스크탑 전용 인증 버튼 (md 이상에서만 보임) */}
+          {/* 1. 데스크탑 인증 버튼 */}
           <div className="hidden md:flex items-center justify-end gap-2">
             {authButtons.map((button, index) => (
               <button
                 key={index}
-                onClick={() => navigate(button.lnk)}
+                onClick={() => button.action ? button.action() : navigate(button.lnk)}
                 className="inline-flex justify-center gap-2 px-3 py-2 rounded-md items-center hover:bg-gray-50 transition-colors"
                 aria-label={button.label}
               >
@@ -46,7 +72,7 @@ const UserHeader = () => {
             ))}
           </div>
 
-          {/* 2. 모바일 전용 햄버거 버튼 (md 미만에서만 보임) */}
+          {/* 2. 모바일 햄버거 버튼 */}
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -64,7 +90,7 @@ const UserHeader = () => {
           </div>
         </header>
 
-        {/* 3. 데스크탑 전용 2단 네비게이션 (md 이상에서만 보임) */}
+        {/* 3. 데스크탑 네비게이션 */}
         <nav
           className="hidden md:flex h-16 w-full bg-white border-t border-b border-graygray-30 items-center justify-center relative"
           aria-label="Secondary navigation"
@@ -86,18 +112,18 @@ const UserHeader = () => {
           </div>
         </nav>
 
-        {/* 4. 모바일 통합 메뉴 (인증 버튼 + 네비게이션) */}
+        {/* 4. 모바일 통합 메뉴 */}
         {isMobileMenuOpen && (
           <div className="md:hidden w-full bg-white border-b border-gray-200 shadow-xl absolute top-full left-0 transition-all duration-300 ease-in-out">
             <div className="flex flex-col p-4 space-y-4">
               
-              {/* 모바일 내 인증 버튼 (상단 배치) */}
+              {/* 모바일 인증 버튼 (상태에 따라 변동) */}
               <div className="flex gap-2 pb-4 border-b border-gray-100">
                 {authButtons.map((button, index) => (
                   <button
                     key={index}
                     onClick={() => {
-                      navigate(button.lnk);
+                      button.action ? button.action() : navigate(button.lnk);
                       setIsMobileMenuOpen(false);
                     }}
                     className="flex-1 flex justify-center items-center gap-2 px-4 py-3 rounded-xl bg-gray-50 active:bg-gray-200 border border-gray-100"
@@ -110,7 +136,7 @@ const UserHeader = () => {
                 ))}
               </div>
 
-              {/* 모바일 내 네비게이션 리스트 */}
+              {/* 모바일 네비게이션 리스트 */}
               <div className="flex flex-col space-y-1">
                 {navigationItems.map((item, index) => (
                   <button
@@ -128,7 +154,6 @@ const UserHeader = () => {
                         {item.label}
                       </span>
                     </div>
-                    {/* 화살표 아이콘 추가 (가독성 향상) */}
                     <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
