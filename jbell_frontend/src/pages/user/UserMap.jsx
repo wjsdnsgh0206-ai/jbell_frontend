@@ -179,7 +179,7 @@ const UserMap = () => {
                 {shelterSearchType === 'category' ? (
                   /* 기획안 2번: 지역별 선택 */
                   <div className="space-y-4">
-                    <SelectBox label="시도" value="전북특별자치도" options={['전북특별자치도']} disabled />
+                    <SelectBox label="시도 선택" value={selectedSido} options={['전북특별자치도']} onChange={setSelectedSido} />
                     <SelectBox label="시군구" value={selectedSigun} options={Object.keys(REGION_DATA)} onChange={handleSigunSelect} />
                     <button 
                       onClick={() => { /* 카카오 API 검색 로직 실행 */ }}
