@@ -38,10 +38,11 @@ const UserHeader = () => {
             </div>
 
             {/* Desktop Auth Buttons */}
-            <div className="hidden md:flex items-start justify-end gap-2 flex-1">
+            <div className="md:flex items-start justify-end gap-2 flex-1">
               {authButtons.map((button, index) => (
                 <button
                   key={index}
+                  onClick={() => navigate('loginMain')}
                   className="inline-flex justify-center gap-2 px-3 py-2.5 flex-[0_0_auto] rounded-md items-center relative"
                   aria-label={button.label}
                 >
@@ -107,6 +108,7 @@ const UserHeader = () => {
                 {authButtons.map((button, index) => (
                   <button
                     key={index}
+                    onClick={() => navigate('signupAgreement')}
                     className="flex-1 flex justify-center items-center gap-2 px-3 py-2.5 rounded-md bg-gray-50 hover:bg-gray-100"
                     aria-label={button.label}
                   >
