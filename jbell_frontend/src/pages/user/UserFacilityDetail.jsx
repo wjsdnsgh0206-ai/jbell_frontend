@@ -147,6 +147,7 @@ const UserFacilityDetail = () => {
             </div>
 
             {/* 시설 상세 정보 */}
+            {/* dl태그 안에 dt와 dd가 들어감. (dt는 용어, dd는 설명) */}
             <dl className="flex flex-col items-start justify-center gap-3 lg:gap-2.5 w-full lg:flex-1">
               {facilityDetails.map((detail, index) => (
                 <div
