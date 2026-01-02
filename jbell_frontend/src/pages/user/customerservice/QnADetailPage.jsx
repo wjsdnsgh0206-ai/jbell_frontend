@@ -8,50 +8,248 @@ const QnADetailPage = () => {
 
   const inquiries = [
     {
-      id: 1,
-      status: 'progress',
-      statusText: '답변대기',
-      title: '비밀번호 변경이 되지 않습니다.',
-      content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다. \n어떤 브라우저를 써도 동일한 현상입니다.',
-      date: '2024.04.30',
-      category: '회원정보',
-      answer: null 
-    },
-    {
-      id: 2,
-      status: 'complete',
-      statusText: '답변완료',
-      title: '서비스 이용 관련 문의드립니다.',
-      content: '주말에도 고객센터 상담이 가능한가요?',
-      date: '2023.11.01',
-      category: '이용문의',
-      answer: {
-        title: '안녕하세요, 고객센터입니다.',
-        content: '네, 고객센터는 주말 및 공휴일 포함 24시간 운영됩니다.',
-        date: '2023.11.02'
-      }
-    },
-    {
-      id: 3,
-      status: 'receipt',
-      statusText: '접수완료',
-      title: '결제 취소 요청',
-      content: '어제 결제한 내역을 취소하고 싶습니다.',
-      date: '2023.11.01',
-      category: '결제/환불',
-      answer: null
-    },
-    {
-      id: 4,
-      status: 'waiting',
-      statusText: '확인중',
-      title: '기관 연동이 안돼요',
-      content: '타기관 인증서 등록 시 오류가 뜹니다.',
-      date: '2023.11.01',
-      category: '시스템오류',
-      answer: null
-    }
+    id: 1,
+    status: 'progress', // 진행단계
+    statusText: '답변대기',
+    title: '비밀번호 변경이 되지 않습니다.',
+    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    date: '2024.04.30',
+    category: '회원정보',
+  },
+  {
+    id: 2,
+    status: 'complete', // 완료단계
+    statusText: '답변완료',
+    title: '서비스 이용 관련 문의드립니다.',
+    content: '주말에도 고객센터 상담이 가능한가요?',
+    date: '2024.05.01',
+    category: '이용문의',
+  },
+  {
+    id: 3,
+    status: 'receipt', // 접수단계
+    statusText: '접수완료',
+    title: '결제 취소 요청',
+    content: '어제 결제한 내역을 취소하고 싶습니다.',
+    date: '2024.06.01',
+    category: '결제/환불',
+  },
+  {
+    id: 4,
+    status: 'waiting', // 예비/타기관 이송 등
+    statusText: '확인중',
+    title: '기관 연동이 안돼요',
+    content: '타기관 인증서 등록 시 오류가 뜹니다.',
+    date: '2025.11.01',
+    category: '시스템오류',
+  },
+
+  {
+    id: 5,
+    status: 'progress', // 진행단계
+    statusText: '답변대기',
+    title: '비밀번호 변경이 되지 않습니다.',
+    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    date: '2024.05.06',
+    category: '회원정보',
+  },
+  {
+    id: 6,
+    status: 'complete', // 완료단계
+    statusText: '답변완료',
+    title: '서비스 이용 관련 문의드립니다.',
+    content: '주말에도 고객센터 상담이 가능한가요?',
+    date: '2024.05.18',
+    category: '이용문의',
+  },
+  {
+    id: 7,
+    status: 'receipt', // 접수단계
+    statusText: '접수완료',
+    title: '결제 취소 요청',
+    content: '어제 결제한 내역을 취소하고 싶습니다.',
+    date: '2024.06.09',
+    category: '결제/환불',
+  },
+  {
+    id: 8,
+    status: 'waiting', // 예비/타기관 이송 등
+    statusText: '확인중',
+    title: '기관 연동이 안돼요',
+    content: '타기관 인증서 등록 시 오류가 뜹니다.',
+    date: '2024.07.03',
+    category: '시스템오류',
+  },
+  {
+    id: 9,
+    status: 'progress', // 진행단계
+    statusText: '답변대기',
+    title: '비밀번호 변경이 되지 않습니다.',
+    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    date: '2024.08.14',
+    category: '회원정보',
+  },
+  {
+    id: 10,
+    status: 'complete', // 완료단계
+    statusText: '답변완료',
+    title: '서비스 이용 관련 문의드립니다.',
+    content: '주말에도 고객센터 상담이 가능한가요?',
+    date: '2024.09.02',
+    category: '이용문의',
+  },
+  {
+    id: 11,
+    status: 'receipt', // 접수단계
+    statusText: '접수완료',
+    title: '결제 취소 요청',
+    content: '어제 결제한 내역을 취소하고 싶습니다.',
+    date: '2024.09.21',
+    category: '결제/환불',
+  },
+  {
+    id: 12,
+    status: 'waiting', // 예비/타기관 이송 등
+    statusText: '확인중',
+    title: '기관 연동이 안돼요',
+    content: '타기관 인증서 등록 시 오류가 뜹니다.',
+    date: '2024.10.07',
+    category: '시스템오류',
+  },
+  {
+    id: 13,
+    status: 'progress', // 진행단계
+    statusText: '답변대기',
+    title: '비밀번호 변경이 되지 않습니다.',
+    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    date: '2024.10.19',
+    category: '회원정보',
+  },
+  {
+    id: 14,
+    status: 'complete', // 완료단계
+    statusText: '답변완료',
+    title: '서비스 이용 관련 문의드립니다.',
+    content: '주말에도 고객센터 상담이 가능한가요?',
+    date: '2024.11.04',
+    category: '이용문의',
+  },
+  {
+    id: 15,
+    status: 'receipt', // 접수단계
+    statusText: '접수완료',
+    title: '결제 취소 요청',
+    content: '어제 결제한 내역을 취소하고 싶습니다.',
+    date: '2024.11.22',
+    category: '결제/환불',
+  },
+  {
+    id: 16,
+    status: 'waiting', // 예비/타기관 이송 등
+    statusText: '확인중',
+    title: '기관 연동이 안돼요',
+    content: '타기관 인증서 등록 시 오류가 뜹니다.',
+    date: '2024.12.03',
+    category: '시스템오류',
+  },
+  {
+    id: 17,
+    status: 'progress', // 진행단계
+    statusText: '답변대기',
+    title: '비밀번호 변경이 되지 않습니다.',
+    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    date: '2025.01.09',
+    category: '회원정보',
+  },
+  {
+    id: 18,
+    status: 'complete', // 완료단계
+    statusText: '답변완료',
+    title: '서비스 이용 관련 문의드립니다.',
+    content: '주말에도 고객센터 상담이 가능한가요?',
+    date: '2025.01.27',
+    category: '이용문의',
+  },
+  {
+    id: 19,
+    status: 'receipt', // 접수단계
+    statusText: '접수완료',
+    title: '결제 취소 요청',
+    content: '어제 결제한 내역을 취소하고 싶습니다.',
+    date: '2025.02.11',
+    category: '결제/환불',
+  },
+  {
+    id: 20,
+    status: 'waiting', // 예비/타기관 이송 등
+    statusText: '확인중',
+    title: '기관 연동이 안돼요',
+    content: '타기관 인증서 등록 시 오류가 뜹니다.',
+    date: '2025.03.05',
+    category: '시스템오류',
+  },
+  {
+    id: 21,
+    status: 'progress', // 진행단계
+    statusText: '답변대기',
+    title: '비밀번호 변경이 되지 않습니다.',
+    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    date: '2025.04.16',
+    category: '회원정보',
+  },
+  {
+    id: 22,
+    status: 'complete', // 완료단계
+    statusText: '답변완료',
+    title: '서비스 이용 관련 문의드립니다.',
+    content: '주말에도 고객센터 상담이 가능한가요?',
+    date: '2025.05.08',
+    category: '이용문의',
+  },
+  {
+    id: 23,
+    status: 'receipt', // 접수단계
+    statusText: '접수완료',
+    title: '결제 취소 요청',
+    content: '어제 결제한 내역을 취소하고 싶습니다.',
+    date: '2025.06.20',
+    category: '결제/환불',
+  },
+  {
+    id: 24,
+    status: 'waiting', // 예비/타기관 이송 등
+    statusText: '확인중',
+    title: '기관 연동이 안돼요',
+    content: '타기관 인증서 등록 시 오류가 뜹니다.',
+    date: '2025.08.12',
+    category: '시스템오류',
+  },
+  {
+    id: 25,
+    status: 'progress', // 진행단계
+    statusText: '답변대기',
+    title: '비밀번호 변경이 되지 않습니다.',
+    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    date: '2025.10.03',
+    category: '회원정보',
+  },
   ];
+
+  // --- 상태에 따른 배지 스타일 반환 함수 (ListPage와 동일하게 적용) ---
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case 'progress': // 답변대기 (초록)
+        return 'bg-green-100 text-green-700 border-green-200';
+      case 'complete': // 답변완료 (파랑 - 강조)
+        return 'bg-blue-100 text-blue-700 border-blue-200';
+      case 'receipt': // 접수완료 (회색)
+        return 'bg-gray-100 text-gray-600 border-gray-200';
+      case 'waiting': // 확인중 (빨강 or 주황)
+        return 'bg-orange-50 text-orange-600 border-orange-200';
+      default:
+        return 'bg-gray-50 text-gray-600 border-gray-200';
+    }
+  };
 
   // ID와 일치하는 데이터 찾기
   const item = inquiries.find(d => d.id === parseInt(id));
@@ -86,15 +284,14 @@ const QnADetailPage = () => {
         <div className="border-b-2 border-gray-800 pb-6 mb-8">
             <div className="flex items-center gap-2 mb-2">
                 {/* 카테고리 태그 */}
-                <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded">
+                <span className="text-xs text-gray-500 border border-gray-200 px-2 py-1 rounded bg-gray-50">
                     {item.category}
                 </span>
                 {/* 상태 태그 */}
-                <span className={`px-2 py-1 text-xs font-bold rounded border ${
-                    item.status === 'complete' ? 'bg-gray-100 text-gray-600 border-gray-200' : 'bg-green-100 text-green-700 border-green-200'
-                }`}>
+                <span className={`px-2 py-1 text-xs font-bold rounded border ${getStatusStyle(item.status)}`}>
                     {item.statusText}
                 </span>
+                
                 <span className="text-gray-500 text-sm ml-1">{item.date}</span>
             </div>
             {/* 제목 */}
