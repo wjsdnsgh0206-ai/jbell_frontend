@@ -43,10 +43,8 @@ const UserMap = () => {
         setSelectedGoo('구 선택'); // 시도가 바뀌면 구 선택은 초기화
         
         // 구가 없는 지역이면 아예 구 선택창을 닫아두거나 로직 처리
-        if (REGION_DATA[city].length === 0) {
           setSelectedGoo('구 선택');   
           setIsGooOpen(false);
-        }
       };
       
 
