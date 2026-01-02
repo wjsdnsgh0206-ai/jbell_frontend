@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import UserLayout from "@/layouts/user/UserLayout";
 import { jyUserRoutes, disasterModal } from "@/routes/route-jy";
 import { shUserRoutes } from "@/routes/route-sh";
+import { ehUserRoutes } from "@/routes/route-eh";
 import DisasterModalLayout from "@/layouts/user/disasterModal/DisasterModalLayout";
 
 // import UserNoticeDetail from 
@@ -25,6 +26,14 @@ const AllRoutes = (props) => {
               <DisasterModalLayout {...props}>
                 {route.element}
               </DisasterModalLayout> } />)
+        }
+      </Route>
+      <Route>
+        {
+          ehUserRoutes.map((route, idx) => <Route key={idx} path={route.path} element={
+              <UserLayout {...props}>
+                {route.element}
+              </UserLayout> } />)
         }
       </Route>
       
