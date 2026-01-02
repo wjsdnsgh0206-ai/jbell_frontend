@@ -8,10 +8,10 @@ const UserHeader = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const authButtons = [
-    { label: "로그인", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20.svg" , lnk:"loginMain"},
+    { label: "로그인", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20.svg" , lnk:"/loginMain"},
     {
       label: "회원가입",
-      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-1.svg", lnk:"signupAgreement"
+      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-1.svg", lnk:"/signupAgreement"
     },
   ];
 
@@ -19,9 +19,9 @@ const UserHeader = () => {
   return (
     <div className="flex flex-col w-full items-center relative">
       <div className="flex flex-col items-center relative w-full bg-white">
-        <div className="flex flex-col items-center relative mb-2 w-full bg-secondarysecondary-5 h-1" />
+        <div className="flex flex-col items-center relative mb-2 w-full bg-secondarysecondary-5 h-5" />
 
-        <header className="flex flex-col w-full max-w-[1280px] items-start justify-center gap-1 pt-0 pb-4 px-4 sm:px-6 lg:px-8 relative bg-transparent">
+        <header className="flex flex-col w-full max-w-[1280px] items-start justify-center gap-1 pt-5 pb-5 px-4 sm:px-6 lg:px-8 relative bg-transparent">
           <nav
             className="items-center gap-2 w-full flex relative"
             aria-label="Main navigation"
@@ -31,8 +31,8 @@ const UserHeader = () => {
               <Link to="/">
                 <img
                   className="relative w-32 sm:w-40 lg:w-[199px] h-8 sm:h-10 lg:h-12 cursor-pointer"
-                  alt="대한민국정부 로고"
-                  src="https://c.animaapp.com/PZUA6SpP/img/------.svg"
+                  alt="전북안전누리 로고"
+                  src="src/assets/logo/jeonbuk_safety_nuri_watermark.svg"
                 />
               </Link>
             </div>
@@ -107,6 +107,7 @@ const UserHeader = () => {
               <div className="flex gap-2 pb-4 border-b border-gray-100 mb-2">
                 {authButtons.map((button, index) => (
                   <button
+                   onClick={() => navigate(button.lnk)}
                     key={index}
                     className="flex-1 flex justify-center items-center gap-2 px-3 py-2.5 rounded-md bg-gray-50 hover:bg-gray-100"
                     aria-label={button.label}

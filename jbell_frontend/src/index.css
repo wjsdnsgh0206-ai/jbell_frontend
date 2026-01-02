@@ -103,9 +103,9 @@
   --display-small-letter-spacing: 1px;
   --display-small-line-height: 150%;
   --graygray-0: rgba(255, 255, 255, 1);
-  --graygray-30: rgba(216, 216, 216, 1);
-  --graygray-40: rgba(198, 198, 198, 1);
   --graygray-5: rgba(248, 248, 248, 1);
+  --graygray-10: rgba(230, 232, 234, 1);
+  --graygray-30: rgba(216, 216, 216, 1);
   --graygray-50: rgba(142, 142, 142, 1);
   --graygray-70: rgba(85, 85, 85, 1);
   --graygray-90: rgba(29, 29, 29, 1);

@@ -1,5 +1,6 @@
 import UserHeader from './UserHeader';
 import UserFooter from './UserFooter';
+
 import { Outlet } from 'react-router-dom';
 
 const UserLayout = () => {
