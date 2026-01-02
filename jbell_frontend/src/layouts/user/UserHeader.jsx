@@ -1,40 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
+// import { jyUserRoutes } from '@/routes/route-jy';
+import navigationItems from '@/routes/user/navigationItems';
 
 const UserHeader = () => {
   const navigate = useNavigate();
-
-  const navigationItems = [
-    {
-      label: "행동요령",
-      path: "/",
-      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
-    },
-    {
-      label: "안전정보 지도",
-      path: "/map",
-      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
-    },
-    {
-      label: "주요 안전정책",
-      path: "/",
-      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
-    },
-    {
-      label: "대피소 소개",
-      path: "/UserFacilityDetail",
-      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
-    },
-    {
-      label: "열린마당",
-      path: "/UserOpenSpaceLi",
-      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
-    },
-    {
-      label: "고객센터",
-      path: "/",
-      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
-    },
-  ];
 
     const authButtons = [
     { label: "로그인", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20.svg" },
@@ -84,6 +53,7 @@ const UserHeader = () => {
         </header>
 
         {/* 하단 네비게이션 */}
+        
         <nav
           className="flex flex-col h-16 self-stretch w-full bg-graygray-0 border-t border-b border-graygray-30 items-center relative"
           aria-label="Secondary navigation"
@@ -108,8 +78,10 @@ const UserHeader = () => {
                 />
               </button>
             ))}
+
           </div>
         </nav>
+        
       </div>
     </div>
   );
