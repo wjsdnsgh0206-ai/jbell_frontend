@@ -21,7 +21,7 @@ const AccidentNews = () => {
           {/* 1. 왼쪽: 사고 리스트 사이드바 */}
           <div className="w-full lg:w-[320px] bg-slate-50/30 border-r border-gray-100 p-5 flex flex-col gap-4 z-20">
             <div className="flex items-center justify-between">
-              <h4 className="text-[16px] font-black text-slate-800">
+              <h4 className="text-[15px] font-black text-slate-800">
                 재난·사고 목록 <span className="text-rose-500 ml-1">9</span>
               </h4>
             </div>

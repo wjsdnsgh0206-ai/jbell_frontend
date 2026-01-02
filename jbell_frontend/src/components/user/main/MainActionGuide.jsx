@@ -49,7 +49,7 @@ const MainActionGuide = () => {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`pb-3 text-[14px] font-bold transition-all whitespace-nowrap relative
+            className={`pb-3 text-[15px] font-bold transition-all whitespace-nowrap relative
               ${activeTab === tab ? "text-blue-600" : "text-gray-400 hover:text-gray-600"}`}
           >
             {tab}
@@ -69,13 +69,13 @@ const MainActionGuide = () => {
           >
             <div className="flex items-start justify-between">
               <div className="flex flex-col gap-1">
-                <span className="text-[9px] font-bold text-blue-500/60 tracking-wider uppercase">
+                <span className="text-[12px] font-bold text-blue-500/60 tracking-wider uppercase">
                   Guide {item.icon}
                 </span>
-                <h4 className="text-[15px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                <h4 className="text-[17px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
                   {item.title}
                 </h4>
-                <p className="text-[12px] text-gray-500 font-medium leading-snug break-keep">
+                <p className="text-[15px] text-gray-500 font-medium leading-snug break-keep">
                   {item.desc}
                 </p>
               </div>
