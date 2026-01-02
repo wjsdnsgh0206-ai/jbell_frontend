@@ -1,6 +1,40 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
+
+/* 사용 예시 
+import UserSideBar from './UserSideBar';
+
+const MyPage = () => {
+  const categoryData = [
+    { title: '재난별행동요령', items: ['지진', '태풍', '호우', '홍수', '산사태'] },
+    { title: '사고별행동요령', items: ['화재', '교통사고'] },
+    { title: '생활안전행동요령', items: ['전기안전', '가스안전'] },
+    { title: '재난약자행동요령', items: ['어르신', '어린이'] },
+    { title: '긴급상황대처', items: ['심폐소생술'] },
+  ];
+
+  const handleMenuClick = (category, item) => {
+    console.log(`${category}의 ${item} 페이지로 이동합니다.`);
+    // 예: navigate(`/disaster/${item}`);
+  };
+
+  return (
+    <UserSideBar 
+      nowPage="국민행동요령" 
+      activeItem="태풍" 
+      categories={categoryData} 
+      onItemClick={handleMenuClick}
+    />
+  );
+};
+
+*/
+
+
+
+
+
 const UserSideBar = ({ 
   nowPage = '페이지', 
   activeItem = '태풍', 
