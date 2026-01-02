@@ -8,7 +8,7 @@ import UserOpenSpaceLi from './pages/user/UserOpenSpaceLi';
 import DisasterModalLayout from './layouts/user/disasterModal/DisasterModalLayout';
 import AccidentNews from './components/user/disasterModal/AccidentNews';
 import Earthquake from './components/user/disasterModal/Earthquake';
-import FAQPage from './pages/user/CustomerService/FAQPage';
+import FAQPage from './pages/user/CustomerService/FAQListPage';
 import FAQDetailPage from './pages/user/CustomerService/FAQDetailPage';
 import QnAListPage from './pages/user/CustomerService/QnAListPage';
 import QnADetailPage from './pages/user/CustomerService/QnADetailPage';
