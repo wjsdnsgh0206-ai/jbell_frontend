@@ -25,7 +25,7 @@ const UserFacilityDetail = () => {
       >
         <div className="flex flex-col items-start w-full">
           <div className="flex w-full gap-2 px-2 py-6 lg:py-10 bg-graygray-0 border-b border-graygray-50 items-center">
-            <h2 className="text-base sm:text-lg lg:text-xl font-bold text-graygray-90">
+            <h2 className="relative flex-1 h-[15px] mt-[-1.00px] font-title-title-l-700 font-[number:var(--title-title-l-700-font-weight)] text-graygray-90 text-[length:var(--title-title-l-700-font-size)] tracking-[var(--title-title-l-700-letter-spacing)] leading-[var(--title-title-l-700-line-height)] whitespace-nowrap [font-style:var(--title-title-l-700-font-style)]">
               대피소 소개
             </h2>
           </div>

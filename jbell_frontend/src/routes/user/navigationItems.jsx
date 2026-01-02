@@ -8,7 +8,7 @@ const navigationItems = [
   },
   {
     label: "행동요령",
-    path: "/",
+    path: "/behavioralGuide/disasterGuide/typhoon/TyphoonAfterAction",
     icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
   },
   {

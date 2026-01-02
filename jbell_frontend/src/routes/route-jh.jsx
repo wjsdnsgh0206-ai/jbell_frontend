@@ -9,7 +9,7 @@ export const jhUserRoutes = [
     /* 행동요령 > 재난별행동요령 > 태풍 단계별 행동요령 */
     // 태풍 예보 시 행동요령
   {
-    path: "/typhoonBeforeAction",
+    path: "/behavioralGuide/disasterGuide/typhoon/TyphoonAfterAction",
     element: <TyphoonBeforeAction />
   },
 ];
