@@ -4,7 +4,7 @@ export const SIDE_MENU_DATA = {
       title: '회원정보', 
       items: [
         { name: '내 정보', path: '/myProfile' },
-        { name: '내 정보 수정', path: '/editProfile' }
+        { name: '내 정보 수정', path: '/editProfileCheck' }
       ] 
       // items가 있으므로 클릭 시 아코디언이 열리고 화살표가 보입니다.
     },
