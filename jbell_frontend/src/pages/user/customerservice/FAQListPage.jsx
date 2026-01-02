@@ -2,7 +2,7 @@ import React from 'react';
 import { Search, Home, ChevronRight, ChevronLeft, ChevronDown, Menu, User, Globe, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const FAQPage = () => {
+const FAQListPage = () => {
   const navigate = useNavigate();
   // 샘플 데이터 (이미지 내용을 기반으로 생성)
   const faqData = [
@@ -170,4 +170,4 @@ const FAQPage = () => {
 
 
 
-export default FAQPage;
+export default FAQListPage;
