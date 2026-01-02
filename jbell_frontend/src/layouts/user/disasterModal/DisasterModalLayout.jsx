@@ -39,7 +39,7 @@ const DisasterModalLayout = ( {children} ) => {
         <aside className="hidden lg:flex w-[220px] bg-[#1a2332] text-white shrink-0 flex-col border-r border-white/5">
           <div className="p-5 font-black text-lg tracking-tight flex items-center gap-2 border-b border-white/5">
             <div className="w-1.5 h-4 bg-blue-500 rounded-full" />
-            전주시 안전누리
+            전북안전누리
           </div>
           <nav className="flex-1 mt-2 px-2 space-y-0.5">
             {menuList.map((menu) => {
@@ -112,7 +112,7 @@ const DisasterModalLayout = ( {children} ) => {
               <div className="absolute inset-0 bg-black/50" onClick={() => setIsMenuOpen(false)} />
               <nav className="relative w-2/3 h-full bg-[#1a2332] text-white p-6 animate-in slide-in-from-left duration-300">
                 <div className="flex justify-between items-center mb-8">
-                  <span className="font-black text-lg">전주시 안전누리</span>
+                  <span className="font-black text-lg">전북안전누리</span>
                   <button onClick={() => setIsMenuOpen(false)} className="text-2xl">✕</button>
                 </div>
                 <div className="space-y-2">
