@@ -26,7 +26,8 @@ const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
 };
 
 const UserMap = () => {
-  /* <================ 상태 관리 (여기가 중요!) ================> */
+/* <======================================== 상태 관리 =======================================> */
+/* <================ 상태 관리 (여기가 중요!) ================> */
   // 초기 상태를 null로 설정해서 처음엔 아무 메뉴도 안 나오게 합니다.
   const [activeMenu, setActiveMenu] = useState(null); 
   const [addressType, setAddressType] = useState('road');
@@ -39,6 +40,13 @@ const UserMap = () => {
   const [selectedInitial, setSelectedInitial] = useState('');
   const [selectedRoad, setSelectedRoad] = useState('');
 
+  /* 대피소 메뉴용 추가 상태 (상단에 추가하세요) */
+  const [shelterSearchType, setShelterSearchType] = useState('category'); // 'category' 또는 'name'
+  const [shelterResults, setShelterResults] = useState([]); // 검색 결과 리스트 저장용
+  const [selectedShelter, setSelectedShelter] = useState(null); // 선택된 대피소 상세 정보
+
+/* <======================================== 상태 관리 =======================================> */
+/* <======================================== 데이터 정의 =======================================> */
   /* <================ 데이터 정의 (기존과 동일) ================> */
   const REGION_DATA = {
     '전주시': ['완산구', '덕진구'],
@@ -55,8 +63,10 @@ const UserMap = () => {
     '군산시': { '기본': ['해신동', '월명동', '신풍동', '조촌동'] },
     '익산시': { '기본': ['중앙동', '인화동', '마동', '남중동'] }
   };
+/* <======================================== 데이터 정의 =======================================> */
 
-  /* <================ 핸들러 함수들 ================> */
+
+/* <======================================== 핸들러 함수들 =======================================> */
   // 홈으로 돌아가기 (모든 상태 초기화)
   const handleGoHome = () => {
     setActiveMenu(null);
@@ -81,6 +91,8 @@ const UserMap = () => {
     } 
     return DETAILED_DATA[selectedSigun]?.['기본'] || [];
   };
+/* <======================================== 핸들러 함수들 =======================================> */
+
 
   return (
     /* <==================================================================================================> */
@@ -147,7 +159,70 @@ const UserMap = () => {
             
         {/* [2. 중단 가변 영역] 메뉴 선택에 따라 내용이 바뀜 */}
         <div className="flex-1 overflow-y-auto">
-          {activeMenu === 'address' ? (
+          
+            {/* [2. 중단 가변 영역] 내 대피소 조건부 렌더링 부분 */}
+          {activeMenu === 'shelter' ? (
+            <div className="flex flex-col h-full">
+              {/* 탭 메뉴 (기획안 1~2번 참고) */}
+              <div className="flex border-b text-sm font-medium sticky top-0 bg-white z-10">
+                <button 
+                  onClick={() => setShelterSearchType('category')}
+                  className={`flex-1 py-3 ${shelterSearchType === 'category' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400'}`}
+                >지역 선택</button>
+                <button 
+                  onClick={() => setShelterSearchType('name')}
+                  className={`flex-1 py-3 ${shelterSearchType === 'name' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400'}`}
+                >대피소명 검색</button>
+              </div>
+
+              <div className="p-4 space-y-4 overflow-y-auto flex-1">
+                {shelterSearchType === 'category' ? (
+                  /* 기획안 2번: 지역별 선택 */
+                  <div className="space-y-4">
+                    <SelectBox label="시도" value="전북특별자치도" options={['전북특별자치도']} disabled />
+                    <SelectBox label="시군구" value={selectedSigun} options={Object.keys(REGION_DATA)} onChange={handleSigunSelect} />
+                    <button 
+                      onClick={() => { /* 카카오 API 검색 로직 실행 */ }}
+                      className="w-full bg-blue-600 text-white py-3 rounded-md font-bold mt-2"
+                    >검색</button>
+                  </div>
+                ) : (
+                  /* 기획안 4번: 이름 검색 */
+                  <div className="space-y-4">
+                    <div className="relative">
+                      <input 
+                        type="text" 
+                        placeholder="대피소 이름을 입력하세요." 
+                        className="w-full p-3 border rounded-md text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+                      <button className="absolute right-2 top-2 bg-blue-600 text-white p-1.5 rounded-md">
+                        <Search size={16} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* 기획안 3, 5번: 검색 결과 리스트 (예시 데이터) */}
+                <div className="mt-6 space-y-3">
+                  <p className="text-xs text-slate-500 font-medium">검색 결과 {shelterResults.length}건</p>
+                  
+                  {/* 리스트 아이템 예시 - 나중에 shelterResults.map(...)으로 돌리시면 됩니다 */}
+                  <div 
+                    onClick={() => setSelectedShelter({name: '전주풍남초등학교(운동장)', addr: '전북특별자치도 전주시 완산구 관선3길 15'})}
+                    className="p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition-all group"
+                  >
+                    <h4 className="font-bold text-slate-800 group-hover:text-blue-700">전주풍남초등학교(운동장)</h4>
+                    <p className="text-xs text-slate-500 mt-1">지진해일대피소</p>
+                    <div className="flex items-center gap-1 mt-2 text-slate-400 text-[11px]">
+                      <MapPin size={12} />
+                      <span>전북특별자치도 전주시 완산구...</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : activeMenu === 'address' ? (
+            // ★ 주소 검색
             /* 주소 검색 메뉴를 눌렀을 때만 나타나는 내용 */
             <>
               <div className="flex border-b text-sm font-medium sticky top-0 bg-white z-10">
