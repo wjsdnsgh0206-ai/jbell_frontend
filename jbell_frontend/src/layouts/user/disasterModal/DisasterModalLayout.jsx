@@ -98,7 +98,7 @@ const DisasterModalLayout = ({ children }) => {
                     key={menu.label} 
                     onClick={() => handleMenuClick(menu.path)} 
                     style={{ transitionDelay: isMenuOpen ? `${idx * 50}ms` : '0ms' }}
-                    className={`w-full text-left px-5 py-4 rounded-xl text-[16px] font-bold transition-all ${
+                    className={`w-full text-left px-5 py-4 rounded-xl text-[15px] font-bold transition-all ${
                       location.pathname === menu.path 
                       ? "bg-blue-600 text-white translate-x-2" 
                       : `text-slate-400 hover:bg-white/5 ${isMenuOpen ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"}`
