@@ -52,14 +52,14 @@ const MainDisaster = () => {
           <h2 className="text-lg sm:text-xl lg:text-2xl font-extrabold tracking-tight text-gray-900">
             재난사고속보
           </h2>
-          <span className="bg-red-50 text-red-600 text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 rounded-full animate-pulse">
+          <span className="bg-red-50 text-red-600 text-[15px] sm:text-xs font-bold px-2 sm:px-3 py-1 rounded-full animate-pulse">
             LIVE
           </span>
         </div>
         
         {/* 전체 목록은 '사고속보' 탭으로 이동 */}
         <button
-          className="text-gray-400 hover:text-blue-600 transition-colors text-xs sm:text-sm font-medium"
+          className="text-gray-400 hover:text-blue-600 transition-colors text-[15px] sm:text-sm font-medium"
           onClick={() => navigate("/disaster/accident")}
         >
           더보기 +
@@ -78,7 +78,7 @@ const MainDisaster = () => {
           >
             <div className="flex items-center gap-3 sm:gap-4 overflow-hidden">
               {/* 카테고리 뱃지 */}
-              <span className={`shrink-0 w-12 sm:w-14 text-center py-1 rounded-md text-[10px] sm:text-[11px] font-bold border transition-colors
+              <span className={`shrink-0 w-12 sm:w-14 text-center py-1 rounded-md text-[13px] sm:text-[13px] font-bold border transition-colors
                 ${item.type === "태풍" ? "border-blue-200 text-blue-500 bg-blue-50" : 
                   item.type === "지진" ? "border-amber-200 text-amber-600 bg-amber-50" :
                   item.type === "호우" ? "border-indigo-200 text-indigo-500 bg-indigo-50" :
@@ -89,13 +89,13 @@ const MainDisaster = () => {
               </span>
 
               {/* 제목 */}
-              <span className="text-xs sm:text-sm lg:text-[15px] font-semibold text-gray-700 group-hover:text-blue-600 transition-colors truncate">
+              <span className="text-[14px] sm:text-sm lg:text-[15px] font-semibold text-gray-700 group-hover:text-blue-600 transition-colors truncate">
                 {item.title}
               </span>
             </div>
 
             {/* 날짜 */}
-            <span className="shrink-0 text-[10px] sm:text-xs text-gray-400 tabular-nums font-medium sm:ml-auto">
+            <span className="shrink-0 text-[15px] sm:text-xs text-gray-400 tabular-nums font-medium sm:ml-auto">
               {item.date}
             </span>
           </div>

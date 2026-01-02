@@ -16,10 +16,10 @@ const UserFooter = () => {
     { text: "저작권정책", isHighlighted: false },
   ];
 
-  const guideLinks = [
-    { text: "이용안내", hasIcon: true },
-    { text: "찾아오시는 길", hasIcon: true },
-  ];
+  // const guideLinks = [
+  //   { text: "이용안내", hasIcon: true },
+  //   { text: "찾아오시는 길", hasIcon: true },
+  // ];
 
   return (
     <footer className="flex flex-col items-center relative bg-graygray-10 w-full border-t-2 border-graygray-30">
