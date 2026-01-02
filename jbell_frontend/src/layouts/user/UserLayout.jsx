@@ -3,6 +3,7 @@ import UserFooter from './UserFooter';
 import { Suspense } from "react";
 
 const UserLayout = ({ children }) => {
+  
   return (
     <Suspense>
       <div
