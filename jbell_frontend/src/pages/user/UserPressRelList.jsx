@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const UserOpenSpaceLi = () => {
+const UserPressRelList = () => {
   const navigate = useNavigate();
 
   // 1. 상태 관리
@@ -10,70 +10,53 @@ const UserOpenSpaceLi = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // 2. 데이터 샘플 (files를 숫자가 아닌 배열 형태로 수정)
+  // 2. 데이터 샘플 (이미지에 표시된 보도자료 데이터로 텍스트 수정)
   const notices = [
-    { id: 7, title: "행정안전부 재난안전데이터 공유플랫폼 안내", author: '관리자', files: [{name:'file1'}], date: '2025-04-11', isPin: true },
-    { id: 8, title: "전북특별자치도 '25년도 11월 재난 현황 정리입니다", author: '관리자', files: [{name:'file1'}, {name:'file2'}], date: '2025-12-08', isPin: true },
-    { id: 1, title: '전북특별자치도 새롭게 추가된 쉼터 목록입니다', author: '관리자', files: [{name:'file1'}, {name:'file2'}], date: '2025-12-06', isPin: false },
-    { id: 2, title: '전북특별자치도 새롭게 추가된 대피소 목록입니다', author: '관리자', files: [{name:'file1'}, {name:'file2'}, {name:'file3'}], date: '2025-11-25', isPin: false },
-    { id: 3, title: '전북 특별자치도 겨울철 재난 대비 요령입니다', author: '관리자', files: [{name:'file1'}], date: '2025-11-11', isPin: false },
-    { id: 4, title: '겨울철 동파 대비, 이렇게 대비하세요', author: '관리자', files: [{name:'file1'}], date: '2025-11-02', isPin: false },
-    { id: 5, title: '한파정보 받고 부모님께 효도 안부전화드리기 캠페인', author: '관리자', files: [], date: '2025-10-30', isPin: false },
-    { id: 6, title: '전북자치도, 도민 누구나 안전보험 혜택 받는다!', author: '관리자', files: [{name:'file1'}], date: '2025-10-20', isPin: false },
-    { id: 7, title: '전북자치도, 도민 누구나 안전보험 혜택 받는다!', author: '관리자', files: [{name:'file1'}], date: '2025-10-20', isPin: false },
-    { id: 8, title: '전북자치도, 도민 누구나 안전보험 혜택 받는다!', author: '관리자', files: [{name:'file1'}], date: '2025-10-20', isPin: false },
-    { id: 9, title: '전북자치도, 도민 누구나 안전보험 혜택 받는다!', author: '관리자', files: [{name:'file1'}], date: '2025-10-20', isPin: false },
-    { id: 10, title: '전북자치도, 도민 누구나 안전보험 혜택 받는다!', author: '관리자', files: [{name:'file1'}], date: '2025-10-20', isPin: false },
-    { id: 11, title: '전북자치도, 도민 누구나 안전보험 혜택 받는다!', author: '관리자', files: [{name:'file1'}], date: '2025-10-20', isPin: false },
+    { id: 1, title: "전북특별자치도 지진방재 국제세미나 개최", author: '관리자', files: [{name:'file1'}], date: '2025-11-11', isPin: false },
+    { id: 2, title: "전북특별자치도, 2026년 재해예방사업 국비 1,054억 확보", author: '관리자', files: [{name:'file1'}], date: '2025-11-11', isPin: false },
+    { id: 3, title: "전북특별자치도 여름철 자연재난 인명피해 '0명'", author: '관리자', files: [{name:'file1'}], date: '2025-11-11', isPin: false },
+    { id: 4, title: '한가위 연휴기간 축제 전북도 민관합동점검 안전관리 총력!', author: '관리자', files: [{name:'file1'}], date: '2025-10-24', isPin: false },
+    { id: 5, title: '전북자치도, 안전점검의 날 교통안전 캠페인 전개', author: '관리자', files: [{name:'file1'}], date: '2025-09-25', isPin: false },
+    { id: 6, title: '전북도, 상반기 안전신문고 우수 신고자 선정 포상', author: '관리자', files: [{name:'file1'}], date: '2025-09-25', isPin: false },
+    { id: 7, title: '전북특별자치도, 가을축제 안전관리 우리가 간다!', author: '관리자', files: [{name:'file1'}], date: '2025-09-25', isPin: false },
+    { id: 8, title: '전북자치도, 찾아가는 중대재해예방 컨설팅 완료', author: '관리자', files: [{name:'file1'}], date: '2025-09-25', isPin: false },
   ];
 
-  // 3. 정렬 로직
+  // 3. 정렬 로직 (기존 유지)
   const sortedNotices = [...notices].sort((a, b) => {
     if (a.isPin !== b.isPin) return b.isPin ? 1 : -1;
     return new Date(b.date) - new Date(a.date);
   });
 
-  // 4. 페이징 계산
+  // 4. 페이징 계산 (기존 유지)
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = sortedNotices.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(sortedNotices.length / itemsPerPage);
 
+  // 상세 페이지 이동 경로만 보도자료용으로 수정
   const handleDetailClick = (id) => {
-    navigate(`/userNoticeDetail/${id}`);
+    navigate(`/userPressRelDetail/${id}`);
   };
-
-  // 보도자료 목록으로 이동하는 함수
-const goToPressRelease = () => {
-  navigate('/userPressLi'); 
-};
 
   return (
     <>
+      {/* 상단 브레드크럼: 공지사항 -> 보도자료 텍스트 변경 */}
       <div className="bg-gray-50 border-b border-gray-200 py-3">
         <div className="max-w-6xl mx-auto px-4 text-sm text-gray-500 flex items-center gap-2">
           <span className="cursor-pointer hover:text-gray-800 transition">🏠 홈</span>
           <span className="text-gray-300">&gt;</span>
           <span>열린마당</span>
           <span className="text-gray-300">&gt;</span>
-          <span className="font-semibold text-gray-800">공지사항</span>
-          <button onClick={"/userPressDetail"}></button>
+          <span className="font-semibold text-gray-800">보도자료</span>
         </div>
       </div>
 
       <main className="flex-grow max-w-6xl w-full mx-auto px-4 py-10 md:py-16">
-        <h2 className="text-3xl font-bold mb-10 text-gray-900 tracking-tight">공지사항</h2>
+        {/* 타이틀: 공지사항 -> 보도자료 텍스트 변경 */}
+        <h2 className="text-3xl font-bold mb-10 text-gray-900 tracking-tight">보도자료</h2>
 
-                {/* 보도자료 이동 임시 버튼 */}
-          <button 
-            onClick={goToPressRelease}
-            className="bg-orange-500 text-white px-4 py-2 rounded-md text-sm font-bold hover:bg-orange-600 transition shadow-sm"
-          >
-            보도자료 목록 이동 테스트 →
-          </button>
-        
-
-        {/* 검색바 영역 */}
+        {/* 검색바 영역 (기존 유지) */}
         <div className="bg-gray-50 border border-gray-200 p-4 md:p-6 rounded-lg mb-10 flex flex-col md:flex-row justify-center gap-3">
           <div className="relative w-full md:w-32">
             <select 
@@ -109,7 +92,7 @@ const goToPressRelease = () => {
           </button>
         </div>
 
-        {/* 게시판 테이블 */}
+        {/* 게시판 테이블 (기존 유지) */}
         <div className="w-full mt-8 overflow-x-auto"> 
           <table className="w-full text-center border-collapse">
             <thead className="bg-gray-100 text-sm font-bold text-gray-700 border-t-2 border-gray-800">
@@ -151,7 +134,6 @@ const goToPressRelease = () => {
                     </div>
                   </td>
                   <td className="py-4 text-sm text-gray-600 hidden sm:table-cell">{notice.author}</td>
-                  {/* 파일수 자동 인식 수정 부분: length 사용 */}
                   <td className="py-4 text-sm text-gray-500 hidden md:table-cell">
                     {notice.files ? notice.files.length : 0}
                   </td>
@@ -162,7 +144,7 @@ const goToPressRelease = () => {
           </table>
         </div>
 
-        {/* 페이지네이션 */}
+        {/* 페이지네이션 (기존 유지) */}
         <div className="flex justify-center items-center gap-1 mt-12">
           <button 
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -199,4 +181,4 @@ const goToPressRelease = () => {
   );
 };
 
-export default UserOpenSpaceLi;
+export default UserPressRelList;
