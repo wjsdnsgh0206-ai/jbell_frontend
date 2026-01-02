@@ -7,6 +7,7 @@ const UserMap = () => {
   const [activeMenu, setActiveMenu] = useState('address'); 
   
   // 2. 시도/구 선택 드롭다운이 열렸는지
+  // 시도 라고 하긴 했는데 그냥 시군의 개념으로 이해해주시기를 부탁드림... 이름 바꾸기에는 너무 늦은 듯...
   const [isSidoOpen, setIsSidoOpen] = useState(false);
   const [isGooOpen, setIsGooOpen] = useState(false);
 
@@ -34,6 +35,7 @@ const UserMap = () => {
         '장수군': [],
       };
 
+      
       // ... 컴포넌트 내부
       const handleSidoSelect = (city) => {
         setSelectedSido(city);
@@ -42,17 +44,15 @@ const UserMap = () => {
         
         // 구가 없는 지역이면 아예 구 선택창을 닫아두거나 로직 처리
         if (REGION_DATA[city].length === 0) {
+          setSelectedGoo('구 선택');   
           setIsGooOpen(false);
         }
       };
+      
 
 
   return (
     <>
-
-
-      
-
 
       <div className="flex flex-1 relative overflow-hidden">
         {/* 2. 좌측 사이드바 */}
@@ -143,24 +143,26 @@ const UserMap = () => {
                 {/* 구 선택 박스 (시도 선택 아래에 있으므로, 위가 열리면 자동으로 아래로 밀림) */}
                 <div className="mt-4">
                   <label className="text-xs text-slate-500 mb-1 block">구 선택</label>
+
                   <button 
-                    onClick={() => {
-                      // 전주시처럼 구 데이터가 있을 때만 클릭 가능하게 설정
-                      if (REGION_DATA[selectedSido]?.length > 0) {
-                        setIsGooOpen(!isGooOpen);
-                      } else {
-                        alert("해당 지역은 하위 '구'가 없습니다.");
-                      }
-                    }}
-                    className={`w-full flex justify-between items-center p-3 border rounded-md text-sm ${
-                      REGION_DATA[selectedSido]?.length === 0 ? 'bg-slate-50 opacity-60 cursor-not-allowed' : 'bg-white'
-                    }`}
-                  >
-                    <span className={selectedGoo === '구 선택' ? 'text-slate-400' : 'text-slate-900'}>
-                      {selectedGoo}
-                    </span>
-                    <ChevronDown size={16} />
-                  </button>
+                  onClick={() => {
+                    // 전주시와 같이 구 데이터가 있는 지역(전주시)일 때만 클릭 가능
+                    if (REGION_DATA[selectedSido]?.length > 0) {
+                      setIsGooOpen(!isGooOpen);
+                    }
+                  }}
+                  // 구가 없는 지역이면 배경색을 slate-50으로 바꾸고, 클릭 안 되는 커서(not-allowed)를 보여줌
+                  className={`w-full flex justify-between items-center p-3 border rounded-md text-sm transition-all ${
+                    REGION_DATA[selectedSido]?.length === 0 
+                      ? 'bg-slate-50 text-slate-400 cursor-not-allowed' 
+                      : 'bg-white text-slate-900'
+                  }`}
+                  disabled={REGION_DATA[selectedSido]?.length === 0} // HTML 속성으로도 비활성화
+                >
+                  <span>{selectedGoo}</span>
+                  <ChevronDown size={16} className={REGION_DATA[selectedSido]?.length === 0 ? 'text-slate-300' : 'text-slate-500'} />
+                </button>
+
 
                 {/* 구 선택 리스트: 데이터가 있을 때만 맵 돌리기 */}
                   {isGooOpen && REGION_DATA[selectedSido]?.length > 0 && (
