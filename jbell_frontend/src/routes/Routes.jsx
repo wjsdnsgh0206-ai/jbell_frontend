@@ -91,10 +91,23 @@ const AllRoutes = (props) => {
       </Route>
 
       <Route>
-        {
-          jhUserRoutes.map((route, idx) => <Route key={idx} path={route.path} element={<UserLayout {...props}>
-            {route.element}
-          </UserLayout>} />)
+         {
+          jhUserRoutes.map((route, idx) => (
+            <Route 
+              key={idx} 
+              path={route.path} 
+              element={
+                <UserLayout 
+                  {...props} 
+                  sidebarData={route.sidebarData} // 중요: 데이터 전달
+                  nowPage={route.nowPage}         // 중요: 제목 전달
+                  activeItem={route.activeItem}   // 중요: 현재 강조할 메뉴 전달
+                >
+                  {route.element}
+                </UserLayout>
+              } 
+            />
+          ))
         }
       </Route>
 
