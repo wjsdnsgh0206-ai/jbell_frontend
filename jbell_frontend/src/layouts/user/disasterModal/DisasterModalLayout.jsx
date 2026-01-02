@@ -44,7 +44,7 @@ const DisasterModalLayout = ({ children }) => {
           </div>
 
           <nav className="flex-1 mt-6 px-4 space-y-2">
-            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest px-4 mb-4">재난 카테고리</p>
+            {/* <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest px-4 mb-4">재난 카테고리</p> */}
             {menuList.map((menu) => {
               const isActive = location.pathname === menu.path;
               return (
