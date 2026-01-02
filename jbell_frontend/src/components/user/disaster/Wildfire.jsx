@@ -1,4 +1,7 @@
-const Earthquake = () => {
+
+// ----------- 산불 ----------- //
+
+const Wildfire = () => {
   return (
     <div className="grid grid-cols-12 gap-6">
 
@@ -100,4 +103,4 @@ const Earthquake = () => {
   );
 };
 
-export default Earthquake;
+export default Wildfire;
