@@ -1,137 +1,113 @@
-import React from 'react';
-import { 
-  UserCircle, 
-  MapPinned, 
-  IdCard, 
-  Mail, 
-  Settings2,
-  CalendarDays
-} from 'lucide-react';
-import UserSideBar from '../../../layouts/user/UserSideBar'; // 사이드바 경로 확인 필요
+import React, { useState } from 'react';
+import { User, MapPin, Mail, Lock, Check, CalendarDays } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 const MyProfile = () => {
-  // 실제 환경에서는 API를 통해 가져올 사용자 데이터
-  const userData = {
-    city: "서울특별시",
-    district: "강남구",
-    name: "홍길동",
-    birthDate: "1990-01-01",
-    gender: "male",
-    id: "korea_user01",
-    email: "contact@email.com"
-  };
-
+  const navigate = useNavigate();
   
-
+  // 초기 상태값 (조회용 데이터)
+  const [formData] = useState({
+    city: '서울특별시', 
+    district: '강남구', 
+    name: '홍길동', 
+    birthDate: '1990-01-01',
+    gender: 'male',
+    userId: 'hong1234', 
+    email: 'hong@example.com', 
+  });
 
   return (
-    // 전체 컨테이너: 사이드바와 컨텐츠를 가로로 배치
-    <div>
-      
-     
+    <div className="min-h-screen bg-white flex justify-center py-10 px-4 font-sans text-slate-900 text-left">
+      <div className="max-w-[550px] w-full">
+        <header className="mb-8 text-center">
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">프로필 정보</h1>
+          <p className="text-slate-500 mt-2">회원님의 등록된 정보를 확인하실 수 있습니다.</p>
+        </header>
 
-      {/* 2. 메인 컨텐츠 영역 (오른쪽) */}
-      <div className="flex-1 flex justify-center py-10 px-5 sm:py-16 font-sans text-slate-900 border-l border-gray-200">
-        <div className="max-w-[500px] w-full">
-          <h1 className="text-2xl font-bold tracking-tight mb-8 text-left border-b pb-4 border-slate-900">
-            내 정보
-          </h1>
-
-          {/* 거주지 카드 */}
-          <div className="bg-white border border-slate-200 rounded-xl p-6 mb-5 shadow-sm">
-            <div className="flex items-center gap-2 mb-6">
-              <MapPinned size={18} className="text-blue-600" />
-              <h2 className="text-base font-bold text-slate-800">거주지</h2>
+        <div className="space-y-6">
+          {/* 거주지 섹션 */}
+          <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+            <h2 className="text-lg font-bold flex items-center gap-2 border-b pb-3"><MapPin size={20} className="text-blue-600" /> 거주 지역</h2>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="h-12 px-4 flex items-center rounded-xl border border-slate-200 bg-slate-50 text-slate-600 text-sm font-medium">
+                {formData.city}
+              </div>
+              <div className="h-12 px-4 flex items-center rounded-xl border border-slate-200 bg-slate-50 text-slate-600 text-sm font-medium">
+                {formData.district}
+              </div>
             </div>
+          </section>
+
+          {/* 기본 정보 섹션 */}
+          <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
+            <h2 className="text-lg font-bold flex items-center gap-2 border-b pb-3"><User size={20} className="text-blue-600" /> 기본 정보</h2>
             
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1 space-y-2">
-                <label className="text-xs font-semibold text-slate-500 ml-1">시도</label>
-                <div className="h-11 flex items-center px-4 bg-slate-50 border border-slate-100 rounded-lg text-sm text-slate-600 font-medium cursor-default">
-                  {userData.city}
-                </div>
-              </div>
-              <div className="flex-1 space-y-2">
-                <label className="text-xs font-semibold text-slate-500 ml-1">시군구</label>
-                <div className="h-11 flex items-center px-4 bg-slate-50 border border-slate-100 rounded-lg text-sm text-slate-600 font-medium cursor-default">
-                  {userData.district}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 회원 정보 카드 */}
-          <div className="bg-white border border-slate-200 rounded-xl p-6 mb-8 shadow-sm space-y-5">
-            <div className="flex items-center gap-2 mb-1">
-              <UserCircle size={18} className="text-blue-600" />
-              <h2 className="text-base font-bold text-slate-800">회원 정보</h2>
-            </div>
-
             {/* 이름 */}
-            <div className="space-y-2 text-left">
-              <label className="text-xs font-semibold text-slate-500 ml-1">이름</label>
-              <div className="h-11 flex items-center px-4 bg-slate-50 border border-slate-100 rounded-lg text-sm text-slate-600 font-medium cursor-default">
-                {userData.name}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-400 ml-1">이름</label>
+              <div className="w-full h-12 px-4 flex items-center rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-medium">
+                {formData.name}
               </div>
             </div>
 
             {/* 생년월일 */}
-            <div className="space-y-2 text-left">
-              <label className="text-xs font-semibold text-slate-500 ml-1 flex items-center gap-1">
-                <CalendarDays size={13} /> 생년월일
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-400 flex items-center gap-1 ml-1">
+                <CalendarDays size={14}/> 생년월일
               </label>
-              <div className="h-11 flex items-center px-4 bg-slate-50 border border-slate-100 rounded-lg text-sm text-slate-600 font-medium cursor-default">
-                {userData.birthDate}
+              <div className="w-full h-12 px-4 flex items-center rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-medium">
+                {formData.birthDate}
               </div>
             </div>
 
             {/* 성별 */}
-            <div className="space-y-2 text-left">
-              <label className="text-xs font-semibold text-slate-500 ml-1">성별</label>
-              <div className="flex gap-10 py-1 opacity-60">
-                <label className="flex items-center gap-2 text-sm font-medium">
-                  <input type="radio" checked={userData.gender === 'male'} readOnly className="w-4 h-4 accent-blue-600" /> 남
-                </label>
-                <label className="flex items-center gap-2 text-sm font-medium">
-                  <input type="radio" checked={userData.gender === 'female'} readOnly className="w-4 h-4 accent-blue-600" /> 여
-                </label>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-400 ml-1">성별</label>
+              <div className="flex gap-3">
+                <div className={`flex-1 h-12 flex items-center justify-center rounded-xl border font-bold text-sm ${formData.gender === 'male' ? 'border-blue-200 bg-blue-50 text-blue-600' : 'border-slate-100 bg-slate-50 text-slate-400'}`}>
+                  남성
+                </div>
+                <div className={`flex-1 h-12 flex items-center justify-center rounded-xl border font-bold text-sm ${formData.gender === 'female' ? 'border-blue-200 bg-blue-50 text-blue-600' : 'border-slate-100 bg-slate-50 text-slate-400'}`}>
+                  여성
+                </div>
               </div>
             </div>
 
             {/* 아이디 */}
-            <div className="space-y-2 text-left">
-              <label className="text-xs font-semibold text-slate-500 ml-1 flex items-center gap-1">
-                <IdCard size={13} /> 아이디
-              </label>
-              <div className="h-11 flex items-center px-4 bg-slate-50 border border-slate-100 rounded-lg text-sm text-slate-600 font-medium cursor-default">
-                {userData.id}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-400 ml-1">아이디</label>
+              <div className="relative">
+                <div className="w-full h-12 px-4 flex items-center rounded-xl border border-slate-200 bg-slate-50 text-slate-400 font-medium italic">
+                  {formData.userId}
+                </div>
+                <Lock size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300" />
               </div>
             </div>
+          </section>
 
-            {/* 이메일 */}
-            <div className="space-y-2 text-left">
-              <label className="text-xs font-semibold text-slate-500 ml-1 flex items-center gap-1">
-                <Mail size={13} /> 이메일
-              </label>
-              <div className="h-11 flex items-center px-4 bg-slate-50 border border-slate-100 rounded-lg text-sm text-slate-600 font-medium cursor-default">
-                {userData.email}
+          {/* 연락처 섹션 */}
+          <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+            <h2 className="text-lg font-bold flex items-center gap-2 border-b pb-3"><Mail size={20} className="text-blue-600" /> 연락처 정보</h2>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-400 ml-1">이메일 주소</label>
+              <div className="w-full h-12 px-4 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-medium">
+                {formData.email}
+                <div className="flex items-center gap-1 text-green-600 text-xs font-bold italic">
+                  <Check size={14}/> Verified
+                </div>
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* 하단 액션 버튼 */}
-          <div className="footer-actions">
+          {/* <div className="pt-4">
             <button 
-              type="button"
-              className="w-full h-[54px] bg-blue-600 text-white rounded-xl font-bold text-base flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 active:scale-[0.98]"
+              type="button" 
+              onClick={() => navigate('/myProfile')} 
+              className="w-full h-14 bg-slate-900 text-white rounded-2xl font-bold shadow-lg active:scale-95 transition-all"
             >
-              <Settings2 size={18} /> 정보 수정하기
+              확인 완료
             </button>
-            <p className="mt-6 text-center text-xs text-slate-400 leading-relaxed">
-              회원 정보는 개인정보처리방침에 따라 안전하게 보호됩니다.<br/>
-              수정이 필요한 경우 위의 버튼을 클릭하여 본인 확인 절차를 진행해 주세요.
-            </p>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
