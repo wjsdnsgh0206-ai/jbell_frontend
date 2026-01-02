@@ -1,5 +1,6 @@
 import React from 'react';
 import { CheckCircle2, Home, LogIn, Mail, User, Calendar } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 const SignupSuccess = () => {
   // 실제 서비스에서는 가입 시 전달된 state나 context에서 가져올 데이터
@@ -9,6 +10,7 @@ const SignupSuccess = () => {
     id: "korea_user01",
     email: "contact@email.com"
   };
+const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-white flex justify-center items-center py-10 px-5 font-sans text-slate-900">
@@ -62,10 +64,12 @@ const SignupSuccess = () => {
 
         {/* 버튼 그룹 */}
         <div className="flex flex-col sm:flex-row justify-center gap-3 mb-8">
-          <button className="flex-1 max-w-xs h-[56px] bg-white border border-slate-300 text-slate-600 rounded-xl font-bold text-base flex items-center justify-center gap-2 hover:bg-slate-50 transition-all active:scale-[0.98]">
+          <button onClick={() => navigate('/#')}
+                  className="flex-1 max-w-xs h-[56px] bg-white border border-slate-300 text-slate-600 rounded-xl font-bold text-base flex items-center justify-center gap-2 hover:bg-slate-50 transition-all active:scale-[0.98]">
             <Home size={18} /> 메인 페이지로
           </button>
-          <button className="flex-1 max-w-xs h-[56px] bg-blue-600 text-white rounded-xl font-bold text-base flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 active:scale-[0.98]">
+          <button onClick={() => navigate('/loginMain')}
+                  lassName="flex-1 max-w-xs h-[56px] bg-blue-600 text-white rounded-xl font-bold text-base flex items-center justify-center gap-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 active:scale-[0.98]">
             로그인하러 가기 <LogIn size={18} />
           </button>
         </div>
