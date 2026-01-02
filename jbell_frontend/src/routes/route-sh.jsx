@@ -1,7 +1,10 @@
 import { lazy } from "react";
+import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
+const UserOpenSpaceLi = lazy(() => import("@/pages/user/UserOpenSpaceLi"));
 const UserNoticeDetail = lazy(() => import("@/pages/user/UserNoticeDetail"));
-
+const UserPressRelList = lazy(() => import("@/pages/user/UserPressRelList"));
+const UserPressRelDetail = lazy(() => import("@/pages/user/UserPressRelDetail"));
 
 
 // ------ 라우트 페이지 경로 입력 파일 ------ //
@@ -26,10 +29,26 @@ const UserNoticeDetail = lazy(() => import("@/pages/user/UserNoticeDetail"));
  *
  */
 export const shUserRoutes = [
-  
+  // --- 공지사항 (기존 유지) ---
   {
-    path: "/noticeDetail",
+    path: "/userOpenSpaceLi",
+    element: <UserOpenSpaceLi />,
+  },
+  {
+    path: "/userNoticeDetail/:id", 
     element: <UserNoticeDetail />,
   },
-,
+
+  // --- 보도자료 (신규 추가) ---
+  {
+    path: "/userPressLi", 
+    element: <UserPressRelList />,
+  },
+  {
+    // 여기 path를 RelDetail로 수정하거나, List의 navigate를 Detail로 수정해야 합니다.
+    // 여기서는 path를 컴포넌트 이름과 일치하도록 수정하겠습니다.
+    path: "/userPressRelDetail/:id", 
+    element: <UserPressRelDetail />,
+  },
+
 ];
