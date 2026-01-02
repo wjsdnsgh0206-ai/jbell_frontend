@@ -11,15 +11,15 @@ const MainWeather = () => {
                 <div className="relative z-10">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-xs font-bold opacity-90 flex items-center gap-1.5">
+                      <p className="text-[17px] font-bold opacity-90 flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
                         전주시 덕진동
                       </p>
-                      <p className="text-[10px] opacity-60 mt-0.5">
+                      <p className="text-[15px] opacity-60 mt-0.5">
                         2026.01.02 15:00 기준
                       </p>
                     </div>
-                    <div className="bg-white/20 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/30 text-[10px] font-bold">
+                    <div className="text-[15px] bg-white/20 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/30 text-[10px] font-bold">
                       실시간
                     </div>
                   </div>
@@ -33,7 +33,7 @@ const MainWeather = () => {
                         <span className="text-lg font-bold leading-tight">
                           맑음
                         </span>
-                        <span className="text-[10px] opacity-70">
+                        <span className="text-[15px] opacity-70">
                           체감 -5.4°
                         </span>
                       </div>
@@ -45,7 +45,7 @@ const MainWeather = () => {
                 {/* 대기질 정보 - 슬림한 프로그레스 바 형태로 공간 절약 */}
                 <div className="relative z-10 space-y-2.5">
                   <div className="bg-black/10 backdrop-blur-md p-3 rounded-xl border border-white/10">
-                    <div className="flex justify-between text-[10px] font-bold mb-1.5">
+                    <div className="flex justify-between text-[15px] font-bold mb-1.5">
                       <span>
                         미세먼지{" "}
                         <span className="text-blue-300 ml-1">좋음</span>
@@ -61,7 +61,7 @@ const MainWeather = () => {
                   </div>
 
                   <div className="bg-black/10 backdrop-blur-md p-3 rounded-xl border border-white/10">
-                    <div className="flex justify-between text-[10px] font-bold mb-1.5">
+                    <div className="flex justify-between text-[15px] font-bold mb-1.5">
                       <span>
                         초미세먼지{" "}
                         <span className="text-yellow-300 ml-1">보통</span>
@@ -85,10 +85,10 @@ const MainWeather = () => {
                   <span className="text-xl font-black leading-none">03</span>
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[10px] font-bold text-orange-600 mb-0.5">
+                  <p className="text-[15px] font-bold text-orange-600 mb-0.5">
                     태풍 주의보 발령
                   </p>
-                  <p className="text-sm font-bold text-gray-800 leading-tight truncate">
+                  <p className="text-[15px] font-bold text-gray-800 leading-tight truncate">
                     강풍 동반 집중호우 주의
                   </p>
                 </div>

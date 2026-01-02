@@ -21,7 +21,7 @@ const AccidentNews = () => {
           {/* 1. 왼쪽: 사고 리스트 사이드바 */}
           <div className="w-full lg:w-[320px] bg-slate-50/30 border-r border-gray-100 p-5 flex flex-col gap-4 z-20">
             <div className="flex items-center justify-between">
-              <h4 className="text-[16px] font-black text-slate-800">
+              <h4 className="text-[15px] font-black text-slate-800">
                 재난·사고 목록 <span className="text-rose-500 ml-1">9</span>
               </h4>
             </div>
@@ -61,13 +61,13 @@ const AccidentNews = () => {
                   <div className="bg-slate-50 px-3 py-2 border-b border-gray-100 flex justify-between items-center">
                     <div className="flex items-center gap-1.5">
                       <span className="w-1 h-1 bg-slate-300 rounded-full" />
-                      <span className="text-[11px] font-black text-slate-500 tracking-tight">
+                      <span className="text-[12px] font-black text-slate-500 tracking-tight">
                         2026.01.02 16:10:02
                       </span>
                     </div>
                   </div>
                   <div className="p-4 flex flex-col items-center text-center">
-                    <h5 className="text-[14px] font-bold text-slate-800 mb-3 leading-tight">
+                    <h5 className="text-[15px] font-bold text-slate-800 mb-3 leading-tight">
                       위치 : ㅇㅇㅇ 아파트 앞
                     </h5>
                     <div className="inline-flex items-center gap-2 bg-white text-rose-600 px-4 py-1.5 rounded-full text-[13px] font-extrabold border-2 border-rose-500 shadow-sm shadow-rose-100">

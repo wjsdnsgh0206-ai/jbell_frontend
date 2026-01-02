@@ -88,7 +88,7 @@ const ActionTipBox = ({ type = "지진" }) => {
         <h3 className="text-[17px] font-black text-slate-800 tracking-tight">
           {type} 발생 시 행동요령
         </h3>
-        <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100/50 uppercase">
+        <span className="text-[12px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100/50 uppercase">
           Safety Guide
         </span>
       </div>
@@ -108,7 +108,7 @@ const ActionTipBox = ({ type = "지진" }) => {
 
             {/* 텍스트: 숫자보다 위에 오도록 z-10 부여 */}
             <div className="relative z-10 pr-2">
-              <p className="text-[12.5px] lg:text-[13.5px] font-bold text-slate-600 leading-[1.6] break-keep">
+              <p className="text-[15px] lg:text-[15px] font-bold text-slate-600 leading-[1.6] break-keep">
                 {tip.text}
               </p>
             </div>
