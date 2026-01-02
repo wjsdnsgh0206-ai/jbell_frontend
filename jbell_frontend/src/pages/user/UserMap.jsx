@@ -180,7 +180,8 @@ const UserMap = () => {
                     <SelectBox 
                     label="시군 선택" 
                     value={selectedSido} 
-                    options={['전주시', '군산시', '익산시']} // 예시 데이터
+                    options={['전주시', '군산시', '익산시', '정읍시', '남원시', '김제시', 
+                      '완주군', '고창군', '부안군', '순창군', '임실군', '무주군', '진안군', '장수군']} // 선택할 모든 전북 행정지역 목록
                     onChange={handleSidoSelect} 
                   />
                   <SelectBox 
@@ -193,6 +194,37 @@ const UserMap = () => {
                   <SelectBox label="초성 선택" value={selectedInitial} onChange={setSelectedInitial} />
                   <SelectBox label="도로명 선택" value={selectedRoad} onChange={setSelectedRoad} />
                 </div>
+              )}
+
+            {/* 지번 검색 섹션 */}
+              {addressType === 'jibun' && (
+                <div class="space-y-5">
+                <SelectBox 
+                  label="시도 선택" 
+                  value={selectedSido} 
+                  options={['전북특별자치도']} // 예시 데이터
+                  onChange={handleSidoSelect} 
+                />
+                <SelectBox 
+                  label="시군 선택" 
+                  value={selectedSido} 
+                  options={['전주시', '군산시', '익산시', '정읍시', '남원시', '김제시', 
+                    '완주군', '고창군', '부안군', '순창군', '임실군', '무주군', '진안군', '장수군']} // 선택할 모든 전북 행정지역 목록
+                  onChange={handleSidoSelect} 
+                />
+                <SelectBox 
+                  label="구 선택" 
+                  value={selectedGoo} 
+                  options={REGION_DATA[selectedSido] || []}
+                  disabled={REGION_DATA[selectedSido]?.length === 0}
+                  onChange={setSelectedGoo}
+                />
+                <SelectBox
+                  label="읍면동 선택" 
+                  value={selectedGoo}
+                  onChange={setSelectedGoo}
+                />
+              </div>
               )}
             </div>
 
