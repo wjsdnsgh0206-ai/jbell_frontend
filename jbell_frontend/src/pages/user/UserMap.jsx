@@ -119,7 +119,115 @@ const UserMap = () => {
       window.open(url, '_blank'); // 새 탭에서 네이버 지도 실행
     };
 /* <======================================== 카카오 맵 API, 네이버 연동 =======================================> */
+/* <======================================== 대피소(민방위, 지진 등) 상세 정보 팝업 창 =======================================> */
+    // 이 팝업 창 코드의 경우에는 html, css에도 코드 작성해야 함(2026년 1월 2일 오후 9시 35분 기준, 아직 작성 안 함)
+    // 1. 대피소 데이터 예시 (디자인이 조금씩 다르므로 객체 형태로 관리)
+      const shelterData = {
+          
+          
+        shelter1: {
+              title: "민방위대피소 세부정보",
+              fields: [
+                  { label: "시설명", value: "전주초등학교(운동장)" },
+                  { label: "위치", value: "전북특별자치도 전주시 완산구 풍남로 60" },
+                  { label: "면적", value: "2455㎡" },
+                  { label: "수용가능인원", value: "1,637명" }
+              ]
+          },
+        shelter2: {
+              title: "비상급수시설 세부정보",
+              fields: [
+                  { label: "시설명", value: "전주초등학교(운동장)" },
+                  { label: "위치", value: "전북특별자치도 전주시 완산구 풍남로 60" },
+              ]
+          },
+          shelter3: {
+              title: "지진옥외대피장소 세부정보",
+              fields: [
+                  { label: "시설명", value: "전주초등학교(운동장)" },
+                  { label: "위치", value: "전북특별자치도 전주시 완산구 풍남로 60" },
+                  { label: "면적", value: "2455㎡" },
+              ]
+          },
+          shelter4: {
+              title: "이재민임시주거시설(임시겸용) 세부정보",
+              fields: [
+                  { label: "시설명", value: "안산구청" },
+                  { label: "위치", value: "전북특별자치도 전주시 선비로 232" },
+                  { label: "면적", value: "1,370㎡" }
+              ]
+          },
+          shelter5: {
+              title: "이재민임시주거시설 세부정보",
+              fields: [
+                  { label: "시설명", value: "안산구청" },
+                  { label: "위치", value: "전북특별자치도 전주시 선비로 232" },
+                  { label: "면적", value: "1,370㎡" }
+              ]
+          },
+          shelter6: {
+              title: "빗물펌프장 세부정보",
+              fields: [
+                  { label: "시설명", value: "안산구청" },
+                  { label: "위치", value: "전북특별자치도 전주시 선비로 232" },
+                  { label: "설치일", value: "" },
+                  { label: "펌프용량", value: "" }
+              ]
+          },
+          shelter7: {
+              title: "빗물저류조 세부정보",
+              fields: [
+                  { label: "시설명", value: "안산구청" },
+                  { label: "위치", value: "전북특별자치도 전주시 선비로 232" },
+                  { label: "시설현황", value: "" },
+                  { label: "규모", value: "1,370㎡" }
+              ]
+          },
+          shelter2: {
+              title: "이재민임시주거시설(안산구청) 세부정보",
+              fields: [
+                  { label: "시설명", value: "안산구청" },
+                  { label: "위치", value: "전북특별자치도 전주시 선비로 232" },
+                  { label: "면적", value: "1,370㎡" }
+              ]
+          }
+      };
 
+      // 2. 팝업을 열고 데이터를 채우는 함수
+      function openPopup(shelterId) {
+          const data = shelterData[shelterId];
+          if (!data) return;
+
+          // 제목 설정
+          document.getElementById('popup-title').innerText = data.title;
+
+          // 테이블 내용 생성 (항목이 다를 수 있으므로 반복문 사용)
+          const table = document.getElementById('info-table');
+          table.innerHTML = ''; // 기존 내용 초기화
+
+          data.fields.forEach(field => {
+              const row = `<tr>
+                  <th>${field.label}</th>
+                  <td>${field.value}</td>
+              </tr>`;
+              table.innerHTML += row;
+          });
+
+          // 팝업 표시
+          document.getElementById('info-popup').style.display = 'block';
+      }
+
+      // 3. 팝업 닫기 함수
+      function closePopup() {
+          document.getElementById('info-popup').style.display = 'none';
+      }
+
+      // 테스트용: 페이지 로드 후 1번 대피소 팝업 띄우기
+      // 나중에 지도 마커 클릭 이벤트에 이 함수를 연결하면 됩니다!
+      window.onload = () => {
+          openPopup('shelter1'); 
+      };
+/* <======================================== 대피소(민방위, 지진 등) 상세 정보 팝업 창 =======================================> */
 
 
   return (
