@@ -114,7 +114,7 @@ const UserPageMain = () => {
               <div className="flex gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 border-b border-gray-100 overflow-x-auto">
                 {['공지사항', '보도자료', '시민안전교육'].map((tab, idx) => (
                   <button 
-                    key={tab} 
+                    key={idx} 
                     className={`pb-3 sm:pb-4 text-sm sm:text-base lg:text-lg font-bold transition-all whitespace-nowrap ${
                       idx === 0 
                         ? 'border-b-4 border-blue-600 text-blue-600' 
@@ -126,8 +126,8 @@ const UserPageMain = () => {
                 ))}
               </div>
               <div className="space-y-4 sm:space-y-5">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="flex justify-between items-center group cursor-pointer gap-2">
+                {[1, 2, 3, 4, 5].map((data, idx) => (
+                  <div key={idx} className="flex justify-between items-center group cursor-pointer gap-2">
                     <p className="text-gray-700 group-hover:text-blue-600 transition-colors flex items-center gap-2 overflow-hidden flex-1">
                       <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-gray-300 group-hover:bg-blue-600" />
                       <span className="truncate text-xs sm:text-sm lg:text-base">2025년 설 연휴 전국 민원서비스 통합 운영 안내</span>

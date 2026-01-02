@@ -1,9 +1,8 @@
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
-
-const DisasterModalLayout = () => {
+import { useNavigate, useLocation } from "react-router-dom";
+import { Suspense } from "react";
+const DisasterModalLayout = ( { children } ) => {
   const navigate = useNavigate();
   const location = useLocation(); // ⭐ 추가
-
   const menuList = [
     { label: "사고속보", path: "/disaster/accident" },
     { label: "지진", path: "/disaster/earthquake" },
@@ -15,6 +14,7 @@ const DisasterModalLayout = () => {
   ];
 
   return (
+
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
       {/* 배경 */}
       <div
@@ -66,12 +66,14 @@ const DisasterModalLayout = () => {
           </header>
 
           <div className="flex-1 overflow-y-auto p-8">
-            <Outlet />
+            <Suspense>
+              {children}
+            </Suspense>
           </div>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default DisasterModalLayout;

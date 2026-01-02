@@ -1,34 +1,42 @@
 import { Routes, Route } from "react-router-dom";
-import { Suspense } from "react";
 import UserLayout from "@/layouts/user/UserLayout";
-import { jyUserRoutes } from "@/routes/route-jy";
+import { jyUserRoutes, disasterModal } from "@/routes/route-jy";
+import { shUserRoutes } from "@/routes/route-sh";
 import DisasterModalLayout from "@/layouts/user/disasterModal/DisasterModalLayout";
-import { AccidentNews, Earthquake, Flood, HeavyRain,LandSlide, Typhoon, Wildfire } from "@/components/user/disaster";
 
+// import UserNoticeDetail from 
 // ----- 라우트 진입점 파일 ----- //
 // 프로젝트의 모든 라우트 경로를 이 파일에서 처리함. 
-const AllRoutes = () => (
+const AllRoutes = (props) => {
   // <Suspense fallback={<div>로딩중...</div>}>
-  <Suspense>
+  
+  return (
     <Routes>
-      <Route path="/" element={<UserLayout />}>
-        {jyUserRoutes.map((route, idx) => (
-          <Route key={idx} {...route} />
-        ))}
-
-        {/* 모달 전용 경로 */}
-        <Route path="disaster" element={<DisasterModalLayout />}>
-          <Route path="accident" element={<AccidentNews />} />
-          <Route path="earthquake" element={<Earthquake />} />
-          <Route path="flood" element={<Flood />} />
-          <Route path="heavyRain" element={<HeavyRain />} />
-          <Route path="landSlide" element={<LandSlide />} />
-          <Route path="typhoon" element={<Typhoon />} />
-          <Route path="wildfire" element={<Wildfire />} />
-        </Route>
+      <Route>
+        {
+          jyUserRoutes.map((route, idx) => <Route key={idx} path={route.path} element={<UserLayout {...props}>
+            {route.element}
+          </UserLayout>} />)
+        }
+      </Route>
+      <Route>
+        {
+          disasterModal.map((route, idx) => <Route key={idx} path={route.path} element={
+              <DisasterModalLayout {...props}>
+                {route.element}
+              </DisasterModalLayout> } />)
+        }
+      </Route>
+      
+      <Route>
+        {
+          shUserRoutes.map((route, idx) => <Route key={idx} path={route.path} element={<UserLayout {...props}>
+            {route.element}
+          </UserLayout>} />)
+        }
       </Route>
     </Routes>
-  </Suspense>
-);
+  );
+}
 
 export default AllRoutes;
