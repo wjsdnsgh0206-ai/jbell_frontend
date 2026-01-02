@@ -30,7 +30,7 @@ const QnADetailPage = lazy(() => import("@/pages/user/QnADetailPage"));
  *    ③ 아래 jyUserRoutes 배열에 객체 하나 추가
  *
  */
-export const CustomerService =[
+export const bjUserRoutes =[
 //FAQ 관련경로
     {path: "/faq", element: <FAQListPage/>},
     {path: "/faq:id", element: <FAQDetailPage/>},
