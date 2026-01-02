@@ -37,13 +37,13 @@ const UserMap = () => {
   const [activeMenu, setActiveMenu] = useState('address'); 
   
   // 2. 시도/구 선택 드롭다운이 열렸는지
-  // 시도 라고 하긴 했는데 그냥 시군의 개념으로 이해해주시기를 부탁드림... 이름 바꾸기에는 너무 늦은 듯...
   const [isSidoOpen, setIsSidoOpen] = useState(false);
+  const [isSigunOpen, setIsSigunOpen] = useState(false);
   const [isGooOpen, setIsGooOpen] = useState(false);
-  // const [] = useState(false);
 
   // 3. 선택된 값들
   const [selectedSido, setSelectedSido] = useState('시도 선택');
+  const [selectedSigun, setSelectedSigun] = useState('시군 선택');
   const [selectedGoo, setSelectedGoo] = useState('구 선택');
 
     // [추가] 도로명 주소 검색용 상태
@@ -73,9 +73,18 @@ const UserMap = () => {
 
       
       // ... 컴포넌트 내부
-      const handleSidoSelect = (city) => {
+       const handleSidoSelect = (city) => {
         setSelectedSido(city);
-        setIsSidoOpen(false);
+        setIsSigunOpen(false);
+        setSelectedGoo('구 선택'); // 시도가 바뀌면 구 선택은 초기화
+        
+        // 구가 없는 지역이면 아예 구 선택창을 닫아두거나 로직 처리
+          setSelectedGoo('구 선택');   
+          setIsGooOpen(false);
+      };
+      const handleSigunSelect = (city) => {
+        setSelectedSigun(city);
+        setIsSigunOpen(false);
         setSelectedGoo('구 선택'); // 시도가 바뀌면 구 선택은 초기화
         
         // 구가 없는 지역이면 아예 구 선택창을 닫아두거나 로직 처리
@@ -113,6 +122,9 @@ const UserMap = () => {
         {/* 좌측 사이드바 최상단 고정 메뉴 */}
         {/* [최상단 고정 영역] 검색창 & 대표 3개 메뉴 */}
         <div className="p-4 border-b space-y-4 bg-white">
+          
+          {/* 홈으로 돌아가는 버튼, 좌측 사이드 바 축소 버튼 추가?? */}
+          
           {/* 1. 통합 검색창 */}
           <div className="relative">
             <input 
@@ -203,14 +215,14 @@ const UserMap = () => {
                   label="시도 선택" 
                   value={selectedSido} 
                   options={['전북특별자치도']} // 예시 데이터
-                  onChange={handleSidoSelect} 
+                  onChange={setSelectedSido} 
                 />
                 <SelectBox 
                   label="시군 선택" 
                   value={selectedSido} 
                   options={['전주시', '군산시', '익산시', '정읍시', '남원시', '김제시', 
                     '완주군', '고창군', '부안군', '순창군', '임실군', '무주군', '진안군', '장수군']} // 선택할 모든 전북 행정지역 목록
-                  onChange={handleSidoSelect} 
+                  onChange={handleSigunSelect} 
                 />
                 <SelectBox 
                   label="구 선택" 
