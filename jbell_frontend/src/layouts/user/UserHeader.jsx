@@ -1,15 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 
-<<<<<<< HEAD
-const menus = [
-  { name: "지도", path: "/map" },
-  { name: "서비스신청", path: "/" },
-  { name: "정책정보", path: "/" },
-  { name: "기관소개", path: "/" },
-  { name: "고객센터", path: "/" },
-];
-=======
->>>>>>> origin/develop
 const UserHeader = () => {
   const navigate = useNavigate();
 
