@@ -53,6 +53,8 @@ const AllRoutes = (props) => {
           </UserLayout>} />)
         }
       </Route>
+
+      
     </Routes>
   );
 }

@@ -18,21 +18,21 @@ const FAQPage = () => {
       question: "비밀번호를 변경하고 싶어요.",
       answer: "마이페이지 > 회원정보 수정 메뉴에서 변경 가능합니다.",
       date: "2023.11.01",
-      tag: "질문 유형"
+      tag: "계정 관리"
     },
     {
       id: 3,
       question: "환불 규정이 어떻게 되나요?",
       answer: "결제 후 7일 이내에는 100% 환불이 가능합니다.",
       date: "2023.11.01",
-      tag: "질문 유형"
+      tag: "결제/환불"
     },
     {
       id: 4,
       question: "서비스 이용 시간이 궁금해요.",
       answer: "24시간 언제든지 이용 가능합니다.",
       date: "2023.11.01",
-      tag: "질문 유형"
+      tag: "이용 문의"
     }
   ];
     // [추가] 상세 페이지 이동 핸들러
@@ -43,12 +43,12 @@ const FAQPage = () => {
   
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-800">
+    <div className="w-full bg-white font-sans text-gray-800">
       {/* ================= Header ================= */}
 
       {/* ================= Breadcrumb ================= */}
-      <div className="bg-gray-50 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center text-gray-500 text-sm">
+      <div className="w-full bg-gray-50 border-b border-gray-200">
+        <div className="max-w-[1280px] mx-auto px-4 py-3 flex items-center text-gray-500 text-sm">
           <Home size={16} />
           <ChevronRight size={16} className="mx-2" />
           <span className="font-medium text-gray-900">고객센터</span>
@@ -58,7 +58,7 @@ const FAQPage = () => {
       </div>
 
       {/* ================= Main Content ================= */}
-      <main className="max-w-7xl mx-auto px-4 py-10">
+      <main className="max-w-[1280px] mx-auto px-4 py-10">
         <h1 className="text-3xl font-bold mb-8 text-gray-900">FAQ</h1>
 
         {/* Search Bar */}
