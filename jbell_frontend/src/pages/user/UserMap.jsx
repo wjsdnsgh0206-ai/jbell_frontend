@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Menu, MapPin, Navigation, Info, User, Layers, ChevronDown } from 'lucide-react';
 
 const UserMap = () => {
+
+  const [addressType, setAddressType] = useState('road'); // 'road' 또는 'jibun'
 
   // 1. 어떤 메인 메뉴가 선택되었는지 (기본값: 주소검색)
   const [activeMenu, setActiveMenu] = useState('address'); 
@@ -10,6 +12,7 @@ const UserMap = () => {
   // 시도 라고 하긴 했는데 그냥 시군의 개념으로 이해해주시기를 부탁드림... 이름 바꾸기에는 너무 늦은 듯...
   const [isSidoOpen, setIsSidoOpen] = useState(false);
   const [isGooOpen, setIsGooOpen] = useState(false);
+  // const [] = useState(false);
 
   // 3. 선택된 값들
   const [selectedSido, setSelectedSido] = useState('시도 선택');
@@ -47,61 +50,85 @@ const UserMap = () => {
           setIsGooOpen(false);
       };
       
+  
+      useEffect(() => {
+        // kakao 객체가 로드되었는지 확인하는 안전장치
+        if (window.kakao && window.kakao.maps) {
+          const container = document.getElementById('map'); // 지도를 담을 영역
+          const options = {
+            center: new window.kakao.maps.LatLng(35.8242238, 127.1479532),  // 전주 시청 기준
+            level: 3  // 확대 레벨
+          };
 
+          const map = new window.kakao.maps.Map(container, options);
+        } else {
+          console.error("카카오 맵 API가 아직 로드되지 않았어요!");
+        }
+
+         // 나중에 검색 기능 등을 위해 map 객체를 상태로 저장
+        // setMapObj(map);
+      }, []);
+
+  
 
   return (
     <>
-
       <div className="flex flex-1 relative overflow-hidden">
         {/* 2. 좌측 사이드바 */}
         <aside className="w-[380px] bg-white border-r z-10 flex flex-col shadow-xl">
-         {/* 1. 상단 타이틀 & 메뉴 버튼 영역 */}
-          <div className="p-4 border-b">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-lg">지도 검색</h2>
-              <button className="text-slate-400 hover:text-slate-600"><Info size={18}/></button>
-            </div>
+        
 
-            {/* 검색창 - 가로로 긴 형태 */}
-            <div className="relative mt-4">
-              <input
-                type="text"
-                placeholder="장소, 주소, 건물 명을 입력해주세요."
-                className="w-full h-12 pl-4 pr-12 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm"
-              />
-              <button className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-blue-600">
-                <Search size={22} />
+
+        {/* 상단 탭 (도로명 검색 / 지번 검색) */}
+            <div className="flex border-b text-sm font-medium">
+              <button 
+                onClick={() => setAddressType('road')}
+                className={`flex-1 py-3 ${addressType === 'road' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400'}`}
+              >
+                도로명 주소
+              </button>
+              <button 
+                onClick={() => setAddressType('jibun')}
+                className={`flex-1 py-3 ${addressType === 'jibun' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400'}`}
+              >
+                지번 주소
               </button>
             </div>
 
-            {/* 빠른 도구 메뉴 */}
-            <div className="grid grid-cols-3 gap-2 mt-4">
-              <button className="flex flex-col items-center gap-1 p-2 hover:bg-slate-50 rounded-lg border border-transparent hover:border-slate-100 transition-all">
-                <Navigation size={20} className="text-blue-600" />
-                <span className="text-xs font-medium">길찾기</span>
-              </button>
+            <div className="flex-1 overflow-y-auto p-4 space-y-6">
+              {/* 도로명 검색 섹션 */}
+              {addressType === 'road' && (
+                <div className="space-y-4">
+                  <SelectBox 
+                    label="시도 선택" 
+                    value={selectedSido} 
+                    options={['전북특별자치도']} // 예시 데이터
+                    onChange={handleSidoSelect} 
+                  />
+                  <SelectBox 
+                    label="구 선택" 
+                    value={selectedGoo} 
+                    options={REGION_DATA[selectedSido] || []}
+                    disabled={REGION_DATA[selectedSido]?.length === 0}
+                    onChange={setSelectedGoo}
+                  />
+                  <SelectBox label="초성 선택" value={selectedInitial} onChange={setSelectedInitial} />
+                  <SelectBox label="도로명 선택" value={selectedRoad} onChange={setSelectedRoad} />
+                </div>
+              )}
+            </div>
 
-               <button 
-                  onClick={() => setActiveMenu('address')} // 클릭하면 상태 변경!
-                  className={`flex flex-col items-center gap-1 p-2 rounded-lg border transition-all 
-                  ${activeMenu === 'address' ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}`}
-                >
-                <MapPin size={20} className="text-red-500" />
-                <span className="text-xs font-medium">주소검색</span>
-                </button>
-
-              <button className="flex flex-col items-center gap-1 p-2 hover:bg-slate-50 rounded-lg border border-transparent hover:border-slate-100 transition-all">
-                <Layers size={20} className="text-emerald-600" />
-                <span className="text-xs font-medium">대피소</span>
+            {/* 하단 검색 버튼 (고정) */}
+            <div className="p-4 border-t bg-slate-50">
+              <button className="w-full bg-blue-600 text-white py-3 rounded-md font-bold hover:bg-blue-700 transition-all">
+                검색하기
               </button>
             </div>
-          </div>
-
 
           
           {/* 여기 */}
 
-          {/* 2. 여기가 핵심! (밀리는 영역) */}
+          {/* 2. (밀리는 영역) */}
           <div className="flex-1 overflow-y-auto"> {/* 스크롤이 생겨야 하므로 flex-1과 overflow-y-auto 권장 */}
             
             {/* 주소 검색 버튼이 눌렸을 때만 '파바박' 나타남 */}
@@ -197,21 +224,18 @@ const UserMap = () => {
       <div className="flex flex-col h-screen overflow-hidden">
         {/* 여기에 기존 정부 사이트 상단 GNB(헤더)가 들어감 */}
         <header className="h-16 border-b bg-white"> ... </header>
-
-        <div className="flex flex-1 relative">
-          {/* 좌측 사이드바: 지도 위에 떠 있는 느낌을 주려면 absolute를 쓰기도 하지만, 
-              보내주신 사진처럼 면을 분할하려면 현재처럼 aside 구조를 유지하는 게 맞음 */}
-          <aside className="w-[380px] bg-white border-r z-10 flex flex-col shadow-xl">
-            {/* ... 기존 메뉴 코드 ... */}
+        <div className="flex flex-1 overflow-hidden"> {/* 스크롤 방지 */}
+          <aside className="w-[400px] border-r bg-white z-20 shadow-lg overflow-y-auto">
+            {/* 여기에 검색/셀렉트 박스들 */}
           </aside>
-
-          {/* 우측 지도 영역: flex-1로 남은 공간을 모두 차지하도록 만듦 */}
-          <main className="flex-1 relative bg-slate-100">
-            <div id="map" className="w-full h-full"></div> 
-            {/* 여기에 카카오 맵 API가 렌더링 */}
+          <main className="flex-1 relative">
+            <div id="map" className="w-full h-full"></div> {/* 지도가 꽉 차게! */}
           </main>
         </div>
       </div>
+
+
+
         
         <main className="flex-1 relative bg-slate-200">
           {/* 실제 지도가 들어갈 자리 (배경 이미지 처리) */}
