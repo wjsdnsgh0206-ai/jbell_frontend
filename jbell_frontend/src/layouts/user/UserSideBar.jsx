@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -6,77 +6,93 @@ const UserSideBar = ({ nowPage, activeItem, categories = [] }) => {
   const navigate = useNavigate();
   
   const initialCategory = categories.find(cat => 
-    cat.items && cat.items.some(item => item.name === activeItem)
+    cat.title === activeItem || (cat.items && cat.items.some(item => item.name === activeItem))
   )?.title || categories[0]?.title;
 
   const [openCategory, setOpenCategory] = useState(initialCategory);
 
+  useEffect(() => {
+    const currentCat = categories.find(cat => 
+      cat.title === activeItem || (cat.items && cat.items.some(item => item.name === activeItem))
+    );
+    if (currentCat) setOpenCategory(currentCat.title);
+  }, [activeItem, categories]);
+
   const handleTitleClick = (cat) => {
     const hasSubItems = cat.items && cat.items.length > 0;
-
-    // 1. 하위 메뉴가 있으면 아코디언 토글
     if (hasSubItems) {
       setOpenCategory(openCategory === cat.title ? '' : cat.title);
     }
-    
-    // 2. 타이틀 자체에 path가 있으면 해당 경로로 이동
     if (cat.path) {
       navigate(cat.path);
     }
   };
 
   return (
-    <div className="w-80 border-t border-gray-300 bg-white font-sans h-full text-left">
-      <h2 className="p-4 text-xl font-bold text-gray-800 border-b border-gray-50">{nowPage}</h2>
-      
-      <div className="border-b border-gray-200">
-        {categories.map((cat) => {
-          const hasSubItems = cat.items && cat.items.length > 0;
-          const isSelected = openCategory === cat.title;
+    <nav
+      className="flex flex-col w-full lg:w-[296px] items-start lg:pl-0 lg:pr-5 lg:py-0 border-gray-200"
+      aria-label="사이드바 네비게이션"
+    >
+      <div className="flex flex-col items-start w-full">
+        {/* 사이드바 타이틀 (nowPage) */}
+        <div className="flex w-full gap-2 px-2 py-6 lg:py-10 bg-white border-b border-gray-100 items-center">
+          <h2 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">
+            {nowPage}
+          </h2>
+        </div>
 
-          return (
-            <div key={cat.title} className="border-b border-gray-100 last:border-none">
-              <button
-                onClick={() => handleTitleClick(cat)}
-                className={`flex w-full items-center justify-between p-4 text-left font-bold transition-all ${
-                  isSelected && hasSubItems
-                    ? 'text-[#003d7a] border-b-2 border-[#003d7a] bg-blue-50/30' 
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <span>{cat.title}</span>
-                
-                {/* 하위 메뉴가 있을 때만 화살표 노출 */}
-                {hasSubItems && (
-                  isSelected ? <ChevronUp size={20} /> : <ChevronDown size={20} className="text-gray-400" />
-                )}
-              </button>
+        {/* 메뉴 리스트 영역 */}
+        <div className="flex flex-col w-full items-start">
+          {categories.map((cat) => {
+            const hasSubItems = cat.items && cat.items.length > 0;
+            const isTitleActive = cat.title === activeItem || (hasSubItems && cat.items.some(i => i.name === activeItem));
+            const isOpened = openCategory === cat.title;
 
-              {/* 하위 메뉴 리스트 */}
-              {hasSubItems && isSelected && (
-                <ul className="bg-gray-50 py-2 border-t border-gray-50">
-                  {cat.items.map((item) => (
-                    <li key={item.name}>
+            return (
+              <div key={cat.title} className="w-full">
+                {/* 메인 카테고리 / 타이틀 누르면 이동하는 항목 */}
+                <button
+                  onClick={() => handleTitleClick(cat)}
+                  className={`flex h-16 gap-2 px-2 py-0 w-full items-center transition-all border-b ${
+                    isTitleActive 
+                      ? 'bg-white border-b-[3px] border-[#003d7a]' 
+                      : 'bg-white border-gray-100 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className={`text-[17px] ${isTitleActive ? 'font-bold text-[#003d7a]' : 'text-gray-600'}`}>
+                    {cat.title}
+                  </span>
+                  {hasSubItems && (
+                    <div className="ml-auto">
+                      {isOpened ? <ChevronUp size={18} /> : <ChevronDown size={18} className="text-gray-400" />}
+                    </div>
+                  )}
+                </button>
+
+                {/* 하위 메뉴 (아코디언 형태 유지) */}
+                {hasSubItems && isOpened && (
+                  <div className="flex flex-col w-full bg-gray-50/50">
+                    {cat.items.map((item) => (
                       <button
+                        key={item.name}
                         onClick={() => navigate(item.path)}
-                        className={`relative flex w-[90%] mx-auto my-1 items-center rounded-lg p-3 text-left transition-all ${
-                          activeItem === item.name
-                            ? 'bg-white font-bold text-[#003d7a] shadow-sm'
-                            : 'text-gray-600 hover:bg-gray-100'
+                        className={`flex h-12 px-6 w-full items-center border-b border-gray-50 transition-colors ${
+                          activeItem === item.name 
+                            ? 'text-[#003d7a] font-bold bg-white' 
+                            : 'text-gray-500 hover:bg-gray-100'
                         }`}
                       >
-                        <span className="mr-2 text-xs opacity-60">•</span>
-                        {item.name}
+                        <span className="text-[15px]">{item.name}</span>
                       </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          );
-        })}
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </nav>
   );
 };
 
