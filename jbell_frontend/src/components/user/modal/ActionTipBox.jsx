@@ -1,4 +1,4 @@
-
+// ------ 재난사고속보 탭 - 행동요령 박스 ----- // 
 const ActionTipBox = () => {
   return (
     <>
