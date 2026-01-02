@@ -1,6 +1,6 @@
 // ------ 메인화면 - 날씨 컴포넌트 ------ //
 
-const Weather = () => {
+const MainWeather = () => {
     return (
         <>
 
@@ -97,4 +97,4 @@ const Weather = () => {
     )
 }
 
-export default Weather;
+export default MainWeather;
