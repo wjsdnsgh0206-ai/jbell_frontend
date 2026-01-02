@@ -52,6 +52,19 @@ const AccidentNews = () => {
                   </div>
                 </div>
               </div>
+              <div className="bg-white border rounded-2xl p-5 shadow-sm">
+                <span className="text-xs text-gray-400 font-semibold">
+                  2025.12.21 22:49
+                </span>
+                <div className="mt-4 text-center space-y-4">
+                  <h5 className="text-sm font-bold text-gray-800">
+                    위치 : ㅇㅇㅇ 아파트 앞
+                  </h5>
+                  <div className="inline-flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-full text-sm font-bold border">
+                    🔥 화재 진압중
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* 지도: 모바일에서는 높이를 고정(h-64)해주는 게 좋아 */}
@@ -71,6 +84,7 @@ const AccidentNews = () => {
 
       {/* 오른쪽 패널 */}
       <div className="col-span-12 lg:col-span-4 flex flex-col gap-4 lg:gap-6">
+        {/* 날씨 박스 */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border">
           <WeatherBox />
         </div>
