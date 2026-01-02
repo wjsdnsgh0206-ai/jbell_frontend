@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-const UserLayout = () => {
+const UserPageMain = () => {
   const navigate = useNavigate();
 
   return (
@@ -244,4 +244,4 @@ const UserLayout = () => {
   );
 };
 
-export default UserLayout;
+export default UserPageMain;
