@@ -29,7 +29,7 @@ const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
 
 
 const UserMap = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [addressType, setAddressType] = useState('road'); // 'road' 또는 'jibun'
 
