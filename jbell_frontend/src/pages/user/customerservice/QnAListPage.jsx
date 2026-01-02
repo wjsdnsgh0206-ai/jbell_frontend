@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Search, Home, ChevronRight, ChevronLeft, ChevronDown, Menu, User, Globe, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,43 +7,282 @@ const QnAListPage = () => {
 
   // 샘플 데이터
   const inquiries = [
-    {
-      id: 1,
-      status: 'progress', // 진행단계
-      statusText: '답변대기',
-      title: '비밀번호 변경이 되지 않습니다.',
-      content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
-      date: '2024.04.30',
-      category: '회원정보',
-    },
-    {
-      id: 2,
-      status: 'complete', // 완료단계
-      statusText: '답변완료',
-      title: '서비스 이용 관련 문의드립니다.',
-      content: '주말에도 고객센터 상담이 가능한가요?',
-      date: '2023.11.01',
-      category: '이용문의',
-    },
-    {
-      id: 3,
-      status: 'receipt', // 접수단계
-      statusText: '접수완료',
-      title: '결제 취소 요청',
-      content: '어제 결제한 내역을 취소하고 싶습니다.',
-      date: '2023.11.01',
-      category: '결제/환불',
-    },
-    {
-      id: 4,
-      status: 'waiting', // 예비/타기관 이송 등
-      statusText: '확인중',
-      title: '기관 연동이 안돼요',
-      content: '타기관 인증서 등록 시 오류가 뜹니다.',
-      date: '2023.11.01',
-      category: '시스템오류',
-    }
-  ];
+  {
+    id: 1,
+    status: 'progress', // 진행단계
+    statusText: '답변대기',
+    title: '비밀번호 변경이 되지 않습니다.',
+    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    date: '2024.04.30',
+    category: '회원정보',
+  },
+  {
+    id: 2,
+    status: 'complete', // 완료단계
+    statusText: '답변완료',
+    title: '서비스 이용 관련 문의드립니다.',
+    content: '주말에도 고객센터 상담이 가능한가요?',
+    date: '2024.05.01',
+    category: '이용문의',
+  },
+  {
+    id: 3,
+    status: 'receipt', // 접수단계
+    statusText: '접수완료',
+    title: '결제 취소 요청',
+    content: '어제 결제한 내역을 취소하고 싶습니다.',
+    date: '2024.06.01',
+    category: '결제/환불',
+  },
+  {
+    id: 4,
+    status: 'waiting', // 예비/타기관 이송 등
+    statusText: '확인중',
+    title: '기관 연동이 안돼요',
+    content: '타기관 인증서 등록 시 오류가 뜹니다.',
+    date: '2025.11.01',
+    category: '시스템오류',
+  },
+
+  {
+    id: 5,
+    status: 'progress', // 진행단계
+    statusText: '답변대기',
+    title: '비밀번호 변경이 되지 않습니다.',
+    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    date: '2024.05.06',
+    category: '회원정보',
+  },
+  {
+    id: 6,
+    status: 'complete', // 완료단계
+    statusText: '답변완료',
+    title: '서비스 이용 관련 문의드립니다.',
+    content: '주말에도 고객센터 상담이 가능한가요?',
+    date: '2024.05.18',
+    category: '이용문의',
+  },
+  {
+    id: 7,
+    status: 'receipt', // 접수단계
+    statusText: '접수완료',
+    title: '결제 취소 요청',
+    content: '어제 결제한 내역을 취소하고 싶습니다.',
+    date: '2024.06.09',
+    category: '결제/환불',
+  },
+  {
+    id: 8,
+    status: 'waiting', // 예비/타기관 이송 등
+    statusText: '확인중',
+    title: '기관 연동이 안돼요',
+    content: '타기관 인증서 등록 시 오류가 뜹니다.',
+    date: '2024.07.03',
+    category: '시스템오류',
+  },
+  {
+    id: 9,
+    status: 'progress', // 진행단계
+    statusText: '답변대기',
+    title: '비밀번호 변경이 되지 않습니다.',
+    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    date: '2024.08.14',
+    category: '회원정보',
+  },
+  {
+    id: 10,
+    status: 'complete', // 완료단계
+    statusText: '답변완료',
+    title: '서비스 이용 관련 문의드립니다.',
+    content: '주말에도 고객센터 상담이 가능한가요?',
+    date: '2024.09.02',
+    category: '이용문의',
+  },
+  {
+    id: 11,
+    status: 'receipt', // 접수단계
+    statusText: '접수완료',
+    title: '결제 취소 요청',
+    content: '어제 결제한 내역을 취소하고 싶습니다.',
+    date: '2024.09.21',
+    category: '결제/환불',
+  },
+  {
+    id: 12,
+    status: 'waiting', // 예비/타기관 이송 등
+    statusText: '확인중',
+    title: '기관 연동이 안돼요',
+    content: '타기관 인증서 등록 시 오류가 뜹니다.',
+    date: '2024.10.07',
+    category: '시스템오류',
+  },
+  {
+    id: 13,
+    status: 'progress', // 진행단계
+    statusText: '답변대기',
+    title: '비밀번호 변경이 되지 않습니다.',
+    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    date: '2024.10.19',
+    category: '회원정보',
+  },
+  {
+    id: 14,
+    status: 'complete', // 완료단계
+    statusText: '답변완료',
+    title: '서비스 이용 관련 문의드립니다.',
+    content: '주말에도 고객센터 상담이 가능한가요?',
+    date: '2024.11.04',
+    category: '이용문의',
+  },
+  {
+    id: 15,
+    status: 'receipt', // 접수단계
+    statusText: '접수완료',
+    title: '결제 취소 요청',
+    content: '어제 결제한 내역을 취소하고 싶습니다.',
+    date: '2024.11.22',
+    category: '결제/환불',
+  },
+  {
+    id: 16,
+    status: 'waiting', // 예비/타기관 이송 등
+    statusText: '확인중',
+    title: '기관 연동이 안돼요',
+    content: '타기관 인증서 등록 시 오류가 뜹니다.',
+    date: '2024.12.03',
+    category: '시스템오류',
+  },
+  {
+    id: 17,
+    status: 'progress', // 진행단계
+    statusText: '답변대기',
+    title: '비밀번호 변경이 되지 않습니다.',
+    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    date: '2025.01.09',
+    category: '회원정보',
+  },
+  {
+    id: 18,
+    status: 'complete', // 완료단계
+    statusText: '답변완료',
+    title: '서비스 이용 관련 문의드립니다.',
+    content: '주말에도 고객센터 상담이 가능한가요?',
+    date: '2025.01.27',
+    category: '이용문의',
+  },
+  {
+    id: 19,
+    status: 'receipt', // 접수단계
+    statusText: '접수완료',
+    title: '결제 취소 요청',
+    content: '어제 결제한 내역을 취소하고 싶습니다.',
+    date: '2025.02.11',
+    category: '결제/환불',
+  },
+  {
+    id: 20,
+    status: 'waiting', // 예비/타기관 이송 등
+    statusText: '확인중',
+    title: '기관 연동이 안돼요',
+    content: '타기관 인증서 등록 시 오류가 뜹니다.',
+    date: '2025.03.05',
+    category: '시스템오류',
+  },
+  {
+    id: 21,
+    status: 'progress', // 진행단계
+    statusText: '답변대기',
+    title: '비밀번호 변경이 되지 않습니다.',
+    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    date: '2025.04.16',
+    category: '회원정보',
+  },
+  {
+    id: 22,
+    status: 'complete', // 완료단계
+    statusText: '답변완료',
+    title: '서비스 이용 관련 문의드립니다.',
+    content: '주말에도 고객센터 상담이 가능한가요?',
+    date: '2025.05.08',
+    category: '이용문의',
+  },
+  {
+    id: 23,
+    status: 'receipt', // 접수단계
+    statusText: '접수완료',
+    title: '결제 취소 요청',
+    content: '어제 결제한 내역을 취소하고 싶습니다.',
+    date: '2025.06.20',
+    category: '결제/환불',
+  },
+  {
+    id: 24,
+    status: 'waiting', // 예비/타기관 이송 등
+    statusText: '확인중',
+    title: '기관 연동이 안돼요',
+    content: '타기관 인증서 등록 시 오류가 뜹니다.',
+    date: '2025.08.12',
+    category: '시스템오류',
+  },
+  {
+    id: 25,
+    status: 'progress', // 진행단계
+    statusText: '답변대기',
+    title: '비밀번호 변경이 되지 않습니다.',
+    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    date: '2025.10.03',
+    category: '회원정보',
+  },
+];
+
+// --- 상태 관리 ---
+  const [currentPage, setCurrentPage] = useState(1); // 현재 페이지
+  const [itemsPerPage, setItemsPerPage] = useState(10); // 페이지당 표시 개수 (기본 10개)
+  const [sortOrder, setSortOrder] = useState('latest'); // 정렬 상태: 'latest' | 'oldest'
+
+  // --- 데이터 정렬 로직 ---
+  const getSortedData = () => {
+    const sorted = [...inquiries]; // 원본 배열 복사
+    return sorted.sort((a, b) => {
+      // 날짜 문자열(yyyy.mm.dd)을 Date 객체로 변환하여 비교
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      
+      if (sortOrder === 'latest') {
+        return dateB - dateA; // 내림차순 (최신순)
+      } else {
+        return dateA - dateB; // 오름차순 (오래된순)
+      }
+    });
+  };
+
+  const sortedData = getSortedData();
+
+  // --- 페이지네이션 로직 ---
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = sortedData.slice(indexOfFirstItem, indexOfLastItem);
+  const totalItems = inquiries.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  // 페이지 변경 핸들러
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo(0, 0); // 페이지 변경 시 상단으로 스크롤
+  };
+
+  // 표시 개수 변경 핸들러
+  const handleItemsPerPageChange = (e) => {
+    const value = parseInt(e.target.value.replace('개', ''), 10);
+    setItemsPerPage(value);
+    setCurrentPage(1); // 개수가 바뀌면 1페이지로 리셋
+  };
+
+  // 정렬 변경 핸들러
+  const handleSortChange = (order) => {
+    setSortOrder(order);
+    setCurrentPage(1); // 정렬 방식이 바뀌면 1페이지로 이동
+  };
 
   // 상태에 따른 배지 스타일 반환 함수
   const getStatusStyle = (status) => {
@@ -120,22 +359,42 @@ const QnAListPage = () => {
             
             <div className="flex items-center gap-1">
               목록 표시 개수
-              <select className="ml-1 border border-gray-300 rounded px-1 py-0.5">
-                <option>10개</option>
-                <option>20개</option>
+              {/* 수정됨: onChange 및 value 추가 */}
+              <select 
+                className="ml-1 border border-gray-300 rounded px-1 py-0.5"
+                onChange={(e) => {
+                    const value = parseInt(e.target.value.replace('개', ''), 10);
+                    setItemsPerPage(value);
+                    setCurrentPage(1);
+                }}
+                value={`${itemsPerPage}개`}
+              >
+                <option value="10개">10개</option>
+                <option value="20개">20개</option>
               </select>
             </div>
             <div className="flex gap-2">
-              <button className="font-bold text-gray-900 underline underline-offset-4">최신순</button>
+              <button 
+                onClick={() => handleSortChange('latest')}
+                className={sortOrder === 'latest' ? "font-bold text-gray-900 underline underline-offset-4" : "hover:text-gray-900"}
+              >
+                최신순
+              </button>
               <span className="text-gray-300">|</span>
-              <button className="hover:text-gray-900">오래된순</button>
+              <button 
+                onClick={() => handleSortChange('oldest')}
+                className={sortOrder === 'oldest' ? "font-bold text-gray-900 underline underline-offset-4" : "hover:text-gray-900"}
+              >
+                오래된순
+              </button>
             </div>
           </div>
         </div>
 
         {/* Inquiry List */}
         <div className="space-y-4">
-          {inquiries.map((item) => (
+          {/* 핵심 수정: inquiries.map -> currentItems.map 으로 변경 */}
+          {currentItems.map((item) => (
             <div 
               key={item.id} 
               onClick={() => QnADetailClick(item.id)}
@@ -175,17 +434,33 @@ const QnAListPage = () => {
 
         {/* Pagination (FAQPage 스타일 통일) */}
         <div className="flex justify-center items-center gap-2 mt-10">
-          <button className="flex items-center gap-1 p-2 text-gray-400 hover:text-gray-600">
+         <button 
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`flex items-center gap-1 p-2 ${currentPage === 1 ? 'text-gray-300 cursor-default' : 'text-gray-400 hover:text-gray-600'}`}
+          >
             <ChevronLeft size={16} /> 이전
           </button>
           
-          <button className="w-8 h-8 flex items-center justify-center bg-blue-900 text-white text-sm font-bold rounded">1</button>
-          <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-sm">2</button>
-          <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-sm">3</button>
-          <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-sm">4</button>
-          <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-sm">5</button>
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
+            <button
+              key={number}
+              onClick={() => handlePageChange(number)}
+              className={`w-8 h-8 flex items-center justify-center text-sm font-bold rounded
+                ${currentPage === number 
+                  ? 'bg-blue-900 text-white' 
+                  : 'text-gray-600 hover:bg-gray-100'
+                }`}
+            >
+              {number}
+            </button>
+          ))}
 
-          <button className="flex items-center gap-1 p-2 text-gray-400 hover:text-gray-600">
+          <button 
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`flex items-center gap-1 p-2 ${currentPage === totalPages ? 'text-gray-300 cursor-default' : 'text-gray-400 hover:text-gray-600'}`}
+          >
             다음 <ChevronRight size={16} />
           </button>
         </div>
