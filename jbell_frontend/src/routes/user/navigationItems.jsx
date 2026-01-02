@@ -28,7 +28,7 @@ const navigationItems = [
   },
   {
     label: "열린마당",
-    path: "/userOpenSpaceLi",
+    path: "/",
     icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
   },
     {
