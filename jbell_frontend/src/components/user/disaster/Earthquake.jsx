@@ -32,7 +32,7 @@ const Earthquake = () => {
         </div>
       {/* 행동요령 박스 */}
         <div className="bg-white rounded-2xl p-4 lg:p-6 shadow-sm border">
-          <ActionTipBox />
+          <ActionTipBox type="지진" />
         </div>
       </div>
 

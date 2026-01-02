@@ -16,7 +16,7 @@ const IdPwLogin = () => {
       <div className="max-w-3xl w-full">
         {/* Header */}
         <header className="mb-8 text-left">
-          <p className="text-sm text-gray-500 mb-2 font-medium">대한민국 디지털정부 사용자 로그인</p>
+          <p className="text-sm text-gray-500 mb-2 font-medium">전북안전누리 사용자 로그인</p>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
             아이디/비밀번호 로그인
           </h1>

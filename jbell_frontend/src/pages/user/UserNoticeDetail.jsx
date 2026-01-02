@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 
 const NoticeDetail = () => {
   return (
@@ -8,7 +7,7 @@ const NoticeDetail = () => {
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">대</div>
-             <span className="text-xl font-bold tracking-tight text-gray-900">대한민국정부</span>
+             <span className="text-xl font-bold tracking-tight text-gray-900">전북안전누리</span>
           </div>
           <nav className="hidden md:flex gap-6 text-sm font-semibold">
             <a href="#" className="hover:text-blue-600">민원</a>
