@@ -5,9 +5,11 @@ content: ["./src/**/*.{html,js,ts,jsx,tsx}"],
     extend: {
       colors: {
         "graygray-0": "var(--graygray-0)",
+        "graygray-5": "var(--graygray-5)",
+        "graygray-10": "var(--graygray-10)",
+        "graygray-20": "var(--graygray-20)",
         "graygray-30": "var(--graygray-30)",
         "graygray-40": "var(--graygray-40)",
-        "graygray-5": "var(--graygray-5)",
         "graygray-50": "var(--graygray-50)",
         "graygray-70": "var(--graygray-70)",
         "graygray-90": "var(--graygray-90)",
