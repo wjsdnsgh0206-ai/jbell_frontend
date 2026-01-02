@@ -1,4 +1,5 @@
 import { lazy } from "react";
+import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
 const UserOpenSpaceLi = lazy(() => import("@/pages/user/UserOpenSpaceLi"));
 const UserNoticeDetail = lazy(() => import("@/pages/user/UserNoticeDetail"));
