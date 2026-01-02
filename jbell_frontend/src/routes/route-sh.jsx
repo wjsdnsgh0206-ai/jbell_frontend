@@ -1,4 +1,5 @@
 import { lazy } from "react";
+import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
 const UserNoticeDetail = lazy(() => import("@/pages/user/UserNoticeDetail"));
 
@@ -30,6 +31,9 @@ export const shUserRoutes = [
   {
     path: "/noticeDetail",
     element: <UserNoticeDetail />,
-  },
-,
+    
+    sidebarData: SIDE_MENU_DATA.MY_PAGE,
+    nowPage: "마이페이지",
+    activeItem: "내 정보" }
+
 ];
