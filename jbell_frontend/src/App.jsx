@@ -26,7 +26,7 @@ function App() {
         {/* <Route path="/UserDisasterModal" element={<UserDisasterModal/>}/> */}
 
         {/* 모달 전용 경로 */}
-          <Route path="disaster" element={<DisasterModalLayout />}>
+        <Route path="disaster" element={<DisasterModalLayout />}>
       <Route path="accident" element={<AccidentNews />} />
       <Route path="earthquake" element={<Earthquake />} />
     </Route>
