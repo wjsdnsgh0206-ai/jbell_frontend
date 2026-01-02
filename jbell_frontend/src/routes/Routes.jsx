@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { Suspense } from "react";
 import UserLayout from "@/layouts/user/UserLayout";
 import { jyUserRoutes } from "@/routes/route-jy";
+import { ehUserRoutes } from "@/routes/route-eh";
 import DisasterModalLayout from "@/layouts/user/disasterModal/DisasterModalLayout";
 import { AccidentNews, Earthquake, Flood, HeavyRain,LandSlide, Typhoon, Wildfire } from "@/components/user/disaster";
 
@@ -11,10 +12,22 @@ const AllRoutes = () => (
   // <Suspense fallback={<div>로딩중...</div>}>
   <Suspense>
     <Routes>
+      {/* JEH 라우트 (EH - Login, Mypage, Signup) */}
+      <Route  element={<UserLayout />}>
+      {ehUserRoutes.map((route, idx) => (
+        <Route key={idx} {...route} /> 
+      ))}
+      </Route>
+
+
+
       <Route path="/" element={<UserLayout />}>
         {jyUserRoutes.map((route, idx) => (
           <Route key={idx} {...route} />
         ))}
+
+        
+
 
         {/* 모달 전용 경로 */}
         <Route path="disaster" element={<DisasterModalLayout />}>
