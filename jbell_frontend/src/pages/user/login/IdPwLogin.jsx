@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronRight, Info, User, Lock, ExternalLink } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 const IdPwLogin = () => {
   const [userId, setUserId] = useState('');
@@ -10,6 +11,8 @@ const IdPwLogin = () => {
     e.preventDefault();
     console.log('로그인 시도:', { userId, password, saveId });
   };
+
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-white flex justify-center py-10 px-5 sm:py-20 font-sans text-gray-900">
@@ -70,7 +73,9 @@ const IdPwLogin = () => {
                 </label>
               </div>
 
+              {/* 추후 검증 로직 */}
               <button
+                onClick={() => navigate('/#')}
                 type="submit"
                 className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 active:scale-[0.99] transition-all shadow-lg shadow-blue-100"
               >
@@ -78,11 +83,14 @@ const IdPwLogin = () => {
               </button>
 
               <div className="flex justify-center gap-4 text-sm text-gray-500 font-medium pt-2">
-                <button type="button" className="hover:text-blue-600">아이디 찾기</button>
+                <button onClick={() => navigate('/findIdCheck')}
+                        type="button" className="hover:text-blue-600">아이디 찾기</button>
                 <span className="text-gray-200">|</span>
-                <button type="button" className="hover:text-blue-600">비밀번호 찾기</button>
+                <button onClick={() => navigate('/findPwCheck')}
+                        type="button" className="hover:text-blue-600">비밀번호 찾기</button>
                 <span className="text-gray-200">|</span>
-                <button type="button" className="hover:text-blue-600">회원가입</button>
+                <button onClick={() => navigate('/signupAgreement')}
+                        type="button" className="hover:text-blue-600">회원가입</button>
               </div>
             </form>
           </div>
@@ -109,7 +117,8 @@ const IdPwLogin = () => {
         {/* Switch Method */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-8 text-left">
           <h3 className="text-lg font-bold">원하는 로그인 방법이 아니신가요?</h3>
-          <button className="text-gray-500 hover:text-blue-600 font-medium flex items-center group">
+          <button onClick={() => navigate('/loginMain')}
+                  className="text-gray-500 hover:text-blue-600 font-medium flex items-center group">
             다른 로그인 방법 보기 <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
           </button>
         </div>

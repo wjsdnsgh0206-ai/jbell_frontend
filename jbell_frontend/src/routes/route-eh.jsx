@@ -2,8 +2,6 @@ import { lazy } from "react";
 
 // Login 관련 페이지
 const FindIdCheck = lazy(() => import("@/pages/user/login/FindIdCheck"));
-const FindIdShow = lazy(() => import("@/pages/user/login/FindIdShow"));
-const FindPwChange = lazy(() => import("@/pages/user/login/FindPwChange"));
 const FindPwCheck = lazy(() => import("@/pages/user/login/FindPwCheck"));
 const IdPwLogin = lazy(() => import("@/pages/user/login/IdPwLogin"));
 const LoginMain = lazy(() => import("@/pages/user/login/LoginMain"));
@@ -47,9 +45,7 @@ export const ehUserRoutes = [
   { path: "/loginMain", element: <LoginMain /> },
   { path: "/IdPwLogin", element: <IdPwLogin /> },
   { path: "/findIdCheck", element: <FindIdCheck /> },
-  { path: "/findIdShow", element: <FindIdShow /> },
   { path: "/findPwCheck", element: <FindPwCheck /> },
-  { path: "/findPwChange", element: <FindPwChange /> },
 
   // Mypage 관련 경로
   { path: "/myProfile", element: <MyProfile /> },
