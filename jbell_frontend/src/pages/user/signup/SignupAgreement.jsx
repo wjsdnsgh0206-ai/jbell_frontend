@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, Info, CheckCircle2, Circle } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Info, CheckCircle2, Circle } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 const SignupAgreement = () => {
   // 약관 상태 관리
@@ -46,12 +47,17 @@ const SignupAgreement = () => {
   // 필수 항목 동의 여부 확인 (다음 단계 활성화용)
   const isRequiredAgreed = agreements.service && agreements.privacy;
 
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-slate-50/30 flex justify-center py-12 px-5 font-sans text-slate-900">
       <div className="max-w-[720px] w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
         
         <header className="mb-10 text-left">
+          <div className="flex items-center gap-2 mb-10 group cursor-pointer" onClick={() => window.history.back()}>
+          <ArrowLeft className="text-gray-400 group-hover:text-blue-600 transition-colors" size={24} />
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">회원가입</h1>
+        </div>
           <p className="mt-2 text-slate-500">정부 서비스 이용을 위해 약관에 동의해 주세요.</p>
         </header>
 
@@ -150,10 +156,12 @@ const SignupAgreement = () => {
 
         {/* 푸터 액션 */}
         <div className="flex flex-col sm:flex-row gap-3">
-          <button className="flex-1 h-14 bg-white border border-slate-300 text-slate-600 rounded-xl font-bold hover:bg-slate-50 transition-colors order-2 sm:order-1">
-            취소하기
+          <button onClick={() => navigate('/#')}
+                  className="flex-1 h-14 bg-white border border-slate-300 text-slate-600 rounded-xl font-bold hover:bg-slate-50 transition-colors order-2 sm:order-1">
+            메인으로
           </button>
           <button 
+            onClick={() => navigate('/signupForm')}
             disabled={!isRequiredAgreed}
             className={`flex-1 h-14 rounded-xl font-bold flex items-center justify-center gap-2 transition-all order-1 sm:order-2 ${isRequiredAgreed ? 'bg-blue-600 text-white shadow-lg shadow-blue-100 hover:bg-blue-700 active:scale-[0.98]' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}
           >

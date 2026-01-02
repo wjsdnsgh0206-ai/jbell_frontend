@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChevronRight, MessageCircle, User, Info, LogIn } from 'lucide-react';
-import navigationItems from '@/routes/user/navigationItems';
+import { useNavigate } from "react-router-dom";
+
 
 const LoginMain = () => {
   const navigate = useNavigate();
@@ -46,8 +47,8 @@ const LoginMain = () => {
             </button>
 
             {/* ID/PW Login Button */}
-            <button onClick={() => navigate('/idPwLogin')}
-                    className="group flex items-center justify-between p-6 bg-gray-50 border border-transparent rounded-2xl transition-all hover:bg-gray-100 hover:border-gray-200 text-left">
+            <button  onClick={() => navigate('/idPwLogin')}
+              className="group flex items-center justify-between p-6 bg-gray-50 border border-transparent rounded-2xl transition-all hover:bg-gray-100 hover:border-gray-200 text-left">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
                   <LogIn size={24} />
@@ -67,7 +68,7 @@ const LoginMain = () => {
         {/* Signup Row */}
         <div className="flex items-center gap-2 mb-8 text-base">
           <span className="font-semibold text-gray-800">아직 대한민국 디지털정부 회원이 아니신가요?</span>
-          <a href="#" className="text-gray-500 hover:text-blue-600 transition-colors inline-flex items-center font-medium">
+          <a href="/SignupAgreement" className="text-gray-500 hover:text-blue-600 transition-colors inline-flex items-center font-medium">
             회원가입 <ChevronRight size={16} />
           </a>
         </div>
