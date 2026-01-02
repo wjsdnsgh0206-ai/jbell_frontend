@@ -92,13 +92,41 @@ const UserMap = () => {
     return DETAILED_DATA[selectedSigun]?.['기본'] || [];
   };
 /* <======================================== 핸들러 함수들 =======================================> */
+/* <======================================== 카카오 맵 API, 네이버 연동 =======================================> */
+    // 카카오 맵 API 연동
+    const searchPlaces = (keyword) => {
+      const ps = new window.kakao.maps.services.Places();
+      ps.keywordSearch(keyword, (data, status) => {
+        if (status === window.kakao.maps.services.Status.OK) {
+          setShelterResults(data); // 검색 결과를 상태에 저장 -> 사이드바 리스트 갱신
+          // 지도에 마커 찍는 함수 호출
+        }
+      });
+    };
+
+
+    // 길 찾기 연동 함수 예시
+    // ★ 길 찾기 메뉴
+    const openNaverMapDirections = (destName, destLat, destLng) => {
+      // destName: 목적지 이름 (예: '전주풍남초등학교')
+      // destLat, destLng: 목적지의 위도, 경도 좌표 (카카오 맵 API에서 받은 좌표)
+      
+      const url = `https://map.naver.com/v5/directions/-/` + 
+                  `${destLng},${destLat},${encodeURIComponent(destName)}/-/walk`; 
+                  // '-'는 현재 위치를 출발지로 사용하겠다는 의미입니다.
+                  // walk는 도보 모드, car는 자동차 모드입니다.
+
+      window.open(url, '_blank'); // 새 탭에서 네이버 지도 실행
+    };
+/* <======================================== 카카오 맵 API, 네이버 연동 =======================================> */
+
 
 
   return (
     /* <==================================================================================================> */
     /* <======================================== 좌측 사이드 바 전체 =======================================> */
     <div className="flex h-screen w-full overflow-hidden">
-      {/* 좌측 사이드바 */}
+      {/* 좌측 사이드바 전체 */}
       <aside className="w-[380px] bg-white border-r z-10 flex flex-col shadow-xl">
         
         {/* [1. 최상단 고정 영역] 홈 버튼 + 검색창 + 메뉴버튼 */}
@@ -156,13 +184,46 @@ const UserMap = () => {
             </button>
           </div>
         </div>
+
+        
             
-        {/* [2. 중단 가변 영역] 메뉴 선택에 따라 내용이 바뀜 */}
+        {/* 3개 대표 메뉴 기능 동작 모음 */}
         <div className="flex-1 overflow-y-auto">
           
-            {/* [2. 중단 가변 영역] 내 대피소 조건부 렌더링 부분 */}
-          {activeMenu === 'shelter' ? (
+            
+          {activeMenu === 'path' ? (
+             <div className="p-4 space-y-6">
+              {/* 안내 문구 */}
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <p className="text-sm text-blue-800 leading-relaxed">
+                  <strong>현재 위치</strong>를 기준으로 <br/>
+                  네이버 지도를 통해 길 찾기를 시작합니다.
+                </p>
+              </div>
+
+              {/* 목적지 설정 부분 (대피소 검색 결과와 연동 가능) */}
+              <div className="space-y-3">
+                <label className="text-xs font-bold text-slate-500 ml-1">목적지</label>
+                <div className="p-3 border rounded-md bg-slate-50 text-slate-400 text-sm">
+                  대피소를 먼저 선택해주세요.
+                </div>
+              </div>
+
+              {/* 네이버 연동 버튼 */}
+              <button 
+                onClick={() => {
+                  // 실제 구현 시: selectedShelter의 좌표와 이름을 넣습니다.
+                  const url = `https://map.naver.com/v5/directions/-/127.1,35.8,전주역/-/walk`;
+                  window.open(url, '_blank');
+                }}
+                className="w-full bg-[#03C75A] text-white py-3 rounded-md font-bold hover:bg-[#02b351] transition-all flex items-center justify-center gap-2"
+              >
+                <span>N</span> 네이버 지도로 길 찾기
+              </button>
+            </div>
+          ) : activeMenu === 'shelter' ? (
             <div className="flex flex-col h-full">
+              {/* [2. 중단 가변 영역] 내 대피소 조건부 렌더링 부분 */}
               {/* 탭 메뉴 (기획안 1~2번 참고) */}
               <div className="flex border-b text-sm font-medium sticky top-0 bg-white z-10">
                 <button 
