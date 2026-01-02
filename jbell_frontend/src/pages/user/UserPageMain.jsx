@@ -7,10 +7,6 @@ const UserLayout = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
    const navigate = useNavigate();
 
-<<<<<<< HEAD
-const UserLayout = () => {
-=======
->>>>>>> origin/develop
   return (
     <div className="w-full bg-gray-50 min-h-screen font-sans">
       {/* 모달 컴포넌트 삽입 */}
