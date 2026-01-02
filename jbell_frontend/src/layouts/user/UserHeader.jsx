@@ -78,7 +78,7 @@ const UserHeader = () => {
           className="hidden md:flex flex-col h-16 w-full bg-graygray-0 border-t border-b border-graygray-30 items-center relative"
           aria-label="Secondary navigation"
         >
-          <div className="flex w-full max-w-[1280px] h-16 items-center gap-2 lg:gap-4 px-4 sm:px-6 lg:px-8 relative bg-white overflow-x-auto">
+          <div className="flex w-full max-w-[1280px] h-16 items-center gap-2 lg:gap-4 px-4 sm:px-6 lg:px-8 font-body-large relative bg-white overflow-x-auto">
             {navigationItems.map((item, index) => (
               <button
                 key={index}

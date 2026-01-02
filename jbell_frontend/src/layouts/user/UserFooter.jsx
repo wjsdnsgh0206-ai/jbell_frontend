@@ -34,7 +34,7 @@ const UserFooter = () => {
             />
           </Link>
         </div>
-        <div className="flex items-start justify-between relative self-stretch w-full flex-[0_0_auto]">
+        <div className="flex items-start justify-between relative self-stretch w-full flex-[0_0_auto] font-body-small">
           <address className="inline-flex flex-col h-20 items-start gap-6 relative flex-[0_0_auto] not-italic">
             <div className="inline-flex flex-col gap-5 flex-[0_0_auto] items-start relative">
               <div className="inline-flex gap-1 flex-[0_0_auto] items-start relative">
