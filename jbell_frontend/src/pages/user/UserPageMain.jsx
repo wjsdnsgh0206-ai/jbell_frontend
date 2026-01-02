@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-
+import ActionGuide from '@/components/user/ActionGuide';
 // --------- 메인 화면 ----------- //
 const UserPageMain = () => {
   const navigate = useNavigate();
@@ -230,84 +230,7 @@ const UserPageMain = () => {
                 ))}
               </div>
             </div>
-
-            {/* 행동요령 영역 - 모던 UI 스타일 */}
-            <div className="bg-white rounded-[24px] border border-gray-100 p-6 sm:p-8 shadow-sm h-full flex flex-col">
-              <div className="flex justify-between items-start mb-8">
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900">
-                    행동요령
-                  </h2>
-                  <div className="w-12 h-1 bg-blue-600 mt-2 rounded-full" />{" "}
-                </div>
-              </div>
-
-              {/* 탭 메뉴 - 언더라인 스타일로 더 세련되게 */}
-              <div className="flex gap-6 mb-8 border-b border-gray-50 overflow-x-auto no-scrollbar">
-                {["재난", "사고", "생활안전", "긴급상황"].map((btn, idx) => (
-                  <button
-                    key={btn}
-                    className={`pb-3 text-xs font-black transition-all whitespace-nowrap
-          ${
-            idx === 2
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-gray-400 hover:text-gray-600"
-          }`}
-                  >
-                    {btn}
-                  </button>
-                ))}
-              </div>
-
-              {/* 행동 지침 그리드 - 카드 디자인 최적화 */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
-                {[
-                  {
-                    title: "입·코 가리기",
-                    desc: "젖은 수건 등으로 보호",
-                    icon: "01",
-                  },
-                  {
-                    title: "낮은 자세 유지",
-                    desc: "유도등 따라 대피",
-                    icon: "02",
-                  },
-                  {
-                    title: "밸브·전원 차단",
-                    desc: "가스 및 전기 메인 차단",
-                    icon: "03",
-                  },
-                  {
-                    title: "비상 계단 대피",
-                    desc: "엘리베이터 사용 금지",
-                    icon: "04",
-                  },
-                ].map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="group p-5 rounded-2xl bg-gray-50 hover:bg-white border border-transparent hover:border-gray-100 hover:shadow-xl transition-all duration-300"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-blue-600/50 mb-1 tracking-widest">
-                          GUIDE {item.icon}
-                        </span>
-                        <h4 className="text-[16px] font-black text-gray-900 group-hover:text-blue-600 transition-colors">
-                          {item.title}
-                        </h4>
-                        <p className="text-[12px] text-gray-400 font-medium leading-tight">
-                          {item.desc}
-                        </p>
-                      </div>
-                      {/* 숫자를 배경 요소로 세련되게 배치 */}
-                      <span className="text-3xl font-black text-gray-200 group-hover:text-blue-50 transition-colors italic">
-                        {item.icon}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+<ActionGuide/>
           </div>
         </div>
       </section>
