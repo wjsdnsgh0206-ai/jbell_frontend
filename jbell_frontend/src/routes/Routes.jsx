@@ -4,6 +4,7 @@ import { jyUserRoutes, disasterModal } from "@/routes/route-jy";
 import { shUserRoutes } from "@/routes/route-sh";
 import { ehUserRoutes } from "@/routes/route-eh";
 import { mjUserRoutes } from "@/routes/route-mj";
+import { jhUserRoutes } from "@/routes/route-jh";
 import DisasterModalLayout from "@/layouts/user/disasterModal/DisasterModalLayout";
 
 // import UserNoticeDetail from 
@@ -49,6 +50,14 @@ const AllRoutes = (props) => {
       <Route>
         {
           mjUserRoutes.map((route, idx) => <Route key={idx} path={route.path} element={<UserLayout {...props}>
+            {route.element}
+          </UserLayout>} />)
+        }
+      </Route>
+
+      <Route>
+        {
+          jhUserRoutes.map((route, idx) => <Route key={idx} path={route.path} element={<UserLayout {...props}>
             {route.element}
           </UserLayout>} />)
         }
