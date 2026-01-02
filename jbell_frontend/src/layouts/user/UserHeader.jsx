@@ -8,10 +8,10 @@ const UserHeader = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const authButtons = [
-    { label: "로그인", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20.svg" , lnk:"loginMain"},
+    { label: "로그인", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20.svg" , lnk:"/loginMain"},
     {
       label: "회원가입",
-      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-1.svg", lnk:"signupAgreement"
+      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-1.svg", lnk:"/signupAgreement"
     },
   ];
 
