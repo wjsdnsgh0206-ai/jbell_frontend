@@ -11,20 +11,20 @@ import Earthquake from './components/user/disasterModal/Earthquake';
 import { Routes, Route } from 'react-router-dom';
 /** 전은호 import */
 
-import FindIdCheck from './pages/user/login/FindIdCheck';
-import FindIdShow from './pages/user/login/FindIdShow';
-import FindPwChange from './pages/user/login/FindPwChange';
-import FindPwCheck from './pages/user/login/FindPwCheck';
-import IdPwLogin from './pages/user/login/IdPwLogin';
-import LoginMain from './pages/user/login/LoginMain';
-import EditProfile from './pages/user/mypage/EditProfile';
-import EditProfileCheck from './pages/user/mypage/EditProfileCheck';
-import MyInquiryList from './pages/user/mypage/MyInquiryList';
-import MyProfile from './pages/user/mypage/MyProfile';
-import WithdrawalModal from './pages/user/mypage/WithdrawalModal';
-import SignupAgreement from './pages/user/signup/SignupAgreement';
-import SignupForm from './pages/user/signup/SignupForm';
-import SignupSuccess from './pages/user/signup/SignupSuccess';
+import findIdCheck from './pages/user/login/FindIdCheck';
+import findIdShow from './pages/user/login/FindIdShow';
+import findPwChange from './pages/user/login/FindPwChange';
+import findPwCheck from './pages/user/login/FindPwCheck';
+import idPwLogin from './pages/user/login/IdPwLogin';
+import loginMain from './pages/user/login/LoginMain';
+import editProfile from './pages/user/mypage/EditProfile';
+import editProfileCheck from './pages/user/mypage/EditProfileCheck';
+import myInquiryList from './pages/user/mypage/MyInquiryList';
+import myProfile from './pages/user/mypage/MyProfile';
+import withdrawalModal from './pages/user/mypage/WithdrawalModal';
+import signupAgreement from './pages/user/signup/SignupAgreement';
+import signupForm from './pages/user/signup/SignupForm';
+import signupSuccess from './pages/user/signup/SignupSuccess';
 
 
 
