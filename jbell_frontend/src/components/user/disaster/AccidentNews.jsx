@@ -1,22 +1,28 @@
 // ----------- 사고속보 ----------- //
+import ActionTipBox from "../modal/ActionTipBox";
+import WeatherBox from "../modal/WeatherBox";
+import DisasterMessageBox from "../modal/DisasterMessageBox";
 
-import ActionTipBox from '../modal/ActionTipBox';
-import WeatherBox from '../modal/WeatherBox';
 const AccidentNews = () => {
   return (
     <div className="grid grid-cols-12 gap-4 lg:gap-6">
       {/* 왼쪽 & 중앙 */}
       <div className="col-span-12 lg:col-span-8 flex flex-col gap-4 lg:gap-6">
-        
         {/* 사고 목록 + 지도 */}
         <div className="bg-white rounded-2xl p-4 lg:p-6 shadow-sm border border-gray-100 min-h-fit lg:min-h-[550px] flex flex-col">
           {/* 헤더 */}
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-2">
-              <h3 className="text-base lg:text-lg font-bold text-gray-800">현재기상특보</h3>
-              <span className="text-[10px] lg:text-xs px-2 py-0.5 bg-gray-100 border rounded text-gray-500 font-semibold">특보없음</span>
+              <h3 className="text-base lg:text-lg font-bold text-gray-800">
+                현재기상특보
+              </h3>
+              <span className="text-[10px] lg:text-xs px-2 py-0.5 bg-gray-100 border rounded text-gray-500 font-semibold">
+                특보없음
+              </span>
             </div>
-            <p className="text-[10px] lg:text-xs text-gray-400">2025.12.21 22:49 기준</p>
+            <p className="text-[10px] lg:text-xs text-gray-400">
+              2025.12.21 22:49 기준
+            </p>
           </div>
 
           {/* 리스트와 지도를 모바일에서는 세로로(flex-col) */}
@@ -24,7 +30,9 @@ const AccidentNews = () => {
             {/* 사고 리스트 */}
             <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-4">
               <div className="flex items-center gap-2">
-                <h4 className="text-sm font-bold text-gray-800">재난·사고 목록</h4>
+                <h4 className="text-sm font-bold text-gray-800">
+                  재난·사고 목록
+                </h4>
                 <span className="text-red-500 font-bold text-sm">9</span>
               </div>
               <button className="w-full bg-white border rounded-xl px-4 py-3 flex justify-between text-sm font-semibold text-gray-700">
@@ -32,9 +40,13 @@ const AccidentNews = () => {
               </button>
 
               <div className="bg-white border rounded-2xl p-5 shadow-sm">
-                <span className="text-xs text-gray-400 font-semibold">2025.12.21 22:49</span>
+                <span className="text-xs text-gray-400 font-semibold">
+                  2025.12.21 22:49
+                </span>
                 <div className="mt-4 text-center space-y-4">
-                  <h5 className="text-sm font-bold text-gray-800">위치 : ㅇㅇㅇ 아파트 앞</h5>
+                  <h5 className="text-sm font-bold text-gray-800">
+                    위치 : ㅇㅇㅇ 아파트 앞
+                  </h5>
                   <div className="inline-flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-full text-sm font-bold border">
                     🔥 화재 진압중
                   </div>
@@ -44,7 +56,9 @@ const AccidentNews = () => {
 
             {/* 지도: 모바일에서는 높이를 고정(h-64)해주는 게 좋아 */}
             <div className="flex-1 min-h-[250px] lg:min-h-full bg-blue-50 rounded-2xl border flex items-center justify-center">
-              <span className="text-xl lg:text-3xl font-black text-blue-200">MAP AREA</span>
+              <span className="text-xl lg:text-3xl font-black text-blue-200">
+                MAP AREA
+              </span>
             </div>
           </div>
         </div>
@@ -62,19 +76,8 @@ const AccidentNews = () => {
         </div>
 
         {/* 재난문자 */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border flex-1">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">재난안전문자</h3>
-          <div className="space-y-4">
-            {[1,2,3].map(i => (
-              <div key={i} className="border-b last:border-0 pb-3">
-                <div className="flex justify-between mb-1">
-                  <span className="text-xs font-bold text-gray-600">중화산동</span>
-                  <span className="text-[10px] text-gray-400">12:45</span>
-                </div>
-                <p className="text-sm text-gray-500 truncate">재난 문자 내용이 표시됩니다.</p>
-              </div>
-            ))}
-          </div>
+        <div className="bg-white rounded-xl shadow-sm flex flex-col h-full border border-gray-100/50">
+          <DisasterMessageBox />
         </div>
       </div>
     </div>
