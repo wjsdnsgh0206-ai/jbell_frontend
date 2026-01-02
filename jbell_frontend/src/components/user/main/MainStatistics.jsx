@@ -12,14 +12,14 @@ const MainStatistics = () => {
                 <h3 className="text-base sm:text-lg font-bold">
                   지난주 주요 재난통계
                 </h3>
-                <p className="text-[10px] sm:text-xs text-gray-400">
+                <p className="text-[15px] sm:text-[12px] text-gray-400">
                   데이터 기준: 2025.12.01 ~ 12.07
                 </p>
               </div>
             </div>
             <div className="flex gap-8 sm:gap-12 lg:gap-16 w-full sm:w-auto justify-center">
               <div className="text-center">
-                <p className="text-[10px] sm:text-xs text-gray-400 mb-1">
+                <p className="text-[15px] sm:text-xs text-gray-400 mb-1">
                   발생 건수
                 </p>
                 <p className="text-2xl sm:text-3xl font-black">
@@ -31,7 +31,7 @@ const MainStatistics = () => {
               </div>
               <div className="w-[1px] h-10 sm:h-12 bg-gray-600" />
               <div className="text-center">
-                <p className="text-[10px] sm:text-xs text-gray-400 mb-1 text-red-400">
+                <p className="text-[15px] sm:text-xs text-gray-400 mb-1 text-red-400">
                   사망 건수
                 </p>
                 <p className="text-2xl sm:text-3xl font-black text-red-400">

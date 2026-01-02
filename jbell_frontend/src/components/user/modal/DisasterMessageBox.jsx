@@ -22,14 +22,14 @@ const DisasterMessage = () => {
         {messages.map((msg) => (
           <div key={msg.id} className="p-4 hover:bg-slate-50/80 transition-all group">
             <div className="flex justify-between items-start mb-2">
-              <span className="text-[11px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100/50">
+              <span className="text-[15px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100/50">
                 {msg.region}
               </span>
-              <span className="text-[11px] font-bold text-slate-300 group-hover:text-slate-500 transition-colors">
+              <span className="text-[12px] font-bold text-slate-300 group-hover:text-slate-500 transition-colors">
                 {msg.time}
               </span>
             </div>
-            <p className="text-[13px] text-slate-600 font-bold leading-relaxed break-keep line-clamp-2">
+            <p className="text-[15px] text-slate-600 font-bold leading-relaxed break-keep line-clamp-2">
               {msg.content}
             </p>
           </div>
