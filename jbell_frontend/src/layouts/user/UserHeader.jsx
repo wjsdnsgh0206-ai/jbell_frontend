@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
+<<<<<<< HEAD
 const menus = [
   { name: "지도", path: "/map" },
   { name: "서비스신청", path: "/" },
@@ -7,49 +8,120 @@ const menus = [
   { name: "기관소개", path: "/" },
   { name: "고객센터", path: "/" },
 ];
+=======
+>>>>>>> origin/develop
 const UserHeader = () => {
+  const navigate = useNavigate();
+
+  const navigationItems = [
+    {
+      label: "행동요령",
+      path: "/",
+      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
+    },
+    {
+      label: "안전정보 지도",
+      path: "/map",
+      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
+    },
+    {
+      label: "주요 안전정책",
+      path: "/",
+      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
+    },
+    {
+      label: "대피소 소개",
+      path: "/UserFacilityDetail",
+      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
+    },
+    {
+      label: "열린마당",
+      path: "/UserOpenSpaceLi",
+      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
+    },
+    {
+      label: "고객센터",
+      path: "/",
+      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
+    },
+  ];
+
+    const authButtons = [
+    { label: "로그인", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20.svg" },
+    {
+      label: "회원가입",
+      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-1.svg",
+    },
+  ];
+
+
   return (
-    <header className="w-full bg-white">
-      {/* 최상단 유틸리티 (회색 배경으로 가로 꽉 채움) */}
-      <div className="w-full bg-[#f4f4f4] border-b border-gray-200">
-        <div className="max-w-[1200px] mx-auto h-10 flex items-center justify-end gap-5 px-4 text-[13px] text-[#666]">
-          <button>Language</button>
-          <button>지점</button>
-          <button>글자·화면 설정</button>
-          <div className="flex gap-4 ml-2">
-            <button className="font-bold text-black">로그인</button>
-            <button>회원가입</button>
-          </div>
-        </div>
-      </div>
+    <div className="flex flex-col w-[1920px] items-center relative flex-[0_0_auto]">
+      <div className="flex flex-col h-[170px] items-center relative self-stretch w-full bg-white">
+        <div className="flex flex-col items-center relative flex-1 mb-2 self-stretch w-full grow bg-secondarysecondary-5" />
 
-      {/* 메인 로고 및 메뉴 (1200px 정렬) */}
-      <div className="w-full border-b border-gray-200">
-        <div className="max-w-[1200px] mx-auto h-20 flex items-center justify-between px-4">
-          <div className="flex items-center gap-2 cursor-pointer">
-            <div className="w-10 h-10 bg-gradient-to-t from-blue-600 to-red-500 rounded-full" />
-            <Link to="/">
-              <span className="text-2xl font-black tracking-tighter text-[#222]">
-                JBELL
-              </span>
-            </Link>
-          </div>
-
-          <nav className="flex items-center gap-10">
-            {menus.map((menu) => (
-              <Link
-                key={menu.name}
-                to={menu.path}
-                className="text-[18px] font-bold text-[#333] hover:text-blue-600 transition-colors"
-              >
-                {menu.name}
+        <header className="flex flex-col mt-2 w-[1280px] items-start justify-center gap-1 pt-0 pb-4 px-0 relative flex-[0_0_auto] bg-transparent">
+          <nav
+            className="items-center gap-2 self-stretch w-full flex-[0_0_auto] flex relative"
+            aria-label="Main navigation"
+          >
+            {/* 로고 */}
+            <div className="inline-flex items-start gap-8 relative flex-[0_0_auto]">
+              <Link to="/">
+                <img
+                  className="relative w-[199px] h-12 cursor-pointer"
+                  alt="대한민국정부 로고"
+                  src="https://c.animaapp.com/PZUA6SpP/img/------.svg"
+                />
               </Link>
-            ))}
-            <button className="ml-4 text-xl">🔍</button>
+            </div>
+            <div className="items-start justify-end gap-2 flex-1 grow flex relative">
+              {authButtons.map((button, index) => (
+                <button
+                  key={index}
+                  className="inline-flex justify-center gap-2 px-3 py-2.5 flex-[0_0_auto] rounded-md items-center relative"
+                  aria-label={button.label}
+                >
+                  <img className="relative w-5 h-5" alt="" src={button.icon} />
+                  <span className="relative flex items-center justify-center w-fit [font-family:'Pretendard_GOV-Bold',Helvetica] font-bold text-graygray-90 text-[17px] tracking-[0] leading-[25.5px] whitespace-nowrap">
+                    {button.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+
           </nav>
-        </div>
+        </header>
+
+        {/* 하단 네비게이션 */}
+        <nav
+          className="flex flex-col h-16 self-stretch w-full bg-graygray-0 border-t border-b border-graygray-30 items-center relative"
+          aria-label="Secondary navigation"
+        >
+          <div className="flex w-[1280px] h-16 items-center gap-4 relative bg-white">
+            {navigationItems.map((item, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => navigate(item.path)}
+                className="inline-flex gap-2 px-4 self-stretch items-center relative"
+              >
+                <span className="font-bold text-graygray-70 text-[19px] whitespace-nowrap">
+                  {item.label}
+                </span>
+
+                {/* ⭐ 아이콘 복구 */}
+                <img
+                  className="relative w-5 h-5"
+                  alt=""
+                  src={item.icon}
+                />
+              </button>
+            ))}
+          </div>
+        </nav>
       </div>
-    </header>
+    </div>
   );
 };
 
