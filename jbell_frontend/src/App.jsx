@@ -8,10 +8,10 @@ import UserOpenSpaceLi from './pages/user/UserOpenSpaceLi';
 import DisasterModalLayout from './layouts/user/disasterModal/DisasterModalLayout';
 import AccidentNews from './components/user/disasterModal/AccidentNews';
 import Earthquake from './components/user/disasterModal/Earthquake';
-import FAQPage from './pages/user/FAQPage';
-import FAQDetailPage from './pages/user/FAQDetailPage';
-import QnAListPage from './pages/user/QnAListPage';
-import QnADetailPage from './pages/user/QnADetailPage';
+import FAQPage from './pages/user/CustomerService/FAQPage';
+import FAQDetailPage from './pages/user/CustomerService/FAQDetailPage';
+import QnAListPage from './pages/user/CustomerService/QnAListPage';
+import QnADetailPage from './pages/user/CustomerService/QnADetailPage';
 import { Routes, Route } from 'react-router-dom';
 
 

@@ -63,10 +63,10 @@ const QnADetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-800">
+    <div className="w-full bg-white font-sans text-gray-800">
       {/* ================= Breadcrumb (FAQDetailPage 스타일) ================= */}
-      <div className="bg-gray-50 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center text-gray-500 text-sm">
+      <div className="w-full bg-gray-50 border-b border-gray-200">
+        <div className="max-w-[1280px] mx-auto px-4 py-3 flex items-center text-gray-500 text-sm">
           <Home size={16} />
           <ChevronRight size={16} className="mx-2" />
           <span className="font-medium text-gray-900">고객센터</span>
@@ -82,7 +82,7 @@ const QnADetailPage = () => {
         </div>
       </div>
 
-     <main className="max-w-7xl mx-auto px-4 py-10">
+     <main className="max-w-[1280px] mx-auto px-4 py-10">
         {/* ================= Title Area (FAQDetailPage 스타일) ================= */}
         <div className="border-b-2 border-gray-800 pb-6 mb-8">
             <div className="flex items-center gap-2 mb-2">
