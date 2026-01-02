@@ -96,7 +96,7 @@ import { Search, Menu, MapPin, Navigation, Info, User, Layers, ChevronDown } fro
 
 
 
-  /*<=========================================== 셀렉트 내부에서 나오는 지역 리스트 관련 ===========================================> */
+  /*<=========================================== handleSigunSelect / getDongOptions ===========================================> */
       // ... 컴포넌트 내부
       const handleSigunSelect = (city) => {
         setSelectedSigun(city);
@@ -120,7 +120,7 @@ import { Search, Menu, MapPin, Navigation, Info, User, Layers, ChevronDown } fro
         // 군산시처럼 구가 없는 경우
         return DETAILED_DATA[selectedSigun]?.['기본'] || [];
       };
-  /*<=========================================== 셀렉트 내부에서 나오는 지역 리스트 관련 ===========================================> */
+  /*<=========================================== handleSigunSelect / getDongOptions ===========================================> */
 
 
       
@@ -232,8 +232,8 @@ import { Search, Menu, MapPin, Navigation, Info, User, Layers, ChevronDown } fro
                   <SelectBox 
                     label="구 선택" 
                     value={selectedGoo} 
-                    options={REGION_DATA[selectedSido] || []}
-                    disabled={REGION_DATA[selectedSido]?.length === 0}
+                    options={REGION_DATA[selectedSigun] || []}
+                    disabled={!REGION_DATA[selectedSigun] || REGION_DATA[selectedSigun].length === 0}
                     onChange={setSelectedGoo}
                   />
                   <SelectBox label="초성 선택" value={selectedInitial} onChange={setSelectedInitial} />
@@ -242,13 +242,17 @@ import { Search, Menu, MapPin, Navigation, Info, User, Layers, ChevronDown } fro
               )}
 
             {/* 지번 검색 섹션 */}
-  
-                
-
-                
                 {addressType === 'jibun' && (
                   <div className="space-y-5">
-                    {/* 시군 선택 */}
+                  {/* 시도 선택 */}
+                   <SelectBox 
+                    label="시도 선택" 
+                    value={selectedSido} 
+                    options={['전북특별자치도']} // 예시 데이터
+                    onChange={setSelectedSido} 
+                  />
+                   
+                   {/* 시군 선택 */}
                     <SelectBox 
                       label="시군 선택" 
                       value={selectedSigun} 
