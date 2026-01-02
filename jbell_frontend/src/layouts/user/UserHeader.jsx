@@ -8,10 +8,10 @@ const UserHeader = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const authButtons = [
-    { label: "로그인", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20.svg" },
+    { label: "로그인", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20.svg" , lnk:"loginMain"},
     {
       label: "회원가입",
-      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-1.svg",
+      icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-1.svg", lnk:"signupAgreement"
     },
   ];
 
@@ -42,7 +42,7 @@ const UserHeader = () => {
               {authButtons.map((button, index) => (
                 <button
                   key={index}
-                  onClick={() => navigate('loginMain')}
+                  onClick={() => navigate(button.lnk)}
                   className="inline-flex justify-center gap-2 px-3 py-2.5 flex-[0_0_auto] rounded-md items-center relative"
                   aria-label={button.label}
                 >
@@ -108,7 +108,6 @@ const UserHeader = () => {
                 {authButtons.map((button, index) => (
                   <button
                     key={index}
-                    onClick={() => navigate('signupAgreement')}
                     className="flex-1 flex justify-center items-center gap-2 px-3 py-2.5 rounded-md bg-gray-50 hover:bg-gray-100"
                     aria-label={button.label}
                   >
