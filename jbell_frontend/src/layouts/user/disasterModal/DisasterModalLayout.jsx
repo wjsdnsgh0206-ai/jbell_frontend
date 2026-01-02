@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import React, { Suspense, useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
-const DisasterModalLayout = () => {
+const DisasterModalLayout = ( {children} ) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -97,10 +97,12 @@ const DisasterModalLayout = () => {
             </button>
           </header>
 
-          {/* 본문 영역: 공간 더 타이트하게 (p-4) */}
+          {/* 4. 스크롤이 발생하는 진짜 본문 영역 */}
           <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-5 custom-scrollbar">
-            <div className="max-w-[1500px] mx-auto">
-              <Outlet />
+            <div className="max-w-full mx-auto">
+              <Suspense>
+                {children}
+              </Suspense>
             </div>
           </div>
 
@@ -132,6 +134,6 @@ const DisasterModalLayout = () => {
       </div>
     </div>
   );
-};
+}
 
 export default DisasterModalLayout;

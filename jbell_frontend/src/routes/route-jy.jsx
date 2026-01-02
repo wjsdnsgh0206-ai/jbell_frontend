@@ -1,12 +1,10 @@
 import { lazy } from "react";
+import { AccidentNews, Earthquake, Flood, HeavyRain, LandSlide, Typhoon, Wildfire } from "@/components/user/disaster";
 
 const UserPageMain = lazy(() => import("@/pages/user/UserPageMain"));
 const UserMap = lazy(() => import("@/pages/user/UserMap"));
 const UserFacilityDetail = lazy(() => import("@/pages/user/UserFacilityDetail"));
 const UserOpenSpaceLi = lazy(() => import("@/pages/user/UserOpenSpaceLi"));
-const DisasterModalLayout = lazy(() => import("@/layouts/user/disasterModal/DisasterModalLayout"));
-const AccidentNews = lazy(() => import("@/components/user/disaster/AccidentNews"));
-const Earthquake = lazy(() => import("@/components/user/disaster/Earthquake"));
 
 // ------ 라우트 페이지 경로 입력 파일 ------ //
 // Routes.jsx에서 이 파일을 불러와서 Route를 생성함.
@@ -29,33 +27,58 @@ const Earthquake = lazy(() => import("@/components/user/disaster/Earthquake"));
  *    ③ 아래 jyUserRoutes 배열에 객체 하나 추가
  *
  */
-export const jyUserRoutes = [
+const jyUserRoutes = [
   {
-    index: true,
+    path: "/",
     element: <UserPageMain />,
   },
   {
-    path: "map",
+    path: "/map",
     element: <UserMap />,
   },
   {
-    path: "userFacilityDetail",
+    path: "/userFacilityDetail",
     element: <UserFacilityDetail />,
   },
   {
-    path: "userOpenSpaceLi",
+    path: "/userOpenSpaceLi",
     element: <UserOpenSpaceLi />,
   },
+];
+const disasterModal = [
   {
-    path: "disaster",
-    element: <DisasterModalLayout />,
-  },
-  {
-    path: "accident",
+    path: "/disaster",
     element: <AccidentNews />,
   },
   {
-    path: "earthquake",
+    path: "/disaster/accident",
+    element: <AccidentNews />,
+  },
+  {
+    path: "/disaster/earthquake",
     element: <Earthquake />,
   },
+  {
+    path: "/disaster/flood",
+    element: <Flood />,
+  },
+  {
+    path: "/disaster/heavyRain",
+    element: <HeavyRain />,
+  },
+  {
+    path: "/disaster/landSlide",
+    element: <LandSlide />,
+  },
+  {
+    path: "/disaster/typhoon",
+    element: <Typhoon />,
+  },
+  {
+    path: "/disaster/wildfire",
+    element: <Wildfire />,
+  },
+
 ];
+
+export { jyUserRoutes, disasterModal };
