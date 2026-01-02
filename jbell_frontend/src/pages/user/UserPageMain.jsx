@@ -11,7 +11,7 @@ const UserPageMain = () => {
         <div className="mx-auto max-w-[1200px] px-4 sm:px-6 py-6 sm:py-8 lg:py-12">
           <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
             
-            {/* 재난고속보 */}
+            {/* 재난사고속보 */}
             <div className="flex-1 bg-white border border-gray-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-sm">
               <div className="flex justify-between items-center mb-4 sm:mb-6">
                 <div className="flex items-center gap-2 sm:gap-3">
