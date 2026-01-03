@@ -2,13 +2,13 @@ import { useState } from "react";
 import { ChevronDown, Search, House, ChevronRight } from 'lucide-react';
 // import { GoHomeFill } from "react-icons/go";
 import BreadCrumb from '@/components/user/board/BreadCrumb';
-
+import Pagenation from "@/components/user/board/Pagination";
 
 const UserFacilityList = ({path}) => {
     const [facilityType, setFacilityType] = useState("전체");
     const [district, setDistrict] = useState("전체");
     const [searchQuery, setSearchQuery] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
+    // const [currentPage, setCurrentPage] = useState(1);
 
     const facilityData = [
         { id: 1, type: "민방위대피시설", name: "전주 시민공원 대피소", address: "전주시 완산구 효자로 444" },
@@ -18,7 +18,7 @@ const UserFacilityList = ({path}) => {
         { id: 5, type: "무더위쉼터", name: "전주 시민공원 대피소", address: "전주시 완산구 효자로 444" },
     ];
 
-    const paginationNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    // const paginationNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
     const handleReset = () => {
         setFacilityType("전체");
@@ -33,13 +33,11 @@ const UserFacilityList = ({path}) => {
 
     return (
         <div className="flex w-full min-h-screen">
-
-            {/* 메인 콘텐츠 영역: max-width를 설정해서 너무 커지지 않게 조절 */}
             <div className="flex-1 flex flex-col items-center gap-12 pt-10 pb-20 px-10 relative">
 
                 <div className="w-full max-w-[1000px] flex flex-col gap-10">
 
-                    {/* Breadcrumb */}
+                    {/* ====== 브레드크럼 ====== */}
                     <nav aria-label="Breadcrumb" className="flex items-center gap-2">
                         {/* // BreadCrumb 컴포넌트 사용 방법 : 
                         // 1. 사용하고자 하는 파일 상단에 BreadCrumb 컴포넌트 import
@@ -47,7 +45,7 @@ const UserFacilityList = ({path}) => {
                         // 3. props 로 보낼 데이터 값 입력 -> 경로를 3번 타고 들어가는 페이지의 경우, firstPath, secondPath, thirdPath에 경로이름 입력해주면 됨. */}
                         <BreadCrumb firstPath = "홈" secondPath="대피소소개"/>
                     </nav>
-                    {/* 헤더 섹션 */}
+                    {/* ====== 헤더 ====== */}
                     <header className="flex flex-col items-start gap-4 w-full">
                         <h1 className="font-heading-heading-m-700 font-[number:var(--heading-heading-m-700-font-weight)] text-graygray-90 text-[length:var(--heading-heading-m-700-font-size)] tracking-[var(--heading-heading-m-700-letter-spacing)] leading-[var(--heading-heading-m-700-line-height)] whitespace-nowrap">
                             대피소 소개
@@ -57,10 +55,8 @@ const UserFacilityList = ({path}) => {
                         </p>
                     </header>
 
-                    {/* 필터 및 테이블 섹션: p-[30px] 유지하되 너비 최적화 */}
+                    {/* ====== 필터 및 테이블 ====== */}
                     <section className="flex flex-col items-center gap-10 p-[30px] bg-white rounded-xl border border-solid border-graygray-40 shadow-sm">
-
-                        {/* 필터 바: 각 박스 크기를 이미지 비율에 맞춰 적절히 축소 */}
                         <div className="flex items-end justify-start gap-3 w-full">
                             <div className="flex flex-col gap-2 w-[140px]">
                                 <label className="text-[14px] text-graygray-90 font-medium">시설 유형</label>
@@ -119,9 +115,8 @@ const UserFacilityList = ({path}) => {
                             </button>
                         </div>
 
-                        {/* 테이블 영역 */}
+                        {/* ====== 테이블 ====== */}
                         <div className="w-full border-t border-graygray-30">
-                            {/* 헤더 */}
                             <div className="flex bg-secondarysecondary-5 border-b border-secondarysecondary-30 font-bold text-[14px]">
                                 <div className="w-[120px] px-4 py-3">유형</div>
                                 <div className="w-[200px] px-4 py-3">시설명</div>
@@ -129,7 +124,6 @@ const UserFacilityList = ({path}) => {
                                 <div className="w-[80px] px-4 py-3 text-center">상세</div>
                             </div>
 
-                            {/* 바디 */}
                             {facilityData.map((facility) => (
                                 <div key={facility.id} className="flex border-b border-graygray-30 items-center text-[15px] text-graygray-90 hover:bg-gray-50">
                                     <div className="w-[120px] px-4 py-4">{facility.type}</div>
@@ -142,19 +136,10 @@ const UserFacilityList = ({path}) => {
                             ))}
                         </div>
 
-                        {/* 페이지네이션 */}
+                        {/* ====== 페이지네이션 ====== */}
                         <nav className="flex items-center gap-2">
-                            <button className="text-gray-400 text-[14px] px-2">{"<"} 이전</button>
-                            {paginationNumbers.map((num) => (
-                                <button
-                                    key={num}
-                                    className={`w-8 h-8 flex items-center justify-center rounded ${currentPage === num ? "bg-[#003366] text-white" : "text-gray-600"}`}
-                                    onClick={() => setCurrentPage(num)}
-                                >
-                                    {num}
-                                </button>
-                            ))}
-                            <button className="text-gray-600 text-[14px] px-2">다음 {">"}</button>
+                            {/* 컴포넌트를 따로 components/user/board/Pagenation.jsx파일에 넣음. */}
+                            <Pagenation/>
                         </nav>
                     </section>
                 </div>
