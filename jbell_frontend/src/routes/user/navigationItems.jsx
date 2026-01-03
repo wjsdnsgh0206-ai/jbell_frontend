@@ -18,7 +18,7 @@ const navigationItems = [
   },
   {
     label: "대피소 소개",
-    path: "/userFacilityDetail",
+    path: "/facilityList",
     icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
   },
     {
