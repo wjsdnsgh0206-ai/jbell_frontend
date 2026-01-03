@@ -69,14 +69,14 @@ const FAQListPage = () => {
   };
 
   // 표시 개수 변경 핸들러
-  const handleItemsPerPageChange = (order) => {
+  const handleItemsPerPageChange = (e) => {
     // 문자열을 숫자로 변환 (예: "12개" -> 12)
     const value = parseInt(e.target.value.replace('개', ''), 10);
     setItemsPerPage(value);
     setCurrentPage(1); // 개수가 바뀌면 1페이지로 리셋
   };
 
-  // [누락된 부분 추가] 정렬 변경 핸들러
+  // 정렬 변경 핸들러
   const handleSortChange = (order) => {
     setSortOrder(order);
     setCurrentPage(1); // 정렬 방식이 바뀌면 1페이지로 이동
