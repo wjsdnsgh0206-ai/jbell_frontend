@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { ChevronDown, Search, House, ChevronRight  } from 'lucide-react';
-// import { MdHomeFilled } from "react-icons/md";
+import { ChevronDown, Search, House, ChevronRight } from 'lucide-react';
+// import { GoHomeFill } from "react-icons/go";
+import BreadCrumb from '@/components/user/board/BreadCrumb';
 
 
-const UserFacilityList = () => {
+const UserFacilityList = ({path}) => {
     const [facilityType, setFacilityType] = useState("전체");
     const [district, setDistrict] = useState("전체");
     const [searchQuery, setSearchQuery] = useState("");
@@ -39,15 +40,12 @@ const UserFacilityList = () => {
                 <div className="w-full max-w-[1000px] flex flex-col gap-10">
 
                     {/* Breadcrumb */}
-                    <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-gray-600">
-                        <div className="flex items-center gap-1">
-                            <House size={18} className="text-black fill-black" />
-                            <span className="text-[15px] font-medium text-black ml-1">홈</span>
-                        </div>
-                        <ChevronRight size={16} className="text-gray-400" />
-                        <span className="text-[15px] font-semibold text-black underline underline-offset-4 decoration-1">
-                            대피소 소개
-                        </span>
+                    <nav aria-label="Breadcrumb" className="flex items-center gap-2">
+                        {/* // BreadCrumb 컴포넌트 사용 방법 : 
+                        // 1. 사용하고자 하는 파일 상단에 BreadCrumb 컴포넌트 import
+                        // 2. 사용할 위치에 컴포넌트 이름 입력
+                        // 3. props 로 보낼 데이터 값 입력 -> 경로를 3번 타고 들어가는 페이지의 경우, firstPath, secondPath, thirdPath에 경로이름 입력해주면 됨. */}
+                        <BreadCrumb firstPath = "홈" secondPath="대피소소개"/>
                     </nav>
                     {/* 헤더 섹션 */}
                     <header className="flex flex-col items-start gap-4 w-full">
@@ -109,7 +107,7 @@ const UserFacilityList = () => {
                                         className="flex-1 text-[16px] bg-transparent border-none outline-none placeholder:text-graygray-50"
                                     />
                                     {/* 돋보기 아이콘 자리에 텍스트나 간단한 SVG 추가 가능 */}
-                                    <span className="text-gray-700"><Search /></span>
+                                    <span className="text-[15px]"><Search /></span>
                                 </div>
                             </div>
 
