@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import { Suspense } from "react";
 import UserHeader from './UserHeader';
 import UserFooter from './UserFooter';
 // 상대 경로 주의: layouts/user 폴더에서 components/user/sideBar 폴더로 접근
@@ -29,15 +29,25 @@ const UserLayout = ({
             <div className="flex w-full max-w-[1200px] mx-auto min-h-[calc(100vh-300px)]">
 
               {/* 왼쪽 사이드바 영역: 테블릿 이상(md)에서 노출 */}
-              <aside className="hidden md:block w-64 flex-shrink-0 border-r border-gray-100 lg:mr-[80px]">                <UserSideBar
+              
+              <aside className="hidden md:block flex-shrink-0 border-r border-gray-100">
+                <UserSideBar 
+                  nowPage={nowPage} 
+                  activeItem={activeItem} 
+                  categories={sidebarData} 
+                />
+              </aside>
+
+              {/* 최지영 김정훈 병합 충돌 지점 */}
+              {/* <aside className="hidden md:block w-64 flex-shrink-0 border-r border-gray-100 lg:mr-[80px]">                <UserSideBar
                 nowPage={nowPage}
                 activeItem={activeItem}
                 categories={sidebarData}
               />
-              </aside>
+              </aside> */}
 
               {/* 오른쪽 본문 컨텐츠 영역 */}
-              <main className="flex-1 bg-white overflow-hidden">
+              <main className="flex-1 bg-white overflow-hidden pl-20">
                 {children}
               </main>
             </div>

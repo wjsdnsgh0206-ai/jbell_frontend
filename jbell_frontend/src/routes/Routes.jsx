@@ -5,6 +5,7 @@ import { shUserRoutes } from "@/routes/route-sh";
 import { ehUserRoutes } from "@/routes/route-eh";
 import { mjUserRoutes } from "@/routes/route-mj";
 import { bjUserRoutes } from "@/routes/route-bj";
+import { jhUserRoutes } from "@/routes/route-jh";
 import DisasterModalLayout from "@/layouts/user/disasterModal/DisasterModalLayout";
 
 // import UserNoticeDetail from 
@@ -105,6 +106,48 @@ const AllRoutes = (props) => {
           bjUserRoutes.map((route, idx) => <Route key={idx} path={route.path} element={<UserLayout {...props}>
             {route.element}
           </UserLayout>} />)
+        }
+      </Route>
+
+      <Route>
+         {
+          jhUserRoutes.map((route, idx) => (
+            <Route 
+              key={idx} 
+              path={route.path} 
+              element={
+                <UserLayout 
+                  {...props} 
+                  sidebarData={route.sidebarData} // 중요: 데이터 전달
+                  nowPage={route.nowPage}         // 중요: 제목 전달
+                  activeItem={route.activeItem}   // 중요: 현재 강조할 메뉴 전달
+                >
+                  {route.element}
+                </UserLayout>
+              } 
+            />
+          ))
+        }
+      </Route>
+
+      <Route>
+         {
+          jhUserRoutes.map((route, idx) => (
+            <Route 
+              key={idx} 
+              path={route.path} 
+              element={
+                <UserLayout 
+                  {...props} 
+                  sidebarData={route.sidebarData} // 중요: 데이터 전달
+                  nowPage={route.nowPage}         // 중요: 제목 전달
+                  activeItem={route.activeItem}   // 중요: 현재 강조할 메뉴 전달
+                >
+                  {route.element}
+                </UserLayout>
+              } 
+            />
+          ))
         }
       </Route>
 

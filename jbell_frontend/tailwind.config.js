@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-content: ["./src/**/*.{html,js,ts,jsx,tsx}"],
+  content: ["./src/**/*.{html,js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
@@ -13,13 +13,29 @@ content: ["./src/**/*.{html,js,ts,jsx,tsx}"],
         "graygray-50": "var(--graygray-50)",
         "graygray-60": "var(--graygray-60)",
         "graygray-70": "var(--graygray-70)",
+        "graygray-80": "var(--graygray-80)", // 추가됨 (New)
         "graygray-90": "var(--graygray-90)",
         "secondarysecondary-5": "var(--secondarysecondary-5)",
         "secondarysecondary-50": "var(--secondarysecondary-50)",
       },
       fontFamily: {
+        // --- Body Series ---
         "body-body-l-700": "var(--body-body-l-700-font-family)",
+        "body-body-m-700": "var(--body-body-m-700-font-family)", // 추가됨 (New)
         "body-body-m-400": "var(--body-body-m-400-font-family)",
+        
+        // --- Detail Series ---
+        "detail-detail-m-400": "var(--detail-detail-m-400-font-family)",
+
+        // --- Title Series ---
+        "title-title-XL-700": "var(--title-title-XL-700-font-family)",
+        "title-title-l-700": "var(--title-title-l-700-font-family)",
+        "title-title-m-700": "var(--title-title-m-700-font-family)",
+
+        // --- Heading Series ---
+        "heading-heading-m-700": "var(--heading-heading-m-700-font-family)",
+        
+        // --- System/Common Series (Inter/Pretendard Mixed) ---
         "body-large": "var(--body-large-font-family)",
         "body-large-bold": "var(--body-large-bold-font-family)",
         "body-medium": "var(--body-medium-font-family)",
@@ -28,36 +44,40 @@ content: ["./src/**/*.{html,js,ts,jsx,tsx}"],
         "body-small-bold": "var(--body-small-bold-font-family)",
         "body-xsmall": "var(--body-xsmall-font-family)",
         "body-xsmall-bold": "var(--body-xsmall-bold-font-family)",
-        "detail-detail-m-400": "var(--detail-detail-m-400-font-family)",
+        
         "display-large": "var(--display-large-font-family)",
         "display-medium": "var(--display-medium-font-family)",
         "display-small": "var(--display-small-font-family)",
-        "heading-heading-m-700": "var(--heading-heading-m-700-font-family)",
+        
         "heading-large": "var(--heading-large-font-family)",
         "heading-medium": "var(--heading-medium-font-family)",
         "heading-small": "var(--heading-small-font-family)",
         "heading-xlarge": "var(--heading-xlarge-font-family)",
         "heading-xsmall": "var(--heading-xsmall-font-family)",
         "heading-xxsmall": "var(--heading-xxsmall-font-family)",
+        
         "label-large": "var(--label-large-font-family)",
         "label-medium": "var(--label-medium-font-family)",
         "label-small": "var(--label-small-font-family)",
         "label-xsmall": "var(--label-xsmall-font-family)",
+        
         "navigation-depth-medium": "var(--navigation-depth-medium-font-family)",
-        "navigation-depth-medium-bold":
-          "var(--navigation-depth-medium-bold-font-family)",
+        "navigation-depth-medium-bold": "var(--navigation-depth-medium-bold-font-family)",
         "navigation-depth-small": "var(--navigation-depth-small-font-family)",
-        "navigation-depth-small-bold":
-          "var(--navigation-depth-small-bold-font-family)",
+        "navigation-depth-small-bold": "var(--navigation-depth-small-bold-font-family)",
         "navigation-title-medium": "var(--navigation-title-medium-font-family)",
         "navigation-title-small": "var(--navigation-title-small-font-family)",
-        "title-title-l-700": "var(--title-title-l-700-font-family)",
-        "title-title-m-700": "var(--title-title-m-700-font-family)",
-        "title-title-XL-700": "var(--title-title-XL-700-font-family)",
+        
         "underline-large": "var(--underline-large-font-family)",
         "underline-medium": "var(--underline-medium-font-family)",
         "underline-small": "var(--underline-small-font-family)",
         "underline-xsmall": "var(--underline-xsmall-font-family)",
+
+        // --- Shortcuts (편의성) ---
+        body: "var(--body-medium-font-family)",
+        heading: "var(--heading-medium-font-family)",
+        navigation: "var(--navigation-depth-medium-font-family)",
+        title: "var(--navigation-title-medium-font-family)",
       },
       boxShadow: {
         "shadow-1": "var(--shadow-1)",
@@ -68,5 +88,4 @@ content: ["./src/**/*.{html,js,ts,jsx,tsx}"],
     },
   },
   plugins: [],
-}
-
+};

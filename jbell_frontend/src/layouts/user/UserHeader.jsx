@@ -6,27 +6,23 @@ const UserHeader = () => {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  // 1. 로그인 상태 관리 (초기값은 localStorage 확인)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    // 페이지 로드 시 로그인 상태 체크
     const status = localStorage.getItem('isLoggedIn') === 'true';
     setIsLoggedIn(status);
   }, []);
 
-  // 2. 로그아웃 핸들러
   const handleLogout = () => {
     if (window.confirm("로그아웃 하시겠습니까?")) {
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('userName');
       setIsLoggedIn(false);
       navigate('/');
-      window.location.reload(); // 상태 동기화를 위한 새로고침
+      window.location.reload();
     }
   };
 
-  // 3. 상태에 따른 인증 버튼 구성
   const authButtons = isLoggedIn 
     ? [
         { label: "마이페이지", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20.svg", lnk: "/myProfile" },
@@ -38,15 +34,15 @@ const UserHeader = () => {
       ];
 
   return (
-    <div className="flex flex-col w-full items-center relative z-50">
+    <div className="flex flex-col w-full font-body-body-l-700 items-center relative z-50">
       <div className="flex flex-col items-center relative w-full bg-white">
-        {/* 최상단 띠 정보창 */}
-        <div className="flex flex-col items-center relative w-full bg-secondarysecondary-5 h-2 md:h-5" />
+        {/* 최상단 띠 정보창 - lg 기준으로 높이 조절 */}
+        <div className="flex flex-col items-center relative w-full bg-secondarysecondary-5 h-2 lg:h-5" />
 
         <header className="flex w-full max-w-[1280px] items-center justify-between py-4 px-4 sm:px-6 lg:px-8 relative bg-transparent">
           {/* 로고 */}
           <div className="flex items-center relative">
-            <Link to="/">
+            <Link to="/#">
               <img
                 className="relative w-[140px] sm:w-[160px] lg:w-[199px] h-auto cursor-pointer"
                 alt="전북안전누리 로고"
@@ -55,8 +51,8 @@ const UserHeader = () => {
             </Link>
           </div>
 
-          {/* 1. 데스크탑 인증 버튼 */}
-          <div className="hidden md:flex items-center justify-end gap-2">
+          {/* 1. 데스크탑 인증 버튼 - lg 이상에서만 표시 */}
+          <div className="hidden lg:flex items-center justify-end gap-2">
             {authButtons.map((button, index) => (
               <button
                 key={index}
@@ -72,8 +68,8 @@ const UserHeader = () => {
             ))}
           </div>
 
-          {/* 2. 모바일 햄버거 버튼 */}
-          <div className="md:hidden flex items-center">
+          {/* 2. 모바일 햄버거 버튼 - lg 미만에서 표시 */}
+          <div className="lg:hidden flex items-center">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
@@ -90,12 +86,12 @@ const UserHeader = () => {
           </div>
         </header>
 
-        {/* 3. 데스크탑 네비게이션 */}
+        {/* 3. 데스크탑 네비게이션 - lg 이상에서만 표시 */}
         <nav
-          className="hidden md:flex h-16 w-full bg-white border-t border-b border-graygray-30 items-center justify-center relative"
+          className="hidden lg:flex h-16 w-full bg-white border-t border-b border-graygray-30 items-center justify-center relative"
           aria-label="Secondary navigation"
         >
-          <div className="flex w-full max-w-[1280px] h-full items-center gap-4 px-8 overflow-x-auto no-scrollbar">
+          <div className="flex w-full max-w-[1280px] h-full items-center gap-4 px-8">
             {navigationItems.map((item, index) => (
               <button
                 key={index}
@@ -103,7 +99,7 @@ const UserHeader = () => {
                 onClick={() => navigate(item.path)}
                 className="inline-flex gap-2 px-4 h-full items-center relative whitespace-nowrap group"
               >
-                <span className="font-bold text-graygray-70 text-[17px] lg:text-[19px] group-hover:text-secondary-50 transition-colors">
+                <span className="font-bold text-graygray-70 text-[19px] group-hover:text-secondary-50 transition-colors">
                   {item.label}
                 </span>
                 <img className="relative w-4 h-4 lg:w-5 lg:h-5 opacity-70" alt="" src={item.icon} />
@@ -112,12 +108,10 @@ const UserHeader = () => {
           </div>
         </nav>
 
-        {/* 4. 모바일 통합 메뉴 */}
+        {/* 4. 모바일 통합 메뉴 - lg 미만에서만 표시 */}
         {isMobileMenuOpen && (
-          <div className="md:hidden w-full bg-white border-b border-gray-200 shadow-xl absolute top-full left-0 transition-all duration-300 ease-in-out">
+          <div className="lg:hidden w-full bg-white border-b border-gray-200 shadow-xl absolute top-full left-0 transition-all duration-300 ease-in-out">
             <div className="flex flex-col p-4 space-y-4">
-              
-              {/* 모바일 인증 버튼 (상태에 따라 변동) */}
               <div className="flex gap-2 pb-4 border-b border-gray-100">
                 {authButtons.map((button, index) => (
                   <button
@@ -136,7 +130,6 @@ const UserHeader = () => {
                 ))}
               </div>
 
-              {/* 모바일 네비게이션 리스트 */}
               <div className="flex flex-col space-y-1">
                 {navigationItems.map((item, index) => (
                   <button

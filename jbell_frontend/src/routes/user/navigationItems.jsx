@@ -8,7 +8,7 @@ const navigationItems = [
   },
   {
     label: "행동요령",
-    path: "/",
+    path: "/earthquakeBeforeAction",
     icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
   },
   {
@@ -33,7 +33,7 @@ const navigationItems = [
   },
     {
     label: "고객센터",
-    path: "/",
+    path: "/faq",
     icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
   },
 ];
