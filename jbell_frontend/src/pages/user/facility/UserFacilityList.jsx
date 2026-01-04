@@ -39,7 +39,10 @@ const UserFacilityList = ({ path }) => {
                 <div className="w-full max-w-[1000px] flex flex-col gap-10">
 
                     <nav aria-label="Breadcrumb" className="flex items-center gap-2">
-                        <BreadCrumb firstPath="홈" secondPath="대피소소개" />
+                        <BreadCrumb 
+                            firstPath="홈" 
+                            secondPath="대피소 소개"
+                        />
                     </nav>
 
                     <header className="flex flex-col items-start gap-4 w-full">

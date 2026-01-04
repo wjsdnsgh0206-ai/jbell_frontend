@@ -85,11 +85,14 @@ const sideBarFacility = [
       element: <UserFacilityList /> , 
       sidebarData: SIDE_MENU_DATA_FACILITY.FACILITY, // 위에서 수정한 배열 데이터
       nowPage: "대피소 소개",
-      activeItem: "대피소 소개" 
+      activeItem: "대피소소개" 
     },
       {
     path: "/facility/detail/:id",
     element: <UserFacilityDetail />,
+          sidebarData: SIDE_MENU_DATA_FACILITY.FACILITY, // 위에서 수정한 배열 데이터
+      nowPage: "대피소 소개",
+      activeItem: "대피소소개" 
   },
 ];
 
