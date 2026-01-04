@@ -15,6 +15,51 @@
   .all-\[unset\] {
     all: unset;
   }
+  
+  /* =========================
+     Sidebar – Title
+  ========================= */
+  .sidebar-title {
+    font-family: var(--navigation-title-medium-font-family);
+    font-size: var(--navigation-title-medium-font-size);
+    font-weight: var(--navigation-title-medium-font-weight);
+    line-height: var(--navigation-title-medium-line-height);
+    color: var(--graygray-90);
+  }
+
+  /* =========================
+     Sidebar – Category Item
+  ========================= */
+  .sidebar-item {
+    font-family: var(--navigation-depth-medium-font-family);
+    font-size: var(--navigation-depth-medium-font-size);
+    font-weight: var(--navigation-depth-medium-font-weight);
+    line-height: var(--navigation-depth-medium-line-height);
+    color: var(--graygray-70);
+  }
+
+  .sidebar-item.is-active {
+    font-weight: var(--navigation-depth-medium-bold-font-weight);
+    color: var(--secondarysecondary-50);
+    border-bottom: 3px solid var(--secondarysecondary-50);
+  }
+
+  /* =========================
+     Sidebar – Sub Item
+  ========================= */
+  .sidebar-sub-item {
+    font-family: var(--navigation-depth-small-font-family);
+    font-size: var(--navigation-depth-small-font-size);
+    font-weight: var(--navigation-depth-small-font-weight);
+    line-height: var(--navigation-depth-small-line-height);
+    color: var(--graygray-70);
+  }
+
+  .sidebar-sub-item.is-active {
+    font-weight: var(--navigation-depth-small-bold-font-weight);
+    color: var(--secondarysecondary-50);
+    background-color: var(--graygray-0);
+  }
 }
 
 :root {

@@ -57,6 +57,11 @@ content: ["./src/**/*.{html,js,ts,jsx,tsx}"],
         "underline-medium": "var(--underline-medium-font-family)",
         "underline-small": "var(--underline-small-font-family)",
         "underline-xsmall": "var(--underline-xsmall-font-family)",
+        // 추가
+        body: "var(--body-medium-font-family)",
+        heading: "var(--heading-medium-font-family)",
+        navigation: "var(--navigation-depth-medium-font-family)",
+        title: "var(--navigation-title-medium-font-family)",
       },
       boxShadow: {
         "shadow-1": "var(--shadow-1)",
