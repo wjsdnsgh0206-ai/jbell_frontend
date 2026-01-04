@@ -51,7 +51,7 @@ const AllRoutes = (props) => {
           ))
         }
       </Route>
-{/* 2. 최지영 대피소 소개 페이지 (사이드바) 라우트 - 상세페이지 포함 */}
+{/* 2. 최지영 대피소소개(사이드바) 라우트 - 상세페이지 포함 */}
       <Route>
         {sideBarFacility.map((route, idx) => (
           <Route 
