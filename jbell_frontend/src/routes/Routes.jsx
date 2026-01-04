@@ -25,69 +25,68 @@ const AllRoutes = (props) => {
       <Route>
         {
           disasterModal.map((route, idx) => <Route key={idx} path={route.path} element={
-              <DisasterModalLayout {...props}>
-                {route.element}
-              </DisasterModalLayout> } />)
+            <DisasterModalLayout {...props}>
+              {route.element}
+            </DisasterModalLayout>} />)
         }
       </Route>
-      
+
       <Route>
         {
           ehUserRoutes.map((route, idx) => (
-            <Route 
-              key={idx} 
-              path={route.path} 
+            <Route
+              key={idx}
+              path={route.path}
               element={
-                <UserLayout 
-                  {...props} 
+                <UserLayout
+                  {...props}
                   sidebarData={route.sidebarData} // 중요: 데이터 전달
                   nowPage={route.nowPage}         // 중요: 제목 전달
                   activeItem={route.activeItem}   // 중요: 현재 강조할 메뉴 전달
                 >
                   {route.element}
                 </UserLayout>
-              } 
+              }
             />
           ))
         }
       </Route>
-<Route>
-  {
-    sideBarFacility.map((route, idx) => ( // 여기서 { 대신 ( 를 써야 바로 return 돼!
-      <Route 
-        key={idx} 
-        path={route.path}
-        element={
-          <UserLayout 
-            {...props} 
-            sidebarData={route.sidebarData} 
-            nowPage={route.nowPage}         
-            activeItem={route.activeItem}   
-          >
-            {route.element}
-          </UserLayout>
-        } 
-      />
-    ))
-  }
-</Route>
-      
+      {/* 2. 최지영 대피소소개(사이드바) 라우트 - 상세페이지 포함 */}
       <Route>
-         {
+        {sideBarFacility.map((route, idx) => (
+          <Route
+            key={idx}
+            path={route.path}
+            element={
+              <UserLayout
+                {...props}
+                sidebarData={route.sidebarData}
+                nowPage={route.nowPage}
+                activeItem={route.activeItem}
+              >
+                {route.element}
+              </UserLayout>
+            }
+          />
+        ))}
+      </Route>
+
+      <Route>
+        {
           shUserRoutes.map((route, idx) => (
-            <Route 
-              key={idx} 
-              path={route.path} 
+            <Route
+              key={idx}
+              path={route.path}
               element={
-                <UserLayout 
-                  {...props} 
+                <UserLayout
+                  {...props}
                   sidebarData={route.sidebarData} // 중요: 데이터 전달
                   nowPage={route.nowPage}         // 중요: 제목 전달
                   activeItem={route.activeItem}   // 중요: 현재 강조할 메뉴 전달
                 >
                   {route.element}
                 </UserLayout>
-              } 
+              }
             />
           ))
         }
@@ -109,7 +108,7 @@ const AllRoutes = (props) => {
         }
       </Route>
 
-      
+
     </Routes >
   );
 }

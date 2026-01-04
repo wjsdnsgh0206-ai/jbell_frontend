@@ -10,31 +10,30 @@ import UserSideBar from "./UserSideBar";
  * @param nowPage - 사이드바 최상단 대제목 (예: 마이페이지)
  * @param activeItem - 현재 활성화(강조)할 메뉴 이름 (예: 내 정보)
  */
-const UserLayout = ({ 
-  children, 
-  sidebarData = null, 
-  nowPage = "페이지", 
-  activeItem = "" 
+const UserLayout = ({
+  children,
+  sidebarData = null,
+  nowPage = "페이지",
+  activeItem = ""
 }) => {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center font-sans text-gray-500">로딩 중...</div>}>
       <div className="min-h-screen flex flex-col w-full relative bg-white font-sans text-slate-900">
-        
+
         {/* 공통 헤더 */}
         <UserHeader />
-        
+
         <div className="flex-1 w-full">
           {/* sidebarData가 존재할 때만 사이드바 레이아웃 적용 */}
           {sidebarData ? (
             <div className="flex w-full max-w-[1200px] mx-auto min-h-[calc(100vh-300px)]">
-              
+
               {/* 왼쪽 사이드바 영역: 테블릿 이상(md)에서 노출 */}
-              <aside className="hidden md:block w-80 flex-shrink-0 border-r border-gray-100">
-                <UserSideBar 
-                  nowPage={nowPage} 
-                  activeItem={activeItem} 
-                  categories={sidebarData} 
-                />
+              <aside className="hidden md:block w-64 flex-shrink-0 border-r border-gray-100 lg:mr-[80px]">                <UserSideBar
+                nowPage={nowPage}
+                activeItem={activeItem}
+                categories={sidebarData}
+              />
               </aside>
 
               {/* 오른쪽 본문 컨텐츠 영역 */}
@@ -49,7 +48,7 @@ const UserLayout = ({
             </main>
           )}
         </div>
-        
+
         {/* 공통 푸터 */}
         <UserFooter />
       </div>
