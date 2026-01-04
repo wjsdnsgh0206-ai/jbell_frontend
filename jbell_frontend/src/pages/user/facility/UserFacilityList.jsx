@@ -6,7 +6,7 @@ import Pagenation from "@/components/user/board/Pagination";
 import { FaCaretUp, FaCaretDown } from "react-icons/fa";
 
 
-const UserFacilityList = ({path}) => {
+const UserFacilityList = ({ path }) => {
     const [facilityType, setFacilityType] = useState("전체");
     const [district, setDistrict] = useState("전체");
     const [searchQuery, setSearchQuery] = useState("");
@@ -20,7 +20,6 @@ const UserFacilityList = ({path}) => {
         { id: 5, type: "무더위쉼터", name: "전주 시민공원 대피소", address: "전주시 완산구 효자로 444" },
     ];
 
-    // const paginationNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
     const handleReset = () => {
         setFacilityType("전체");
@@ -45,7 +44,7 @@ const UserFacilityList = ({path}) => {
                         // 1. 사용하고자 하는 파일 상단에 BreadCrumb 컴포넌트 import
                         // 2. 사용할 위치에 컴포넌트 이름 입력
                         // 3. props 로 보낼 데이터 값 입력 -> 경로를 3번 타고 들어가는 페이지의 경우, firstPath, secondPath, thirdPath에 경로이름 입력해주면 됨. */}
-                        <BreadCrumb firstPath = "홈" secondPath="대피소소개"/>
+                        <BreadCrumb firstPath="홈" secondPath="대피소소개" />
                     </nav>
                     {/* ====== 헤더 ====== */}
                     <header className="flex flex-col items-start gap-4 w-full">
@@ -122,12 +121,12 @@ const UserFacilityList = ({path}) => {
                             <div className="flex bg-secondarysecondary-5 border-b border-secondarysecondary-30 font-bold text-[14px]">
                                 <div className="w-[120px] px-4 py-3">유형</div>
                                 <div className="w-[200px] px-4 py-3 flex justify-between items-center gap-1">
-  <span>시설명</span>
+                                    <span>시설명</span>
 
-  <span className="flex flex-col leading-none">
-    <FaCaretUp className="text-[12px]" />
-    <FaCaretDown className="text-[12px] -mt-1" />
-  </span>
+                                    <span className="flex flex-col leading-none">
+                                        <FaCaretUp className="text-[12px]" />
+                                        <FaCaretDown className="text-[12px] -mt-1" />
+                                    </span>
                                 </div>
                                 <div className="flex-1 px-4 py-3">주소</div>
                                 <div className="w-[80px] px-4 py-3 text-center">상세</div>
@@ -148,7 +147,7 @@ const UserFacilityList = ({path}) => {
                         {/* ====== 페이지네이션 ====== */}
                         <nav className="flex items-center gap-2">
                             {/* 컴포넌트를 따로 components/user/board/Pagenation.jsx파일에 넣음. */}
-                            <Pagenation/>
+                            <Pagenation />
                         </nav>
                     </section>
                 </div>

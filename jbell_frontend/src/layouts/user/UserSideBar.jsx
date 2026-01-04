@@ -30,7 +30,8 @@ const UserSideBar = ({ nowPage, activeItem, categories = [] }) => {
 
   return (
     <nav
-      className="flex flex-col w-full lg:w-[296px] items-start lg:pl-0 lg:pr-5 lg:py-0 border-gray-200"
+      // 여기 lg:w-[296px]를 lg:w-[240px]로 수정했어! (원하는 만큼 숫자를 조절해줘)
+      className="flex flex-col w-full lg:w-[240px] items-start lg:pl-0 lg:pr-5 lg:py-0 border-gray-200"
       aria-label="사이드바 네비게이션"
     >
       <div className="flex flex-col items-start w-full">
