@@ -11,6 +11,7 @@ export default {
         "graygray-30": "var(--graygray-30)",
         "graygray-40": "var(--graygray-40)",
         "graygray-50": "var(--graygray-50)",
+        "graygray-60": "var(--graygray-60)",
         "graygray-70": "var(--graygray-70)",
         "graygray-80": "var(--graygray-80)", // 추가됨 (New)
         "graygray-90": "var(--graygray-90)",
