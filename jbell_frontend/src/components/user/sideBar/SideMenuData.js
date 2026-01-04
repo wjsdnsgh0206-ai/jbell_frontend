@@ -21,4 +21,38 @@ export const SIDE_MENU_DATA = {
       ] 
     },
   ],
+  BEHAVIORALGUIDE: [
+    { 
+      title: '자연재난행동요령', 
+      items: [
+        { name: '지진', path: '/#' },
+        { name: '태풍', path: '/typhoonBeforeAction' },
+        { name: '홍수', path: '/#' },
+        { name: '호우', path: '/#' },
+        { name: '산사태', path: '/#' },
+      ] 
+    },
+    { 
+      title: '사회재난행동요령', 
+      items: [
+        { name: '교통사고', path: '/#' },
+        { name: '화재', path: '/#' },
+        { name: '산불', path: '/#' },
+        { name: '건축물붕괴', path: '/#' },
+        { name: '전기, 가스 사고', path: '/#' },
+        { name: '도로터널사고', path: '/#' },
+        { name: '철도, 지하철 사고', path: '/#' },
+      ] 
+    },
+    { 
+      title: '생활안전행동요령', 
+      items: [
+        { name: '응급처치', path: '/#' },
+        { name: '심페소생술', path: '/#' },
+        { name: '식중독', path: '/#' },
+        { name: '승강기 안전사고', path: '/#' },
+        { name: '산행안전사고', path: '/#' },
+      ] 
+    },
+  ],
 };
