@@ -28,9 +28,15 @@ const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
 const UserMap = () => {
 /* <======================================== 상태 관리 =======================================> */
 /* <================ 상태 관리 (여기가 중요!) ================> */
-  // 초기 상태를 null로 설정해서 처음엔 아무 메뉴도 안 나오게 합니다.
+  
+  // 셀렉트 화살표 관련
+  const [isOpen, setIsOpen] = useState(false);
+
+
+  // 초기 상태를 null로 설정해서 처음엔 아무 메뉴도 안 나오게 함
   const [activeMenu, setActiveMenu] = useState(null); 
   const [addressType, setAddressType] = useState('road');
+
 
   // 주소 선택 값들
   const [selectedSido, setSelectedSido] = useState('');
@@ -40,10 +46,26 @@ const UserMap = () => {
   const [selectedInitial, setSelectedInitial] = useState('');
   const [selectedRoad, setSelectedRoad] = useState('');
 
+
   /* 대피소 메뉴용 추가 상태 (상단에 추가하세요) */
   const [shelterSearchType, setShelterSearchType] = useState('category'); // 'category' 또는 'name'
   const [shelterResults, setShelterResults] = useState([]); // 검색 결과 리스트 저장용
   const [selectedShelter, setSelectedShelter] = useState(null); // 선택된 대피소 상세 정보
+
+
+  // 어떤 재난 메뉴를 눌렀는지(좌측 사이드 바 상단 메인 메뉴 3개 중 대피소 버튼)
+  const [activeDisasterCategory, setActiveDisasterCategory] = useState(null);
+  // civil, weather, etc.
+  const [civilSelect, setCivilSelect] = useState('');         // 민방위/대피
+  const [weatherSelect, setWeatherSelect] = useState('');     // 태풍/호우
+  const [mountainSelect, setMountainSelect] = useState('');   // 산사태/산불
+
+
+
+  // 정렬 기준
+  const [sortType, setSortType] = useState('distance');
+  // const [isPopupOpen, setIsPopupOpen] = useState(false);
+  // 'distance' | 'name'
 
 /* <======================================== 상태 관리 =======================================> */
 /* <======================================== 데이터 정의 =======================================> */
@@ -63,10 +85,47 @@ const UserMap = () => {
     '군산시': { '기본': ['해신동', '월명동', '신풍동', '조촌동'] },
     '익산시': { '기본': ['중앙동', '인화동', '마동', '남중동'] }
   };
+
+  // 대피소 상세 좌측 사이드 바 셀렉트
+  const MBY_SELECTS = {
+    '민방위대피소':[],
+    '비상급수시설':[],
+    '지진옥외대피장소':[],
+    '이재민임시주거시설(지진겸용)':[],
+    '이재민임시주거시설':[],
+  }
+  const TE_SELECTS = {
+    '빗물펌프장':[],
+    '빗물저류장':[],
+    '대피소정보':[],
+  }
+  const MT_SELECTS = {
+    '산사태대피소':[],
+    '산불대피소':[]
+  }
+  const JB_REGIONS_FOR_SELECTS = {
+    '전주시 완산구':[],
+    '전주시 덕진구':[],
+    '군산시':[],
+    '익산시':[],
+    '정읍시':[],
+    '남원시':[],
+    '김제시':[],
+    '완주군':[],
+    '고창군':[],
+    '부안군':[],
+    '순창군':[],
+    '임실군':[],
+    '무주군':[],
+    '진안군':[],
+    '장수군':[],
+  }
+
 /* <======================================== 데이터 정의 =======================================> */
 
 
 /* <======================================== 핸들러 함수들 =======================================> */
+  //
   // 홈으로 돌아가기 (모든 상태 초기화)
   const handleGoHome = () => {
     setActiveMenu(null);
@@ -76,6 +135,7 @@ const UserMap = () => {
     setSelectedDong('');
     setSelectedInitial('');
     setSelectedRoad('');
+    setActiveDisasterCategory('');
   };
 
   const handleSigunSelect = (city) => {
@@ -91,7 +151,89 @@ const UserMap = () => {
     } 
     return DETAILED_DATA[selectedSigun]?.['기본'] || [];
   };
+  //
+
+
+
+  //
+  // [ 민방위/지진, 태풍/호우, 산사태/산불 셀렉트 부분 ] - 한 셀렉트에서 키워드를 고르면, 나머지 셀렉트는 리셋
+  const handleCivilChange = (value) => {
+    setCivilSelect(value);
+    setWeatherSelect('');
+    setMountainSelect('');
+  };
+
+  const handleWeatherChange = (value) => {
+    setWeatherSelect(value);
+    setCivilSelect('');
+    setMountainSelect('');
+  };
+
+  const handleMountainChange = (value) => {
+    setMountainSelect(value);
+    setCivilSelect('');
+    setWeatherSelect('');
+  };
+  //
+
+
+
+  // 우측 하단 +, - 버튼(지도 확대, 축소 버튼)
+  const handleZoomIn = () => {
+    console.log('zoom in');
+  };
+  const handleZoomOut = () => {
+    console.log('zoom out');
+  };
+  /* (아래 두 코드 jsx에 추가해야 함)
+  <button onClick={handleZoomIn}>+</button>
+  <button onClick={handleZoomOut}>-</button>
+  */
+  //
+
+  // 우측 하단 사람 버튼
+  /*
+  const handleMyLocation = () => {
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const { latitude, longitude } = pos.coords;
+      console.log(latitude, longitude);
+    });
+  };
+  */
+    /* <button onClick={handleMyLocation}>
+      👤
+    </button>
+    => 이거 jsx에 추가해야 함
+    */
+  //
+ 
+
+
+  // useEffect - 지역을 바꾸거나, 셀렉트를 바꾸면 다시 필터
+ const activeShelterType =
+  civilSelect || weatherSelect || mountainSelect;
+
+  const shelterRegion = selectedSigun;
+
+   useEffect(() => {
+      if (!shelterRegion || !activeShelterType) {
+        setShelterResults([]);
+        return;
+      }
+
+      const filtered = ALL_SHELTERS.filter(item => (
+        item.region === shelterRegion &&
+        item.type === activeShelterType
+      ));
+
+      setShelterResults(filtered);
+    }, [shelterRegion, activeShelterType]);
+//
+
 /* <======================================== 핸들러 함수들 =======================================> */
+
+
+
 /* <======================================== 카카오 맵 API, 네이버 연동 =======================================> */
     // 카카오 맵 API 연동
     const searchPlaces = (keyword) => {
@@ -119,8 +261,25 @@ const UserMap = () => {
       window.open(url, '_blank'); // 새 탭에서 네이버 지도 실행
     };
 /* <======================================== 카카오 맵 API, 네이버 연동 =======================================> */
+
+
+
+// 대피소 상세 메뉴
+/* <======================================== 대피소 상세 좌측 사이드 바(3개 메뉴 중 가장 우측 메뉴) =======================================> */
+    // 정렬 로직
+      const sortedResults = [...shelterResults].sort((a, b) => {
+        if (sortType === 'name') {
+          return a.place_name.localeCompare(b.place_name);
+        }
+        if (sortType === 'distance') {
+          return a.distance - b.distance;
+        }
+        return 0;
+      });
+/* <======================================== 대피소 상세 좌측 사이드 바(3개 메뉴 중 가장 우측 메뉴) =======================================> */        
 /* <======================================== 대피소(민방위, 지진 등) 상세 정보 팝업 창 =======================================> */
-    // 이 팝업 창 코드의 경우에는 html, css에도 코드 작성해야 함(2026년 1월 2일 오후 9시 35분 기준, 아직 작성 안 함)
+
+    // 이 팝업 창 코드의 경우에는 html, css에도 코드 작성해야 함(2026년 1월 2일 오후 9시 35분 기준, 아직 작성 안 함) -> 이거 이제 신경 x
     // 1. 대피소 데이터 예시 (디자인이 조금씩 다르므로 객체 형태로 관리)
       const shelterData = {
           
@@ -193,34 +352,18 @@ const UserMap = () => {
           }
       };
 
-      // 2. 팝업을 열고 데이터를 채우는 함수
-      function openPopup(shelterId) {
-          const data = shelterData[shelterId];
-          if (!data) return;
+      // 아 이거 뭐임
+      const openPopup = (shelterId) => {
+        setSelectedShelter(shelterData[shelterId]);
+        setIsPopupOpen(true);
+      };
 
-          // 제목 설정
-          document.getElementById('popup-title').innerText = data.title;
+      const closePopup = () => {
+        setIsPopupOpen(false);
+          setSelectedShelter(null);
+      };
 
-          // 테이블 내용 생성 (항목이 다를 수 있으므로 반복문 사용)
-          const table = document.getElementById('info-table');
-          table.innerHTML = ''; // 기존 내용 초기화
 
-          data.fields.forEach(field => {
-              const row = `<tr>
-                  <th>${field.label}</th>
-                  <td>${field.value}</td>
-              </tr>`;
-              table.innerHTML += row;
-          });
-
-          // 팝업 표시
-          document.getElementById('info-popup').style.display = 'block';
-      }
-
-      // 3. 팝업 닫기 함수
-      function closePopup() {
-          document.getElementById('info-popup').style.display = 'none';
-      }
 
       // 테스트용: 페이지 로드 후 1번 대피소 팝업 띄우기
       // 나중에 지도 마커 클릭 이벤트에 이 함수를 연결하면 됩니다!
@@ -230,10 +373,17 @@ const UserMap = () => {
 /* <======================================== 대피소(민방위, 지진 등) 상세 정보 팝업 창 =======================================> */
 
 
+
+
+
+
   return (
     /* <==================================================================================================> */
     /* <======================================== 좌측 사이드 바 전체 =======================================> */
     <div className="flex h-screen w-full overflow-hidden">
+      
+
+      
       {/* 좌측 사이드바 전체 */}
       <aside className="w-[380px] bg-white border-r z-10 flex flex-col shadow-xl">
         
@@ -333,61 +483,92 @@ const UserMap = () => {
             <div className="flex flex-col h-full">
               {/* [2. 중단 가변 영역] 내 대피소 조건부 렌더링 부분 */}
               {/* 탭 메뉴 (기획안 1~2번 참고) */}
-              <div className="flex border-b text-sm font-medium sticky top-0 bg-white z-10">
-                <button 
-                  onClick={() => setShelterSearchType('category')}
-                  className={`flex-1 py-3 ${shelterSearchType === 'category' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400'}`}
-                >지역 선택</button>
-                <button 
-                  onClick={() => setShelterSearchType('name')}
-                  className={`flex-1 py-3 ${shelterSearchType === 'name' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400'}`}
-                >대피소명 검색</button>
-              </div>
-
+             
+              
+             
               <div className="p-4 space-y-4 overflow-y-auto flex-1">
-                {shelterSearchType === 'category' ? (
-                  /* 기획안 2번: 지역별 선택 */
-                  <div className="space-y-4">
-                    <SelectBox label="시도 선택" value={selectedSido} options={['전북특별자치도']} onChange={setSelectedSido} />
-                    <SelectBox label="시군구" value={selectedSigun} options={Object.keys(REGION_DATA)} onChange={handleSigunSelect} />
-                    <button 
-                      onClick={() => { /* 카카오 API 검색 로직 실행 */ }}
-                      className="w-full bg-blue-600 text-white py-3 rounded-md font-bold mt-2"
-                    >검색</button>
-                  </div>
-                ) : (
-                  /* 기획안 4번: 이름 검색 */
-                  <div className="space-y-4">
-                    <div className="relative">
-                      <input 
-                        type="text" 
-                        placeholder="대피소 이름을 입력하세요." 
-                        className="w-full p-3 border rounded-md text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                      />
-                      <button className="absolute right-2 top-2 bg-blue-600 text-white p-1.5 rounded-md">
-                        <Search size={16} />
-                      </button>
-                    </div>
-                  </div>
-                )}
+                 {/* 민방위/지진 바로 위 지역 선택 창 */}
+                <div className="jb-safe-nuri-search-on-the-selects">
+                  <SelectBox 
+                    label="지역을 선택해주세요."
+                    value={selectedSigun} 
+                    options={Object.keys(JB_REGIONS_FOR_SELECTS)} 
+                    onChange={handleSigunSelect}
+                  />
+                </div>
 
-                {/* 기획안 3, 5번: 검색 결과 리스트 (예시 데이터) */}
+                <div className="jb-safe-nuri-selects">
+                  <SelectBox
+                    label="민방위/지진"
+                    value={civilSelect}
+                    options={Object.keys(MBY_SELECTS)}
+                    onChange={handleCivilChange}
+                  />
+
+
+                  <SelectBox
+                    label="태풍/호우"
+                    value={weatherSelect}
+                    options={Object.keys(TE_SELECTS)}
+                    onChange={handleWeatherChange}
+                  />
+
+
+                  <SelectBox
+                    label="산사태/산불"
+                    value={mountainSelect}
+                    options={Object.keys(MT_SELECTS)}
+                    onChange={handleMountainChange}
+                  />
+                </div>
+
+
+              
+                {/* 검색 결과 리스트 (예시 데이터) */}
                 <div className="mt-6 space-y-3">
                   <p className="text-xs text-slate-500 font-medium">검색 결과 {shelterResults.length}건</p>
-                  
-                  {/* 리스트 아이템 예시 - 나중에 shelterResults.map(...)으로 돌리시면 됩니다 */}
-                  <div 
-                    onClick={() => setSelectedShelter({name: '전주풍남초등학교(운동장)', addr: '전북특별자치도 전주시 완산구 관선3길 15'})}
-                    className="p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition-all group"
-                  >
-                    <h4 className="font-bold text-slate-800 group-hover:text-blue-700">전주풍남초등학교(운동장)</h4>
-                    <p className="text-xs text-slate-500 mt-1">지진해일대피소</p>
-                    <div className="flex items-center gap-1 mt-2 text-slate-400 text-[11px]">
-                      <MapPin size={12} />
-                      <span>전북특별자치도 전주시 완산구...</span>
-                    </div>
+                  {/* 정렬 영역 */}
+                  <div className="flex gap-2 mt-4">
+                    <button onClick={() => setSortType('distance')}>
+                      거리순
+                    </button>
+                    <button onClick={() => setSortType('name')}>
+                      가나다순
+                    </button>
                   </div>
-                </div>
+                                    
+                  
+                    {sortedResults.length === 0 ? (
+                      <div className="text-sm text-slate-400 text-center py-10">
+                        지역과 시설 유형을 선택해주세요.
+                      </div>
+                    ) : (
+                      sortedResults.map((item, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => setSelectedShelter(item)}
+                          className="p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition-all group"
+                        >
+                          <h4 className="font-bold text-slate-800 group-hover:text-blue-700">
+                            {item.place_name}
+                          </h4>
+
+                          <p className="text-xs text-slate-500 mt-1">
+                            {item.type}
+                          </p>
+
+                          <div className="flex items-center gap-1 mt-2 text-slate-400 text-[11px]">
+                            <MapPin size={12} />
+                            <span>{item.address_name}</span>
+                          </div>
+                        </div>
+                      ))
+                    )}
+
+
+
+                 
+                </div> {/* mt-6 space-y-3 */}
               </div>
             </div>
           ) : activeMenu === 'address' ? (
@@ -472,6 +653,6 @@ const UserMap = () => {
     </div>
     /* <==================================================================================================> */
   );
-};
+};    // userMap 끝
 
 export default UserMap;
