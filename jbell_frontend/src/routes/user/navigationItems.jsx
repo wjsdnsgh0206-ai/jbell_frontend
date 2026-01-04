@@ -10,9 +10,9 @@ const navigationItems = [
   },
   {
     label: "행동요령",
-    path: "/earthquakeBeforeAction",
+    path: "/earthquakeActionGuide",
     children: [
-      { label: "자연재난", path: "/earthquakeBeforeAction" },
+      { label: "자연재난", path: "/earthquakeActionGuide" },
       { label: "사회재난", path: "/socialBeforeAction" },
       { label: "생활안전", path: "/listBeforeAction" },
     ]

@@ -2,12 +2,12 @@ import { lazy } from "react";
 import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
 /* 행동요령 > 자연재난행동요령 > 지진 */
-const EarthquakeBeforeAction = lazy(() => import("@/pages/user/behavioralGuide/natural/earthquake/EarthquakeBeforeAction"));
+const EarthquakeActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/earthquake/EarthquakeActionGuide"));
 // const EarthquakeAfterAction = lazy(() => import("@/pages/user/behavioralGuide/natural/earthquak/EarthquakeAfterAction"));
 // const EarthquakeDuringAction = lazy(() => import("@/pages/user/behavioralGuide/natural/earthquak/EarthquakeDuringAction"));
 
 /* 행동요령 > 자연재난행동요령 > 태풍 */
-const TyphoonBeforeAction = lazy(() => import("@/pages/user/behavioralGuide/natural/typhoon/TyphoonBeforeAction"));
+const TyphoonActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/typhoon/TyphoonActionGuide"));
 // const TyphoonDuringAction = lazy(() => import("@/pages/user/behavioralGuide/natural/typhoon/TyphoonDuringAction"));
 // const TyphoonAfterAction = lazy(() => import("@/pages/user/behavioralGuide/natural/typhoon/TyphoonAfterAction"));
 
@@ -16,15 +16,15 @@ export const jhUserRoutes = [
     /* 행동요령 > 재난별행동요령 > 태풍 단계별 행동요령 */
     // 태풍 예보 시 행동요령
   {
-    path: "/earthquakeBeforeAction",
-    element: <EarthquakeBeforeAction />,
+    path: "/earthquakeActionGuide",
+    element: <EarthquakeActionGuide />,
     sidebarData: SIDE_MENU_DATA.BEHAVIORALGUIDE,
     nowPage: "행동요령",
     activeItem: "지진" ,
   },
   {
-    path: "/typhoonBeforeAction",
-    element: <TyphoonBeforeAction />,
+    path: "/typhoonActionGuide",
+    element: <TyphoonActionGuide />,
     sidebarData: SIDE_MENU_DATA.BEHAVIORALGUIDE,
     nowPage: "행동요령",
     activeItem: "태풍" ,

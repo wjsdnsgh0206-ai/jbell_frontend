@@ -50,7 +50,7 @@ const UserLayout = ({
                   - pl-0 md:pl-12 lg:pl-20: 사이드바와의 간격 조정
                   - overflow-hidden: 내부 컨텐츠 넘침 방지
               */}
-              <main className="flex-1 w-full pl-0 md:pl-12 lg:pl-20 py-10 px-4 md:px-0">
+              <main className="flex-1 w-full pl-0 md:pl-12 lg:pl-20 pb-20 px-4 md:px-0">
                 {children}
               </main>
 
