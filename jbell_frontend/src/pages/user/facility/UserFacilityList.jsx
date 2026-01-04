@@ -3,6 +3,8 @@ import { ChevronDown, Search, House, ChevronRight } from 'lucide-react';
 // import { GoHomeFill } from "react-icons/go";
 import BreadCrumb from '@/components/user/board/BreadCrumb';
 import Pagenation from "@/components/user/board/Pagination";
+import { FaCaretUp, FaCaretDown } from "react-icons/fa";
+
 
 const UserFacilityList = ({path}) => {
     const [facilityType, setFacilityType] = useState("전체");
@@ -33,7 +35,7 @@ const UserFacilityList = ({path}) => {
 
     return (
         <div className="flex w-full min-h-screen">
-            <div className="flex-1 flex flex-col items-center gap-12 pt-10 pb-20 px-10 relative">
+            <div className="flex-1 flex flex-col items-center gap-12 pt-10 pb-20 px-0 relative">
 
                 <div className="w-full max-w-[1000px] flex flex-col gap-10">
 
@@ -56,7 +58,7 @@ const UserFacilityList = ({path}) => {
                     </header>
 
                     {/* ====== 필터 및 테이블 ====== */}
-                    <section className="flex flex-col items-center gap-10 p-[30px] bg-white rounded-xl border border-solid border-graygray-40 shadow-sm">
+                    <section className="flex flex-col items-center gap-10 p-[30px] bg-white rounded-xl border border-solid border-graygray-10 shadow-sm">
                         <div className="flex items-end justify-start gap-3 w-full">
                             <div className="flex flex-col gap-2 w-[140px]">
                                 <label className="text-[14px] text-graygray-90 font-medium">시설 유형</label>
@@ -94,7 +96,7 @@ const UserFacilityList = ({path}) => {
 
                             <div className="flex flex-col gap-2 flex-1 max-w-[400px]">
                                 <label className="text-[14px] text-graygray-90 font-medium">시설명</label>
-                                <div className="flex h-12 items-center gap-2 px-4 bg-white rounded-lg border border-solid border-graygray-60">
+                                <div className="flex h-12 items-center gap-2 px-4 bg-white rounded-lg border border-solid border-[#717171]">
                                     <input
                                         type="text"
                                         value={searchQuery}
@@ -103,13 +105,13 @@ const UserFacilityList = ({path}) => {
                                         className="flex-1 text-[16px] bg-transparent border-none outline-none placeholder:text-graygray-50"
                                     />
                                     {/* 돋보기 아이콘 자리에 텍스트나 간단한 SVG 추가 가능 */}
-                                    <span className="text-[15px]"><Search /></span>
+                                    <span><Search className="w-[20px] h-[20px]" /></span>
                                 </div>
                             </div>
 
                             <button
                                 onClick={handleReset}
-                                className="h-12 px-5 bg-graygray-0 rounded-lg border border-solid border-graygray-90 cursor-pointer hover:bg-gray-50 transition-colors"
+                                className="h-12 px-5 bg-graygray-0 rounded-lg border border-solid border-[#717171] cursor-pointer hover:bg-gray-50 transition-colors"
                             >
                                 <span className="text-secondarysecondary-90 text-[16px] font-medium">초기화</span>
                             </button>
@@ -119,7 +121,14 @@ const UserFacilityList = ({path}) => {
                         <div className="w-full border-t border-graygray-30">
                             <div className="flex bg-secondarysecondary-5 border-b border-secondarysecondary-30 font-bold text-[14px]">
                                 <div className="w-[120px] px-4 py-3">유형</div>
-                                <div className="w-[200px] px-4 py-3">시설명</div>
+                                <div className="w-[200px] px-4 py-3 flex justify-between items-center gap-1">
+  <span>시설명</span>
+
+  <span className="flex flex-col leading-none">
+    <FaCaretUp className="text-[12px]" />
+    <FaCaretDown className="text-[12px] -mt-1" />
+  </span>
+                                </div>
                                 <div className="flex-1 px-4 py-3">주소</div>
                                 <div className="w-[80px] px-4 py-3 text-center">상세</div>
                             </div>
