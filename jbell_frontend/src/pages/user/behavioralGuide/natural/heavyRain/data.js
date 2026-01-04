@@ -5,10 +5,17 @@ export const heavyRainData = {
     title: "호우",
     lastUpdated: "2025년 12월 16일",
     breadcrumbs: [
-      { label: "홈", hasIcon: true },
-      { label: "행동요령", hasIcon: false },
-      { label: "자연재난행동요령", hasIcon: false },
-      { label: "호우", hasIcon: false },
+      // 1. 홈 -> 메인 페이지("/")로 이동
+      { label: "홈", path: "/", hasIcon: true }, 
+
+      // 2. 행동요령 -> 행동요령 메인 페이지가 있다면 경로 입력, 없다면 path 생략 (클릭 안 됨)
+      { label: "행동요령", path: "/earthquakeActionGuide", hasIcon: false }, 
+
+      // 3. 자연재난행동요령 -> 해당 카테고리 페이지가 있다면 입력
+      { label: "자연재난행동요령", path: "/earthquakeActionGuide", hasIcon: false }, 
+
+      // 4. 현재 페이지 (마지막 항목이므로 path 없어도 됨)
+      { label: "호우", hasIcon: false }, 
     ],
     tabs: [
       { label: "호우 예보시 행동요령" },

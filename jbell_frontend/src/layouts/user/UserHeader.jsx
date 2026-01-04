@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import navigationItems from '@/routes/user/navigationItems';
 import { useState, useEffect } from "react";
-// ChevronDown 아이콘 추가
 import { Menu, X, ChevronRight, ChevronDown, User, LogOut, LogIn, UserPlus } from 'lucide-react';
 
 const UserHeader = () => {
@@ -43,20 +42,21 @@ const UserHeader = () => {
     <header className="flex flex-col w-full relative z-50 bg-white shadow-sm">
       
       {/* 1. 최상단 컬러 바 */}
-      <div className="w-full h-2 lg:h-5 bg-secondary-5" />
+      <div className="w-full h-2 md:h-5 bg-secondary-5" />
 
       {/* 2. 메인 헤더 */}
-      <div className="flex w-full max-w-screen-xl mx-auto items-center justify-between py-4 px-4 sm:px-6 lg:px-8">
+      <div className="flex w-full max-w-screen-xl mx-auto items-center justify-between py-4 px-4 sm:px-6 xl:px-8">
         <Link to="/" className="shrink-0">
           <img
-            className="w-[140px] sm:w-[160px] lg:w-[200px] h-auto"
+            // [수정] lg -> xl로 breakpoint 변경하여 로고 크기 대응
+            className="w-[140px] sm:w-[160px] xl:w-[200px] h-auto"
             alt="전북안전누리 로고"
             src="src/assets/logo/jeonbuk_safety_nuri_watermark.svg"
           />
         </Link>
 
-        {/* [PC] 인증 버튼 */}
-        <div className="hidden lg:flex items-center gap-2">
+        {/* [PC] 인증 버튼 - xl(1280px) 이상에서만 표시 */}
+        <div className="hidden xl:flex items-center gap-2">
           {authButtons.map((button, index) => {
             const Icon = button.icon;
             return (
@@ -65,7 +65,7 @@ const UserHeader = () => {
                 onClick={() => button.action ? button.action() : navigate(button.lnk)}
                 className="inline-flex items-center gap-2 px-3 py-2 rounded-md hover:bg-graygray-5 transition-colors"
               >
-                <Icon className="w-4 h-4 lg:w-5 lg:h-5 text-graygray-90" />
+                <Icon className="w-4 h-4 xl:w-5 xl:h-5 text-graygray-90" />
                 <span className="text-body-m-bold text-graygray-90 whitespace-nowrap">
                   {button.label}
                 </span>
@@ -74,9 +74,9 @@ const UserHeader = () => {
           })}
         </div>
 
-        {/* [Mobile] 햄버거 버튼 */}
+        {/* [Mobile] 햄버거 버튼 - xl 미만에서 표시 */}
         <button
-          className="lg:hidden p-2 text-graygray-90 hover:bg-graygray-5 rounded-md"
+          className="xl:hidden p-2 text-graygray-90 hover:bg-graygray-5 rounded-md"
           onClick={() => setIsMobileMenuOpen(true)}
           aria-label="메뉴 열기"
         >
@@ -84,8 +84,8 @@ const UserHeader = () => {
         </button>
       </div>
 
-      {/* 3. [PC] 네비게이션 바 (수정된 부분) */}
-      <nav className="hidden lg:flex w-full border-t border-b border-graygray-30 bg-white">
+      {/* 3. [PC] 네비게이션 바 - xl(1280px) 이상에서만 표시 */}
+      <nav className="hidden xl:flex w-full border-t border-b border-graygray-30 bg-white">
         <div className="flex w-full max-w-screen-xl mx-auto h-16 items-center px-8 gap-8">
           {navigationItems.map((item, index) => {
             const hasSub = item.children && item.children.length > 0;
@@ -97,13 +97,11 @@ const UserHeader = () => {
                   onClick={() => navigate(item.path)}
                   className="inline-flex items-center gap-2 h-full px-2 relative z-10"
                 >
-                  {/* 텍스트 */}
-                  <span className="text-body-l-bold text-graygray-70 group-hover:text-secondary-50 transition-colors">
+                  <span className="text-body-l-bold text-graygray-70 group-hover:text-secondary-50 transition-colors whitespace-nowrap">
                     {item.label}
                   </span>
 
-                  {/* [수정] 모든 메뉴에 화살표 표시 */}
-                  {/* 하위 메뉴가 있을 때만(hasSub) 회전(rotate-90)하여 드롭다운임을 표시 */}
+                  {/* 화살표 아이콘 */}
                   <ChevronRight 
                     className={`w-5 h-5 text-graygray-40 group-hover:text-secondary-50 transition-transform duration-300 ${
                       hasSub ? "group-hover:rotate-90" : ""
@@ -137,9 +135,9 @@ const UserHeader = () => {
         </div>
       </nav>
 
-      {/* 4. [Mobile] 풀스크린 메뉴 */}
+      {/* 4. [Mobile] 풀스크린 메뉴 - xl 미만에서만 표시 */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-[60] lg:hidden">
+        <div className="fixed inset-0 z-[60] xl:hidden">
           <div 
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setIsMobileMenuOpen(false)}
@@ -195,7 +193,6 @@ const UserHeader = () => {
                         </span>
                       </button>
 
-                      {/* 모바일 화살표: ChevronRight(닫힘) / ChevronDown(열림) */}
                       {hasSub ? (
                         <button onClick={() => toggleMobileSubMenu(index)} className="p-1">
                           {isOpen ? (
@@ -220,7 +217,7 @@ const UserHeader = () => {
                             }}
                             className="w-full text-left py-3 px-4 text-body-m text-graygray-70 hover:text-secondary-50 border-l-2 border-transparent hover:border-secondary-50 transition-all"
                           >
-                            {sub.label}
+                            - {sub.label}
                           </button>
                         ))}
                       </div>
