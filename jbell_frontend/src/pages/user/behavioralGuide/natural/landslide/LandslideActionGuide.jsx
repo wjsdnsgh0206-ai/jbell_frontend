@@ -1,12 +1,12 @@
 import React from 'react';
 import GuidePageTemplate from '@/components/shared/GuidePageTemplate';
 import VideoCardList from '@/components/shared/VideoCardList';
-// [핵심] 지진 데이터 파일 import
-import { earthquakeData } from './data';
+// [핵심] 산사태 데이터 파일 import
+import { landslideData } from './data';
 
-const EarthquakeActionGuide = () => {
+const LandslideActionGuide = () => {
   // 데이터 구조 분해 할당
-  const { meta, contents } = earthquakeData;
+  const { meta, contents } = landslideData;
 
   return (
     <GuidePageTemplate 
@@ -55,4 +55,4 @@ const EarthquakeActionGuide = () => {
   );
 };
 
-export default EarthquakeActionGuide;
+export default LandslideActionGuide;

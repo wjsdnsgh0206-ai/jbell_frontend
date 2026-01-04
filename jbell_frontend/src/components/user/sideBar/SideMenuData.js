@@ -35,7 +35,7 @@ export const SIDE_MENU_DATA = {
     { 
       title: '사회재난행동요령', 
       items: [
-        { name: '교통사고', path: '/#' },
+        { name: '교통사고', path: '/trafficAccidentActionGuide' },
         { name: '화재', path: '/#' },
         { name: '산불', path: '/#' },
         { name: '건축물붕괴', path: '/#' },

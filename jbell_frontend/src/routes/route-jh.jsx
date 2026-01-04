@@ -1,15 +1,13 @@
 import { lazy } from "react";
 import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
-/* 행동요령 > 자연재난행동요령 > 지진 */
 const EarthquakeActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/earthquake/EarthquakeActionGuide"));
-// const EarthquakeAfterAction = lazy(() => import("@/pages/user/behavioralGuide/natural/earthquak/EarthquakeAfterAction"));
-// const EarthquakeDuringAction = lazy(() => import("@/pages/user/behavioralGuide/natural/earthquak/EarthquakeDuringAction"));
-
-/* 행동요령 > 자연재난행동요령 > 태풍 */
 const TyphoonActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/typhoon/TyphoonActionGuide"));
-// const TyphoonDuringAction = lazy(() => import("@/pages/user/behavioralGuide/natural/typhoon/TyphoonDuringAction"));
-// const TyphoonAfterAction = lazy(() => import("@/pages/user/behavioralGuide/natural/typhoon/TyphoonAfterAction"));
+const FloodActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/flood/FloodActionGuide"));
+const HeavyRainActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/heavyRain/HeavyRainActionGuide"));
+const LandslideActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/landslide/LandslideActionGuide"));
+
+const TrafficAccidentActionGuide = lazy(() => import("@/pages/user/behavioralGuide/social/trafficAccident/TrafficAccidentActionGuide"));
 
 
 export const jhUserRoutes = [
@@ -29,25 +27,32 @@ export const jhUserRoutes = [
     nowPage: "행동요령",
     activeItem: "태풍" ,
   },
-  // {
-  //   path: "/floodBeforeAction",
-  //   element: <FloodBeforeAction />,
-  //   sidebarData: SIDE_MENU_DATA.BEHAVIORALGUIDE,
-  //   nowPage: "행동요령",
-  //   activeItem: "홍수" ,
-  // },
-  // {
-  //   path: "/heavyRainBeforeAction",
-  //   element: <HeavyRainBeforeAction />,
-  //   sidebarData: SIDE_MENU_DATA.BEHAVIORALGUIDE,
-  //   nowPage: "행동요령",
-  //   activeItem: "호우" ,
-  // },
-  // {
-  //   path: "/landslideBeforeAction",
-  //   element: <LandslideBeforeAction />,
-  //   sidebarData: SIDE_MENU_DATA.BEHAVIORALGUIDE,
-  //   nowPage: "행동요령",
-  //   activeItem: "산사태" ,
-  // },
+  {
+    path: "/floodActionGuide",
+    element: <FloodActionGuide />,
+    sidebarData: SIDE_MENU_DATA.BEHAVIORALGUIDE,
+    nowPage: "행동요령",
+    activeItem: "홍수" ,
+  },
+  {
+    path: "/heavyRainActionGuide",
+    element: <HeavyRainActionGuide />,
+    sidebarData: SIDE_MENU_DATA.BEHAVIORALGUIDE,
+    nowPage: "행동요령",
+    activeItem: "호우" ,
+  },
+  {
+    path: "/landslideActionGuide",
+    element: <LandslideActionGuide />,
+    sidebarData: SIDE_MENU_DATA.BEHAVIORALGUIDE,
+    nowPage: "행동요령",
+    activeItem: "산사태" ,
+  },
+  {
+    path: "/trafficAccidentActionGuide",
+    element: <TrafficAccidentActionGuide />,
+    sidebarData: SIDE_MENU_DATA.BEHAVIORALGUIDE,
+    nowPage: "행동요령",
+    activeItem: "교통사고" ,
+  },
 ];

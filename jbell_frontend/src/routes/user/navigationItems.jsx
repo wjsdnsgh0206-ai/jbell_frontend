@@ -13,7 +13,7 @@ const navigationItems = [
     path: "/earthquakeActionGuide",
     children: [
       { label: "자연재난", path: "/earthquakeActionGuide" },
-      { label: "사회재난", path: "/socialBeforeAction" },
+      { label: "사회재난", path: "/trafficAccidentActionGuide" },
       { label: "생활안전", path: "/listBeforeAction" },
     ]
   },
