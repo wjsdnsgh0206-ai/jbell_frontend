@@ -25,11 +25,11 @@ export const SIDE_MENU_DATA = {
     { 
       title: '자연재난행동요령', 
       items: [
-        { name: '지진', path: '/#' },
+        { name: '지진', path: '/earthquakeBeforeAction' },
         { name: '태풍', path: '/typhoonBeforeAction' },
-        { name: '홍수', path: '/#' },
-        { name: '호우', path: '/#' },
-        { name: '산사태', path: '/#' },
+        { name: '홍수', path: '/floodBeforeAction' },
+        { name: '호우', path: '/heavyRainBeforeAction' },
+        { name: '산사태', path: '/landslideBeforeAction' },
       ] 
     },
     { 

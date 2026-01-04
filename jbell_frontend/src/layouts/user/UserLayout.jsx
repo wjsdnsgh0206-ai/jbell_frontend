@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import { Suspense } from "react";
 import UserHeader from './UserHeader';
 import UserFooter from './UserFooter';
 // 상대 경로 주의: layouts/user 폴더에서 components/user/sideBar 폴더로 접근
@@ -38,7 +38,7 @@ const UserLayout = ({
               </aside>
 
               {/* 오른쪽 본문 컨텐츠 영역 */}
-              <main className="flex-1 bg-white overflow-hidden">
+              <main className="flex-1 bg-white overflow-hidden pl-20">
                 {children}
               </main>
             </div>
