@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import UserLayout from "@/layouts/user/UserLayout";
-import { jyUserRoutes, disasterModal } from "@/routes/route-jy";
+import { jyUserRoutes, disasterModal, sideBarFacility } from "@/routes/route-jy";
 import { shUserRoutes } from "@/routes/route-sh";
 import { ehUserRoutes } from "@/routes/route-eh";
 import { mjUserRoutes } from "@/routes/route-mj";
@@ -13,7 +13,7 @@ import DisasterModalLayout from "@/layouts/user/disasterModal/DisasterModalLayou
 // 프로젝트의 모든 라우트 경로를 이 파일에서 처리함. 
 const AllRoutes = (props) => {
   // <Suspense fallback={<div>로딩중...</div>}>
-  
+
   return (
     <Routes>
       <Route>
@@ -52,6 +52,26 @@ const AllRoutes = (props) => {
           ))
         }
       </Route>
+<Route>
+  {
+    sideBarFacility.map((route, idx) => ( // 여기서 { 대신 ( 를 써야 바로 return 돼!
+      <Route 
+        key={idx} 
+        path={route.path}
+        element={
+          <UserLayout 
+            {...props} 
+            sidebarData={route.sidebarData} 
+            nowPage={route.nowPage}         
+            activeItem={route.activeItem}   
+          >
+            {route.element}
+          </UserLayout>
+        } 
+      />
+    ))
+  }
+</Route>
       
       <Route>
          {
@@ -112,7 +132,7 @@ const AllRoutes = (props) => {
       </Route>
 
       
-    </Routes>
+    </Routes >
   );
 }
 

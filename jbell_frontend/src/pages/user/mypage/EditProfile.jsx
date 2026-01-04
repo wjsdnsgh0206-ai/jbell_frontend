@@ -1,230 +1,232 @@
-import React, { useState } from 'react';
-import { 
-  User, 
-  MapPin, 
-  Calendar, 
-  Lock, 
-  Mail, 
-  ShieldAlert, 
-  CheckCircle2, 
-  ArrowLeft 
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, MapPin, Mail, Lock, Eye, EyeOff, AlertCircle, Check, CalendarDays } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 const EditProfile = () => {
-  const [profile, setProfile] = useState({
-    city: "11", // 서울특별시
-    district: "110", // 강남구
-    name: "홍길동",
-    birthDate: "1990-01-01",
-    gender: "male",
-    id: "korea_user01",
-    email: "contact@email.com"
+  const navigate = useNavigate();
+  
+  // 1. 초기 상태값 (실제로는 API에서 받아온 데이터를 넣습니다)
+  const [formData, setFormData] = useState({
+    city: 'seoul', 
+    district: 'gangnam', 
+    name: '홍길동', 
+    birthDate: '1990-01-01', // 추가
+    gender: 'male',          // 추가
+    userId: 'hong1234', 
+    password: '', 
+    confirmPassword: '',
+    email: 'hong@example.com', 
+    authCode: ''
   });
+
+  const [errors, setErrors] = useState({});
+  const [isAuthVerified, setIsAuthVerified] = useState(true); 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  useEffect(() => {
+    console.log("기존 사용자 정보를 로드했습니다.");
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
+  const handleSendCode = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email || !emailRegex.test(formData.email)) {
+      setErrors(prev => ({ ...prev, email: "올바른 이메일 형식을 입력해주세요." }));
+      return;
+    }
+    alert(`${formData.email}로 새로운 인증번호가 발송되었습니다.`);
+    setIsAuthVerified(false); 
+  };
+
+  const handleVerifyCode = () => {
+    if (formData.authCode === "123456") {
+      alert("인증되었습니다.");
+      setIsAuthVerified(true);
+    } else {
+      alert("인증번호가 일치하지 않습니다.");
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newErrors = {};
+
+    if (!formData.name) newErrors.name = "이름을 입력해주세요.";
+    if (!formData.city) newErrors.city = "지역을 선택해주세요.";
+    if (!formData.birthDate) newErrors.birthDate = "생년월일을 선택해주세요.";
+
+    if (formData.password) {
+      const pwRegex = /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,16}$/;
+      if (!pwRegex.test(formData.password)) {
+        newErrors.password = "영문, 숫자, 특수문자 포함 8~16자로 입력해주세요.";
+      }
+      if (formData.password !== formData.confirmPassword) {
+        newErrors.confirmPassword = "비밀번호가 일치하지 않습니다.";
+      }
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    if (!isAuthVerified) return alert("이메일 인증을 완료해주세요.");
+    
+    alert("회원 정보가 수정되었습니다.");
+    navigate('/myProfile'); // 경로 확인 필요 (/mypage -> /myProfile로 수정)
+  };
+
+  const ErrorMsg = ({ name }) => (
+    errors[name] ? <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle size={12}/>{errors[name]}</p> : null
+  );
+
   return (
-    <div className="min-h-screen bg-slate-50 flex justify-center py-10 px-5 sm:py-16 font-sans text-slate-900">
-      <div className="max-w-[500px] w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-8 text-left">
-          내 정보 수정
-        </h1>
+    <div className="min-h-screen bg-white flex justify-center py-10 px-4 font-sans text-slate-900 text-left">
+      <div className="max-w-[550px] w-full">
+        <header className="mb-8 text-center">
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">프로필 수정</h1>
+          <p className="text-slate-500 mt-2">회원님의 소중한 정보를 안전하게 관리하세요.</p>
+        </header>
 
-        {/* 1. 거주지 설정 카드 */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-7 mb-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-1">
-            <MapPin size={18} className="text-blue-600" />
-            <h2 className="text-[17px] font-bold">거주지 설정</h2>
-          </div>
-          <p className="text-sm text-slate-500 mb-5">맞춤형 정책 알림을 받고 싶은 지역을 선택해 주세요.</p>
-          
-          <div className="flex flex-col sm:flex-row gap-3">
-            <select 
-              name="city"
-              value={profile.city}
-              onChange={handleChange}
-              className="flex-1 h-12 px-3 border border-slate-300 rounded-lg text-[15px] outline-none focus:border-blue-500 bg-white"
-            >
-              <option value="">시도 선택</option>
-              <option value="11">서울특별시</option>
-            </select>
-            <select 
-              name="district"
-              value={profile.district}
-              onChange={handleChange}
-              className="flex-1 h-12 px-3 border border-slate-300 rounded-lg text-[15px] outline-none focus:border-blue-500 bg-white"
-            >
-              <option value="">시군구 선택</option>
-              <option value="110">강남구</option>
-            </select>
-          </div>
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* 거주지 섹션 */}
+          <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+            <h2 className="text-lg font-bold flex items-center gap-2 border-b pb-3"><MapPin size={20} className="text-blue-600" /> 거주 지역</h2>
+            <div className="grid grid-cols-2 gap-3">
+              <select name="city" value={formData.city} onChange={handleChange} className="h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                <option value="seoul">서울특별시</option>
+                <option value="busan">부산광역시</option>
+              </select>
+              <select name="district" value={formData.district} onChange={handleChange} className="h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 outline-none text-sm font-medium">
+                <option value="gangnam">강남구</option>
+                <option value="seocho">서초구</option>
+              </select>
+            </div>
+          </section>
 
-        {/* 2. 계정 정보 관리 카드 */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-7 mb-8 shadow-sm space-y-6">
-          <div className="flex items-center gap-2 mb-2">
-            <User size={18} className="text-blue-600" />
-            <h2 className="text-[17px] font-bold">계정 정보 관리</h2>
-          </div>
+          {/* 기본 정보 섹션 */}
+          <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
+            <h2 className="text-lg font-bold flex items-center gap-2 border-b pb-3"><User size={20} className="text-blue-600" /> 기본 정보</h2>
+            
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-500 ml-1">이름</label>
+              <input type="text" name="name" value={formData.name} onChange={handleChange} className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-blue-500 font-medium" />
+              <ErrorMsg name="name" />
+            </div>
 
-          {/* 이름 */}
-          <div className="text-left">
-            <label className="block text-[13px] font-bold text-slate-600 mb-2">이름</label>
-            <input 
-              type="text" 
-              name="name"
-              value={profile.name}
-              onChange={handleChange}
-              className="w-full h-12 px-4 border border-slate-300 rounded-lg text-[15px] outline-none focus:border-blue-500"
-              placeholder="이름을 입력하세요"
-            />
-          </div>
-
-          {/* 생년월일 */}
-          <div className="text-left">
-            <label className="block text-[13px] font-bold text-slate-600 mb-2 flex items-center gap-1.5">
-              <Calendar size={14} /> 생년월일
-            </label>
-            <input 
-              type="date" 
-              name="birthDate"
-              value={profile.birthDate}
-              onChange={handleChange}
-              className="w-full h-12 px-4 border border-slate-300 rounded-lg text-[15px] outline-none focus:border-blue-500"
-            />
-          </div>
-
-          {/* 성별 */}
-          <div className="text-left">
-            <label className="block text-[13px] font-bold text-slate-600 mb-2">성별</label>
-            <div className="flex gap-10 py-2">
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input 
-                  type="radio" 
-                  name="gender" 
-                  value="male"
-                  checked={profile.gender === "male"}
-                  onChange={handleChange}
-                  className="w-5 h-5 accent-blue-600 cursor-pointer" 
-                />
-                <span className="text-[15px] group-hover:text-blue-600 transition-colors">남</span>
+            {/* 생년월일 추가 */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-500 flex items-center gap-1 ml-1">
+                <CalendarDays size={14}/> 생년월일
               </label>
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input 
-                  type="radio" 
-                  name="gender" 
-                  value="female"
-                  checked={profile.gender === "female"}
-                  onChange={handleChange}
-                  className="w-5 h-5 accent-blue-600 cursor-pointer" 
-                />
-                <span className="text-[15px] group-hover:text-blue-600 transition-colors">여</span>
-              </label>
-            </div>
-          </div>
-
-          {/* 아이디 (Readonly) */}
-          <div className="text-left">
-            <label className="flex items-center text-[13px] font-bold text-slate-600 mb-2">
-              아이디 <span className="ml-2 px-2 py-0.5 bg-slate-100 text-slate-400 rounded text-[11px] font-normal">수정불가</span>
-            </label>
-            <div className="relative">
               <input 
-                type="text" 
-                value={profile.id}
-                readOnly 
-                className="w-full h-12 px-4 bg-slate-50 border border-slate-200 rounded-lg text-[15px] text-slate-400 cursor-not-allowed outline-none"
+                type="date" 
+                name="birthDate" 
+                value={formData.birthDate} 
+                onChange={handleChange} 
+                className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-blue-500 bg-white font-medium" 
               />
-              <Lock size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300" />
+              <ErrorMsg name="birthDate" />
             </div>
-          </div>
 
-          <hr className="border-slate-100 !my-8" />
-
-          {/* 비밀번호 변경 */}
-          <div className="space-y-4">
-            <div className="text-left">
-              <label className="block text-[13px] font-bold text-slate-600 mb-2">새 비밀번호</label>
-              <input 
-                type="password" 
-                className="w-full h-12 px-4 border border-slate-300 rounded-lg text-[15px] outline-none focus:border-blue-500"
-                placeholder="변경할 경우에만 입력하세요"
-              />
-            </div>
-            <div className="text-left">
-              <label className="block text-[13px] font-bold text-slate-600 mb-2">새 비밀번호 확인</label>
-              <input 
-                type="password" 
-                className="w-full h-12 px-4 border border-slate-300 rounded-lg text-[15px] outline-none focus:border-blue-500"
-                placeholder="비밀번호 재입력"
-              />
-            </div>
-          </div>
-
-          <hr className="border-slate-100 !my-8" />
-
-          {/* 이메일 및 인증 */}
-          <div className="space-y-4 text-left">
-            <div>
-              <label className="block text-[13px] font-bold text-slate-600 mb-2 flex items-center gap-1.5">
-                <Mail size={14} /> 이메일 주소
-              </label>
-              <div className="flex gap-2">
-                <input 
-                  type="email" 
-                  name="email"
-                  value={profile.email}
-                  onChange={handleChange}
-                  className="flex-1 h-12 px-4 border border-slate-300 rounded-lg text-[15px] outline-none focus:border-blue-500"
-                  placeholder="email@example.com"
-                />
-                <button type="button" className="px-4 bg-white border border-slate-300 rounded-lg text-xs font-bold hover:bg-slate-50 transition-colors whitespace-nowrap">
-                  인증요청
-                </button>
+            {/* 성별 추가 */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-500 ml-1">성별</label>
+              <div className="flex gap-3">
+                {['male', 'female'].map((g) => (
+                  <label key={g} className={`flex-1 h-12 flex items-center justify-center rounded-xl border cursor-pointer transition-all font-bold text-sm ${formData.gender === g ? 'border-blue-600 bg-blue-50 text-blue-600 shadow-sm' : 'border-slate-100 text-slate-400 bg-slate-50'}`}>
+                    <input 
+                      type="radio" 
+                      name="gender" 
+                      value={g} 
+                      checked={formData.gender === g}
+                      onChange={handleChange} 
+                      className="hidden" 
+                    />
+                    {g === 'male' ? '남성' : '여성'}
+                  </label>
+                ))}
               </div>
             </div>
 
-            <div>
-              <label className="block text-[13px] font-bold text-slate-600 mb-2">인증번호 확인</label>
-              <div className="flex gap-2">
+            {/* 아이디 (수정 불가) */}
+            <div className="space-y-2 opacity-80">
+              <label className="text-xs font-bold text-gray-500 ml-1">아이디 (변경 불가)</label>
+              <div className="relative">
                 <input 
                   type="text" 
-                  className="flex-1 h-12 px-4 border border-slate-300 rounded-lg text-[15px] outline-none focus:border-blue-500"
-                  placeholder="인증번호 6자리"
+                  name="userId" 
+                  value={formData.userId} 
+                  readOnly 
+                  className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-100 cursor-not-allowed outline-none text-slate-500 font-medium" 
                 />
-                <button type="button" className="px-4 text-blue-600 border border-blue-600 rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors whitespace-nowrap">
-                  인증하기
-                </button>
+                <Lock size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" />
               </div>
             </div>
+
+            {/* 비밀번호 변경 영역 */}
+            <div className="pt-2 border-t border-dashed border-slate-200">
+              <p className="text-[11px] text-slate-400 mb-4">* 비밀번호 변경 시에만 입력해주세요.</p>
+              
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-500 flex items-center gap-1 ml-1"><Lock size={14}/> 새 비밀번호</label>
+                  <div className="relative">
+                    <input type={showPassword ? "text" : "password"} name="password" placeholder="변경할 비밀번호 입력" onChange={handleChange} className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-blue-500" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                  <ErrorMsg name="password" />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-gray-500 ml-1">새 비밀번호 확인</label>
+                  <div className="relative">
+                    <input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" placeholder="비밀번호 재입력" onChange={handleChange} className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-blue-500" />
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                      {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                  <ErrorMsg name="confirmPassword" />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* 인증 섹션 */}
+          <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+            <h2 className="text-lg font-bold flex items-center gap-2 border-b pb-3"><Mail size={20} className="text-blue-600" /> 연락처 수정</h2>
+            <div className="flex gap-2">
+              <input type="email" name="email" value={formData.email} onChange={handleChange} className="flex-1 h-12 px-4 rounded-xl border border-slate-200 outline-none font-medium" />
+              <button type="button" onClick={handleSendCode} className="w-24 px-4 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold border border-slate-200 hover:bg-slate-200 transition-colors">인증요청</button>
+            </div>
+            
+            {!isAuthVerified && (
+              <div className="flex gap-2 mt-2 animate-in slide-in-from-top-1 duration-300">
+                <div className="relative flex-1">
+                  <input type="text" name="authCode" placeholder="인증번호 6자리" onChange={handleChange} className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-blue-500" />
+                </div>
+                <button type="button" onClick={handleVerifyCode} className="w-24 px-4 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-md">확인</button>
+              </div>
+            )}
+            {isAuthVerified && <p className="text-xs text-green-600 flex items-center gap-1 font-medium ml-1"><Check size={14}/> 인증 완료된 이메일입니다.</p>}
+          </section>
+
+          <div className="flex gap-3 pt-4">
+            <button type="button" onClick={() => navigate('/myProfile')} className="flex-1 h-14 bg-white border border-slate-300 text-slate-600 rounded-2xl font-bold hover:bg-slate-50 transition-colors">취소</button>
+            <button type="submit" className="flex-1 h-14 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-200 active:scale-95 transition-all">수정 완료</button>
           </div>
-        </div>
-
-        {/* Footer Actions */}
-        <div className="flex flex-col-reverse sm:flex-row gap-3">
-          <button 
-            onClick={() => window.history.back()}
-            className="flex-1 h-14 bg-white border border-slate-200 text-slate-500 rounded-xl font-bold text-base hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
-          >
-            <ArrowLeft size={18} /> 취소하기
-          </button>
-          <button 
-            type="submit"
-            className="flex-1 h-14 bg-blue-600 text-white border-none rounded-xl font-bold text-base hover:bg-blue-700 active:scale-[0.98] transition-all shadow-lg shadow-blue-100 flex items-center justify-center gap-2"
-          >
-            <CheckCircle2 size={18} /> 정보 수정완료
-          </button>
-        </div>
-
-        {/* 회원 탈퇴 안내 */}
-        <div className="mt-10 flex justify-center">
-          <button className="text-sm text-slate-400 hover:text-red-400 transition-colors flex items-center gap-1 underline underline-offset-4">
-            <ShieldAlert size={14} /> 탈퇴를 원하시나요?
-          </button>
-        </div>
+        </form>
       </div>
     </div>
   );
