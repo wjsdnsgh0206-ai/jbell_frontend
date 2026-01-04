@@ -1,40 +1,42 @@
-
-// 헤더에 보여줄 메뉴 목록 (UI용)
 const navigationItems = [
-    {
+  {
     label: "재난사고속보",
-    path: "/disaster/accident",
-    icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
+    path: "/disaster/accident", // 상위 메뉴 클릭 시 이동할 경로
+    children: [ // 하위 메뉴 추가
+      { label: "지진", path: "/disaster/earthquake" },
+      { label: "태풍", path: "/disaster/typhoon" },
+      { label: "홍수", path: "/disaster/flood" },
+    ]
   },
   {
     label: "행동요령",
     path: "/earthquakeBeforeAction",
-    icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
+    children: [
+      { label: "자연재난", path: "/earthquakeBeforeAction" },
+      { label: "사회재난", path: "/socialBeforeAction" },
+      { label: "생활안전", path: "/listBeforeAction" },
+    ]
   },
   {
     label: "안전정보 지도",
     path: "/map",
-    icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
+    // 하위 메뉴가 없는 경우 children 생략 가능
   },
   {
     label: "대피소 소개",
     path: "/facilityList",
-    icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
   },
-    {
+  {
     label: "주요 안전정책",
     path: "/",
-    icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
   },
   {
     label: "열린마당",
     path: "/userOpenSpaceLi",
-    icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
   },
-    {
+  {
     label: "고객센터",
     path: "/faq",
-    icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-8.svg",
   },
 ];
 

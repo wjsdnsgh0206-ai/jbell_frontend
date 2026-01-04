@@ -3,87 +3,31 @@ export default {
   content: ["./src/**/*.{html,js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      // 1. 색상 토큰 연결 (CSS 변수 활용)
       colors: {
-        "graygray-0": "var(--graygray-0)",
-        "graygray-5": "var(--graygray-5)",
-        "graygray-10": "var(--graygray-10)",
-        "graygray-20": "var(--graygray-20)",
-        "graygray-30": "var(--graygray-30)",
-        "graygray-40": "var(--graygray-40)",
-        "graygray-50": "var(--graygray-50)",
-        "graygray-60": "var(--graygray-60)",
-        "graygray-70": "var(--graygray-70)",
-        "graygray-80": "var(--graygray-80)", // 추가됨 (New)
-        "graygray-90": "var(--graygray-90)",
-        "secondarysecondary-5": "var(--secondarysecondary-5)",
-        "secondarysecondary-50": "var(--secondarysecondary-50)",
+        graygray: {
+          0: "var(--graygray-0)",
+          5: "var(--graygray-5)",
+          10: "var(--graygray-10)",
+          30: "var(--graygray-30)",
+          40: "var(--graygray-40)",
+          50: "var(--graygray-50)",
+          70: "var(--graygray-70)",
+          80: "var(--graygray-80)",
+          90: "var(--graygray-90)",
+        },
+        secondary: {
+          5: "var(--secondary-5)",
+          50: "var(--secondary-50)",
+        },
       },
+      // 2. 폰트 패밀리 (필요한 경우만 기본값 재정의)
       fontFamily: {
-        // --- Body Series ---
-        "body-body-l-700": "var(--body-body-l-700-font-family)",
-        "body-body-m-700": "var(--body-body-m-700-font-family)", // 추가됨 (New)
-        "body-body-m-400": "var(--body-body-m-400-font-family)",
-        
-        // --- Detail Series ---
-        "detail-detail-m-400": "var(--detail-detail-m-400-font-family)",
-
-        // --- Title Series ---
-        "title-title-XL-700": "var(--title-title-XL-700-font-family)",
-        "title-title-l-700": "var(--title-title-l-700-font-family)",
-        "title-title-m-700": "var(--title-title-m-700-font-family)",
-
-        // --- Heading Series ---
-        "heading-heading-m-700": "var(--heading-heading-m-700-font-family)",
-        
-        // --- System/Common Series (Inter/Pretendard Mixed) ---
-        "body-large": "var(--body-large-font-family)",
-        "body-large-bold": "var(--body-large-bold-font-family)",
-        "body-medium": "var(--body-medium-font-family)",
-        "body-medium-bold": "var(--body-medium-bold-font-family)",
-        "body-small": "var(--body-small-font-family)",
-        "body-small-bold": "var(--body-small-bold-font-family)",
-        "body-xsmall": "var(--body-xsmall-font-family)",
-        "body-xsmall-bold": "var(--body-xsmall-bold-font-family)",
-        
-        "display-large": "var(--display-large-font-family)",
-        "display-medium": "var(--display-medium-font-family)",
-        "display-small": "var(--display-small-font-family)",
-        
-        "heading-large": "var(--heading-large-font-family)",
-        "heading-medium": "var(--heading-medium-font-family)",
-        "heading-small": "var(--heading-small-font-family)",
-        "heading-xlarge": "var(--heading-xlarge-font-family)",
-        "heading-xsmall": "var(--heading-xsmall-font-family)",
-        "heading-xxsmall": "var(--heading-xxsmall-font-family)",
-        
-        "label-large": "var(--label-large-font-family)",
-        "label-medium": "var(--label-medium-font-family)",
-        "label-small": "var(--label-small-font-family)",
-        "label-xsmall": "var(--label-xsmall-font-family)",
-        
-        "navigation-depth-medium": "var(--navigation-depth-medium-font-family)",
-        "navigation-depth-medium-bold": "var(--navigation-depth-medium-bold-font-family)",
-        "navigation-depth-small": "var(--navigation-depth-small-font-family)",
-        "navigation-depth-small-bold": "var(--navigation-depth-small-bold-font-family)",
-        "navigation-title-medium": "var(--navigation-title-medium-font-family)",
-        "navigation-title-small": "var(--navigation-title-small-font-family)",
-        
-        "underline-large": "var(--underline-large-font-family)",
-        "underline-medium": "var(--underline-medium-font-family)",
-        "underline-small": "var(--underline-small-font-family)",
-        "underline-xsmall": "var(--underline-xsmall-font-family)",
-
-        // --- Shortcuts (편의성) ---
-        body: "var(--body-medium-font-family)",
-        heading: "var(--heading-medium-font-family)",
-        navigation: "var(--navigation-depth-medium-font-family)",
-        title: "var(--navigation-title-medium-font-family)",
+        sans: ["Pretendard GOV", "sans-serif"],
       },
+      // 3. 그림자 등 기타 유틸리티
       boxShadow: {
-        "shadow-1": "var(--shadow-1)",
-        "shadow-2": "var(--shadow-2)",
-        "shadow-3": "var(--shadow-3)",
-        "shadow-4": "var(--shadow-4)",
+        1: "0px 0px 2px 0px rgba(0, 0, 0, 0.05), 0px 1px 2px 0px rgba(0, 0, 0, 0.05)",
       },
     },
   },
