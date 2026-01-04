@@ -55,4 +55,11 @@ export const SIDE_MENU_DATA = {
       ] 
     },
   ],
+  FACILITY : [
+    {
+        title: '대피소소개',
+        path: '/facilityList',
+        items: []
+    },
+  ],
 };

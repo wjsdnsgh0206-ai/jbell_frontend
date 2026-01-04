@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react'; // 아이콘 대체 (Icon20 대신 사용)
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const UserSideBar = ({ nowPage, activeItem, categories = [] }) => {
@@ -31,114 +31,102 @@ const UserSideBar = ({ nowPage, activeItem, categories = [] }) => {
 
   return (
     <nav
-      className="flex flex-col w-[296px] items-center pl-0 pr-10 py-0 relative [border-right-style:solid] border-graygray-40"
+      // 요청사항 반영: lg:w-[300px]
+      // 모바일에서는 w-full, PC에서는 300px 고정 
+      className="flex flex-col w-full lg:w-[300px] bg-white pr-10"
       aria-label="사이드바 메뉴"
-
-      /* 최지영 김정훈 병합 충돌 지점 */
-      // 여기 lg:w-[296px]를 lg:w-[240px]로 수정했어! (원하는 만큼 숫자를 조절해줘)
-      // className="flex flex-col w-full lg:w-[240px] items-start lg:pl-0 lg:pr-5 lg:py-0 border-gray-200"
-      // aria-label="사이드바 네비게이션"
     >
-      <div className="flex flex-col items-center relative self-stretch w-full flex-[0_0_auto]">
+      <div className="flex flex-col w-full">
         
-        {/* 헤더 영역 */}
-        <header className="flex w-64 items-center gap-2 px-2 py-10 relative flex-[0_0_auto] bg-graygray-0 border-b [border-bottom-style:solid] border-graygray-50">
-          <h1 className="relative flex-1 h-[15px] mt-[-1.00px] font-title-title-l-700 font-[number:var(--title-title-l-700-font-weight)] text-graygray-90 text-[length:var(--title-title-l-700-font-size)] tracking-[var(--title-title-l-700-letter-spacing)] leading-[var(--title-title-l-700-line-height)] whitespace-nowrap [font-style:var(--title-title-l-700-font-style)]">
+        {/* 1. 헤더 영역 */}
+        <header className="flex w-full items-center px-4 py-10 bg-graygray-0 border-b border-graygray-50">
+          {/* 타이틀 (Title L) */}
+          <h1 className="text-title-l text-graygray-90 whitespace-nowrap">
             {nowPage}
           </h1>
         </header>
 
-        {/* 카테고리 리스트 영역 */}
-        {categories.map((cat) => {
-          const hasSubItems = cat.items && cat.items.length > 0;
-          const isOpened = openCategory === cat.title;
-          // 상위 메뉴 활성화 조건: 현재 열려있거나, 자신이 activeItem일 때
-          const isCategoryActive = isOpened || cat.title === activeItem;
+        {/* 2. 카테고리 리스트 영역 */}
+        <div className="flex flex-col w-full">
+          {categories.map((cat) => {
+            const hasSubItems = cat.items && cat.items.length > 0;
+            const isOpened = openCategory === cat.title;
+            // 상위 메뉴 활성화 조건: 현재 열려있거나, 자신이 activeItem일 때
+            const isCategoryActive = isOpened || cat.title === activeItem;
 
-          return (
-            <section key={cat.title} className="flex-col w-64 items-start flex-[0_0_auto] flex relative">
-              {/* 대분류 버튼 */}
-              <button
-                className={`
-                  flex h-16 items-center gap-2 px-2 py-0 relative self-stretch w-full bg-graygray-0 text-left
-                  border-b [border-bottom-style:solid]
-                  ${isCategoryActive 
-                    ? "border-b-[3px] border-secondarysecondary-50" 
-                    : "border-graygray-30"
-                  }
-                `}
-                onClick={() => handleTitleClick(cat)}
-                aria-expanded={isOpened}
-              >
-                <span className={`
-                  relative flex-1 
-                  text-[length:var(--body-body-m-700-font-size)] tracking-[var(--body-body-m-700-letter-spacing)] leading-[var(--body-body-m-700-line-height)]
-                  ${isCategoryActive
-                    ? "font-body-body-m-700 font-[number:var(--body-body-m-700-font-weight)] text-secondarysecondary-50"
-                    : "font-body-body-m-700 font-[number:var(--body-body-m-700-font-weight)] text-graygray-90"
-                  }
-                `}>
-                  {cat.title}
-                </span>
-                
-                {hasSubItems && (
-                   // Icon20 대체: Lucide Icon에 제공된 스타일 클래스 적용 (!relative !w-5 !h-5)
-                   isOpened 
-                   ? <ChevronUp className={`!relative !w-5 !h-5 ${isCategoryActive ? 'text-secondarysecondary-50' : 'text-graygray-90'}`} />
-                   : <ChevronDown className={`!relative !w-5 !h-5 ${isCategoryActive ? 'text-secondarysecondary-50' : 'text-graygray-90'}`} />
-                )}
-              </button>
+            return (
+              <section key={cat.title} className="flex flex-col w-full">
+                {/* 대분류 버튼 */}
+                <button
+                  onClick={() => handleTitleClick(cat)}
+                  aria-expanded={isOpened}
+                  className={`
+                    flex items-center justify-between w-full h-16 px-4 bg-graygray-0 text-left transition-colors
+                    border-b
+                    ${isCategoryActive 
+                      ? "border-b-[3px] border-secondary-50 text-secondary-50" 
+                      : "border-graygray-30 text-graygray-90 hover:bg-graygray-5"
+                    }
+                  `}
+                >
+                  {/* 텍스트 (Body M Bold) */}
+                  <span className={`text-body-m-bold ${isCategoryActive ? "text-secondary-50" : "text-graygray-90"}`}>
+                    {cat.title}
+                  </span>
+                  
+                  {hasSubItems && (
+                    isOpened 
+                      ? <ChevronUp className={`w-5 h-5 ${isCategoryActive ? 'text-secondary-50' : 'text-graygray-90'}`} />
+                      : <ChevronDown className={`w-5 h-5 ${isCategoryActive ? 'text-secondary-50' : 'text-graygray-90'}`} />
+                  )}
+                </button>
 
-              {/* 하위 메뉴 (Depth 2) */}
-              {hasSubItems && isOpened && (
-                <ul className="flex flex-col items-start px-0 py-4 relative self-stretch w-full flex-[0_0_auto] border-b [border-bottom-style:solid] border-graygray-30">
-                  {cat.items.map((item) => {
-                    const isItemActive = activeItem === item.name;
+                {/* 하위 메뉴 (Depth 2) */}
+                {hasSubItems && isOpened && (
+                  <ul className="flex flex-col w-full py-4 border-b border-graygray-30 bg-white">
+                    {cat.items.map((item) => {
+                      const isItemActive = activeItem === item.name;
 
-                    return (
-                      <li
-                        key={item.name}
-                        className={`
-                          items-center gap-1 px-4 py-3.5 self-stretch w-full flex-[0_0_auto] rounded-lg flex relative
-                          ${isItemActive ? "bg-secondarysecondary-5" : ""}
-                        `}
-                      >
-                        <button
-                          onClick={() => navigate(item.path)}
-                          className="flex items-start gap-1 grow relative flex-1 text-left"
+                      return (
+                        <li
+                          key={item.name}
+                          className={`
+                            flex w-full px-4 py-1
+                          `}
                         >
-                          <span className="flex items-start gap-2 px-0 py-1 relative flex-1 grow">
-                            {/* 불릿 포인트 (사각형) */}
-                            <span className="inline-flex items-center gap-2.5 pt-2.5 pb-0 px-0 relative flex-[0_0_auto]">
-                              <span
-                                className="relative w-1 h-1 bg-graygray-80 rounded-sm"
-                                aria-hidden="true"
-                              />
+                          <button
+                            onClick={() => navigate(item.path)}
+                            className={`
+                              flex items-start gap-2 w-full p-2.5 rounded-lg text-left transition-colors
+                              ${isItemActive ? "bg-secondary-5" : "hover:bg-graygray-5"}
+                            `}
+                          >
+                            {/* 불릿 포인트 */}
+                            <span className="flex items-center pt-2">
+                              <span className="w-1 h-1 bg-graygray-80 rounded-sm" aria-hidden="true" />
                             </span>
                             
-                            {/* 텍스트 */}
-                            <span
-                              className={`
-                                mt-[-1.00px] relative flex-1
-                                text-[length:var(--body-body-m-700-font-size)] tracking-[var(--body-body-m-700-letter-spacing)] leading-[var(--body-body-m-700-line-height)]
-                                ${isItemActive
-                                  ? "font-body-body-m-700 font-[number:var(--body-body-m-700-font-weight)] text-secondarysecondary-50"
-                                  : "font-body-body-m-400 font-[number:var(--body-body-m-400-font-weight)] text-graygray-90"
-                                }
-                              `}
-                            >
+                            {/* 텍스트 (Body M) */}
+                            {/* 활성화 시 Bold 처리를 원하면 font-bold 추가, 여기서는 색상만 변경 */}
+                            <span className={`
+                              text-body-m
+                              ${isItemActive 
+                                ? "font-bold text-secondary-50" 
+                                : "font-normal text-graygray-90"
+                              }
+                            `}>
                               {item.name}
                             </span>
-                          </span>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </section>
-          );
-        })}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </section>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );
