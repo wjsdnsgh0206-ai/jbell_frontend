@@ -30,18 +30,21 @@ const UserLayout = ({
 
               {/* 왼쪽 사이드바 영역: 테블릿 이상(md)에서 노출 */}
               
-              {/* <aside className="hidden md:block flex-shrink-0 border-r border-gray-100">
+              <aside className="hidden md:block flex-shrink-0 border-r border-gray-100">
                 <UserSideBar 
                   nowPage={nowPage} 
                   activeItem={activeItem} 
                   categories={sidebarData} 
-                /> */}
-              <aside className="hidden md:block w-64 flex-shrink-0 border-r border-gray-100 lg:mr-[80px]">                <UserSideBar
+                />
+              </aside>
+
+              {/* 최지영 김정훈 병합 충돌 지점 */}
+              {/* <aside className="hidden md:block w-64 flex-shrink-0 border-r border-gray-100 lg:mr-[80px]">                <UserSideBar
                 nowPage={nowPage}
                 activeItem={activeItem}
                 categories={sidebarData}
               />
-              </aside>
+              </aside> */}
 
               {/* 오른쪽 본문 컨텐츠 영역 */}
               <main className="flex-1 bg-white overflow-hidden pl-20">

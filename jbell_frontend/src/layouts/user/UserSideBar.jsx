@@ -31,12 +31,13 @@ const UserSideBar = ({ nowPage, activeItem, categories = [] }) => {
 
   return (
     <nav
-      // className="flex flex-col w-[296px] items-center pl-0 pr-10 py-0 relative [border-right-style:solid] border-graygray-40"
-      // aria-label="사이드바 메뉴"
+      className="flex flex-col w-[296px] items-center pl-0 pr-10 py-0 relative [border-right-style:solid] border-graygray-40"
+      aria-label="사이드바 메뉴"
 
+      /* 최지영 김정훈 병합 충돌 지점 */
       // 여기 lg:w-[296px]를 lg:w-[240px]로 수정했어! (원하는 만큼 숫자를 조절해줘)
-      className="flex flex-col w-full lg:w-[240px] items-start lg:pl-0 lg:pr-5 lg:py-0 border-gray-200"
-      aria-label="사이드바 네비게이션"
+      // className="flex flex-col w-full lg:w-[240px] items-start lg:pl-0 lg:pr-5 lg:py-0 border-gray-200"
+      // aria-label="사이드바 네비게이션"
     >
       <div className="flex flex-col items-center relative self-stretch w-full flex-[0_0_auto]">
         
