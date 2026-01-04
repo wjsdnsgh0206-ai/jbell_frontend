@@ -1,21 +1,24 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ["./src/**/*.{html,js,ts,jsx,tsx}"],
+export default {
+content: ["./src/**/*.{html,js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
         "graygray-0": "var(--graygray-0)",
+        "graygray-5": "var(--graygray-5)",
+        "graygray-10": "var(--graygray-10)",
+        "graygray-20": "var(--graygray-20)",
         "graygray-30": "var(--graygray-30)",
         "graygray-40": "var(--graygray-40)",
         "graygray-50": "var(--graygray-50)",
-        "graygray-80": "var(--graygray-80)",
+        "graygray-70": "var(--graygray-70)",
         "graygray-90": "var(--graygray-90)",
         "secondarysecondary-5": "var(--secondarysecondary-5)",
         "secondarysecondary-50": "var(--secondarysecondary-50)",
       },
       fontFamily: {
+        "body-body-l-700": "var(--body-body-l-700-font-family)",
         "body-body-m-400": "var(--body-body-m-400-font-family)",
-        "body-body-m-700": "var(--body-body-m-700-font-family)",
         "body-large": "var(--body-large-font-family)",
         "body-large-bold": "var(--body-large-bold-font-family)",
         "body-medium": "var(--body-medium-font-family)",
@@ -24,9 +27,11 @@ module.exports = {
         "body-small-bold": "var(--body-small-bold-font-family)",
         "body-xsmall": "var(--body-xsmall-font-family)",
         "body-xsmall-bold": "var(--body-xsmall-bold-font-family)",
+        "detail-detail-m-400": "var(--detail-detail-m-400-font-family)",
         "display-large": "var(--display-large-font-family)",
         "display-medium": "var(--display-medium-font-family)",
         "display-small": "var(--display-small-font-family)",
+        "heading-heading-m-700": "var(--heading-heading-m-700-font-family)",
         "heading-large": "var(--heading-large-font-family)",
         "heading-medium": "var(--heading-medium-font-family)",
         "heading-small": "var(--heading-small-font-family)",
@@ -46,10 +51,17 @@ module.exports = {
         "navigation-title-medium": "var(--navigation-title-medium-font-family)",
         "navigation-title-small": "var(--navigation-title-small-font-family)",
         "title-title-l-700": "var(--title-title-l-700-font-family)",
+        "title-title-m-700": "var(--title-title-m-700-font-family)",
+        "title-title-XL-700": "var(--title-title-XL-700-font-family)",
         "underline-large": "var(--underline-large-font-family)",
         "underline-medium": "var(--underline-medium-font-family)",
         "underline-small": "var(--underline-small-font-family)",
         "underline-xsmall": "var(--underline-xsmall-font-family)",
+        // 추가
+        body: "var(--body-medium-font-family)",
+        heading: "var(--heading-medium-font-family)",
+        navigation: "var(--navigation-depth-medium-font-family)",
+        title: "var(--navigation-title-medium-font-family)",
       },
       boxShadow: {
         "shadow-1": "var(--shadow-1)",
@@ -60,4 +72,4 @@ module.exports = {
     },
   },
   plugins: [],
-};
+}

@@ -29,7 +29,7 @@ const UserLayout = ({
             <div className="flex w-full max-w-[1200px] mx-auto min-h-[calc(100vh-300px)]">
               
               {/* 왼쪽 사이드바 영역: 테블릿 이상(md)에서 노출 */}
-              <aside className="hidden md:block w-80 flex-shrink-0 border-r border-gray-100">
+              <aside className="hidden md:block flex-shrink-0 border-r border-gray-100">
                 <UserSideBar 
                   nowPage={nowPage} 
                   activeItem={activeItem} 
