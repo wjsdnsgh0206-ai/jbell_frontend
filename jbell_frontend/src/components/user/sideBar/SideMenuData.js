@@ -74,4 +74,21 @@ export const SIDE_MENU_DATA = {
         items: []
     },
   ],
+  COMMUNITY: [
+    { 
+      title: '공지사항', 
+      path: '/userNoticeList',
+      items: [],
+    },
+    { 
+      title: '보도자료', 
+      path: '/userPressRelList',
+      items: [],
+    },
+    { 
+      title: '시민안전교육', 
+      path: '/userSafetyEducation',
+      items: [],
+    },
+  ]
 };
