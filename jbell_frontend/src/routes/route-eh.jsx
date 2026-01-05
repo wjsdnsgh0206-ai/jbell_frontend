@@ -12,7 +12,7 @@ const EditProfile = lazy(() => import("@/pages/user/mypage/EditProfile"));
 const EditProfileCheck = lazy(() => import("@/pages/user/mypage/EditProfileCheck"));
 const MyInquiryList = lazy(() => import("@/pages/user/mypage/MyInquiryList"));
 const MyProfile = lazy(() => import("@/pages/user/mypage/MyProfile"));
-const WithdrawalModal = lazy(() => import("@/pages/user/mypage/WithdrawalModal"));
+const Withdrawal = lazy(() => import("@/pages/user/mypage/Withdrawal"));
 
 // Signup 관련 페이지
 const SignupAgreement = lazy(() => import("@/pages/user/signup/SignupAgreement"));
@@ -48,7 +48,7 @@ export const ehUserRoutes = [
     nowPage: "마이페이지",
   },
   { path: "/withdrawal", 
-    element: <WithdrawalModal /> , 
+    element: <Withdrawal /> , 
     sidebarData: SIDE_MENU_DATA.MY_PAGE,
     nowPage: "마이페이지",
   },
