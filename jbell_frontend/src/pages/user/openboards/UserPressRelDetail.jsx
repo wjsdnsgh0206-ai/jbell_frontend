@@ -86,7 +86,7 @@ const UserPressRelDetail = () => {
 
   const breadcrumbItems = [
         { label: "홈", path: "/", hasIcon: true },
-        { label: "열린마당", path: "", hasIcon: false },
+        { label: "열린마당", path: "/userPressRelList", hasIcon: false },
         { label: "보도자료", path: "/userPressRelList", hasIcon: false }, // 리스트로 이동 가능하게 path 추가
 
       ];
