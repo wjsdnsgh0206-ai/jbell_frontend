@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // 라우터 사용 시
 import { AlertTriangle, Info, ShieldCheck, ArrowLeft, Check } from 'lucide-react';
+import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 
 const Withdrawal = () => {
   const navigate = useNavigate(); // 페이지 이동을 위한 훅
@@ -8,6 +9,12 @@ const Withdrawal = () => {
     terms1: false,
     terms2: false,
   });
+
+  const breadcrumbItems = [
+        { label: "홈", path: "/", hasIcon: true },
+        { label: "마이페이지", path: "/myProfile", hasIcon: false }, // 리스트로 이동 가능하게 path 추가
+        { label: "회원탈퇴", path: "", hasIcon: false },
+      ];
 
   const handleCheck = (e) => {
     const { name, checked } = e.target;
@@ -26,6 +33,8 @@ const Withdrawal = () => {
   };
 
   return (
+    <>
+    <PageBreadcrumb items={breadcrumbItems} />
     <div className="min-h-screen bg-white flex items-center justify-center p-4 sm:p-8">
       <div className="bg-white w-full max-w-[600px] rounded-3xl overflow-hidden border border-slate-100">
         
@@ -73,7 +82,7 @@ const Withdrawal = () => {
                   <input 
                     type="checkbox"   
                     name="terms1"
-                    checked1={agreements.terms1}
+                    checked={agreements.terms1}
                     onChange={handleCheck}
                     className="peer appearance-none w-6 h-6 border-2 border-slate-300 rounded-md checked:bg-blue-600 checked:border-blue-600 transition-all cursor-pointer"
                   />
@@ -172,6 +181,7 @@ const Withdrawal = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
