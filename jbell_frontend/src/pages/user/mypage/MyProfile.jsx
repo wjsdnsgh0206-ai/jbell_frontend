@@ -1,16 +1,9 @@
 import React, { useState } from 'react';
 import { User, MapPin, Mail, Lock, Check, CalendarDays } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
-import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 
 const MyProfile = () => {
   const navigate = useNavigate();
-
-
-  const breadcrumbItems = [
-        { label: "홈", path: "/", hasIcon: true },
-        { label: "마이페이지", path: "/myProfile", hasIcon: false }, // 리스트로 이동 가능하게 path 추가
-      ];
   
   // 초기 상태값 (조회용 데이터)
   const [formData] = useState({
@@ -24,9 +17,6 @@ const MyProfile = () => {
   });
 
   return (
-    <>
-    <PageBreadcrumb items={breadcrumbItems} />
-
     <div className="min-h-screen bg-white flex justify-center py-10 px-4 font-sans text-slate-900 text-left">
       <div className="max-w-[550px] w-full">
         <header className="mb-8 text-center">
@@ -121,7 +111,6 @@ const MyProfile = () => {
         </div>
       </div>
     </div>
-    </>
   );
 };
 

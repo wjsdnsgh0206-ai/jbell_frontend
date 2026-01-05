@@ -32,7 +32,7 @@ const navigationItems = [
   },
   {
     label: "열린마당",
-    path: "/userNoticeList",
+    path: "/userOpenSpaceLi",
   },
   {
     label: "고객센터",

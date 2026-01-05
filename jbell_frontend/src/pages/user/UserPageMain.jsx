@@ -10,9 +10,9 @@ const UserPageMain = () => {
   const [activeTab, setActiveTab] = useState("공지사항");
 
   const tabPaths = {
-    공지사항: "/userNoticeList",
-    보도자료: "/userPressRelList",
-    시민안전교육: "/userSafetyEducation",
+    공지사항: "/userOpenSpaceLi",
+    보도자료: "/userOpenSpaceLi",
+    시민안전교육: "/userOpenSpaceLi",
   };
 
   return (

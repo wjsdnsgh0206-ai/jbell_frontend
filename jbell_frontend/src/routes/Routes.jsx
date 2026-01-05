@@ -36,9 +36,6 @@ const AllRoutes = (props) => {
 
   // [B] 마이페이지 사이드바 그룹
   const myPageRoutes = allUserRoutes.filter(route => route.nowPage === "마이페이지"); // route-jh.jsx 등에서 nowPage를 맞춰줘야 함
-  
-  // [B] 열린마당 사이드바 그룹
-  const communityRoutes = allUserRoutes.filter(route => route.nowPage === "열린마당"); // route-jh.jsx 등에서 nowPage를 맞춰줘야 함
 
   // [C] 사이드바 없는 그룹 (메인, 로그인 등)
   const noSidebarRoutes = allUserRoutes.filter(route => !route.sidebarData);
@@ -72,22 +69,6 @@ const AllRoutes = (props) => {
       <Route element={<UserLayout sidebarData={SIDE_MENU_DATA.CUSTOMERSERVICE} nowPage="고객센터" {...props} />}>
         {customerServiceRoutes.map((route, idx) => (
           <Route key={`customerService-${idx}`} path={route.path} element={route.element} />
-   ))}
-      </Route>
-
-
-      <Route element={<UserLayout sidebarData={SIDE_MENU_DATA.FACLIITY} nowPage="대피소 소개" {...props} />}>
-        {facilityRoutes.map((route, idx) => (
-          <Route key={`facility-${idx}`} path={route.path} element={route.element} />
-        ))}
-      </Route>
-
-      {/* --------------------------------------------------------- */}
-      {/* 열린마당 레이아웃 그룹 (UserLayout이 한 번만 마운트됨) */}
-      {/* --------------------------------------------------------- */}
-      <Route element={<UserLayout sidebarData={SIDE_MENU_DATA.COMMUNITY} nowPage="열린마당" {...props} />}>
-        {communityRoutes.map((route, idx) => (
-          <Route key={`community-${idx}`} path={route.path} element={route.element} />
         ))}
       </Route>
 
