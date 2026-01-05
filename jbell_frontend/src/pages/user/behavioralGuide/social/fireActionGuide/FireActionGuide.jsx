@@ -2,11 +2,11 @@ import React from 'react';
 import GuidePageTemplate from '@/components/shared/GuidePageTemplate';
 import VideoCardList from '@/components/shared/VideoCardList';
 // [핵심] 홍수 데이터 파일 import
-import { floodData } from './data';
+import { fireData } from './data';
 
-const FloodActionGuide = () => {
+const FireActionGuide = () => {
   // 데이터 구조 분해 할당
-  const { meta, contents } = floodData;
+  const { meta, contents } = fireData;
 
   return (
     <GuidePageTemplate 
@@ -55,4 +55,4 @@ const FloodActionGuide = () => {
   );
 };
 
-export default FloodActionGuide;
+export default FireActionGuide;
