@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// ✅ 사이드 레이아웃 임포트 (경로 확인 필수)
-import UserOpenSpaceLayout from "@/layouts/user/openspace/UserOpenSpaceLayout";
+import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 
-const UserOpenSpaceLi = () => {
+
+const UserNoticeList = () => {
   const navigate = useNavigate();
 
   // 1. 상태 관리
@@ -45,40 +45,18 @@ const UserOpenSpaceLi = () => {
     navigate(`/userNoticeDetail/${id}`);
   };
 
+  const breadcrumbItems = [
+        { label: "홈", path: "/", hasIcon: true },
+        { label: "열린마당", path: "", hasIcon: false },
+        { label: "공지사항", path: "", hasIcon: false }, // 리스트로 이동 가능하게 path 추가
+
+      ];
   return (
-    <UserOpenSpaceLayout>
+    
       <div className="w-full">
-        {/* 상단 브레드크럼 */}
-        {/* ✅ 수정된 상단 브레드크럼:*/}
-          <nav className="flex items-center text-[#444] text-[15px] mb-8 py-1" aria-label="브레드크럼">
-            <ol className="flex items-center gap-2">
-              <li className="flex items-center gap-2">
-                <div 
-                  className="flex items-center gap-1 cursor-pointer group"
-                  onClick={() => navigate('/')}
-                >
-                  {/*홈 아이콘*/}
-                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-gray-700">
-                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-                  </svg>
-                  {/* 밑줄 스타일 적용 */}
-                  <span className="underline underline-offset-4 decoration-1 group-hover:text-black">홈</span>
-                </div>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-gray-400 text-lg font-light flex items-center mb-0.5">&gt;</span>
-                <span className="underline underline-offset-4 decoration-1 cursor-pointer hover:text-black">
-                  열린마당
-                </span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-gray-400 text-lg font-light flex items-center mb-0.5">&gt;</span>
-                <span className="underline underline-offset-4 decoration-1 font-semibold text-gray-800 cursor-default">
-                  공지사항
-                </span>
-              </li>
-            </ol>
-          </nav>
+        <PageBreadcrumb items={breadcrumbItems} />
+        
+        
         {/* 페이지 제목 */}
         <h2 className="text-3xl font-bold mb-10 text-gray-900 tracking-tight text-left">
           공지사항
@@ -204,8 +182,8 @@ const UserOpenSpaceLi = () => {
           </button>
         </div>
       </div>
-    </UserOpenSpaceLayout>
+    
   );
 };
 
-export default UserOpenSpaceLi;
+export default UserNoticeList;

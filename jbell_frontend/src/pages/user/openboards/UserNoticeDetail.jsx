@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-// ✅ 사이드바 레이아웃 임포트
-import UserOpenSpaceLayout from "@/layouts/user/openspace/UserOpenSpaceLayout";
+import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
+
+
 
 const UserNoticeDetail = () => {
   const { id } = useParams();
@@ -81,54 +82,31 @@ const UserNoticeDetail = () => {
 
   if (!noticeData) {
     return (
-      <UserOpenSpaceLayout>
+      
         <div className="py-20 text-center font-sans">
           <p className="text-gray-500">게시글을 찾을 수 없습니다.</p>
           <button 
-            onClick={() => navigate('/userOpenSpaceLi')} 
+            onClick={() => navigate('/userNoticeList')} 
             className="mt-4 text-blue-600 underline"
           >
             목록으로 돌아가기
           </button>
         </div>
-      </UserOpenSpaceLayout>
+      
     );
   }
 
+  const breadcrumbItems = [
+        { label: "홈", path: "/", hasIcon: true },
+        { label: "열린마당", path: "", hasIcon: false },
+        { label: "공지사항", path: "/userNoticeList", hasIcon: false }, // 리스트로 이동 가능하게 path 추가
+
+      ];
+
   return (
-    <UserOpenSpaceLayout>
+    
       <div className="w-full">
-        {/* ✅ 브레드크럼: 목록 페이지와 동일하게 mb-8 py-1 설정 */}
-        <nav className="flex items-center text-[#444] text-[15px] mb-8 py-1" aria-label="브레드크럼">
-          <ol className="flex items-center gap-2">
-            <li className="flex items-center gap-2">
-              <div 
-                className="flex items-center gap-1 cursor-pointer group"
-                onClick={() => navigate('/')}
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-gray-700">
-                  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-                </svg>
-                <span className="underline underline-offset-4 decoration-1 group-hover:text-black">홈</span>
-              </div>
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="text-gray-400 text-lg font-light flex items-center mb-0.5">&gt;</span>
-              <span className="underline underline-offset-4 decoration-1 cursor-pointer hover:text-black">
-                열린마당
-              </span>
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="text-gray-400 text-lg font-light flex items-center mb-0.5">&gt;</span>
-              <span 
-                className="underline underline-offset-4 decoration-1 font-semibold text-gray-800 cursor-pointer"
-                onClick={() => navigate('/userOpenSpaceLi')}
-              >
-                공지사항
-              </span>
-            </li>
-          </ol>
-        </nav>
+        <PageBreadcrumb items={breadcrumbItems} />
 
         {/* ✅ 타이틀 영역: 목록 페이지와 높이/크기 완벽 일치 (py-12 제거) */}
         <h2 className="text-3xl font-bold mb-10 text-gray-900 tracking-tight text-left">공지사항</h2>
@@ -192,14 +170,14 @@ const UserNoticeDetail = () => {
         {/* 목록 버튼 */}
         <div className="flex justify-end mt-8">
           <button 
-            onClick={() => navigate('/userOpenSpaceLi')}
+            onClick={() => navigate('/userNoticeList')}
             className="bg-[#2b79f3] text-white px-5 py-2.5 rounded-md text-[15px] font-semibold hover:bg-[#1a65d6] transition-all duration-200 shadow-sm"
           >
             목록
           </button>
         </div>
       </div>
-    </UserOpenSpaceLayout>
+    
   );
 };
 

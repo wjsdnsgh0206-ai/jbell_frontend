@@ -4,7 +4,7 @@ import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
 const UserPageMain = lazy(() => import("@/pages/user/UserPageMain"));
 const UserMap = lazy(() => import("@/pages/user/UserMap"));
-const UserOpenSpaceLi = lazy(() => import("@/pages/user/openspace/UserOpenSpaceLi"));
+const UserNoticeList = lazy(() => import("@/pages/user/openboards/UserNoticeList"));
 const UserFacilityList = lazy(() => import("@/pages/user/facility/UserFacilityList"));
 const UserFacilityDetail = lazy(() => import("@/pages/user/facility/UserFacilityDetail"));
 
@@ -39,8 +39,8 @@ const jyUserRoutes = [
     element: <UserMap />,
   },
   {
-    path: "/userOpenSpaceLi",
-    element: <UserOpenSpaceLi />,
+    path: "/userNoticeList",
+    element: <UserNoticeList />,
   },
 
 ];

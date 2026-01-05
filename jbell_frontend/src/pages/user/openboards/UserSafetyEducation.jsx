@@ -1,46 +1,26 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-// ✅ 사이드바 레이아웃 임포트
-import UserOpenSpaceLayout from "@/layouts/user/openspace/UserOpenSpaceLayout";
+import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 
-const UserSafetyEdu = () => {
+
+const UserSafetyEducation = () => {
   const navigate = useNavigate();
 
+  const breadcrumbItems = [
+        { label: "홈", path: "/", hasIcon: true },
+        { label: "열린마당", path: "", hasIcon: false },
+        { label: "시민안전교육", path: "", hasIcon: false }, // 리스트로 이동 가능하게 path 추가
+
+      ];
+
   return (
-    <UserOpenSpaceLayout>
+   
       <div className="w-full">
+        <PageBreadcrumb items={breadcrumbItems} />
+
         {/* ✅ main의 py-8을 제거하여 상단 여백을 다른 페이지와 맞춤 */}
         <main className="w-full">
-          {/* 상단 브레드크럼 */}
-          {/* ✅ 타이틀과의 간격을 위해 mb-8로 수정 및 py-1로 높이 조절 */}
-          <nav className="flex items-center text-[#444] text-[15px] py-1 mb-8" aria-label="브레드크럼">
-            <ol className="flex items-center gap-2">
-              <li className="flex items-center gap-2">
-                <div 
-                  className="flex items-center gap-1 cursor-pointer group"
-                  onClick={() => navigate('/')}
-                >
-                  {/* 홈 아이콘 */}
-                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-gray-700">
-                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-                  </svg>
-                  <span className="underline underline-offset-4 decoration-1 group-hover:text-black">홈</span>
-                </div>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-gray-400 text-lg font-light flex items-center mb-0.5">&gt;</span>
-                <span className="underline underline-offset-4 decoration-1 cursor-pointer hover:text-black">
-                  열린마당
-                </span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-gray-400 text-lg font-light flex items-center mb-0.5">&gt;</span>
-                <span className="underline underline-offset-4 decoration-1 font-semibold text-gray-800 cursor-default">
-                  시민안전교육
-                </span>
-              </li>
-            </ol>
-          </nav>
+          
 
           {/* 타이틀 영역 - 텍스트 크기를 [28px]로 조절하여 일치시킴 */}
           <h1 className="text-[28px] font-bold mb-10 text-black text-left">시민안전교육</h1>
@@ -182,8 +162,8 @@ const UserSafetyEdu = () => {
           </section>
         </main>
       </div>
-    </UserOpenSpaceLayout>
+    
   );
 };
 
-export default UserSafetyEdu;
+export default UserSafetyEducation;

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import UserOpenSpaceLayout from "@/layouts/user/openspace/UserOpenSpaceLayout";
+import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
+
 
 const UserPressRelList = () => {
   const navigate = useNavigate();
@@ -43,30 +44,18 @@ const UserPressRelList = () => {
     navigate(`/userPressRelDetail/${id}`);
   };
 
+  const breadcrumbItems = [
+        { label: "홈", path: "/", hasIcon: true },
+        { label: "열린마당", path: "", hasIcon: false },
+        { label: "보도자료", path: "", hasIcon: false }, // 리스트로 이동 가능하게 path 추가
+
+      ];
+
   return (
-    <UserOpenSpaceLayout>
+    
       <div className="w-full">
-        {/* ✅ 브레드크럼: 공지사항과 동일하게 mb-8 py-1 설정 */}
-        <nav className="flex items-center text-[#444] text-[15px] mb-8 py-1" aria-label="브레드크럼">
-          <ol className="flex items-center gap-2">
-            <li className="flex items-center gap-2">
-              <div className="flex items-center gap-1 cursor-pointer group" onClick={() => navigate('/')}>
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-gray-700">
-                  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-                </svg>
-                <span className="underline underline-offset-4 decoration-1 group-hover:text-black">홈</span>
-              </div>
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="text-gray-400 text-lg font-light flex items-center mb-0.5">&gt;</span>
-              <span className="underline underline-offset-4 decoration-1 cursor-pointer hover:text-black">열린마당</span>
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="text-gray-400 text-lg font-light flex items-center mb-0.5">&gt;</span>
-              <span className="underline underline-offset-4 decoration-1 font-semibold text-gray-800 cursor-default">보도자료</span>
-            </li>
-          </ol>
-        </nav>
+        <PageBreadcrumb items={breadcrumbItems} />
+       
 
         {/* ✅ 타이틀: 공지사항과 동일하게 text-3xl mb-10 설정 */}
         <h2 className="text-3xl font-bold mb-10 text-gray-900 tracking-tight text-left">보도자료</h2>
@@ -175,7 +164,7 @@ const UserPressRelList = () => {
           </button>
         </div>
       </div>
-    </UserOpenSpaceLayout>
+    
   );
 };
 
