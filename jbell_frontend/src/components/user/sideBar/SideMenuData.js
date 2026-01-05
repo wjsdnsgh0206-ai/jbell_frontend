@@ -62,4 +62,16 @@ export const SIDE_MENU_DATA = {
         items: []
     },
   ],
+  CUSTOMERSERVICE : [
+    {
+        title: 'FAQ',
+        path: '/faq',
+        items: []
+    },
+    {
+        title: '1대1 문의',
+        path: '/qna',
+        items: []
+    },
+  ],
 };

@@ -19,7 +19,7 @@ const FAQDetailPage = () => {
     { id: 10, question: "질문 10", answer: "답변 10", date: "2023.10.10", tag: "계정 관리" },
     { id: 11, question: "질문 11", answer: "답변 11", date: "2023.10.11", tag: "결제/환불" },
     { id: 12, question: "질문 12", answer: "답변 12", date: "2023.10.12", tag: "이용 문의" },
-    { id: 13, question: "질문 13 (2페이지 시작)", answer: "답변 13", date: "2023.10.13", tag: "질문 유형" },
+    { id: 13, question: "질문 13", answer: "답변 13", date: "2023.10.13", tag: "질문 유형" },
     { id: 14, question: "질문 14", answer: "답변 14", date: "2023.10.14", tag: "계정 관리" },
     { id: 15, question: "질문 15", answer: "답변 15", date: "2023.10.15", tag: "결제/환불" },
     { id: 16, question: "질문 16", answer: "답변 16", date: "2023.10.16", tag: "이용 문의" },
@@ -31,7 +31,7 @@ const FAQDetailPage = () => {
     { id: 22, question: "질문 22", answer: "답변 22", date: "2023.10.22", tag: "계정 관리" },
     { id: 23, question: "질문 23", answer: "답변 23", date: "2023.10.23", tag: "결제/환불" },
     { id: 24, question: "질문 24", answer: "답변 24", date: "2023.10.24", tag: "이용 문의" },
-    { id: 25, question: "질문 25 (3페이지)", answer: "답변 25", date: "2023.10.25", tag: "질문 유형" },
+    { id: 25, question: "질문 25", answer: "답변 25", date: "2023.10.25", tag: "질문 유형" },
   ];
 
   // ID와 일치하는 데이터 찾기 (문자열 id를 숫자로 변환)

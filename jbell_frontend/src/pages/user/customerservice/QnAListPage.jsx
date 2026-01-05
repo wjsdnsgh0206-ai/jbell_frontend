@@ -362,11 +362,7 @@ const QnAListPage = () => {
               {/* 수정됨: onChange 및 value 추가 */}
               <select 
                 className="ml-1 border border-gray-300 rounded px-1 py-0.5"
-                onChange={(e) => {
-                    const value = parseInt(e.target.value.replace('개', ''), 10);
-                    setItemsPerPage(value);
-                    setCurrentPage(1);
-                }}
+                onChange={handleItemsPerPageChange}
                 value={`${itemsPerPage}개`}
               >
                 <option value="10개">10개</option>
