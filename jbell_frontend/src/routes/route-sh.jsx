@@ -1,11 +1,11 @@
 import { lazy } from "react";
 import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
-const UserNoticeList = lazy(() => import("@/pages/user/openboards/UserNoticeList"));
-const UserNoticeDetail = lazy(() => import("@/pages/user/openboards/UserNoticeDetail"));
-const UserPressRelList = lazy(() => import("@/pages/user/openboards/UserPressRelList"));
-const UserPressRelDetail = lazy(() => import("@/pages/user/openboards/UserPressRelDetail"));
-const UserSafetyEducation = lazy(() => import("@/pages/user/openboards/UserSafetyEducation")); 
+const UserOpenSpaceLi = lazy(() => import("@/pages/user/UserOpenSpaceLi"));
+const UserNoticeDetail = lazy(() => import("@/pages/user/UserNoticeDetail"));
+const UserPressRelList = lazy(() => import("@/pages/user/UserPressRelList"));
+const UserPressRelDetail = lazy(() => import("@/pages/user/UserPressRelDetail"));
+
 
 // ------ 라우트 페이지 경로 입력 파일 ------ //
 // Routes.jsx에서 이 파일을 불러와서 Route를 생성함.
@@ -29,68 +29,26 @@ const UserSafetyEducation = lazy(() => import("@/pages/user/openboards/UserSafet
  *
  */
 export const shUserRoutes = [
-  // --- 공지사항  ---
-  // {
-  //   path: "/userOpenSpaceLi",
-  //   element: <UserOpenSpaceLi />,
-  // },
-  // {
-  //   path: "/userNoticeDetail/:id", 
-  //   element: <UserNoticeDetail />,
-  // },
-
-  // --- 보도자료 ---
-  // {
-  //  path: "/userPressLi", 
-  //  element: <UserPressRelList />,
-  // },
-  // {
-    // 
-    // 
-  // path: "/userPressRelDetail/:id", 
-  //  element: <UserPressRelDetail />,
-  // },
-
-  // --- 시민안전교육 ---
-  // {
-   // path: "/userSafetyEdu",
-   // element: <UserSafetyEdu />,
-  
- // },
-
-
-   // --- 공지사항  ---
+  // --- 공지사항 (기존 유지) ---
   {
-    path: "/userNoticeList",
-    element: <UserNoticeList />,
-    sidebarData: SIDE_MENU_DATA.COMMUNITY,
-    nowPage: "열린마당",
+    path: "/userOpenSpaceLi",
+    element: <UserOpenSpaceLi />,
   },
   {
-    path: "/userNoticeDetail/:id",
+    path: "/userNoticeDetail/:id", 
     element: <UserNoticeDetail />,
-    sidebarData: SIDE_MENU_DATA.COMMUNITY,
-    nowPage: "열린마당",
   },
-  // --- 보도자료 ---
+
+  // --- 보도자료 (신규 추가) ---
   {
-    path: "/userPressRelList",
+    path: "/userPressLi", 
     element: <UserPressRelList />,
-    sidebarData: SIDE_MENU_DATA.COMMUNITY,
-    nowPage: "열린마당",
   },
   {
-    path: "/userPressRelDetail/:id",
+    // 여기 path를 RelDetail로 수정하거나, List의 navigate를 Detail로 수정해야 합니다.
+    // 여기서는 path를 컴포넌트 이름과 일치하도록 수정하겠습니다.
+    path: "/userPressRelDetail/:id", 
     element: <UserPressRelDetail />,
-    sidebarData: SIDE_MENU_DATA.COMMUNITY,
-    nowPage: "열린마당",
-  },
-  // --- 시민안전교육 ---
-  {
-    path: "/userSafetyEducation",
-    element: <UserSafetyEducation />,
-    sidebarData: SIDE_MENU_DATA.COMMUNITY,
-    nowPage: "열린마당",
   },
 
 ];
