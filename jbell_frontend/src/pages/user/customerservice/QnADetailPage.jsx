@@ -264,7 +264,7 @@ const QnADetailPage = () => {
       {/* ================= Breadcrumb (FAQDetailPage 스타일) ================= */}
       <div className="w-full bg-gray-50 border-b border-gray-200">
         <div className="max-w-[1280px] mx-auto px-4 py-3 flex items-center text-gray-500 text-sm">
-          <Home size={16} />
+          <span className="font-medium text-gray-900 cursor-pointer" onClick={() => navigate('/')}> <Home size={16} /></span>
           <ChevronRight size={16} className="mx-2" />
           <span className="font-medium text-gray-900">고객센터</span>
           <ChevronRight size={16} className="mx-2" />
