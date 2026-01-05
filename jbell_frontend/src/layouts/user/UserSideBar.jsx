@@ -1,69 +1,102 @@
-import React, { useState } from 'react';
+// src/components/user/sideBar/UserSideBar.jsx
+import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom'; // useLocation 추가
 
-const UserSideBar = () => {
-  // 현재 열려있는 메인 카테고리 관리 (기본값: '재난별행동요령')
-  const [openCategory, setOpenCategory] = useState('재난별행동요령');
+const UserSideBar = ({ nowPage, categories = [] }) => {
+  const navigate = useNavigate();
+  const location = useLocation(); // 현재 URL 정보 가져오기
 
-  const categories = [
-    {
-      title: '재난별행동요령',
-      items: ['지진', '태풍', '호우', '홍수', '산사태'],
-    },
-    { title: '사고별행동요령', items: [] },
-    { title: '생활안전행동요령', items: [] },
-    { title: '재난약자행동요령', items: [] },
-    { title: '긴급상황대처', items: [] },
-  ];
+  // 현재 경로와 일치하는 메뉴 아이템 찾기
+  // some()을 사용하여 현재 URL이 해당 카테고리의 아이템 경로를 포함하는지 확인
+  const findActiveCategory = () => {
+    return categories.find(cat => 
+      cat.items && cat.items.some(item => location.pathname === item.path)
+    )?.title || categories[0]?.title;
+  };
 
-  // 활성화된 서브 메뉴 아이템 (이미지상 '태풍')
-  const activeItem = '태풍';
+  const [openCategory, setOpenCategory] = useState(findActiveCategory);
+
+  // URL이 바뀔 때마다 열려있는 카테고리 업데이트 (선택 사항)
+  useEffect(() => {
+    setOpenCategory(findActiveCategory());
+  }, [location.pathname, categories]);
+
+  const handleTitleClick = (cat) => {
+    const hasSubItems = cat.items && cat.items.length > 0;
+    if (hasSubItems) {
+      setOpenCategory(openCategory === cat.title ? '' : cat.title);
+    } else if (cat.path) {
+        // 타이틀 자체에 링크가 있는 경우 (예: 내 문의 내역)
+        navigate(cat.path);
+    }
+  };
 
   return (
-    <div className="w-80 border-t border-gray-300 bg-white font-sans">
-      <h2 className="p-4 text-xl font-bold text-gray-800">행동요령</h2>
-      
-      <div className="border-b border-gray-200">
-        {categories.map((cat) => (
-          <div key={cat.title} className="border-b border-gray-100 last:border-none">
-            {/* 메인 카테고리 헤더 */}
-            <button
-              onClick={() => setOpenCategory(openCategory === cat.title ? '' : cat.title)}
-              className={`flex w-full items-center justify-between p-4 text-left font-bold transition-colors ${
-                openCategory === cat.title ? 'text-[#003d7a] border-b-2 border-[#003d7a]' : 'text-gray-700'
-              }`}
-            >
-              <span>{cat.title}</span>
-              {openCategory === cat.title ? (
-                <ChevronUp size={20} className="text-[#003d7a]" />
-              ) : (
-                <ChevronDown size={20} className="text-gray-400" />
-              )}
-            </button>
+    <nav className="flex flex-col w-full lg:w-[300px] bg-white pr-10" aria-label="사이드바 메뉴">
+      <div className="flex flex-col w-full">
+        <header className="flex w-full items-center px-4 py-10 bg-graygray-0 border-b border-graygray-50">
+          <h1 className="text-title-l text-graygray-90 whitespace-nowrap">{nowPage}</h1>
+        </header>
 
-            {/* 서브 메뉴 리스트 (아코디언 내용) */}
-            {openCategory === cat.title && cat.items.length > 0 && (
-              <ul className="bg-white py-2">
-                {cat.items.map((item) => (
-                  <li key={item}>
-                    <button
-                      className={`relative flex w-[90%] mx-auto my-1 items-center rounded-lg p-3 text-left transition-all ${
-                        activeItem === item
-                          ? 'bg-[#edf2f7] font-bold text-[#003d7a]'
-                          : 'text-gray-600 hover:bg-gray-50'
-                      }`}
-                    >
-                      <span className="mr-2 text-xs opacity-60">•</span>
-                      {item}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        ))}
+        <div className="flex flex-col w-full">
+          {categories.map((cat) => {
+            const hasSubItems = cat.items && cat.items.length > 0;
+            const isOpened = openCategory === cat.title;
+            
+            // [자동 활성화 로직] 현재 경로가 이 카테고리의 아이템 중 하나와 일치하거나, 카테고리 path와 일치할 때
+            const isCategoryActive = (hasSubItems && cat.items.some(i => i.path === location.pathname)) || (cat.path === location.pathname);
+
+            return (
+              <section key={cat.title} className="flex flex-col w-full">
+                <button
+                  onClick={() => handleTitleClick(cat)}
+                  className={`flex items-center justify-between w-full h-16 px-4 bg-graygray-0 text-left transition-colors border-b
+                    ${isCategoryActive ? "border-b-[3px] border-secondary-50 text-secondary-50" : "border-graygray-30 text-graygray-90 hover:bg-graygray-5"}
+                  `}
+                >
+                  <span className={`text-body-m-bold ${isCategoryActive ? "text-secondary-50" : "text-graygray-90"}`}>
+                    {cat.title}
+                  </span>
+                  {hasSubItems && (
+                    isOpened 
+                      ? <ChevronUp className={`w-5 h-5 ${isCategoryActive ? 'text-secondary-50' : 'text-graygray-90'}`} />
+                      : <ChevronDown className={`w-5 h-5 ${isCategoryActive ? 'text-secondary-50' : 'text-graygray-90'}`} />
+                  )}
+                </button>
+
+                {hasSubItems && isOpened && (
+                  <ul className="flex flex-col w-full py-4 border-b border-graygray-30 bg-white">
+                    {cat.items.map((item) => {
+                      // [자동 활성화 로직] 현재 URL과 아이템 경로가 정확히 일치하는지 확인
+                      const isItemActive = location.pathname === item.path;
+
+                      return (
+                        <li key={item.name} className="flex w-full px-4 py-1">
+                          <button
+                            onClick={() => navigate(item.path)}
+                            className={`flex items-start gap-2 w-full p-2.5 rounded-lg text-left transition-colors
+                              ${isItemActive ? "bg-secondary-5" : "hover:bg-graygray-5"}
+                            `}
+                          >
+                            <span className="flex items-center pt-2">
+                              <span className="w-1 h-1 bg-graygray-80 rounded-sm" aria-hidden="true" />
+                            </span>
+                            <span className={`text-body-m ${isItemActive ? "font-bold text-secondary-50" : "font-normal text-graygray-90"}`}>
+                              {item.name}
+                            </span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </section>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </nav>
   );
 };
 

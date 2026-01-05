@@ -3,374 +3,126 @@
 @tailwind utilities;
 
 @layer base {
-  button,
-  input,
-  select,
-  textarea {
+  /* 기본 리셋 */
+  button, input, select, textarea {
     @apply appearance-none bg-transparent border-0 outline-none;
   }
+  body {
+    @apply font-sans text-graygray-90; /* 기본 폰트 설정 */
+  }
 }
 
-@tailwind components;
-@tailwind utilities;
+/* =========================================
+   1. Primitive Tokens (디자인 원자값)
+   - 이곳의 값만 바꾸면 사이트 전체 디자인이 바뀝니다.
+   ========================================= */
+:root {
+  /* --- Colors --- */
+  --graygray-0: #FFFFFF;
+  --graygray-5: #F8F8F8;
+  --graygray-10: #E6E8EA;
+  --graygray-30: #D8D8D8;
+  --graygray-40: #C6C6C6;
+  --graygray-50: #8E8E8E;
+  --graygray-70: #555555;
+  --graygray-80: #2D2D2D;
+  --graygray-90: #1D1D1D;
 
+  --secondary-5: #EDF1F5;
+  --secondary-50: #003675;
+
+  /* --- Typography Basics --- */
+  --font-base: "Pretendard GOV", -apple-system, sans-serif;
+}
+
+/* =========================================
+   2. Semantic Classes (의미 기반 클래스)
+   - JSX에서 사용할 클래스들을 정의합니다.
+   - 폰트/크기/굵기/행간/자간을 한 번에 묶습니다.
+   ========================================= */
 @layer components {
-  .all-\[unset\] {
-    all: unset;
+  /* --- Headings --- */
+  .text-heading-xl {
+    font-family: var(--font-base);
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 150%;
+    letter-spacing: 1px;
   }
-}
-
-:root {
-  --body-body-l-700-font-family: "Pretendard GOV", Helvetica;
-  --body-body-l-700-font-size: 19px;
-  --body-body-l-700-font-style: normal;
-  --body-body-l-700-font-weight: 700;
-  --body-body-l-700-letter-spacing: 0px;
-  --body-body-l-700-line-height: 150%;
-  --body-body-m-400-font-family: "Pretendard GOV", Helvetica;
-  --body-body-m-400-font-size: 17px;
-  --body-body-m-400-font-style: normal;
-  --body-body-m-400-font-weight: 400;
-  --body-body-m-400-letter-spacing: 0px;
-  --body-body-m-400-line-height: 150%;
-  --body-large-bold-font-family: "Inter", Helvetica;
-  --body-large-bold-font-size: 19px;
-  --body-large-bold-font-style: normal;
-  --body-large-bold-font-weight: 700;
-  --body-large-bold-letter-spacing: 0px;
-  --body-large-bold-line-height: 150%;
-  --body-large-font-family: "Inter", Helvetica;
-  --body-large-font-size: 19px;
-  --body-large-font-style: normal;
-  --body-large-font-weight: 400;
-  --body-large-letter-spacing: 0px;
-  --body-large-line-height: 150%;
-  --body-medium-bold-font-family: "Inter", Helvetica;
-  --body-medium-bold-font-size: 17px;
-  --body-medium-bold-font-style: normal;
-  --body-medium-bold-font-weight: 700;
-  --body-medium-bold-letter-spacing: 0px;
-  --body-medium-bold-line-height: 150%;
-  --body-medium-font-family: "Inter", Helvetica;
-  --body-medium-font-size: 17px;
-  --body-medium-font-style: normal;
-  --body-medium-font-weight: 400;
-  --body-medium-letter-spacing: 0px;
-  --body-medium-line-height: 150%;
-  --body-small-bold-font-family: "Inter", Helvetica;
-  --body-small-bold-font-size: 15px;
-  --body-small-bold-font-style: normal;
-  --body-small-bold-font-weight: 700;
-  --body-small-bold-letter-spacing: 0px;
-  --body-small-bold-line-height: 150%;
-  --body-small-font-family: "Inter", Helvetica;
-  --body-small-font-size: 15px;
-  --body-small-font-style: normal;
-  --body-small-font-weight: 400;
-  --body-small-letter-spacing: 0px;
-  --body-small-line-height: 150%;
-  --body-xsmall-bold-font-family: "Inter", Helvetica;
-  --body-xsmall-bold-font-size: 13px;
-  --body-xsmall-bold-font-style: normal;
-  --body-xsmall-bold-font-weight: 700;
-  --body-xsmall-bold-letter-spacing: 0px;
-  --body-xsmall-bold-line-height: 150%;
-  --body-xsmall-font-family: "Inter", Helvetica;
-  --body-xsmall-font-size: 13px;
-  --body-xsmall-font-style: normal;
-  --body-xsmall-font-weight: 400;
-  --body-xsmall-letter-spacing: 0px;
-  --body-xsmall-line-height: 150%;
-  --detail-detail-m-400-font-family: "Pretendard GOV", Helvetica;
-  --detail-detail-m-400-font-size: 15px;
-  --detail-detail-m-400-font-style: normal;
-  --detail-detail-m-400-font-weight: 400;
-  --detail-detail-m-400-letter-spacing: 0px;
-  --detail-detail-m-400-line-height: 150%;
-  --display-large-font-family: "Inter", Helvetica;
-  --display-large-font-size: 60px;
-  --display-large-font-style: normal;
-  --display-large-font-weight: 700;
-  --display-large-letter-spacing: 1px;
-  --display-large-line-height: 150%;
-  --display-medium-font-family: "Inter", Helvetica;
-  --display-medium-font-size: 44px;
-  --display-medium-font-style: normal;
-  --display-medium-font-weight: 700;
-  --display-medium-letter-spacing: 1px;
-  --display-medium-line-height: 150%;
-  --display-small-font-family: "Inter", Helvetica;
-  --display-small-font-size: 36px;
-  --display-small-font-style: normal;
-  --display-small-font-weight: 700;
-  --display-small-letter-spacing: 1px;
-  --display-small-line-height: 150%;
-  --graygray-0: rgba(255, 255, 255, 1);
-  --graygray-30: rgba(216, 216, 216, 1);
-  --graygray-40: rgba(198, 198, 198, 1);
-  --graygray-5: rgba(248, 248, 248, 1);
-  --graygray-50: rgba(142, 142, 142, 1);
-  --graygray-70: rgba(85, 85, 85, 1);
-  --graygray-90: rgba(29, 29, 29, 1);
-  --heading-heading-m-700-font-family: "Pretendard GOV", Helvetica;
-  --heading-heading-m-700-font-size: 40px;
-  --heading-heading-m-700-font-style: normal;
-  --heading-heading-m-700-font-weight: 700;
-  --heading-heading-m-700-letter-spacing: 1px;
-  --heading-heading-m-700-line-height: 150%;
-  --heading-large-font-family: "Inter", Helvetica;
-  --heading-large-font-size: 32px;
-  --heading-large-font-style: normal;
-  --heading-large-font-weight: 700;
-  --heading-large-letter-spacing: 1px;
-  --heading-large-line-height: 150%;
-  --heading-medium-font-family: "Inter", Helvetica;
-  --heading-medium-font-size: 24px;
-  --heading-medium-font-style: normal;
-  --heading-medium-font-weight: 700;
-  --heading-medium-letter-spacing: 0px;
-  --heading-medium-line-height: 150%;
-  --heading-small-font-family: "Inter", Helvetica;
-  --heading-small-font-size: 19px;
-  --heading-small-font-style: normal;
-  --heading-small-font-weight: 700;
-  --heading-small-letter-spacing: 0px;
-  --heading-small-line-height: 150%;
-  --heading-xlarge-font-family: "Inter", Helvetica;
-  --heading-xlarge-font-size: 40px;
-  --heading-xlarge-font-style: normal;
-  --heading-xlarge-font-weight: 700;
-  --heading-xlarge-letter-spacing: 1px;
-  --heading-xlarge-line-height: 150%;
-  --heading-xsmall-font-family: "Inter", Helvetica;
-  --heading-xsmall-font-size: 17px;
-  --heading-xsmall-font-style: normal;
-  --heading-xsmall-font-weight: 700;
-  --heading-xsmall-letter-spacing: 0px;
-  --heading-xsmall-line-height: 150%;
-  --heading-xxsmall-font-family: "Inter", Helvetica;
-  --heading-xxsmall-font-size: 15px;
-  --heading-xxsmall-font-style: normal;
-  --heading-xxsmall-font-weight: 700;
-  --heading-xxsmall-letter-spacing: 0px;
-  --heading-xxsmall-line-height: 150%;
-  --label-large-font-family: "Inter", Helvetica;
-  --label-large-font-size: 19px;
-  --label-large-font-style: normal;
-  --label-large-font-weight: 400;
-  --label-large-letter-spacing: 0px;
-  --label-large-line-height: 150%;
-  --label-medium-font-family: "Inter", Helvetica;
-  --label-medium-font-size: 17px;
-  --label-medium-font-style: normal;
-  --label-medium-font-weight: 400;
-  --label-medium-letter-spacing: 0px;
-  --label-medium-line-height: 150%;
-  --label-small-font-family: "Inter", Helvetica;
-  --label-small-font-size: 15px;
-  --label-small-font-style: normal;
-  --label-small-font-weight: 400;
-  --label-small-letter-spacing: 0px;
-  --label-small-line-height: 150%;
-  --label-xsmall-font-family: "Inter", Helvetica;
-  --label-xsmall-font-size: 13px;
-  --label-xsmall-font-style: normal;
-  --label-xsmall-font-weight: 400;
-  --label-xsmall-letter-spacing: 0px;
-  --label-xsmall-line-height: 150%;
-  --navigation-depth-medium-bold-font-family: "Inter", Helvetica;
-  --navigation-depth-medium-bold-font-size: 17px;
-  --navigation-depth-medium-bold-font-style: normal;
-  --navigation-depth-medium-bold-font-weight: 700;
-  --navigation-depth-medium-bold-letter-spacing: 0px;
-  --navigation-depth-medium-bold-line-height: 150%;
-  --navigation-depth-medium-font-family: "Inter", Helvetica;
-  --navigation-depth-medium-font-size: 17px;
-  --navigation-depth-medium-font-style: normal;
-  --navigation-depth-medium-font-weight: 400;
-  --navigation-depth-medium-letter-spacing: 0px;
-  --navigation-depth-medium-line-height: 150%;
-  --navigation-depth-small-bold-font-family: "Inter", Helvetica;
-  --navigation-depth-small-bold-font-size: 15px;
-  --navigation-depth-small-bold-font-style: normal;
-  --navigation-depth-small-bold-font-weight: 700;
-  --navigation-depth-small-bold-letter-spacing: 0px;
-  --navigation-depth-small-bold-line-height: 150%;
-  --navigation-depth-small-font-family: "Inter", Helvetica;
-  --navigation-depth-small-font-size: 15px;
-  --navigation-depth-small-font-style: normal;
-  --navigation-depth-small-font-weight: 400;
-  --navigation-depth-small-letter-spacing: 0px;
-  --navigation-depth-small-line-height: 150%;
-  --navigation-title-medium-font-family: "Inter", Helvetica;
-  --navigation-title-medium-font-size: 24px;
-  --navigation-title-medium-font-style: normal;
-  --navigation-title-medium-font-weight: 700;
-  --navigation-title-medium-letter-spacing: 0px;
-  --navigation-title-medium-line-height: 150%;
-  --navigation-title-small-font-family: "Inter", Helvetica;
-  --navigation-title-small-font-size: 19px;
-  --navigation-title-small-font-style: normal;
-  --navigation-title-small-font-weight: 700;
-  --navigation-title-small-letter-spacing: 0px;
-  --navigation-title-small-line-height: 150%;
-  --secondarysecondary-5: rgba(237, 241, 245, 1);
-  --secondarysecondary-50: rgba(0, 54, 117, 1);
-  --shadow-1: 0px 0px 2px 0px rgba(0, 0, 0, 0.05), 0px 1px 2px 0px
-    rgba(0, 0, 0, 0.05);
-  --shadow-2: 0px 4px 8px 0px rgba(0, 0, 0, 0.08), 0px 0px 2px 0px
-    rgba(0, 0, 0, 0.05);
-  --shadow-3: 0px 8px 16px 0px rgba(0, 0, 0, 0.12), 0px 0px 2px 0px
-    rgba(0, 0, 0, 0.08);
-  --shadow-4: 0px 16px 24px 0px rgba(0, 0, 0, 0.12), 0px 0px 2px 0px
-    rgba(0, 0, 0, 0.08);
-  --title-title-l-700-font-family: "Pretendard GOV", Helvetica;
-  --title-title-l-700-font-size: 21px;
-  --title-title-l-700-font-style: normal;
-  --title-title-l-700-font-weight: 700;
-  --title-title-l-700-letter-spacing: 0px;
-  --title-title-l-700-line-height: 150%;
-  --title-title-m-700-font-family: "Pretendard GOV", Helvetica;
-  --title-title-m-700-font-size: 19px;
-  --title-title-m-700-font-style: normal;
-  --title-title-m-700-font-weight: 700;
-  --title-title-m-700-letter-spacing: 0px;
-  --title-title-m-700-line-height: 150%;
-  --title-title-XL-700-font-family: "Pretendard GOV", Helvetica;
-  --title-title-XL-700-font-size: 25px;
-  --title-title-XL-700-font-style: normal;
-  --title-title-XL-700-font-weight: 700;
-  --title-title-XL-700-letter-spacing: 0px;
-  --title-title-XL-700-line-height: 150%;
-  --underline-large-font-family: "Inter", Helvetica;
-  --underline-large-font-size: 19px;
-  --underline-large-font-style: normal;
-  --underline-large-font-weight: 400;
-  --underline-large-letter-spacing: 0px;
-  --underline-large-line-height: 150%;
-  --underline-medium-font-family: "Inter", Helvetica;
-  --underline-medium-font-size: 17px;
-  --underline-medium-font-style: normal;
-  --underline-medium-font-weight: 400;
-  --underline-medium-letter-spacing: 0px;
-  --underline-medium-line-height: 150%;
-  --underline-small-font-family: "Inter", Helvetica;
-  --underline-small-font-size: 15px;
-  --underline-small-font-style: normal;
-  --underline-small-font-weight: 400;
-  --underline-small-letter-spacing: 0px;
-  --underline-small-line-height: 150%;
-  --underline-xsmall-font-family: "Inter", Helvetica;
-  --underline-xsmall-font-size: 13px;
-  --underline-xsmall-font-style: normal;
-  --underline-xsmall-font-weight: 400;
-  --underline-xsmall-letter-spacing: 0px;
-  --underline-xsmall-line-height: 150%;
-}
-
-:root {
-  --animate-spin: spin 1s linear infinite;
-}
-
-.animate-fade-in {
-  animation: fade-in 1s var(--animation-delay, 0s) ease forwards;
-}
-
-.animate-fade-up {
-  animation: fade-up 1s var(--animation-delay, 0s) ease forwards;
-}
-
-.animate-marquee {
-  animation: marquee var(--duration) infinite linear;
-}
-
-.animate-marquee-vertical {
-  animation: marquee-vertical var(--duration) linear infinite;
-}
-
-.animate-shimmer {
-  animation: shimmer 8s infinite;
-}
-
-.animate-spin {
-  animation: var(--animate-spin);
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(1turn);
-  }
-}
-
-@keyframes image-glow {
-  0% {
-    opacity: 0;
-    animation-timing-function: cubic-bezier(0.74, 0.25, 0.76, 1);
+  
+  .text-heading-l {
+    font-family: var(--font-base);
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 150%;
+    letter-spacing: 1px;
   }
 
-  10% {
-    opacity: 0.7;
-    animation-timing-function: cubic-bezier(0.12, 0.01, 0.08, 0.99);
+  .text-heading-m {
+    font-family: var(--font-base);
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 150%;
+    letter-spacing: 0px;
   }
 
-  to {
-    opacity: 0.4;
-  }
-}
-
-@keyframes fade-in {
-  0% {
-    opacity: 0;
-    transform: translateY(-10px);
+  /* --- Titles --- */
+  .text-title-xl {
+    font-family: var(--font-base);
+    font-size: 25px;
+    font-weight: 700;
+    line-height: 150%;
   }
 
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes fade-up {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
+  .text-title-l {
+    font-family: var(--font-base);
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 150%;
   }
 
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes shimmer {
-  0%,
-  90%,
-  to {
-    background-position: calc(-100% - var(--shimmer-width)) 0;
+  .text-title-m {
+    font-family: var(--font-base);
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 150%;
   }
 
-  30%,
-  60% {
-    background-position: calc(100% + var(--shimmer-width)) 0;
-  }
-}
-
-@keyframes marquee {
-  0% {
-    transform: translate(0);
+  /* --- Body / Details --- */
+  .text-body-l-bold {
+    font-family: var(--font-base);
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 150%;
   }
 
-  to {
-    transform: translateX(calc(-100% - var(--gap)));
-  }
-}
-
-@keyframes marquee-vertical {
-  0% {
-    transform: translateY(0);
+  .text-body-m-bold {
+    font-family: var(--font-base);
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 150%;
   }
 
-  to {
-    transform: translateY(calc(-100% - var(--gap)));
+  .text-body-m {
+    font-family: var(--font-base);
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 150%;
+  }
+
+  .text-detail-m {
+    font-family: var(--font-base);
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 150%;
+  }
+  
+  /* --- Utils --- */
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+  
+  .flex-col-center {
+    @apply flex flex-col items-center justify-center;
   }
 }
