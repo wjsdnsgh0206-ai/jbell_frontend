@@ -1,13 +1,28 @@
 import { lazy } from "react";
 import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
+// 자연재난행동요령 import
 const EarthquakeActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/earthquake/EarthquakeActionGuide"));
 const TyphoonActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/typhoon/TyphoonActionGuide"));
 const FloodActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/flood/FloodActionGuide"));
 const HeavyRainActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/heavyRain/HeavyRainActionGuide"));
 const LandslideActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/landslide/LandslideActionGuide"));
 
+// 사회재난행동요령 import
 const TrafficAccidentActionGuide = lazy(() => import("@/pages/user/behavioralGuide/social/trafficAccident/TrafficAccidentActionGuide"));
+const FireActionGuide = lazy(() => import("@/pages/user/behavioralGuide/social/fire/FireActionGuide"));
+const ForestFireActionGuide = lazy(() => import("@/pages/user/behavioralGuide/social/forestFire/ForestFireActionGuide"));
+const BuildingCollapseActionGuide = lazy(() => import("@/pages/user/behavioralGuide/social/buildingCollapse/BuildingCollapseActionGuide"));
+const ElectricityGasAccidentActionGuide = lazy(() => import("@/pages/user/behavioralGuide/social/electricityGasAccident/ElectricityGasAccidentActionGuide"));
+const RoadTunnelAccidentActionGuide = lazy(() => import("@/pages/user/behavioralGuide/social/roadTunnelAccident/RoadTunnelAccidentActionGuide"));
+const RailwaySubwayAccidentActionGuide = lazy(() => import("@/pages/user/behavioralGuide/social/railwaySubwayAccident/RailwaySubwayAccidentActionGuide"));
+
+// 생활안전행동요령 import
+const FirstAidActionGuide = lazy(() => import("@/pages/user/behavioralGuide/life/firstAid/FirstAidActionGuide"));
+const CprActionGuide = lazy(() => import("@/pages/user/behavioralGuide/life/cpr/CprActionGuide"));
+const FoodPoisoningActionGuide = lazy(() => import("@/pages/user/behavioralGuide/life/foodPoisoning/FoodPoisoningActionGuide"));
+const ElevatorAccidentActionGuide = lazy(() => import("@/pages/user/behavioralGuide/life/elevatorAccident/ElevatorAccidentActionGuide"));
+const MountainSafetyActionGuide = lazy(() => import("@/pages/user/behavioralGuide/life/mountainSafety/MountainSafetyActionGuide"));
 
 
 export const jhUserRoutes = [
@@ -65,8 +80,8 @@ export const jhUserRoutes = [
   },
   // 산불 행동요령
   {
-    path: "/wildfireActionGuide",
-    element: <WildfireActionGuide />,
+    path: "/forestFireActionGuide",
+    element: <ForestFireActionGuide />,
     sidebarData: SIDE_MENU_DATA.BEHAVIORALGUIDE,
     nowPage: "행동요령",
   },
@@ -102,8 +117,8 @@ export const jhUserRoutes = [
   /* 생활안전행동요령 */
   // 응급처치
   {
-    path: "/trafficAccidentActionGuide",
-    element: <TrafficAccidentActionGuide />,
+    path: "/firstAidActionGuide",
+    element: <FirstAidActionGuide />,
     sidebarData: SIDE_MENU_DATA.BEHAVIORALGUIDE,
     nowPage: "행동요령",
   },

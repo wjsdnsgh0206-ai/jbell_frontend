@@ -37,7 +37,7 @@ export const SIDE_MENU_DATA = {
     items: [
       { name: '교통사고', path: '/trafficAccidentActionGuide' },
       { name: '화재', path: '/fireActionGuide' },
-      { name: '산불', path: '/wildfireActionGuide' },
+      { name: '산불', path: '/forestFireActionGuide' },
       { name: '건축물붕괴', path: '/buildingCollapseActionGuide' },
       { name: '전기, 가스 사고', path: '/electricityGasAccidentActionGuide' },
       { name: '도로터널사고', path: '/roadTunnelAccidentActionGuide' },

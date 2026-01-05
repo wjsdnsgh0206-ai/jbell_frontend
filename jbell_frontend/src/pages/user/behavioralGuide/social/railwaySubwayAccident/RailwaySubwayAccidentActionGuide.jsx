@@ -1,12 +1,11 @@
 import React from 'react';
 import GuidePageTemplate from '@/components/shared/GuidePageTemplate';
 import VideoCardList from '@/components/shared/VideoCardList';
-// [핵심] 홍수 데이터 파일 import
-import { fireData } from './data';
+import { railwaySubwayAccidentData } from './data';
 
-const FireActionGuide = () => {
+const RailwaySubwayAccidentActionGuide = () => {
   // 데이터 구조 분해 할당
-  const { meta, contents } = fireData;
+  const { meta, contents } = railwaySubwayAccidentData;
 
   return (
     <GuidePageTemplate 
@@ -55,4 +54,4 @@ const FireActionGuide = () => {
   );
 };
 
-export default FireActionGuide;
+export default RailwaySubwayAccidentActionGuide;
