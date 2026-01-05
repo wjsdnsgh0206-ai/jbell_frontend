@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+// ✅ 사이드 레이아웃 임포트 (경로 확인 필수)
+import UserOpenSpaceLayout from "@/layouts/user/openspace/UserOpenSpaceLayout";
 
 const UserOpenSpaceLi = () => {
   const navigate = useNavigate();
@@ -10,7 +12,7 @@ const UserOpenSpaceLi = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // 2. 데이터 샘플 (files를 숫자가 아닌 배열 형태로 수정)
+  // 2. 데이터 샘플
   const notices = [
     { id: 7, title: "행정안전부 재난안전데이터 공유플랫폼 안내", author: '관리자', files: [{name:'file1'}], date: '2025-04-11', isPin: true },
     { id: 8, title: "전북특별자치도 '25년도 11월 재난 현황 정리입니다", author: '관리자', files: [{name:'file1'}, {name:'file2'}], date: '2025-12-08', isPin: true },
@@ -43,35 +45,44 @@ const UserOpenSpaceLi = () => {
     navigate(`/userNoticeDetail/${id}`);
   };
 
-  // 보도자료 목록으로 이동하는 함수
-const goToPressRelease = () => {
-  navigate('/userPressLi'); 
-};
-
   return (
-    <>
-      <div className="bg-gray-50 border-b border-gray-200 py-3">
-        <div className="max-w-6xl mx-auto px-4 text-sm text-gray-500 flex items-center gap-2">
-          <span className="cursor-pointer hover:text-gray-800 transition">🏠 홈</span>
-          <span className="text-gray-300">&gt;</span>
-          <span>열린마당</span>
-          <span className="text-gray-300">&gt;</span>
-          <span className="font-semibold text-gray-800">공지사항</span>
-          <button onClick={"/userPressDetail"}></button>
-        </div>
-      </div>
-
-      <main className="flex-grow max-w-6xl w-full mx-auto px-4 py-10 md:py-16">
-        <h2 className="text-3xl font-bold mb-10 text-gray-900 tracking-tight">공지사항</h2>
-
-                {/* 보도자료 이동 임시 버튼 */}
-          <button 
-            onClick={goToPressRelease}
-            className="bg-orange-500 text-white px-4 py-2 rounded-md text-sm font-bold hover:bg-orange-600 transition shadow-sm"
-          >
-            보도자료 목록 이동 테스트 →
-          </button>
-        
+    <UserOpenSpaceLayout>
+      <div className="w-full">
+        {/* 상단 브레드크럼 */}
+        {/* ✅ 수정된 상단 브레드크럼:*/}
+          <nav className="flex items-center text-[#444] text-[15px] mb-8 py-1" aria-label="브레드크럼">
+            <ol className="flex items-center gap-2">
+              <li className="flex items-center gap-2">
+                <div 
+                  className="flex items-center gap-1 cursor-pointer group"
+                  onClick={() => navigate('/')}
+                >
+                  {/*홈 아이콘*/}
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-gray-700">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                  </svg>
+                  {/* 밑줄 스타일 적용 */}
+                  <span className="underline underline-offset-4 decoration-1 group-hover:text-black">홈</span>
+                </div>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-gray-400 text-lg font-light flex items-center mb-0.5">&gt;</span>
+                <span className="underline underline-offset-4 decoration-1 cursor-pointer hover:text-black">
+                  열린마당
+                </span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-gray-400 text-lg font-light flex items-center mb-0.5">&gt;</span>
+                <span className="underline underline-offset-4 decoration-1 font-semibold text-gray-800 cursor-default">
+                  공지사항
+                </span>
+              </li>
+            </ol>
+          </nav>
+        {/* 페이지 제목 */}
+        <h2 className="text-3xl font-bold mb-10 text-gray-900 tracking-tight text-left">
+          공지사항
+        </h2>
 
         {/* 검색바 영역 */}
         <div className="bg-gray-50 border border-gray-200 p-4 md:p-6 rounded-lg mb-10 flex flex-col md:flex-row justify-center gap-3">
@@ -101,7 +112,6 @@ const goToPressRelease = () => {
               placeholder="검색어를 입력해주세요." 
               className="w-full border border-gray-300 rounded px-4 py-2 pr-10 focus:ring-2 focus:ring-blue-500 text-sm bg-white"
             />
-            <span className="absolute right-3 top-2.5 text-gray-400">🔍</span>
           </div>
 
           <button className="bg-blue-600 text-white px-8 py-2 rounded font-medium hover:bg-blue-700 transition active:scale-95 shadow-sm">
@@ -110,7 +120,7 @@ const goToPressRelease = () => {
         </div>
 
         {/* 게시판 테이블 */}
-        <div className="w-full mt-8 overflow-x-auto"> 
+        <div className="w-full overflow-x-auto"> 
           <table className="w-full text-center border-collapse">
             <thead className="bg-gray-100 text-sm font-bold text-gray-700 border-t-2 border-gray-800">
               <tr>
@@ -138,12 +148,12 @@ const goToPressRelease = () => {
                       <span className="text-gray-500 font-medium">{notice.id}</span>
                     )}
                   </td>
-                  <td className="py-4 px-4 text-center">
-                    <div className="flex flex-col items-start ml-4 justify-center">
+                  <td className="py-4 px-4">
+                    <div className="flex flex-col items-start ml-4">
                       <span className={`font-medium group-hover:text-blue-700 group-hover:underline line-clamp-1 transition-all ${notice.isPin ? 'text-blue-900 font-semibold' : 'text-gray-900'}`}>
                         {notice.title}
                       </span>
-                      <div className="flex gap-2 text-[11px] text-gray-400 mt-1 sm:hidden justify-center">
+                      <div className="flex gap-2 text-[11px] text-gray-400 mt-1 sm:hidden">
                         <span>{notice.author}</span>
                         <span>|</span>
                         <span>{notice.date}</span>
@@ -151,7 +161,6 @@ const goToPressRelease = () => {
                     </div>
                   </td>
                   <td className="py-4 text-sm text-gray-600 hidden sm:table-cell">{notice.author}</td>
-                  {/* 파일수 자동 인식 수정 부분: length 사용 */}
                   <td className="py-4 text-sm text-gray-500 hidden md:table-cell">
                     {notice.files ? notice.files.length : 0}
                   </td>
@@ -194,8 +203,8 @@ const goToPressRelease = () => {
             &gt;
           </button>
         </div>
-      </main>
-    </>
+      </div>
+    </UserOpenSpaceLayout>
   );
 };
 

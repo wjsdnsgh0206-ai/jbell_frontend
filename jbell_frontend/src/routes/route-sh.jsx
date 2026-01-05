@@ -1,9 +1,10 @@
 import { lazy } from "react";
 
-const UserOpenSpaceLi = lazy(() => import("@/pages/user/UserOpenSpaceLi"));
-const UserNoticeDetail = lazy(() => import("@/pages/user/UserNoticeDetail"));
-const UserPressRelList = lazy(() => import("@/pages/user/UserPressRelList"));
-const UserPressRelDetail = lazy(() => import("@/pages/user/UserPressRelDetail"));
+const UserOpenSpaceLi = lazy(() => import("@/pages/user/openspace/UserOpenSpaceLi"));
+const UserNoticeDetail = lazy(() => import("@/pages/user/openspace/UserNoticeDetail"));
+const UserPressRelList = lazy(() => import("@/pages/user/openspace/UserPressRelList"));
+const UserPressRelDetail = lazy(() => import("@/pages/user/openspace/UserPressRelDetail"));
+const UserSafetyEdu = lazy(() => import("@/pages/user/openspace/UserSafetyEdu")); 
 
 
 // ------ 라우트 페이지 경로 입력 파일 ------ //
@@ -48,6 +49,13 @@ export const shUserRoutes = [
     // 여기서는 path를 컴포넌트 이름과 일치하도록 수정하겠습니다.
     path: "/userPressRelDetail/:id", 
     element: <UserPressRelDetail />,
+  },
+
+  // --- 시민안전교육 (신규 추가) ---
+   {
+    path: "/userSafetyEdu",
+    element: <UserSafetyEdu />,
+  
   },
 
 ];

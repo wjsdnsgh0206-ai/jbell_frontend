@@ -4,7 +4,7 @@ import { AccidentNews, Earthquake, Flood, HeavyRain, LandSlide, Typhoon, Wildfir
 const UserPageMain = lazy(() => import("@/pages/user/UserPageMain"));
 const UserMap = lazy(() => import("@/pages/user/UserMap"));
 const UserFacilityDetail = lazy(() => import("@/pages/user/UserFacilityDetail"));
-const UserOpenSpaceLi = lazy(() => import("@/pages/user/UserOpenSpaceLi"));
+const UserOpenSpaceLi = lazy(() => import("@/pages/user/openspace/UserOpenSpaceLi"));
 
 // ------ 라우트 페이지 경로 입력 파일 ------ //
 // Routes.jsx에서 이 파일을 불러와서 Route를 생성함.
