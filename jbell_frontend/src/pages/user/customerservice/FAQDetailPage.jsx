@@ -49,7 +49,7 @@ const FAQDetailPage = () => {
           <ChevronRight size={16} className="mx-2" />
           <span className="font-medium text-gray-900">고객센터</span>
           <ChevronRight size={16} className="mx-2" />
-          <span className="font-medium text-gray-900 cursor-pointer" onClick={() => navigate('/faq')}>FAQ</span>
+          <span className="font-medium text-gray-900 cursor-pointer hover:underline" onClick={() => navigate('/faq')}>FAQ</span>
           <ChevronRight size={16} className="mx-2" />
           <span className="font-medium text-gray-900">상세보기</span>
         </div>
