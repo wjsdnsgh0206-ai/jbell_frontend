@@ -1,71 +1,175 @@
+// src/Routes.jsx
 import { Routes, Route } from "react-router-dom";
 import UserLayout from "@/layouts/user/UserLayout";
-import { jyUserRoutes, disasterModal } from "@/routes/route-jy";
+import DisasterModalLayout from "@/layouts/user/disasterModal/DisasterModalLayout";
+import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
+
+// 팀원별 라우트 파일 import
+import { jyUserRoutes, disasterModal, sideBarFacility } from "@/routes/route-jy";
 import { shUserRoutes } from "@/routes/route-sh";
 import { ehUserRoutes } from "@/routes/route-eh";
 import { mjUserRoutes } from "@/routes/route-mj";
 import { bjUserRoutes } from "@/routes/route-bj";
-import DisasterModalLayout from "@/layouts/user/disasterModal/DisasterModalLayout";
+import { jhUserRoutes } from "@/routes/route-jh";
 
-// import UserNoticeDetail from 
-// ----- 라우트 진입점 파일 ----- //
-// 프로젝트의 모든 라우트 경로를 이 파일에서 처리함. 
 const AllRoutes = (props) => {
-  // <Suspense fallback={<div>로딩중...</div>}>
   
+  // 1. 모든 팀원의 라우트를 하나의 배열로 병합 (충돌 방지: 각자 파일만 수정하면 됨)
+  const allUserRoutes = [
+    ...jyUserRoutes,
+    ...shUserRoutes,
+    ...ehUserRoutes,
+    ...mjUserRoutes,
+    ...bjUserRoutes,
+    ...jhUserRoutes,
+    ...sideBarFacility, // 대피소 등 기타 라우트도 병합
+  ];
+
+  // 2. 사이드바 종류별로 라우트 필터링
+  // (참조 비교가 정확하지 않을 수 있으므로 nowPage 텍스트나 별도 키값으로 비교하는 것이 안전합니다)
+  
+  // [A] 행동요령 사이드바 그룹
+  const behavioralRoutes = allUserRoutes.filter(route => route.nowPage === "행동요령");
+
+  const facilityRoutes = allUserRoutes.filter(route => route.nowPage === "대피소 소개");
+  
+  // [B] 마이페이지 사이드바 그룹
+  const myPageRoutes = allUserRoutes.filter(route => route.nowPage === "마이페이지"); // route-jh.jsx 등에서 nowPage를 맞춰줘야 함
+
+  // [C] 사이드바 없는 그룹 (메인, 로그인 등)
+  const noSidebarRoutes = allUserRoutes.filter(route => !route.sidebarData);
+
+  // [D] 기타 사이드바 그룹 (예: 민주처럼 안전정보지도 등 별도 사이드바가 있다면 추가 필터링)
+  // const facilityRoutes = allUserRoutes.filter(route => route.nowPage === "대피소안내");
+
   return (
     <Routes>
-      <Route>
-        {
-          jyUserRoutes.map((route, idx) => <Route key={idx} path={route.path} element={<UserLayout {...props}>
-            {route.element}
-          </UserLayout>} />)
-        }
+      {/* --------------------------------------------------------- */}
+      {/* 1. 행동요령 레이아웃 그룹 (UserLayout이 한 번만 마운트됨) */}
+      {/* --------------------------------------------------------- */}
+      <Route element={<UserLayout sidebarData={SIDE_MENU_DATA.BEHAVIORALGUIDE} nowPage="행동요령" {...props} />}>
+        {behavioralRoutes.map((route, idx) => (
+          <Route key={`behavioral-${idx}`} path={route.path} element={route.element} />
+        ))}
       </Route>
+
+      {/* --------------------------------------------------------- */}
+      {/* 2. 마이페이지 레이아웃 그룹 */}
+      {/* --------------------------------------------------------- */}
+      <Route element={<UserLayout sidebarData={SIDE_MENU_DATA.MY_PAGE} nowPage="마이페이지" {...props} />}>
+        {myPageRoutes.map((route, idx) => (
+          <Route key={`mypage-${idx}`} path={route.path} element={route.element} />
+        ))}
+      </Route>
+
+      {/* --------------------------------------------------------- */}
+      {/* 1. 대피소 소개 레이아웃 그룹 (UserLayout이 한 번만 마운트됨) */}
+      {/* --------------------------------------------------------- */}
+      <Route element={<UserLayout sidebarData={SIDE_MENU_DATA.BEHAVIORALGUIDE} nowPage="대피소 소개" {...props} />}>
+        {facilityRoutes.map((route, idx) => (
+          <Route key={`behavioral-${idx}`} path={route.path} element={route.element} />
+        ))}
+      </Route>
+
+      {/* --------------------------------------------------------- */}
+      {/* 3. 사이드바 없는 레이아웃 그룹 (메인, 로그인) */}
+      {/* --------------------------------------------------------- */}
+      <Route element={<UserLayout sidebarData={null} {...props} />}>
+        {noSidebarRoutes.map((route, idx) => (
+          <Route key={`none-${idx}`} path={route.path} element={route.element} />
+        ))}
+      </Route>
+
+      {/* --------------------------------------------------------- */}
+      {/* 4. 특수 레이아웃 (모달 등) */}
+      {/* --------------------------------------------------------- */}
       <Route>
-        {
-          disasterModal.map((route, idx) => <Route key={idx} path={route.path} element={
+        {disasterModal.map((route, idx) => (
+          <Route 
+            key={`modal-${idx}`} 
+            path={route.path} 
+            element={
               <DisasterModalLayout {...props}>
                 {route.element}
-              </DisasterModalLayout> } />)
-        }
-      </Route>
-      <Route>
-        {
-          ehUserRoutes.map((route, idx) => <Route key={idx} path={route.path} element={
-              <UserLayout {...props}>
-                {route.element}
-              </UserLayout> } />)
-        }
-      </Route>
-      
-      <Route>
-        {
-          shUserRoutes.map((route, idx) => <Route key={idx} path={route.path} element={<UserLayout {...props}>
-            {route.element}
-          </UserLayout>} />)
-        }
+              </DisasterModalLayout>
+            } 
+          />
+        ))}
       </Route>
 
-      <Route>
-        {
-          mjUserRoutes.map((route, idx) => <Route key={idx} path={route.path} element={<UserLayout {...props}>
-            {route.element}
-          </UserLayout>} />)
-        }
-      </Route>
-
-      <Route>
-        {
-          bjUserRoutes.map((route, idx) => <Route key={idx} path={route.path} element={<UserLayout {...props}>
-            {route.element}
-          </UserLayout>} />)
-        }
-      </Route>
-
-      
     </Routes>
   );
-}
+};
 
 export default AllRoutes;
+
+/** 각 페이지 라우터 연결 규칙
+* 각자 파일(route-jh.jsx)만 수정: Routes.jsx는 건드리지 않는다.
+* SideMenuData.js에 각자 title과 items 배열에 이름과 경로 지정
+  title: '자연재난행동요령', 
+  items: [
+        { name: '지진', path: '/earthquakeActionGuide' },
+        { name: '지진', path: '/earthquakeActionGuide' },
+         ...
+  ]
+* sidebarData와 nowPage 필수: 페이지를 추가할 때, 어떤 사이드바 그룹에 속하는지 명확히 하기 위해 nowPage 값을 통일한다.
+* 행동요령 페이지: nowPage: "행동요령", sidebarData: SIDE_MENU_DATA.BEHAVIORALGUIDE
+* 마이페이지: nowPage: "마이페이지", sidebarData: SIDE_MENU_DATA.MY_PAGE
+* 일반 페이지: sidebarData: null (또는 생략)
+* activeItem 삭제: UserSideBar 리팩토링으로 인해 URL 기반으로 자동 활성화되므로, 라우트 파일에서 activeItem 속성은 더 이상 적지 않아도 된다.
+*/
+
+
+// Routes.jsx (추후 통합 리팩토링 버전)
+// import { Routes, Route } from "react-router-dom";
+// import UserLayout from "@/layouts/user/UserLayout";
+// import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
+
+// // 페이지 컴포넌트 Lazy Import
+// const EarthquakeActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/earthquake/EarthquakeActionGuide"));
+// const TyphoonActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/typhoon/TyphoonActionGuide"));
+// const FloodActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/flood/FloodActionGuide"));
+// const HeavyRainActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/heavyRain/HeavyRainActionGuide"));
+// const LandslideActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/landslide/LandslideActionGuide"));
+// const TrafficAccidentActionGuide = lazy(() => import("@/pages/user/behavioralGuide/social/trafficAccident/TrafficAccidentActionGuide"));
+
+// // Mypage 관련 페이지
+// const MyInquiryList = lazy(() => import("@/pages/user/mypage/MyInquiryList"));
+// const MyProfile = lazy(() => import("@/pages/user/mypage/MyProfile"));
+
+// // Login 관련 페이지
+// const LoginMain = lazy(() => import("@/pages/user/login/LoginMain"));
+
+// const AllRoutes = (props) => {
+//   return (
+//     <Routes>
+      
+//       {/* 1. 행동요령 그룹 (Sidebar: BEHAVIORALGUIDE) */}
+//       {/* 이 Route 안에 있는 모든 자식은 UserLayout(행동요령 버전)을 타고 보여집니다 */}
+//       <Route element={<UserLayout sidebarData={SIDE_MENU_DATA.BEHAVIORALGUIDE} nowPage="행동요령" />}>
+//         <Route path="/earthquakeActionGuide" element={<EarthquakeActionGuide />} />
+//         <Route path="/typhoonActionGuide" element={<TyphoonActionGuide />} />
+//         <Route path="/floodActionGuide" element={<FloodActionGuide />} />
+//         <Route path="/heavyRainActionGuide" element={<HeavyRainActionGuide />} />
+//         <Route path="/landslideActionGuide" element={<LandslideActionGuide />} />
+//         <Route path="/trafficAccidentActionGuide" element={<TrafficAccidentActionGuide />} />
+//       </Route>
+
+//       {/* 2. 마이페이지 그룹 (Sidebar: MY_PAGE) */}
+//       <Route element={<UserLayout sidebarData={SIDE_MENU_DATA.MY_PAGE} nowPage="마이페이지" />}>
+//         <Route path="/myProfile" element={<MyProfile />} />
+//         <Route path="/myInquiryList" element={<MyInquiryList />} />
+//         {/* ... 기타 마이페이지 라우트 */}
+//       </Route>
+
+//       {/* 3. 사이드바 없는 일반 페이지 그룹 */}
+//       <Route element={<UserLayout sidebarData={null} />}>
+//         <Route path="/" element={<MainPage />} />
+//         <Route path="/loginMain" element={<LoginMain />} />
+//       </Route>
+
+//     </Routes>
+//   );
+// };
+
+// export default AllRoutes;

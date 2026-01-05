@@ -1,170 +1,236 @@
 import { Link, useNavigate } from "react-router-dom";
 import navigationItems from '@/routes/user/navigationItems';
 import { useState, useEffect } from "react";
+import { Menu, X, ChevronRight, ChevronDown, User, LogOut, LogIn, UserPlus } from 'lucide-react';
 
 const UserHeader = () => {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
-  // 1. 로그인 상태 관리 (초기값은 localStorage 확인)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [mobileOpenIndex, setMobileOpenIndex] = useState(null);
 
   useEffect(() => {
-    // 페이지 로드 시 로그인 상태 체크
     const status = localStorage.getItem('isLoggedIn') === 'true';
     setIsLoggedIn(status);
   }, []);
 
-  // 2. 로그아웃 핸들러
   const handleLogout = () => {
     if (window.confirm("로그아웃 하시겠습니까?")) {
       localStorage.removeItem('isLoggedIn');
       localStorage.removeItem('userName');
       setIsLoggedIn(false);
       navigate('/');
-      window.location.reload(); // 상태 동기화를 위한 새로고침
+      window.location.reload();
     }
   };
 
-  // 3. 상태에 따른 인증 버튼 구성
   const authButtons = isLoggedIn 
     ? [
-        { label: "마이페이지", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20.svg", lnk: "/myProfile" },
-        { label: "로그아웃", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-1.svg", action: handleLogout },
+        { label: "마이페이지", icon: User, lnk: "/myProfile" },
+        { label: "로그아웃", icon: LogOut, action: handleLogout },
       ]
     : [
-        { label: "로그인", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20.svg", lnk: "/loginMain" },
-        { label: "회원가입", icon: "https://c.animaapp.com/PZUA6SpP/img/icon20-1.svg", lnk: "/signupAgreement" },
+        { label: "로그인", icon: LogIn, lnk: "/loginMain" },
+        { label: "회원가입", icon: UserPlus, lnk: "/signupAgreement" },
       ];
 
+  const toggleMobileSubMenu = (index) => {
+    setMobileOpenIndex(mobileOpenIndex === index ? null : index);
+  };
+
   return (
-    <div className="flex flex-col w-full items-center relative z-50">
-      <div className="flex flex-col items-center relative w-full bg-white">
-        {/* 최상단 띠 정보창 */}
-        <div className="flex flex-col items-center relative w-full bg-secondarysecondary-5 h-2 md:h-5" />
+    <header className="flex flex-col w-full relative z-50 bg-white shadow-sm">
+      
+      {/* 1. 최상단 컬러 바 */}
+      <div className="w-full h-2 md:h-5 bg-secondary-5" />
 
-        <header className="flex w-full max-w-[1280px] items-center justify-between py-4 px-4 sm:px-6 lg:px-8 relative bg-transparent">
-          {/* 로고 */}
-          <div className="flex items-center relative">
-            <Link to="/">
-              <img
-                className="relative w-[140px] sm:w-[160px] lg:w-[199px] h-auto cursor-pointer"
-                alt="전북안전누리 로고"
-                src="src/assets/logo/jeonbuk_safety_nuri_watermark.svg"
-              />
-            </Link>
-          </div>
+      {/* 2. 메인 헤더 */}
+      <div className="flex w-full max-w-screen-xl mx-auto items-center justify-between py-4 px-4 sm:px-6 xl:px-8">
+        <Link to="/" className="shrink-0">
+          <img
+            // [수정] lg -> xl로 breakpoint 변경하여 로고 크기 대응
+            className="w-[140px] sm:w-[160px] xl:w-[200px] h-auto"
+            alt="전북안전누리 로고"
+            src="src/assets/logo/jeonbuk_safety_nuri_watermark.svg"
+          />
+        </Link>
 
-          {/* 1. 데스크탑 인증 버튼 */}
-          <div className="hidden md:flex items-center justify-end gap-2">
-            {authButtons.map((button, index) => (
+        {/* [PC] 인증 버튼 - xl(1280px) 이상에서만 표시 */}
+        <div className="hidden xl:flex items-center gap-2">
+          {authButtons.map((button, index) => {
+            const Icon = button.icon;
+            return (
               <button
                 key={index}
                 onClick={() => button.action ? button.action() : navigate(button.lnk)}
-                className="inline-flex justify-center gap-2 px-3 py-2 rounded-md items-center hover:bg-gray-50 transition-colors"
-                aria-label={button.label}
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-md hover:bg-graygray-5 transition-colors"
               >
-                <img className="relative w-4 h-4 lg:w-5 lg:h-5" alt="" src={button.icon} />
-                <span className="font-bold text-graygray-90 text-sm lg:text-[17px] whitespace-nowrap">
+                <Icon className="w-4 h-4 xl:w-5 xl:h-5 text-graygray-90" />
+                <span className="text-body-m-bold text-graygray-90 whitespace-nowrap">
                   {button.label}
                 </span>
               </button>
-            ))}
-          </div>
+            );
+          })}
+        </div>
 
-          {/* 2. 모바일 햄버거 버튼 */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
-              aria-label="메뉴 열기"
-            >
-              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {isMobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
-          </div>
-        </header>
-
-        {/* 3. 데스크탑 네비게이션 */}
-        <nav
-          className="hidden md:flex h-16 w-full bg-white border-t border-b border-graygray-30 items-center justify-center relative"
-          aria-label="Secondary navigation"
+        {/* [Mobile] 햄버거 버튼 - xl 미만에서 표시 */}
+        <button
+          className="xl:hidden p-2 text-graygray-90 hover:bg-graygray-5 rounded-md"
+          onClick={() => setIsMobileMenuOpen(true)}
+          aria-label="메뉴 열기"
         >
-          <div className="flex w-full max-w-[1280px] h-full items-center gap-4 px-8 overflow-x-auto no-scrollbar">
-            {navigationItems.map((item, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => navigate(item.path)}
-                className="inline-flex gap-2 px-4 h-full items-center relative whitespace-nowrap group"
-              >
-                <span className="font-bold text-graygray-70 text-[17px] lg:text-[19px] group-hover:text-secondary-50 transition-colors">
-                  {item.label}
-                </span>
-                <img className="relative w-4 h-4 lg:w-5 lg:h-5 opacity-70" alt="" src={item.icon} />
-              </button>
-            ))}
-          </div>
-        </nav>
-
-        {/* 4. 모바일 통합 메뉴 */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden w-full bg-white border-b border-gray-200 shadow-xl absolute top-full left-0 transition-all duration-300 ease-in-out">
-            <div className="flex flex-col p-4 space-y-4">
-              
-              {/* 모바일 인증 버튼 (상태에 따라 변동) */}
-              <div className="flex gap-2 pb-4 border-b border-gray-100">
-                {authButtons.map((button, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      button.action ? button.action() : navigate(button.lnk);
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="flex-1 flex justify-center items-center gap-2 px-4 py-3 rounded-xl bg-gray-50 active:bg-gray-200 border border-gray-100"
-                  >
-                    <img className="w-5 h-5" alt="" src={button.icon} />
-                    <span className="font-bold text-graygray-90 text-sm">
-                      {button.label}
-                    </span>
-                  </button>
-                ))}
-              </div>
-
-              {/* 모바일 네비게이션 리스트 */}
-              <div className="flex flex-col space-y-1">
-                {navigationItems.map((item, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => {
-                      navigate(item.path);
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="w-full flex items-center justify-between px-4 py-4 hover:bg-blue-50 active:bg-blue-50 rounded-xl transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-4">
-                      <img className="w-6 h-6" alt="" src={item.icon} />
-                      <span className="font-bold text-graygray-70 text-lg">
-                        {item.label}
-                      </span>
-                    </div>
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+          <Menu className="w-7 h-7" />
+        </button>
       </div>
-    </div>
+
+      {/* 3. [PC] 네비게이션 바 - xl(1280px) 이상에서만 표시 */}
+      <nav className="hidden xl:flex w-full border-t border-b border-graygray-30 bg-white">
+        <div className="flex w-full max-w-screen-xl mx-auto h-16 items-center px-8 gap-8">
+          {navigationItems.map((item, index) => {
+            const hasSub = item.children && item.children.length > 0;
+            
+            return (
+              <div key={index} className="relative group h-full flex items-center">
+                {/* 상위 메뉴 버튼 */}
+                <button
+                  onClick={() => navigate(item.path)}
+                  className="inline-flex items-center gap-2 h-full px-2 relative z-10"
+                >
+                  <span className="text-body-l-bold text-graygray-70 group-hover:text-secondary-50 transition-colors whitespace-nowrap">
+                    {item.label}
+                  </span>
+
+                  {/* 화살표 아이콘 */}
+                  <ChevronRight 
+                    className={`w-5 h-5 text-graygray-40 group-hover:text-secondary-50 transition-transform duration-300 ${
+                      hasSub ? "group-hover:rotate-90" : ""
+                    }`} 
+                  />
+                </button>
+
+                {/* 하위 메뉴 드롭다운 */}
+                {hasSub && (
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-48 bg-white shadow-lg border border-graygray-10 rounded-b-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-[-10px] group-hover:translate-y-0">
+                    <ul className="py-2">
+                      {item.children.map((sub, subIndex) => (
+                        <li key={subIndex}>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(sub.path);
+                            }}
+                            className="block w-full text-left px-4 py-3 text-body-m text-graygray-70 hover:bg-secondary-5 hover:text-secondary-50 transition-colors"
+                          >
+                            {sub.label}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </nav>
+
+      {/* 4. [Mobile] 풀스크린 메뉴 - xl 미만에서만 표시 */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-[60] xl:hidden">
+          <div 
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          
+          <div className="absolute top-0 right-0 w-[80%] max-w-[320px] h-full bg-white shadow-2xl flex flex-col animate-fade-in-right">
+            
+            <div className="flex items-center justify-between p-4 border-b border-graygray-10">
+              <span className="text-title-m text-graygray-90">메뉴</span>
+              <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 hover:bg-graygray-5 rounded-full">
+                <X className="w-6 h-6 text-graygray-70" />
+              </button>
+            </div>
+
+            <div className="flex gap-2 p-4 bg-secondary-5">
+              {authButtons.map((button, index) => {
+                const Icon = button.icon;
+                return (
+                  <button
+                    key={index}
+                    onClick={() => { button.action ? button.action() : navigate(button.lnk); setIsMobileMenuOpen(false); }}
+                    className="flex-1 flex flex-col items-center justify-center gap-1 py-3 bg-white rounded-xl shadow-sm border border-graygray-10 active:scale-95 transition-transform"
+                  >
+                    <Icon className="w-5 h-5 text-secondary-50" />
+                    <span className="text-detail-m font-bold text-graygray-90">{button.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex-1 overflow-y-auto py-2">
+              {navigationItems.map((item, index) => {
+                const hasSub = item.children && item.children.length > 0;
+                const isOpen = mobileOpenIndex === index;
+
+                return (
+                  <div key={index} className="border-b border-graygray-5 last:border-0">
+                    <div className="w-full flex items-center justify-between px-6 py-4 hover:bg-graygray-5 transition-colors group">
+                      <button
+                        onClick={() => {
+                          if (hasSub) {
+                            toggleMobileSubMenu(index);
+                          } else {
+                            navigate(item.path);
+                            setIsMobileMenuOpen(false);
+                          }
+                        }}
+                        className="flex-1 flex items-center gap-3 text-left"
+                      >
+                        {item.icon && <img className="w-6 h-6 opacity-60 group-hover:opacity-100" alt="" src={item.icon} />}
+                        <span className={`text-body-m-bold ${isOpen ? 'text-secondary-50' : 'text-graygray-70'}`}>
+                          {item.label}
+                        </span>
+                      </button>
+
+                      {hasSub ? (
+                        <button onClick={() => toggleMobileSubMenu(index)} className="p-1">
+                          {isOpen ? (
+                            <ChevronDown className="w-5 h-5 text-secondary-50" />
+                          ) : (
+                            <ChevronRight className="w-5 h-5 text-graygray-40" />
+                          )}
+                        </button>
+                      ) : (
+                         <ChevronRight className="w-5 h-5 text-graygray-40" />
+                      )}
+                    </div>
+
+                    {hasSub && isOpen && (
+                      <div className="bg-graygray-5 px-6 py-2 animate-fade-in">
+                        {item.children.map((sub, subIndex) => (
+                          <button
+                            key={subIndex}
+                            onClick={() => {
+                              navigate(sub.path);
+                              setIsMobileMenuOpen(false);
+                            }}
+                            className="w-full text-left py-3 px-4 text-body-m text-graygray-70 hover:text-secondary-50 border-l-2 border-transparent hover:border-secondary-50 transition-all"
+                          >
+                            - {sub.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+          </div>
+        </div>
+      )}
+    </header>
   );
 };
 
