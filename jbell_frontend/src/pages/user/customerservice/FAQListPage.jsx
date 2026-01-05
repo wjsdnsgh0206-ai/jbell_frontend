@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Search, Home, ChevronRight, ChevronLeft, ChevronDown, Menu, User, Globe, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const FAQListPage = () => {
+const FAQPage = () => {
   const navigate = useNavigate();
   // 샘플 데이터 (이미지 내용을 기반으로 생성)
   const faqData = [
@@ -88,8 +88,9 @@ const FAQListPage = () => {
   };
     
   
+
   return (
-    <div className="w-full bg-white font-sans text-gray-800">
+    <div className="bg-white font-sans text-gray-800 w-full">
       {/* ================= Header ================= */}
 
       {/* ================= Breadcrumb ================= */}
@@ -137,50 +138,32 @@ const FAQListPage = () => {
         {/* Filter & Count */}
         <div className="flex justify-between items-center mb-4 border-b border-gray-900 pb-2">
           <div className="text-gray-700">
-            검색 결과 <span className="font-bold text-blue-700">{totalItems}</span>개
+            검색 결과 <span className="font-bold text-blue-700">24</span>개
           </div>
           <div className="flex items-center text-sm text-gray-500 gap-4">
             <div className="flex items-center gap-1">
               목록 표시 개수
-              {/* 드롭다운 변경 시 handleItemsPerPageChange 실행 */}
-              <select 
-                className="ml-1 border border-gray-300 rounded px-1 py-0.5"
-                onChange={handleItemsPerPageChange}
-                value={`${itemsPerPage}개`}
-              >
-                <option value="12개">12개</option>
-                <option value="24개">24개</option>
+              <select className="ml-1 border border-gray-300 rounded px-1 py-0.5">
+                <option>12개</option>
+                <option>24개</option>
               </select>
             </div>
             <div className="flex gap-2">
               <button className="font-bold text-gray-900 underline underline-offset-4">많이 질문한순</button>
               <span className="text-gray-300">|</span>
-              {/* [수정] 최신순 버튼 */}
-              <button 
-                onClick={() => handleSortChange('latest')}
-                className={sortOrder === 'latest' ? "font-bold text-gray-900 underline underline-offset-4" : "hover:text-gray-900"}
-              >
-                최신순
-              </button>
+              <button className="hover:text-gray-900">최신순</button>
               <span className="text-gray-300">|</span>
-              {/* [수정] 오래된순 버튼 */}
-              <button 
-                onClick={() => handleSortChange('oldest')}
-                className={sortOrder === 'oldest' ? "font-bold text-gray-900 underline underline-offset-4" : "hover:text-gray-900"}
-              >
-                오래된순
-              </button>
+              <button className="hover:text-gray-900">오래된순</button>
             </div>
           </div>
         </div>
 
         {/* FAQ List */}
         <div className="space-y-4">
-          {/* 현재 페이지에 해당하는 데이터만 맵핑 */}
-          {currentItems.map((item) => (
+          {faqData.map((item) => (
             <div key={item.id} 
-              onClick={() => FAQDetailClick(item.id)}
-              className="border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow cursor-pointer">
+            onClick={() => FAQDetailClick(item.id)}
+            className="border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow">
               {/* Question */}
               <div className="flex items-start gap-3 mb-3">
                 <span className="text-xl font-bold text-gray-900">Q</span>
@@ -206,51 +189,23 @@ const FAQListPage = () => {
           ))}
         </div>
 
-       {/* Pagination */}
-        <div className="flex justify-center items-center gap-4 mt-10 select-none">
-          {/* 이전 버튼 */}
-          <button 
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className={`flex items-center gap-1 text-sm ${
-              currentPage === 1 
-                ? 'text-gray-300 cursor-default' 
-                : 'text-gray-500 hover:text-gray-900'
-            }`}
-          >
-            <ChevronLeft size={18} strokeWidth={1.5} />
-            <span className="hidden sm:inline">이전</span>
+        {/* Pagination */}
+       <div className="flex justify-center items-center gap-2 mt-10">
+          {/* 이전 버튼: flex, items-center 추가 */}
+          <button className="flex items-center gap-1 p-2 text-gray-400 hover:text-gray-600">
+            <ChevronLeft size={16} /> 이전
           </button>
+          
+          <button className="w-8 h-8 flex items-center justify-center bg-blue-900 text-white text-sm font-bold rounded">1</button>
+          <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-sm">2</button>
+          <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-sm">3</button>
+          <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-sm">4</button>
+          <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-sm">5</button>
+          <button className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded text-sm">6</button>
 
-          {/* 페이지 번호 */}
-          <div className="flex items-center gap-1">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
-              <button
-                key={number}
-                onClick={() => handlePageChange(number)}
-                className={`w-9 h-9 flex items-center justify-center text-sm font-medium rounded transition-colors
-                  ${currentPage === number 
-                    ? 'bg-[#1e4078] text-white' // 이미지와 동일한 네이비색 배경
-                    : 'bg-transparent text-gray-600 hover:bg-gray-50' // 선택되지 않은 페이지
-                  }`}
-              >
-                {number}
-              </button>
-            ))}
-          </div>
-
-          {/* 다음 버튼 */}
-          <button 
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className={`flex items-center gap-1 text-sm ${
-              currentPage === totalPages 
-                ? 'text-gray-300 cursor-default' 
-                : 'text-gray-500 hover:text-gray-900'
-            }`}
-          >
-            <span className="hidden sm:inline">다음</span>
-            <ChevronRight size={18} strokeWidth={1.5} />
+          {/* 다음 버튼: flex, items-center 추가 */}
+          <button className="flex items-center gap-1 p-2 text-gray-400 hover:text-gray-600">
+            다음 <ChevronRight size={16} />
           </button>
         </div>
       </main>
@@ -264,4 +219,7 @@ const FAQListPage = () => {
   );
 };
 
-export default FAQListPage;
+
+
+
+export default FAQPage;

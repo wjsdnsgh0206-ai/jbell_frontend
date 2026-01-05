@@ -120,14 +120,9 @@ const QnAListPage = () => {
             
             <div className="flex items-center gap-1">
               목록 표시 개수
-              {/* 수정됨: onChange 및 value 추가 */}
-              <select 
-                className="ml-1 border border-gray-300 rounded px-1 py-0.5"
-                onChange={handleItemsPerPageChange}
-                value={`${itemsPerPage}개`}
-              >
-                <option value="10개">10개</option>
-                <option value="20개">20개</option>
+              <select className="ml-1 border border-gray-300 rounded px-1 py-0.5">
+                <option>10개</option>
+                <option>20개</option>
               </select>
             </div>
             <div className="flex gap-2">

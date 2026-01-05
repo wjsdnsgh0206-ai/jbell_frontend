@@ -17,13 +17,15 @@ const PageBreadcrumb = ({ items }) => {
                  1. path가 있고, 마지막 항목이 아니면 -> Link (클릭 가능)
                  2. 그 외(마지막 항목이거나 path가 없으면) -> span (텍스트만)
               */}
-              {item.path && !isLast ? (
+              {item.path ? (
                 <Link 
                   to={item.path} 
                   className="flex items-center gap-2 hover:text-secondary-50 hover:underline transition-colors"
                 >
                   {item.hasIcon && <GoHomeFill className="w-4 h-4 text-graygray-50" />}
-                  <span className="text-detail-m text-graygray-70">
+                 <span className={`
+                    text-detail-m
+                    ${isLast ? 'font-bold text-graygray-90' : 'text-graygray-70'} `}>
                     {item.label}
                   </span>
                 </Link>

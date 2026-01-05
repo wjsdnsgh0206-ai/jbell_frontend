@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Search, Home, ChevronRight, ChevronLeft, ChevronDown, Menu, User, Globe, MessageCircle,ArrowLeft  } from 'lucide-react';
+import { Home, ChevronRight, ArrowLeft } from 'lucide-react';
+
 const FAQDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -59,8 +60,7 @@ const FAQDetailPage = () => {
         {/* Title Area */}
         <div className="border-b-2 border-gray-800 pb-6 mb-8">
             <div className="flex items-center gap-2 mb-2">
-                {/* 스타일 수정된 부분: FAQListPage와 동일한 디자인 적용 */}
-                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded-full border border-gray-200">
+                <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded">
                     {item.tag}
                 </span>
                 <span className="text-gray-500 text-sm">{item.date}</span>
