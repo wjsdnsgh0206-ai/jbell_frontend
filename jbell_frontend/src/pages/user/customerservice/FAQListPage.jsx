@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
 import { Search, Home, ChevronRight, ChevronLeft, ChevronDown, Menu, User, Globe, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import PageBreadcrumb from '@/components/shared/PageBreadcrumb'
 
 const FAQListPage = () => {
   const navigate = useNavigate();
+
+  // --- Breadcrumb 데이터 설정 ---
+  const breadcrumbItems = [
+    { label: "홈", path: "/", hasIcon: true },
+    { label: "고객센터", path: "/faq", hasIcon: false },
+    { label: "FAQ", path: "/faq", hasIcon: false },
+  ];
+
   // 샘플 데이터 (이미지 내용을 기반으로 생성)
   const faqData = [
     { id: 1, question: "사람은 어떻게 태어나는 건가요?", answer: "사람은 태어나는 것이 아닌 하늘에서 비를 뿌리면...", date: "2023.10.01", tag: "질문 유형" },
@@ -93,15 +102,7 @@ const FAQListPage = () => {
       {/* ================= Header ================= */}
 
       {/* ================= Breadcrumb ================= */}
-      <div className="w-full bg-gray-50 border-b border-gray-200">
-        <div className="max-w-[1280px] mx-auto px-4 py-3 flex items-center text-gray-500 text-sm">
-          <span className="font-medium text-gray-900 cursor-pointer" onClick={() => navigate('/')}> <Home size={16} /></span>
-          <ChevronRight size={16} className="mx-2" />
-          <span className="font-medium text-gray-900">고객센터</span>
-          <ChevronRight size={16} className="mx-2" />
-          <span className="font-medium text-gray-900">FAQ</span>
-        </div>
-      </div>
+      <PageBreadcrumb items={breadcrumbItems} />
 
       {/* ================= Main Content ================= */}
       <main className="max-w-[1280px] mx-auto px-4 py-10">

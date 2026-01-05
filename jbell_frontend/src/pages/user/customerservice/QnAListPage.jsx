@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
-import { Search, Home, ChevronRight, ChevronLeft, ChevronDown, Menu, User, Globe, MessageCircle } from 'lucide-react';
+import { Search, Home, ChevronRight, ChevronLeft, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 
 const QnAListPage = () => {
   const navigate = useNavigate();
+
+  // --- Breadcrumb 데이터 설정 ---
+  const breadcrumbItems = [
+    { label: "홈", path: "/", hasIcon: true },
+    { label: "고객센터", path: "/qna", hasIcon: false },
+    { label: "1:1문의", path: "/qna", hasIcon: false },
+  ];
 
   // 샘플 데이터
   const inquiries = [
@@ -309,15 +317,7 @@ const QnAListPage = () => {
   return (
     <div className="w-full bg-white font-sans text-gray-800">
       {/* ================= Breadcrumb ================= */}
-      <div className="w-full bg-gray-50 border-b border-gray-200">
-        <div className="max-w-[1280px] mx-auto px-4 py-3 flex items-center text-gray-500 text-sm">
-          <span className="font-medium text-gray-900 cursor-pointer" onClick={() => navigate('/')}> <Home size={16} /></span>
-          <ChevronRight size={16} className="mx-2" />
-          <span className="font-medium text-gray-900">고객센터</span>
-          <ChevronRight size={16} className="mx-2" />
-          <span className="font-medium text-gray-900">1:1문의</span>
-        </div>
-      </div>
+       <PageBreadcrumb items={breadcrumbItems} />
 
       {/* ================= Main Content ================= */}
       <main className="max-w-[1280px] mx-auto px-4 py-10">
