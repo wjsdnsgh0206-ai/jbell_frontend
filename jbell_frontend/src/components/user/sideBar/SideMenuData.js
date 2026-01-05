@@ -25,17 +25,17 @@ export const SIDE_MENU_DATA = {
     { 
       title: '자연재난행동요령', 
       items: [
-        { name: '지진', path: '/earthquakeBeforeAction' },
-        { name: '태풍', path: '/typhoonBeforeAction' },
-        { name: '홍수', path: '/floodBeforeAction' },
-        { name: '호우', path: '/heavyRainBeforeAction' },
-        { name: '산사태', path: '/landslideBeforeAction' },
+        { name: '지진', path: '/earthquakeActionGuide' },
+        { name: '태풍', path: '/typhoonActionGuide' },
+        { name: '홍수', path: '/floodActionGuide' },
+        { name: '호우', path: '/heavyRainActionGuide' },
+        { name: '산사태', path: '/landslideActionGuide' },
       ] 
     },
     { 
       title: '사회재난행동요령', 
       items: [
-        { name: '교통사고', path: '/#' },
+        { name: '교통사고', path: '/trafficAccidentActionGuide' },
         { name: '화재', path: '/#' },
         { name: '산불', path: '/#' },
         { name: '건축물붕괴', path: '/#' },
@@ -53,6 +53,13 @@ export const SIDE_MENU_DATA = {
         { name: '승강기 안전사고', path: '/#' },
         { name: '산행안전사고', path: '/#' },
       ] 
+    },
+  ],
+  FACILITY : [
+    {
+        title: '대피소소개',
+        path: '/facilityList',
+        items: []
     },
   ],
 };

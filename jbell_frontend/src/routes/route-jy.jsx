@@ -1,6 +1,6 @@
 import { lazy } from "react";
 import { AccidentNews, Earthquake, Flood, HeavyRain, LandSlide, Typhoon, Wildfire } from "@/components/user/disaster";
-import { SIDE_MENU_DATA_FACILITY } from "@/components/user/sideBar/SideMenuDataFacility";
+import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
 const UserPageMain = lazy(() => import("@/pages/user/UserPageMain"));
 const UserMap = lazy(() => import("@/pages/user/UserMap"));
@@ -83,17 +83,15 @@ const sideBarFacility = [
     { 
       path: "/facilityList", // UserFacilityList의 실제 경로와 맞춰줘
       element: <UserFacilityList /> , 
-      sidebarData: SIDE_MENU_DATA_FACILITY.FACILITY, // 위에서 수정한 배열 데이터
+      sidebarData: SIDE_MENU_DATA.FACILITY, // 위에서 수정한 배열 데이터
       nowPage: "대피소 소개",
-      activeItem: "대피소소개" 
     },
-      {
-    path: "/facility/detail/:id",
-    element: <UserFacilityDetail />,
-          sidebarData: SIDE_MENU_DATA_FACILITY.FACILITY, // 위에서 수정한 배열 데이터
+    {
+      path: "/facility/detail/:id",
+      element: <UserFacilityDetail />,
+      sidebarData: SIDE_MENU_DATA.FACILITY, // 위에서 수정한 배열 데이터
       nowPage: "대피소 소개",
-      activeItem: "대피소소개" 
-  },
+    },
 ];
 
 
