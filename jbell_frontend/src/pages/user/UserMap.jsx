@@ -185,7 +185,7 @@ const UserMap = () => {
   const handleZoomOut = () => {
     console.log('zoom out');
   };
-  /* (아래 두 코드 jsx에 추가해야 함)
+  /* (아래 두 코드 jsx에 추가)
   <button onClick={handleZoomIn}>+</button>
   <button onClick={handleZoomOut}>-</button>
   */
@@ -203,7 +203,7 @@ const UserMap = () => {
     /* <button onClick={handleMyLocation}>
       👤
     </button>
-    => 이거 jsx에 추가해야 함
+    => 이거 jsx에 추가
     */
   //
  
