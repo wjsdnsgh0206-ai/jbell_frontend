@@ -31,8 +31,9 @@ const AllRoutes = (props) => {
   // [A] 행동요령 사이드바 그룹
   const behavioralRoutes = allUserRoutes.filter(route => route.nowPage === "행동요령");
 
-  const facilityRoutes = allUserRoutes.filter(route => route.nowPage === "대피소 소개");
   
+  const customerServiceRoutes = allUserRoutes.filter(route => route.nowPage === "고객센터");
+
   // [B] 마이페이지 사이드바 그룹
   const myPageRoutes = allUserRoutes.filter(route => route.nowPage === "마이페이지"); // route-jh.jsx 등에서 nowPage를 맞춰줘야 함
 
@@ -63,11 +64,11 @@ const AllRoutes = (props) => {
       </Route>
 
       {/* --------------------------------------------------------- */}
-      {/* 1. 대피소 소개 레이아웃 그룹 (UserLayout이 한 번만 마운트됨) */}
+      {/* 고객센터 레이아웃 그룹 (UserLayout이 한 번만 마운트됨) */}
       {/* --------------------------------------------------------- */}
-      <Route element={<UserLayout sidebarData={SIDE_MENU_DATA.BEHAVIORALGUIDE} nowPage="대피소 소개" {...props} />}>
-        {facilityRoutes.map((route, idx) => (
-          <Route key={`behavioral-${idx}`} path={route.path} element={route.element} />
+      <Route element={<UserLayout sidebarData={SIDE_MENU_DATA.CUSTOMERSERVICE} nowPage="고객센터" {...props} />}>
+        {customerServiceRoutes.map((route, idx) => (
+          <Route key={`customerService-${idx}`} path={route.path} element={route.element} />
         ))}
       </Route>
 
