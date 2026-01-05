@@ -31,6 +31,8 @@ const AllRoutes = (props) => {
   // [A] 행동요령 사이드바 그룹
   const behavioralRoutes = allUserRoutes.filter(route => route.nowPage === "행동요령");
 
+  // [A] 대피소 소개 사이드바 그룹
+  const facilityRoutes = allUserRoutes.filter(route => route.nowPage === "대피소 소개");
   
   const customerServiceRoutes = allUserRoutes.filter(route => route.nowPage === "고객센터");
 
@@ -60,6 +62,15 @@ const AllRoutes = (props) => {
       <Route element={<UserLayout sidebarData={SIDE_MENU_DATA.MY_PAGE} nowPage="마이페이지" {...props} />}>
         {myPageRoutes.map((route, idx) => (
           <Route key={`mypage-${idx}`} path={route.path} element={route.element} />
+        ))}
+      </Route>
+
+      {/* --------------------------------------------------------- */}
+      {/* 대피소 레이아웃 그룹 (UserLayout이 한 번만 마운트됨) */}
+      {/* --------------------------------------------------------- */}
+      <Route element={<UserLayout sidebarData={SIDE_MENU_DATA.FACILITY} nowPage="대피소 소개" {...props} />}>
+        {facilityRoutes.map((route, idx) => (
+          <Route key={`facility-${idx}`} path={route.path} element={route.element} />
         ))}
       </Route>
 

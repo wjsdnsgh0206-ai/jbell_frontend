@@ -1,36 +1,62 @@
 // src/pages/user/facility/UserFacilityDetail.jsx
-import React from 'react';
-import { Info } from 'lucide-react'; // 아이콘 변경 (Lucide)
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom'; // useParams 추가
+import { Info, AlertCircle } from 'lucide-react'; // 아이콘 추가
+
 import DetailPageTemplate from '@/components/shared/DetailPageTemplate';
 import InfoList from '@/components/shared/InfoList';
+// [핵심] 가상 API 함수 import
+import { getFacilityDetail } from './data';
 
 const UserFacilityDetail = () => {
-  // [더미 데이터] 추후 API 연동 시 props나 query로 받아옴
-  const facilityData = {
-    name: "전주 시민 체육관 대피소",
-    lastUpdated: "2025년 12월 16일",
-    locationImage: "https://c.animaapp.com/PZUA6SpP/img/-----2025-12-11-093936-2@2x.png",
-    description: "본 대피소는 내진 설계가 적용되어 있으며, 비상 급수 시설과 자가 발전기를 갖추고 있습니다.",
-    details: [
-      { label: "시설유형", value: "대피소" },
-      { label: "관리기관", value: "전주시청 안전총괄과" },
-      { label: "시설규모", value: "1200 ㎡" },
-      { label: "수용 가능 인원", value: "500명" },
-      { label: "주소", value: "전주시 완산구 효자로 225" },
-      { label: "평상시 활용 유형", value: "지하주차장" },
-      { label: "운영여부", value: "운영중" },
-      { label: "문의 전화", value: "063-252-0000" },
-    ]
-  };
+  const { id } = useParams(); // URL 파라미터에서 id 추출 (예: /facility/detail/1 -> id: "1")
+  const navigate = useNavigate();
 
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true); // 로딩 상태 추가
+
+  // 컴포넌트 마운트 시 데이터 조회 (API 연동 시뮬레이션)
+  useEffect(() => {
+    // 실제 API 호출처럼 보이게 하기
+    const fetchData = () => {
+      const result = getFacilityDetail(id); // 가상 API 호출
+      setData(result);
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [id]);
+
+  // 1. 로딩 중일 때
+  if (loading) {
+    return <div className="flex h-96 justify-center items-center">로딩 중...</div>;
+  }
+
+  // 2. 데이터가 없을 때 (잘못된 ID 접근)
+  if (!data) {
+    return (
+      <div className="flex flex-col h-96 justify-center items-center gap-4">
+        <AlertCircle className="w-10 h-10 text-graygray-40" />
+        <p className="text-body-l text-graygray-70">해당 시설 정보를 찾을 수 없습니다.</p>
+        <button 
+          onClick={() => navigate('/facilityList')}
+          className="px-4 py-2 bg-graygray-90 text-white rounded-lg hover:bg-graygray-70 transition-colors"
+        >
+          목록으로 돌아가기
+        </button>
+      </div>
+    );
+  }
+
+  // 3. 데이터가 있을 때 렌더링
   return (
     <DetailPageTemplate
-      title={facilityData.name}
-      lastUpdated={facilityData.lastUpdated}
+      title={data.name}
+      lastUpdated={data.lastUpdated}
       breadcrumbItems={[
         { label: "홈", path: "/", hasIcon: true },
-        { label: "대피소 소개", path: "/facilityList", hasIcon: false }, // 리스트로 이동 가능하게 path 추가
-        { label: facilityData.name, hasIcon: false },
+        { label: "대피소 소개", path: "/facilityList", hasIcon: false },
+        { label: data.name, hasIcon: false },
       ]}
     >
       {/* 1. 중간 타이틀 */}
@@ -47,7 +73,7 @@ const UserFacilityDetail = () => {
             <img
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
               alt="위치 지도"
-              src={facilityData.locationImage}
+              src={data.locationImage}
             />
           </div>
 
@@ -58,14 +84,14 @@ const UserFacilityDetail = () => {
               <h3 className="text-body-m-bold text-graygray-90">안내사항</h3>
             </div>
             <p className="text-body-s text-graygray-70 pl-7 leading-relaxed">
-              {facilityData.description}
+              {data.description}
             </p>
           </aside>
         </div>
 
         {/* 3. 오른쪽: 시설 정보 리스트 */}
         <div className="flex-1">
-           <InfoList items={facilityData.details} />
+           <InfoList items={data.details} />
         </div>
 
       </div>

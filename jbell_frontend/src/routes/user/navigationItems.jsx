@@ -14,7 +14,7 @@ const navigationItems = [
     children: [
       { label: "자연재난행동요령", path: "/earthquakeActionGuide" },
       { label: "사회재난행동요령", path: "/trafficAccidentActionGuide" },
-      { label: "생활안전행동요령", path: "/listBeforeAction" },
+      { label: "생활안전행동요령", path: "/firstAidActionGuide" },
     ]
   },
   {
