@@ -4,8 +4,8 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import { createHtmlPlugin } from "vite-plugin-html";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => {
     ],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, './src'),
+        '@': path.resolve(dirname, './src'),
       },
     },
   }

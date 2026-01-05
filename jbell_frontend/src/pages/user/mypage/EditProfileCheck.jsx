@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // 1. useNavigate 임포트
 import { Lock, Eye, EyeOff, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
-import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 
 const EditProfileCheck = () => {
   const [password, setPassword] = useState('');
@@ -10,12 +9,6 @@ const EditProfileCheck = () => {
   const [error, setError] = useState('');
   
   const navigate = useNavigate(); // 2. 네비게이트 함수 선언
-
-  const breadcrumbItems = [
-        { label: "홈", path: "/", hasIcon: true },
-        { label: "마이페이지", path: "/myProfile", hasIcon: false }, // 리스트로 이동 가능하게 path 추가
-        { label: "내정보 수정", path: "", hasIcon: false },
-      ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,8 +45,6 @@ const EditProfileCheck = () => {
   };
 
   return (
-    <>
-    <PageBreadcrumb items={breadcrumbItems} />
     <div className="min-h-screen bg-white flex justify-center items-start py-20 px-5 font-sans text-slate-900">
       <div className="max-w-[540px] w-full animate-in fade-in slide-in-from-top-4 duration-700">
         
@@ -120,7 +111,6 @@ const EditProfileCheck = () => {
         </form>
       </div>
     </div>
-    </>
   );
 };
 
