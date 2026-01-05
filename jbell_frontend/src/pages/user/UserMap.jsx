@@ -73,14 +73,16 @@ const UserMap = () => {
   const MT_SELECTS = { '산사태대피소':[], '산불대피소':[] };
   const JB_REGIONS_FOR_SELECTS = { '전주시 완산구':[], '전주시 덕진구':[], '군산시':[], '익산시':[], '정읍시':[], '남원시':[], '김제시':[], '완주군':[], '고창군':[], '부안군':[], '순창군':[], '임실군':[], '무주군':[], '진안군':[], '장수군':[] };
 
-  /* <================ 핸들러 함수들 ================> */
+/* <================================ 핸들러 함수들 ================================> */
+// handleGoHome
   const handleGoHome = () => {
     setActiveMenu(null);
     setShelterResults([]);
     // 마커 제거
     removeMarkers();
   };
-
+//
+// handleSigunSelect
   const handleSigunSelect = (city) => { setSelectedSigun(city); setSelectedGoo(''); };
   const getDongOptions = () => {
     if (!selectedSigun || selectedSigun === '시군 선택') return [];
@@ -90,8 +92,9 @@ const UserMap = () => {
     } 
     return DETAILED_DATA[selectedSigun]?.['기본'] || [];
   };
-
-  // 재난 유형 변경 시 실제 검색 실행 (예시: 키워드로 검색)
+//
+// handleCivilChange
+// 재난 유형 변경 시 실제 검색 실행 (예시: 키워드로 검색)
   const handleCivilChange = (value) => { 
     setCivilSelect(value); setWeatherSelect(''); setMountainSelect('');
     if(value && selectedSigun) searchPlaces(`${selectedSigun} ${value}`);
@@ -104,116 +107,141 @@ const UserMap = () => {
     setMountainSelect(value); setCivilSelect(''); setWeatherSelect('');
     if(value && selectedSigun) searchPlaces(`${selectedSigun} ${value}`);
   };
-
-  // 결과 클릭 시 지도 이동
-  const handleResultClick = (item) => {
+//
+// handleResultClick
+const handleResultClick = (item) => {
   setSelectedShelter(item);
+  if (!mapInstance) return;
 
-  // 1. 카카오맵 객체와 지도 인스턴스가 있는지 확인
-  if (!window.kakao || !mapInstance) return;
+  const lat = item.y || item.latitude;
+  const lng = item.x || item.longitude;
 
-  const ps = new window.kakao.maps.services.Places();
-  
-  // item.name이나 주소를 키워드로 검색 (예: '강남구 대피소')
-  const keyword = item.address || item.name; 
-
-  ps.keywordSearch(keyword, (data, status) => {
-    if (status === window.kakao.maps.services.Status.OK) {
-      const place = data[0];
-      const moveLatLng = new window.kakao.maps.LatLng(place.y, place.x);
-
-      // 2. map 대신 상태로 저장한 mapInstance 사용!
-      mapInstance.setCenter(moveLatLng);
-      mapInstance.setLevel(3); // 적당히 확대
-
-      // 3. 기존 마커 지우고 새로 하나만 찍기 (옵션)
-      // markers 상태를 활용해 관리하거나, 여기서 간단히 생성
-      new window.kakao.maps.Marker({
-        map: mapInstance,
-        position: moveLatLng,
-      });
-    }
-  });
+  if (lat && lng) {
+    const moveLatLng = new window.kakao.maps.LatLng(lat, lng);
+    mapInstance.setCenter(moveLatLng);
+    mapInstance.setLevel(3);
+  }
 
   if (window.innerWidth < 768) setIsMobileMenuOpen(false);
 };
+//
+//
+// handleSearch
+const handleSearch = async () => {
+  // 1. 공공데이터 API URL(실제로는 API 가이드의 URL을 넣어야 함)
+  const serviceKey = '본인의_서비스_키';
+  const url = `https://apis.data.go.kr/.../get...List?serviceKey=${serviceKey}&sidoName=${selectedSido}&sigunName=${selectedSigun}&type=json`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    // 2. 받아온 데이터를 상태에 저장
+    // API마다 데이터 구조가 다르니(예: data.response.body.items) 확인 필요!
+    const items = data.response.body.items;
+    setShelterResults(items); 
+
+    // 3. 지도에 마커 뿌려주기
+    displayMarkers(items); 
+  } catch (error) {
+    console.error("데이터를 못 가져오지 못 했습니다...", error);
+  }
+};
+//
+/* <================================ 핸들러 함수들 ================================> */
 
 
   /* <================ ★ 카카오맵 로직 시작 ★ ================> */
+  // useEffect 모음
+  //
+      // 1. 지도 초기화
+      useEffect(() => {
+        if (!window.kakao) {
+          console.error("카카오맵 스크립트가 로드되지 않았습니다.");
+          return;
+        }
 
-  // 1. 지도 초기화
-  useEffect(() => {
-    if (!window.kakao) {
-      console.error("카카오맵 스크립트가 로드되지 않았습니다.");
-      return;
-    }
+        const container = mapRef.current;
+        const options = {
+          center: new window.kakao.maps.LatLng(35.8242238, 127.1479532), // 전주 시청 부근
+          level: 7 // 확대 레벨
+        };
 
-    const container = mapRef.current;
-    const options = {
-      center: new window.kakao.maps.LatLng(35.8242238, 127.1479532), // 전주 시청 부근
-      level: 7 // 확대 레벨
-    };
+        const map = new window.kakao.maps.Map(container, options);
+        setMapInstance(map);
 
-    const map = new window.kakao.maps.Map(container, options);
-    setMapInstance(map);
+        // 윈도우 리사이즈 시 지도 깨짐 방지
+        const handleResize = () => map.relayout();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+      }, []);
 
-    // 윈도우 리사이즈 시 지도 깨짐 방지
-    const handleResize = () => map.relayout();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+      // 2. 키워드 검색 함수
+      const searchPlaces = (keyword) => {
+        if (!window.kakao) return;
+        const ps = new window.kakao.maps.services.Places();
 
-  // 2. 키워드 검색 함수
-  const searchPlaces = (keyword) => {
-    if (!window.kakao) return;
-    const ps = new window.kakao.maps.services.Places();
+        ps.keywordSearch(keyword, (data, status) => {
+          if (status === window.kakao.maps.services.Status.OK) {
+            setShelterResults(data); // 사이드바 리스트 업데이트
+          } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
+            alert('검색 결과가 존재하지 않습니다.');
+            setShelterResults([]);
+          }
+        });
+      };
+    //
+//
+    // [수정된 useEffect]
+    useEffect(() => {
+      if (!mapInstance || !Array.isArray(shelterResults)) return;
 
-    ps.keywordSearch(keyword, (data, status) => {
-      if (status === window.kakao.maps.services.Status.OK) {
-        setShelterResults(data); // 사이드바 리스트 업데이트
-      } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
-        alert('검색 결과가 존재하지 않습니다.');
-        setShelterResults([]);
-      }
-    });
-  };
+      // 1. 기존 마커 싹 지우기
+      removeMarkers();
 
-  // 3. 마커 표시 및 갱신 (shelterResults가 바뀔 때마다 실행)
-  useEffect(() => {
-    if (!mapInstance || !window.kakao) return;
+      if (shelterResults.length === 0) return;
 
-    // 기존 마커 제거
-    removeMarkers();
-
-    // 새 마커 생성
-    const newMarkers = shelterResults.map((place) => {
-      const markerPosition = new window.kakao.maps.LatLng(place.y, place.x);
-      const marker = new window.kakao.maps.Marker({
-        position: markerPosition,
-        map: mapInstance, // 지도에 올림
-        clickable: true
-      });
-
-      // 마커 클릭 이벤트 (인포윈도우 or 사이드바 연동)
-      window.kakao.maps.event.addListener(marker, 'click', () => {
-        setSelectedShelter(place); // 상태 업데이트
-        mapInstance.panTo(markerPosition); // 지도 중심 이동
-      });
-
-      return marker;
-    });
-
-    setMarkers(newMarkers);
-
-    // 검색 결과가 있으면 지도 범위를 결과에 맞게 재설정
-    if (shelterResults.length > 0) {
       const bounds = new window.kakao.maps.LatLngBounds();
-      shelterResults.forEach((place) => {
-        bounds.extend(new window.kakao.maps.LatLng(place.y, place.x));
-      });
-      mapInstance.setBounds(bounds);
-    }
-  }, [shelterResults, mapInstance]);
+      let hasValidPoints = false;
+
+      // 2. 새 마커 생성 및 범위 확장
+      const newMarkers = shelterResults.map((place) => {
+        // 카카오 API 응답 데이터는 x, y를 사용하므로 확인!
+        const lat = place.y || place.latitude; 
+        const lng = place.x || place.longitude;
+
+        if (lat && lng) {
+          const markerPosition = new window.kakao.maps.LatLng(lat, lng);
+          const marker = new window.kakao.maps.Marker({
+            position: markerPosition,
+            map: mapInstance,
+            clickable: true
+          });
+
+          window.kakao.maps.event.addListener(marker, 'click', () => {
+            setSelectedShelter(place);
+            mapInstance.panTo(markerPosition);
+          });
+
+          bounds.extend(markerPosition);
+          hasValidPoints = true;
+          return marker;
+        }
+        return null;
+      }).filter(m => m !== null); // 좌표 없는 데이터 제외
+
+      setMarkers(newMarkers);
+
+      // 3. 마커가 있을 때만 지도 화면 맞춤
+      if (hasValidPoints) {
+        mapInstance.setBounds(bounds);
+      }
+    }, [shelterResults, mapInstance]);
+    //
+// useEffect 최종 막줄
+
+
+  
 
   // 마커 제거 헬퍼 함수
   const removeMarkers = () => {
@@ -237,12 +265,14 @@ const UserMap = () => {
 
   /* <================ ★ 카카오맵 로직 끝 ★ ================> */
 
-  // 정렬 로직
-  const sortedResults = [...shelterResults].sort((a, b) => {
-    if (sortType === 'name') return a.place_name?.localeCompare(b.place_name);
-    // 거리순은 현재 위치 기준이 필요하므로 생략하거나 API에서 제공하는 distance 사용
-    return 0;
-  });
+  // shelterResults가 배열인지 확인하고, 아니면 빈 배열로 처리
+  const sortedResults = Array.isArray(shelterResults) 
+    ? [...shelterResults].sort((a, b) => {
+        if (sortType === 'name') return (a.place_name || "").localeCompare(b.place_name || "");
+        return 0;
+      })
+    : []; // 배열이 아니면 그냥 빈 리스트 전달
+
 
 
   return (
@@ -407,7 +437,7 @@ const UserMap = () => {
                 {activeMenu === 'address' && (
                   <div className="p-4 border-t bg-slate-50">
                     <button 
-                    onClick={() => setSelectedShelter()}
+                    onClick={() => setShelterResults([])}
                     className="w-full bg-blue-600 text-white py-3 rounded-md font-bold hover:bg-blue-700 transition-all shadow-lg active:scale-95">
                       검색하기
                     </button>
