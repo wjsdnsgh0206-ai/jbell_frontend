@@ -98,7 +98,7 @@ const FAQListPage = () => {
     
   
   return (
-    <div className="w-full bg-white font-sans text-gray-800">
+    <div className="w-full bg-white text-graygray-90">
       {/* ================= Header ================= */}
 
       {/* ================= Breadcrumb ================= */}
@@ -106,46 +106,46 @@ const FAQListPage = () => {
 
       {/* ================= Main Content ================= */}
       <main className="max-w-[1280px] mx-auto px-4 py-10">
-        <h1 className="text-3xl font-bold mb-8 text-gray-900">FAQ</h1>
+        <h1 className="text-heading-xl mb-8 text-graygray-90">FAQ</h1>
 
         {/* Search Bar */}
-       <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg mb-10 flex flex-row items-center justify-center gap-2">
-          <div className="relative w-24 h-10 flex-none">
-            <select className="w-full h-full appearance-none border border-gray-300 rounded px-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-sm pr-6">
+       <div className="bg-graygray-5 border border-graygray-10 p-4 rounded-lg mb-10 flex flex-row items-center justify-center gap-2">
+          <div className="relative w-24 h-12 flex-none">
+           <select className="w-full h-full appearance-none border border-graygray-30 rounded px-3 bg-white cursor-pointer text-body-m pr-6 text-graygray-90">
               <option>전체</option>
               <option>제목</option>
               <option>내용</option>
             </select>
             <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-              <ChevronDown size={14} className="text-gray-500" />
+              <ChevronDown size={16} className="text-graygray-50" />
             </div>
           </div>
-          <div className="relative flex-1 h-10 min-w-0">
+         <div className="relative flex-1 h-12 min-w-0">
             <input 
               type="text" 
               placeholder="검색어를 입력해주세요." 
-              className="w-full h-full border border-gray-300 rounded px-4 pr-10 focus:ring-2 focus:ring-blue-500 text-sm bg-white"
+              className="w-full h-full border border-graygray-30 rounded px-4 pr-10 text-body-m bg-white placeholder:text-graygray-40"
             />
-            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-              <Search size={18} />
+            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-graygray-40">
+              <Search size={20} />
             </span>
           </div>
-          <button className="h-10 bg-blue-600 text-white px-6 rounded font-medium hover:bg-blue-700 transition active:scale-95 shadow-sm whitespace-nowrap flex-none flex items-center justify-center">
-            검색
+          <button className="h-12 bg-primary-50 text-white px-8 rounded font-medium hover:bg-blue-700 transition active:scale-95 shadow-sm whitespace-nowrap flex-none flex items-center justify-center">
+            검색            
           </button>
         </div>
 
         {/* Filter & Count */}
-        <div className="flex justify-between items-center mb-4 border-b border-gray-900 pb-2">
+        <div className="flex justify-between items-center mb-4 border-b border-graygray-90 pb-2">
           <div className="text-gray-700">
-            검색 결과 <span className="font-bold text-blue-700">{totalItems}</span>개
+            검색 결과 <span className="font-bold text-primary-50">{totalItems}</span>개
           </div>
-          <div className="flex items-center text-sm text-gray-500 gap-4">
+          <div className="flex items-center text-detail-m text-graygray-50 gap-4">
             <div className="flex items-center gap-1">
               목록 표시 개수
               {/* 드롭다운 변경 시 handleItemsPerPageChange 실행 */}
               <select 
-                className="ml-1 border border-gray-300 rounded px-1 py-0.5"
+                className="ml-1 border border-graygray-30 rounded px-1 py-0.5 text-graygray-90"
                 onChange={handleItemsPerPageChange}
                 value={`${itemsPerPage}개`}
               >
@@ -154,17 +154,17 @@ const FAQListPage = () => {
               </select>
             </div>
             <div className="flex gap-2">
-              <button className="font-bold text-gray-900 underline underline-offset-4">많이 질문한순</button>
-              <span className="text-gray-300">|</span>
-              {/* [수정] 최신순 버튼 */}
+              <button className="font-bold text-graygray-90 underline underline-offset-4">많이 질문한순</button>
+              <span className="text-graygray-30">|</span>
+              {/* 최신순 버튼 */}
               <button 
                 onClick={() => handleSortChange('latest')}
-                className={sortOrder === 'latest' ? "font-bold text-gray-900 underline underline-offset-4" : "hover:text-gray-900"}
+                className={sortOrder === 'latest' ? "font-bold text-graygray-90 underline underline-offset-4" : "hover:text-graygray-90 transition-colors"}
               >
                 최신순
               </button>
-              <span className="text-gray-300">|</span>
-              {/* [수정] 오래된순 버튼 */}
+             <span className="text-graygray-30">|</span>
+              {/* 오래된순 버튼 */}
               <button 
                 onClick={() => handleSortChange('oldest')}
                 className={sortOrder === 'oldest' ? "font-bold text-gray-900 underline underline-offset-4" : "hover:text-gray-900"}
@@ -181,25 +181,25 @@ const FAQListPage = () => {
           {currentItems.map((item) => (
             <div key={item.id} 
               onClick={() => FAQDetailClick(item.id)}
-              className="border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow cursor-pointer">
+              className="border border-graygray-10 rounded-lg p-6 hover:shadow-sm hover:border-graygray-30 transition-all cursor-pointer bg-white">
               {/* Question */}
-              <div className="flex items-start gap-3 mb-3">
-                <span className="text-xl font-bold text-gray-900">Q</span>
-                <h3 className="text-lg font-bold text-gray-900 pt-0.5">{item.question}</h3>
+              <div className="flex items-start gap-3 mb-2">
+                <span className="text-title-l text-graygray-90">Q</span>
+                <h3 className="text-title-l text-graygray-90 pt-0.5">{item.question}</h3>
               </div>
               
               {/* Answer */}
-              <div className="flex items-start gap-3 mb-6">
-                <span className="text-xl font-bold text-gray-500">A</span>
-                <p className="text-gray-600 pt-0.5">{item.answer}</p>
+              <div className="flex items-start gap-3 mb-5">
+                <span className="text-body-m-bold text-graygray-50">A</span>
+                <p className="text-body-m text-graygray-70 pt-0.5 line-clamp-2">{item.answer}</p>
               </div>
 
               {/* Meta Data */}
-              <div className="flex items-center justify-between border-t border-gray-100 pt-4">
-                <span className="text-sm text-gray-500">
-                  <span className="font-bold mr-2 text-gray-700">등록일</span> {item.date}
+              <div className="flex items-center justify-between border-t border-graygray-5 pt-4">
+                <span className="text-detail-m text-graygray-50">
+                  <span className="font-bold mr-2 text-graygray-70">등록일</span> {item.date}
                 </span>
-                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded-full border border-gray-200">
+                <span className="px-3 py-1 bg-graygray-5 text-graygray-70 text-detail-m rounded-full border border-graygray-10">
                   {item.tag}
                 </span>
               </div>

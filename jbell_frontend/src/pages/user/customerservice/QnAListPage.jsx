@@ -321,7 +321,7 @@ const QnAListPage = () => {
 
       {/* ================= Main Content ================= */}
       <main className="max-w-[1280px] mx-auto px-4 py-10">
-        <h1 className="text-3xl font-bold mb-8 text-gray-900">1:1문의</h1>
+        <h1 className="text-heading-xl font-bold mb-8 text-gray-900">1:1문의</h1>
 
         {/* Search Bar (FAQPage 스타일 통일) */}
         <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg mb-10 flex flex-row items-center justify-center gap-2">
