@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { User, MapPin, Mail, Lock, Eye, EyeOff, AlertCircle, Check, CalendarDays } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 
 const EditProfile = () => {
   const navigate = useNavigate();
+
+  const breadcrumbItems = [
+        { label: "홈", path: "/", hasIcon: true },
+        { label: "마이페이지", path: "/myProfile", hasIcon: false }, // 리스트로 이동 가능하게 path 추가
+        { label: "내정보 수정", path: "", hasIcon: false },
+      ];
   
   // 1. 초기 상태값 (실제로는 API에서 받아온 데이터를 넣습니다)
   const [formData, setFormData] = useState({
@@ -90,6 +97,9 @@ const EditProfile = () => {
   );
 
   return (
+    <>
+    <PageBreadcrumb items={breadcrumbItems} />
+
     <div className="min-h-screen bg-white flex justify-center py-10 px-4 font-sans text-slate-900 text-left">
       <div className="max-w-[550px] w-full">
         <header className="mb-8 text-center">
@@ -229,6 +239,7 @@ const EditProfile = () => {
         </form>
       </div>
     </div>
+  </>
   );
 };
 
