@@ -48,9 +48,10 @@ const UserMap = () => {
   const [sortType, setSortType] = useState('distance');
 
   // ★ [카카오맵 관련 상태]
-  const mapRef = useRef(null);          // 지도를 담을 DOM 레퍼런스
+  const mapRef = useRef(null); // 지도를 담을 DOM 레퍼런스
   const [mapInstance, setMapInstance] = useState(null); // 지도 객체 저장
   const [markers, setMarkers] = useState([]); // 현재 표시된 마커들 관리
+  const [searchKeyword, setSearchKeyword] = useState(''); // 검색어 상태 추가
 
   /* <================ 데이터 정의 (동일) ================> */
   const REGION_DATA = {
@@ -106,16 +107,37 @@ const UserMap = () => {
 
   // 결과 클릭 시 지도 이동
   const handleResultClick = (item) => {
-    setSelectedShelter(item);
-    if (!mapInstance) return;
-    
-    // 해당 위치로 지도 이동
-    const moveLatLon = new window.kakao.maps.LatLng(item.y, item.x);
-    mapInstance.panTo(moveLatLon);
-    
-    // 모바일이면 메뉴 닫기
-    if(window.innerWidth < 768) setIsMobileMenuOpen(false);
-  };
+  setSelectedShelter(item);
+
+  // 1. 카카오맵 객체와 지도 인스턴스가 있는지 확인
+  if (!window.kakao || !mapInstance) return;
+
+  const ps = new window.kakao.maps.services.Places();
+  
+  // item.name이나 주소를 키워드로 검색 (예: '강남구 대피소')
+  const keyword = item.address || item.name; 
+
+  ps.keywordSearch(keyword, (data, status) => {
+    if (status === window.kakao.maps.services.Status.OK) {
+      const place = data[0];
+      const moveLatLng = new window.kakao.maps.LatLng(place.y, place.x);
+
+      // 2. map 대신 상태로 저장한 mapInstance 사용!
+      mapInstance.setCenter(moveLatLng);
+      mapInstance.setLevel(3); // 적당히 확대
+
+      // 3. 기존 마커 지우고 새로 하나만 찍기 (옵션)
+      // markers 상태를 활용해 관리하거나, 여기서 간단히 생성
+      new window.kakao.maps.Marker({
+        map: mapInstance,
+        position: moveLatLng,
+      });
+    }
+  });
+
+  if (window.innerWidth < 768) setIsMobileMenuOpen(false);
+};
+
 
   /* <================ ★ 카카오맵 로직 시작 ★ ================> */
 
@@ -239,7 +261,11 @@ const UserMap = () => {
       {/* 좌측 사이드바 */}
       <aside 
         className={`
-          fixed inset-y-0 left-0 z-50 w-full bg-white shadow-xl flex flex-col transition-transform duration-300 ease-in-out
+          fixed top-0 left-0 z-50 bg-white shadow-xl flex flex-col transition-transform duration-300 ease-in-out
+          /* 1. 너비를 화면의 80%만 차지*/
+          w-[80%] 
+          /* 2. 하단 버튼들이 보일 수 있게 높이를 조절하거나 스크롤 영역을 제한 */
+          h-full 
           md:static md:w-[380px] md:translate-x-0
           ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
@@ -347,9 +373,48 @@ const UserMap = () => {
                </div>
             </div>
           ) : activeMenu === 'address' ? (
+             <>
+             <div className="flex border-b text-sm font-medium sticky top-0 bg-white z-10">
+                <button 
+                  onClick={() => setAddressType('road')}
+                  className={`flex-1 py-3 ${addressType === 'road' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400'}`}
+                >도로명 주소</button>
+                <button 
+                  onClick={() => setAddressType('jibun')}
+                  className={`flex-1 py-3 ${addressType === 'jibun' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400'}`}
+                >지번 주소</button>
+              </div>
+
             <div className="p-4 space-y-4">
-               <SelectBox label="시군" value={selectedSigun} options={Object.keys(REGION_DATA)} onChange={handleSigunSelect} />
+                {addressType === 'road' ? (
+                  <div className="space-y-4">
+                    <SelectBox label="시도 선택" value={selectedSido} options={['전북특별자치도']} onChange={setSelectedSido} />
+                    <SelectBox label="시군 선택" value={selectedSigun} options={Object.keys(REGION_DATA)} onChange={handleSigunSelect} />
+                    <SelectBox label="구 선택" value={selectedGoo} options={REGION_DATA[selectedSigun] || []} disabled={!REGION_DATA[selectedSigun]?.length} onChange={setSelectedGoo} />
+                    <SelectBox label="초성 선택" value={selectedInitial} onChange={setSelectedInitial} />
+                    <SelectBox label="도로명 선택" value={selectedRoad} onChange={setSelectedRoad} />
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <SelectBox label="시도 선택" value={selectedSido} options={['전북특별자치도']} onChange={setSelectedSido} />
+                    <SelectBox label="시군 선택" value={selectedSigun} options={Object.keys(REGION_DATA)} onChange={handleSigunSelect} />
+                    <SelectBox label="구 선택" value={selectedGoo} options={REGION_DATA[selectedSigun] || []} disabled={!REGION_DATA[selectedSigun]?.length} onChange={setSelectedGoo} />
+                    <SelectBox label="읍면동 선택" value={selectedDong} options={getDongOptions()} disabled={getDongOptions().length === 0} onChange={setSelectedDong} />
+                  </div>
+                )}
+
+                {/* [3. 주소 검색 메뉴하단 고정 영역] 메뉴가 선택되었을 때만 검색하기 버튼 표시 */}
+                {activeMenu === 'address' && (
+                  <div className="p-4 border-t bg-slate-50">
+                    <button 
+                    onClick={() => setSelectedShelter()}
+                    className="w-full bg-blue-600 text-white py-3 rounded-md font-bold hover:bg-blue-700 transition-all shadow-lg active:scale-95">
+                      검색하기
+                    </button>
+                  </div>
+                )}
             </div>
+            </>
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center">
                <MapPin size={32} className="mb-4 text-slate-300" />
