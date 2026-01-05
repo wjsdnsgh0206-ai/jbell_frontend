@@ -83,7 +83,13 @@ const UserMap = () => {
   };
 //
 // handleSigunSelect
-  const handleSigunSelect = (city) => { setSelectedSigun(city); setSelectedGoo(''); };
+  const handleSigunSelect = (city) => { 
+    setSelectedSigun(city); 
+    setSelectedGoo(''); 
+    const value = civilSelect||'민방위대피소';
+    setCivilSelect(value);
+    searchPlaces(`${city} ${value}`)
+  };
   const getDongOptions = () => {
     if (!selectedSigun || selectedSigun === '시군 선택') return [];
     if (REGION_DATA[selectedSigun]?.length > 0) {
@@ -129,8 +135,8 @@ const handleResultClick = (item) => {
 // handleSearch
 const handleSearch = async () => {
   // 1. 공공데이터 API URL(실제로는 API 가이드의 URL을 넣어야 함)
-  const serviceKey = '본인의_서비스_키';
-  const url = `https://apis.data.go.kr/.../get...List?serviceKey=${serviceKey}&sidoName=${selectedSido}&sigunName=${selectedSigun}&type=json`;
+  const serviceKey = 'serviceKey';
+  const url =`https://V2/api/DSSP-IF-10941?serviceKey=xxxx`;
 
   try {
     const response = await fetch(url);
@@ -183,6 +189,8 @@ const handleSearch = async () => {
 
         ps.keywordSearch(keyword, (data, status) => {
           if (status === window.kakao.maps.services.Status.OK) {
+            console.log(keyword);
+            console.log(data);
             setShelterResults(data); // 사이드바 리스트 업데이트
           } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
             alert('검색 결과가 존재하지 않습니다.');
