@@ -4,9 +4,10 @@ import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
 const UserPageMain = lazy(() => import("@/pages/user/UserPageMain"));
 const UserMap = lazy(() => import("@/pages/user/UserMap"));
+const UserNoticeList = lazy(() => import("@/pages/user/openboards/UserNoticeList"));
 const UserFacilityList = lazy(() => import("@/pages/user/facility/UserFacilityList"));
-const UserOpenSpaceLi = lazy(() => import("@/pages/user/UserOpenSpaceLi"));
 const UserFacilityDetail = lazy(() => import("@/pages/user/facility/UserFacilityDetail"));
+
 // ------ 라우트 페이지 경로 입력 파일 ------ //
 // Routes.jsx에서 이 파일을 불러와서 Route를 생성함.
 // 실제 페이지 라우트 정의 (기능용)
@@ -38,8 +39,8 @@ const jyUserRoutes = [
     element: <UserMap />,
   },
   {
-    path: "/userOpenSpaceLi",
-    element: <UserOpenSpaceLi />,
+    path: "/userNoticeList",
+    element: <UserNoticeList />,
   },
 
 ];

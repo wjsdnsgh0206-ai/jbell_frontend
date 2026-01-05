@@ -43,8 +43,8 @@ const UserNoticeList = () => {
 
   const breadcrumbItems = [
     { label: "홈", path: "/", hasIcon: true },
-    { label: "열린마당", path: "", hasIcon: false },
-    { label: "공지사항", path: "", hasIcon: false },
+    { label: "열린마당", path: "/userNoticeList", hasIcon: false },
+    { label: "공지사항", path: "/userNoticeList", hasIcon: false },
   ];
 
   return (
