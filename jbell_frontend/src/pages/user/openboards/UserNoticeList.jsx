@@ -14,8 +14,6 @@ const UserNoticeList = () => {
 
   // 2. 데이터 샘플 (기존 유지)
   const notices = [
-    { id: 7, title: "행정안전부 재난안전데이터 공유플랫폼 안내", author: '관리자', files: [{name:'file1'}], date: '2025-04-11', isPin: true },
-    { id: 8, title: "전북특별자치도 '25년도 11월 재난 현황 정리입니다", author: '관리자', files: [{name:'file1'}, {name:'file2'}], date: '2025-12-08', isPin: true },
     { id: 1, title: '전북특별자치도 새롭게 추가된 쉼터 목록입니다', author: '관리자', files: [{name:'file1'}, {name:'file2'}], date: '2025-12-06', isPin: false },
     { id: 2, title: '전북특별자치도 새롭게 추가된 대피소 목록입니다', author: '관리자', files: [{name:'file1'}, {name:'file2'}, {name:'file3'}], date: '2025-11-25', isPin: false },
     { id: 3, title: '전북 특별자치도 겨울철 재난 대비 요령입니다', author: '관리자', files: [{name:'file1'}], date: '2025-11-11', isPin: false },

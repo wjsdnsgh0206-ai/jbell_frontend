@@ -3,43 +3,50 @@ import React from 'react';
 const FacilityListSection = ({ items, currentPage, totalPages, onPageChange, onDetail }) => {
   return (
     <div className="w-full">
-      {/* 1. 테이블 영역 */}
+      {/* 1. Table Area */}
       <div className="w-full mt-4 bg-white border-t-2 border-graygray-90">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px] text-center table-fixed border-collapse">
+          <table className="w-full min-w-[600px] text-center table-fixed border-collapse">
             
-            {/* 헤더 */}
+            {/* Header */}
             <thead className="bg-graygray-5 border-b border-graygray-10">
               <tr className="text-detail-m text-graygray-70">
-                <th className="py-4 w-[15%] font-medium">유형</th>
-                <th className="py-4 w-[35%] font-medium">시설명</th>
-                <th className="py-4 w-[40%] font-medium">주소</th>
-                <th className="py-4 w-[10%] font-medium text-center">상세</th>
+                <th className="py-4 w-[20%] font-medium">유형</th>
+                <th className="py-4 w-[40%] font-medium">시설명</th>
+                <th className="py-4 w-[30%] font-medium">주소</th>
+                {/* Hide detail button column on mobile since row click works */}
+                <th className="py-4 w-[10%] font-medium text-center hidden md:table-cell">상세</th>
               </tr>
             </thead>
             
-            {/* 바디 */}
+            {/* Body */}
             <tbody className="divide-y divide-graygray-10 border-b border-graygray-20">
               {items.length > 0 ? (
                 items.map((facility) => (
                   <tr 
                     key={facility.id} 
-                    className="group hover:bg-graygray-0 transition-colors"
+                    // Navigate on row click
+                    onClick={() => onDetail(facility.id)}
+                    className="group hover:bg-graygray-5 transition-colors cursor-pointer"
                   >
                     <td className="py-4 px-2 text-detail-m text-graygray-70">
                       {facility.type}
                     </td>
                     <td className="py-4 px-4 text-left">
-                       <span className="text-body-m text-graygray-90 font-medium group-hover:text-secondary-50 transition-colors">
+                       <span className="text-body-m text-graygray-90 font-medium group-hover:text-secondary-50 group-hover:underline transition-colors">
                          {facility.name}
                        </span>
                     </td>
-                    <td className="py-4 px-4 text-left text-detail-m text-graygray-50">
+                    <td className="py-4 px-4 text-left text-detail-m text-graygray-50 truncate">
                       {facility.address}
                     </td>
-                    <td className="py-4 text-center">
+                    {/* PC View Button */}
+                    <td className="py-4 text-center hidden md:table-cell">
                       <button
-                        onClick={() => onDetail(facility.id)}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent row click event
+                          onDetail(facility.id);
+                        }}
                         className="px-3 py-1.5 text-detail-m font-medium text-graygray-70 border border-graygray-20 rounded bg-white hover:border-secondary-50 hover:text-secondary-50 transition-all active:scale-95"
                       >
                         보기
@@ -59,7 +66,7 @@ const FacilityListSection = ({ items, currentPage, totalPages, onPageChange, onD
         </div>
       </div>
 
-      {/* 2. 페이지네이션 영역 */}
+      {/* 2. Pagination Area */}
       {totalPages > 0 && (
         <div className="flex justify-center items-center gap-1.5 mt-10">
           <button 
