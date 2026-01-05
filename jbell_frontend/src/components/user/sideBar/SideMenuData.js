@@ -62,4 +62,33 @@ export const SIDE_MENU_DATA = {
         items: []
     },
   ],
+  CUSTOMERSERVICE : [
+    {
+        title: 'FAQ',
+        path: '/faq',
+        items: []
+    },
+    {
+        title: '1대1 문의',
+        path: '/qna',
+        items: []
+    },
+  ],
+  COMMUNITY: [
+    { 
+      title: '공지사항', 
+      path: '/userNoticeList',
+      items: [],
+    },
+    { 
+      title: '보도자료', 
+      path: '/userPressRelList',
+      items: [],
+    },
+    { 
+      title: '시민안전교육', 
+      path: '/userSafetyEducation',
+      items: [],
+    },
+  ]
 };
