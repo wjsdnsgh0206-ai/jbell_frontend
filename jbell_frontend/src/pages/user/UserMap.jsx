@@ -210,7 +210,8 @@ const UserMap = () => {
 
 
   // useEffect - 지역을 바꾸거나, 셀렉트를 바꾸면 다시 필터
- const activeShelterType =
+  /*
+  const activeShelterType =
   civilSelect || weatherSelect || mountainSelect;
 
   const shelterRegion = selectedSigun;
@@ -228,6 +229,7 @@ const UserMap = () => {
 
       setShelterResults(filtered);
     }, [shelterRegion, activeShelterType]);
+    */
 //
 
 /* <======================================== 핸들러 함수들 =======================================> */
