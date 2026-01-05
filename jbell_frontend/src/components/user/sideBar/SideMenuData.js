@@ -33,50 +33,45 @@ export const SIDE_MENU_DATA = {
       ] 
     },
     { 
-      title: '사회재난행동요령', 
-      items: [
-        { name: '교통사고', path: '/trafficAccidentActionGuide' },
-        { name: '화재', path: '/#' },
-        { name: '산불', path: '/#' },
-        { name: '건축물붕괴', path: '/#' },
-        { name: '전기, 가스 사고', path: '/#' },
-        { name: '도로터널사고', path: '/#' },
-        { name: '철도, 지하철 사고', path: '/#' },
-      ] 
-    },
-    { 
-      title: '생활안전행동요령', 
-      items: [
-        { name: '응급처치', path: '/#' },
-        { name: '심페소생술', path: '/#' },
-        { name: '식중독', path: '/#' },
-        { name: '승강기 안전사고', path: '/#' },
-        { name: '산행안전사고', path: '/#' },
-      ] 
-    },
+    title: '사회재난행동요령', 
+    items: [
+      { name: '교통사고', path: '/trafficAccidentActionGuide' },
+      { name: '화재', path: '/fireActionGuide' },
+      { name: '산불', path: '/forestFireActionGuide' },
+      { name: '건축물붕괴', path: '/buildingCollapseActionGuide' },
+      { name: '전기, 가스 사고', path: '/electricityGasAccidentActionGuide' },
+      { name: '도로터널사고', path: '/roadTunnelAccidentActionGuide' },
+      { name: '철도, 지하철 사고', path: '/railwaySubwayAccidentActionGuide' },
+    ] 
+  },
+  { 
+    title: '생활안전행동요령', 
+    items: [
+      { name: '응급처치', path: '/firstAidActionGuide' },
+      { name: '심페소생술', path: '/cprActionGuide' },
+      { name: '식중독', path: '/foodPoisoningActionGuide' },
+      { name: '승강기 안전사고', path: '/elevatorAccidentActionGuide' },
+      { name: '산행안전사고', path: '/mountainSafetyActionGuide' },
+    ] 
+  },
   ],
   FACILITY : [
     {
-        title: '대피소소개',
+        title: '대피소 소개',
         path: '/facilityList',
         items: []
     },
   ],
-  COMMUNITY: [
-    { 
-      title: '공지사항', 
-      path: '/userNoticeList',
-      items: [],
+  CUSTOMERSERVICE : [
+    {
+        title: 'FAQ',
+        path: '/faq',
+        items: []
     },
-    { 
-      title: '보도자료', 
-      path: '/userPressRelList',
-      items: [],
+    {
+        title: '1대1 문의',
+        path: '/qna',
+        items: []
     },
-    { 
-      title: '시민안전교육', 
-      path: '/userSafetyEducation',
-      items: [],
-    },
-  ]
+  ],
 };

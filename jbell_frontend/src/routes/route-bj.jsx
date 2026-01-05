@@ -1,4 +1,6 @@
 import { lazy } from "react";
+import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
+
 
 //FAQ 관련 페이지
 const FAQListPage = lazy(() => import("@/pages/user/customerservice/FAQListPage"));
@@ -32,10 +34,26 @@ const QnADetailPage = lazy(() => import("@/pages/user/customerservice/QnADetailP
  */
 export const bjUserRoutes = [
 //FAQ 관련 경로
-    { path: "faq", element: <FAQListPage/>},
-    { path: "faq/:id", element: <FAQDetailPage/>},
-
+    { 
+        path: "/faq", element: <FAQListPage />,
+        sidebarData: SIDE_MENU_DATA.CUSTOMERSERVICE,
+        nowPage: "고객센터",
+    },
+    { 
+        path: "/faq/:id", element: <FAQDetailPage />,
+        sidebarData: SIDE_MENU_DATA.CUSTOMERSERVICE,
+        nowPage: "고객센터",
+    },
 //QnA 관련 경로
-    { path: "qna", element: <QnAListPage/>},
-    { path: "qna/:id", element: <QnADetailPage/>}
+     { 
+        path: "/qna", element: <QnAListPage />,
+        sidebarData: SIDE_MENU_DATA.CUSTOMERSERVICE,
+        nowPage: "고객센터",
+    },
+     { 
+        path: "/qna/:id", element: <QnADetailPage />,
+        sidebarData: SIDE_MENU_DATA.CUSTOMERSERVICE,
+        nowPage: "고객센터",
+    },
 ];
+
