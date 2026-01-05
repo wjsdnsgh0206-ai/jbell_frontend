@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
 import { Search, Plus, ChevronLeft, ChevronRight, MessageSquare, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
+import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 
 const MyInquiryList = () => {
   const [searchTerm, setSearchTerm] = useState('');
+
+
+  const breadcrumbItems = [
+        { label: "홈", path: "/", hasIcon: true },
+        { label: "마이페이지", path: "/myProfile", hasIcon: false }, // 리스트로 이동 가능하게 path 추가
+        { label: "내 문의 내역", path: "", hasIcon: false },
+      ];
 
   // 상태별 스타일 맵핑
   const statusConfig = {
@@ -52,6 +60,8 @@ const MyInquiryList = () => {
   ];
 
   return (
+    <>
+    <PageBreadcrumb items={breadcrumbItems} />
     <div className="min-h-screen bg-white flex justify-center py-10 px-5 sm:py-16 font-sans text-slate-900">
       <div className="max-w-4xl w-full">
         {/* Header Section */}
@@ -161,6 +171,7 @@ const MyInquiryList = () => {
         </nav>
       </div>
     </div>
+    </>
   );
 };
 
