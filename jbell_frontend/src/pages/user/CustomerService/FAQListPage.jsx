@@ -82,12 +82,12 @@ const FAQListPage = () => {
     setCurrentPage(1); // 정렬 방식이 바뀌면 1페이지로 이동
   };
 
-    // [추가] 상세 페이지 이동 핸들러
+  // [추가] 상세 페이지 이동 핸들러
   const FAQDetailClick = (id) => {
     navigate(`/faq/${id}`);
   };
+    
   
-
   return (
     <div className="w-full bg-white font-sans text-gray-800">
       {/* ================= Header ================= */}
@@ -108,9 +108,9 @@ const FAQListPage = () => {
         <h1 className="text-3xl font-bold mb-8 text-gray-900">FAQ</h1>
 
         {/* Search Bar */}
-        <div className="flex border-2 border-gray-300 rounded-none mb-10 h-14">
-          <div className="relative w-32 md:w-48 border-r border-gray-300">
-            <select className="w-full h-full appearance-none px-4 text-gray-600 bg-white focus:outline-none">
+        <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg mb-10 flex flex-row items-center justify-center gap-2">
+          <div className="relative w-24 h-10 flex-none">
+            <select className="w-full h-full appearance-none border border-gray-300 rounded px-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-sm pr-6">
               <option>전체</option>
               <option>제목</option>
               <option>내용</option>
@@ -174,7 +174,7 @@ const FAQListPage = () => {
           {/* 현재 페이지에 해당하는 데이터만 맵핑 */}
           {currentItems.map((item) => (
             <div key={item.id} 
-            onClick={() => FAQDetailClick(item.id)}
+              onClick={() => FAQDetailClick(item.id)}
               className="border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow cursor-pointer">
               {/* Question */}
               <div className="flex items-start gap-3 mb-3">
@@ -201,7 +201,7 @@ const FAQListPage = () => {
           ))}
         </div>
 
-        {/* Pagination */}
+       {/* Pagination */}
         <div className="flex justify-center items-center gap-4 mt-10 select-none">
           {/* 이전 버튼 */}
           <button 
@@ -216,7 +216,7 @@ const FAQListPage = () => {
             <ChevronLeft size={18} strokeWidth={1.5} />
             <span className="hidden sm:inline">이전</span>
           </button>
-          
+
           {/* 페이지 번호 */}
           <div className="flex items-center gap-1">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
