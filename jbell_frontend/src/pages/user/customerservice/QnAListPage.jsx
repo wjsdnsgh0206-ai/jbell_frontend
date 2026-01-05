@@ -324,25 +324,30 @@ const QnAListPage = () => {
         <h1 className="text-3xl font-bold mb-8 text-gray-900">1:1문의</h1>
 
         {/* Search Bar (FAQPage 스타일 통일) */}
-        <div className="flex border-2 border-gray-300 rounded-none mb-10 h-14">
-          <div className="relative w-32 md:w-48 border-r border-gray-300">
-            <select className="w-full h-full appearance-none px-4 text-gray-600 bg-white focus:outline-none">
+        <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg mb-10 flex flex-row items-center justify-center gap-2">
+          <div className="relative w-24 h-10 flex-none">
+            <select className="w-full h-full appearance-none border border-gray-300 rounded px-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-sm pr-6">
               <option>전체</option>
               <option>제목</option>
               <option>내용</option>
             </select>
-            <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+              <ChevronDown size={14} className="text-gray-500" />
+            </div>
           </div>
-          <div className="flex-1 relative">
+          <div className="relative flex-1 h-10 min-w-0">
             <input 
               type="text" 
               placeholder="검색어를 입력해주세요." 
-              className="w-full h-full px-4 focus:outline-none"
+              className="w-full h-full border border-gray-300 rounded px-4 pr-10 focus:ring-2 focus:ring-blue-500 text-sm bg-white"
             />
-            <button className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">
-              <Search size={24} />
-            </button>
+            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <Search size={18} />
+            </span>
           </div>
+          <button className="h-10 bg-blue-600 text-white px-6 rounded font-medium hover:bg-blue-700 transition active:scale-95 shadow-sm whitespace-nowrap flex-none flex items-center justify-center">
+            검색
+          </button>
         </div>
 
         {/* Filter & Count & Button */}
