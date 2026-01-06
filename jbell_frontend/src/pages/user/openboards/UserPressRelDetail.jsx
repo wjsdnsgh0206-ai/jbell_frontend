@@ -1,120 +1,80 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
+import { pressData } from './BoardData';
+
+// 보도자료 상세페이지 //
 
 const UserPressRelDetail = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  // --- 1. 훅 및 파라미터 설정 --- //
+  const { id } = useParams(); // URL 경로에서 게시글 ID 추출 (예: /press/1)
+  const navigate = useNavigate(); // 페이지 이동(목록으로 돌아가기 등)을 위한 함수
 
-  // 페이지 진입 시 스크롤을 최상단으로 이동
+  // 컴포넌트가 마운트될 때(처음 나타날 때) 스크롤을 맨 위로 올림
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  // 1. 보도자료용 데이터 리스트 
-  const allNotices = [
-    { 
-      id: 1, 
-      title: "전북특별자치도 지진방재 국제세미나 개최", 
-      author: "관리자", 
-      date: "2025-11-11", 
-      files: [
-        { name: "전북특별자치도_지진방재국제세미나계획.hwp", url: "/files/press_01.hwp" }
-      ],
-      content: `전북특별자치도 지진방재 국제세미나 개최
+  // --- 2. 데이터 매칭 --- //
+  // 전체 보도자료 데이터(pressData) 중 URL ID와 일치하는 항목을 찾음
+  const data = pressData.find(item => item.id === Number(id));
 
-□ 개요
- ○ (행사주제) 지진위험을 고려한 내진설계와 단층조사의 실질적 해법 모색
- ○ (일시/장소) '25.11.22.(수) 13:40~17:00 / 공연장
- ○ (주최/주관) 행정안전부, (사)한국지진공학회 공동 주최
-    - 국립재난안전연구원, 전북특별자치도, 한국지질자원연구원, (주)한국지진공학회
- ○ (참석자) 국외(일본, 캐나다, 뉴질랜드) 내진/단층 전문가, 국내 중앙 및 시·군 공무원, 대학, 연구기관 및 기업 관계자 등 200여명
-
-출처 : 전북재난안전대책본부 (https://safe.jeonbuk.go.kr/index.php?menu=page&menu_id=notice_view&idx=12345)`
-    }, 
-    { 
-      id: 2, 
-      title: "전북특별자치도, 2026년 재해예방사업 국비 1,054억 확보", 
-      author: "관리자", 
-      date: "2025-11-11", 
-      files: [
-        { name: "2026년_재해예방사업_국비확보내역.pdf", url: "/files/press_02.pdf" }
-      ],
-      content: `전북특별자치도가 2026년 재해예방사업을 위한 국비 1,054억 원을 확보했습니다.
-
-이번 예산 확보를 통해 도내 기습 폭우 및 상습 침수 구역에 대한 정비 사업이 가속화될 전망입니다. 
-도민들의 생명과 재산을 보호하기 위해 노후 위험 시설 보강에 최선을 다하겠습니다.` 
-    },
-    { 
-      id: 3, 
-      title: "전북특별자치도 여름철 자연재난 인명피해 '0명'", 
-      author: "관리자", 
-      date: "2025-11-11", 
-      files: [{ name: "여름철_자연재난_대응실적보고.pdf", url: "/files/press_03.pdf" }],
-      content: `전북특별자치도는 올 여름철 자연재난 대책 기간 동안 철저한 상황 관리와 
-선제적인 통제를 통해 단 한 명의 인명피해도 발생하지 않았음을 알려드립니다.
-
-민·관이 합심하여 이루어낸 결과이며, 앞으로도 재난 없는 전북을 위해 노력하겠습니다.` 
-    }
-  ];
-
-  const noticeData = allNotices.find(item => item.id === Number(id));
-
+  // --- 3. 파일 다운로드 핸들러 --- //
   const handleDownload = (file) => {
     if (!file.url || file.url === "#") {
+      // 파일 URL 정보가 유효하지 않을 경우 차단
       alert("다운로드 가능한 파일 경로가 없습니다.");
       return;
     }
+
+    // 가상의 <a> 태그를 생성하여 브라우저의 다운로드 기능 강제 실행
     const link = document.createElement('a');
     link.href = file.url;
-    link.setAttribute('download', file.name);
+    link.setAttribute('download', file.name); // 저장될 파일명 지정
     document.body.appendChild(link);
     link.click();
-    link.remove();
+    link.remove(); // 실행 후 생성했던 태그 삭제
   };
 
-  if (!noticeData) {
+  // --- 4. 예외 처리 --- //
+  // 일치하는 데이터가 없을 경우 표시할 화면 (잘못된 접근 등)
+  if (!data) {
     return (
-     
-        <div className="py-20 text-center font-sans">
-          <p className="text-gray-500">게시글을 찾을 수 없습니다.</p>
-          <button onClick={() => navigate('/userPressRelList')} className="mt-4 text-blue-600 underline">목록으로 돌아가기</button>
-        </div>
-      
+      <div className="py-20 text-center font-sans">
+        <p className="text-gray-500">게시글을 찾을 수 없습니다.</p>
+        <button onClick={() => navigate('/userPressRelList')} className="mt-4 text-blue-600 underline">목록으로 돌아가기</button>
+      </div>
     );
   }
-
+  // 브레드크럼(네비게이션 경로) 설정
   const breadcrumbItems = [
-        { label: "홈", path: "/", hasIcon: true },
-        { label: "열린마당", path: "/userPressRelList", hasIcon: false },
-        { label: "보도자료", path: "/userPressRelList", hasIcon: false }, // 리스트로 이동 가능하게 path 추가
-
-      ];
+    { label: "홈", path: "/", hasIcon: true },
+    { label: "열린마당", path: "/userPressRelList", hasIcon: false },
+    { label: "보도자료", path: "/userPressRelList", hasIcon: false },
+  ];
 
   return (
-    
-      <div className="w-full">
-       <PageBreadcrumb items={breadcrumbItems} />
-
-        {/* ✅ 타이틀 영역: text-3xl mb-10으로 목록과 위치 일치 */}
+    // 전체 컨테이너: 모바일에서 px-5 여백, 데스크탑(md) 이상에서 여백 제거
+    <div className="w-full px-5 md:px-0">
+      <PageBreadcrumb items={breadcrumbItems} />
+      <main className="w-full">
         <h2 className="text-3xl font-bold mb-10 text-gray-900 tracking-tight text-left">보도자료</h2>
 
-        {/* 게시글 상단 정보 */}
+        {/* --- 상단 헤더 영역 --- */}        
         <div className="border-t border-gray-200">
           <div className="py-8 px-2 text-left">
-            <h3 className="text-[20px] font-bold text-black mb-6">
-              제목 : {noticeData.title}
-            </h3>
-            
+            <h3 className="text-[20px] font-bold text-black mb-6">제목 : {data.title}</h3>
+            {/* 게시글 메타 정보 (등록자, 등록일) */}
             <div className="flex items-center gap-x-6 text-[14px] text-[#222]">
-              <div><span className="text-[#444]">등록자 :</span> {noticeData.author}</div>
-              <div className="w-[1px] h-3 bg-gray-300"></div>
-              <div><span className="text-[#444]">등록일 :</span> {noticeData.date}</div>
+              <div><span className="text-[#444]">등록자 :</span> {data.author}</div>
+              <div className="w-[1px] h-3 bg-gray-300"></div> {/* 세로 구분선 */}
+              <div><span className="text-[#444]">등록일 :</span> {data.date}</div>
             </div>
 
-            {/* 첨부파일 영역 */}
-            {noticeData.files && noticeData.files.length > 0 && (
+            {/* --- 첨부파일 영역 (데이터가 있을 때만 렌더링) --- */}
+            {data.files && data.files.length > 0 && (
               <div className="mt-6 flex items-start gap-2 text-[16px]">
+                {/* 제목 및 아이콘 */}
                 <span className="font-bold text-[#333] shrink-0 flex items-center gap-1">
                   <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
@@ -122,16 +82,18 @@ const UserPressRelDetail = () => {
                   [첨부파일]
                 </span>
 
+                {/* 파일 리스트 반복 출력 */}    
                 <div className="flex flex-wrap items-center">
-                  {noticeData.files.map((file, idx) => (
+                  {data.files.map((file, idx) => (
                     <React.Fragment key={idx}>
                       <button 
-                        onClick={() => handleDownload(file)}
+                        onClick={() => handleDownload(file)} 
                         className="text-blue-600 hover:underline font-medium"
                       >
                         {file.name}
                       </button>
-                      {idx < noticeData.files.length - 1 && (
+                      {/* 파일이 여러 개일 때 파일 사이에만 쉼표 표시 */}
+                      {idx < data.files.length - 1 && (
                         <span className="text-gray-400 mx-1.5">,</span>
                       )}
                     </React.Fragment>
@@ -142,31 +104,33 @@ const UserPressRelDetail = () => {
           </div>
         </div>
 
-        {/* 본문 구분선 */}
+        {/* --- 본문 내용 영역 --- */}
         <div className="border-t border-black"></div>
-
-        {/* 본문 내용 (whitespace-pre-wrap으로 줄바꿈 유지) */}
         <div className="py-12 px-2 min-h-[400px] text-left">
           <div className="text-[16px] leading-[1.8] text-[#222] whitespace-pre-wrap font-normal">
-            {noticeData.content}
+            {data.content}
           </div>
         </div>
-
-        {/* 하단 구분선 */}
+        
         <div className="border-t border-gray-200"></div>
-
-        {/* 목록 버튼 */}
+        
+        {/* --- 하단 액션 영역 --- */}
         <div className="flex justify-end mt-8">
           <button 
-            onClick={() => navigate('/userPressRelList')}
-            className="bg-[#2b79f3] text-white px-5 py-2.5 rounded-md text-[15px] font-semibold hover:bg-[#1a65d6] transition-all duration-200 shadow-sm"
+            onClick={() => navigate('/userPressRelList')} 
+            className="bg-[#2b79f3] text-white px-5 py-2.5 rounded-md text-[15px] font-semibold hover:bg-[#1a65d6] transition-all duration-200"
           >
             목록
           </button>
         </div>
-      </div>
-    
+      </main>
+    </div>
   );
 };
 
 export default UserPressRelDetail;
+
+
+
+// 상세 페이지에서는  whitespace-pre-wrap 속성이 중요한데, 
+// 이 속성 덕분에 게시판 관리자가 입력한 줄바꿈이나 공백이 깨지지 않고 사용자에게 그대로 보이게 됩니다.

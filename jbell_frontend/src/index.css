@@ -19,6 +19,7 @@
 :root {
   /* --- Colors --- */
   --graygray-0: #FFFFFF;
+  --graygray-3: #eff6ff66;
   --graygray-5: #F8F8F8;
   --graygray-10: #E6E8EA;
   --graygray-30: #D8D8D8;
@@ -28,8 +29,24 @@
   --graygray-80: #2D2D2D;
   --graygray-90: #1D1D1D;
 
+  --orange-50: #FFF7ED;
+  --orange-200: #FED7AA;
+  --orange-600: #EA580C;
+
+  --green-100: #DCFCE7;
+  --green-200: #BBF7D0;
+  --green-700: #15803D;
+
+  --blue-100: #DBEAFE;
+  --blue-200: #BFDBFE;
+  --blue-700: #1D4ED8;
+
   --secondary-5: #EDF1F5;
+  --secondary-10: #eff6ff66;
   --secondary-50: #003675;
+  --secondary-80: #052561;
+
+  --primary-50: #256EF5;
 
   /* --- Typography Basics --- */
   --font-base: "Pretendard GOV", -apple-system, sans-serif;
