@@ -3,6 +3,8 @@ import navigationItems from '@/routes/user/navigationItems';
 import { useState, useEffect } from "react";
 import { Menu, X, ChevronRight, ChevronDown, User, LogOut, LogIn, UserPlus } from 'lucide-react';
 
+
+
 const UserHeader = () => {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -10,20 +12,22 @@ const UserHeader = () => {
   const [mobileOpenIndex, setMobileOpenIndex] = useState(null);
 
   useEffect(() => {
-    const status = localStorage.getItem('isLoggedIn') === 'true';
+    // [변경] localStorage -> sessionStorage 로 변경
+    // 브라우저 탭을 닫으면 데이터가 삭제되므로 상태 유지가 되지 않습니다.
+    const status = sessionStorage.getItem('isLoggedIn') === 'true';
     setIsLoggedIn(status);
   }, []);
 
   const handleLogout = () => {
     if (window.confirm("로그아웃 하시겠습니까?")) {
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('userName');
+      // [변경] 삭제 시에도 sessionStorage 사용
+      sessionStorage.removeItem('isLoggedIn');
+      sessionStorage.removeItem('userName');
       setIsLoggedIn(false);
       navigate('/');
       window.location.reload();
     }
   };
-
   const authButtons = isLoggedIn 
     ? [
         { label: "마이페이지", icon: User, lnk: "/myProfile" },

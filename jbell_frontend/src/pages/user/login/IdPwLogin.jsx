@@ -1,35 +1,52 @@
-import React, { useState } from 'react';
-import { ChevronRight, Info, User, Lock } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronRight, Info, User, Lock, Check } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 
 const IdPwLogin = () => {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
-  const [saveId, setSaveId] = useState(false);
+  const [rememberId, setRememberId] = useState(false); // 아이디 저장 및 자동 로그인 통합 상태
   const navigate = useNavigate();
+
+  // 페이지 로드 시 '아이디 저장'이 되어 있다면 불러오기
+  useEffect(() => {
+    const savedId = localStorage.getItem('rememberedId');
+    if (savedId) {
+      setUserId(savedId);
+      setRememberId(true);
+    }
+  }, []);
 
   const handleLogin = (e) => {
     e.preventDefault();
     
-    // 1. 유효성 검사
     if (!userId || !password) {
       alert('아이디와 비밀번호를 모두 입력해주세요.');
       return;
     }
 
-    // 2. 로그인 시뮬레이션 (실제 프로젝트에서는 API 호출)
-    console.log('로그인 시도:', { userId, password, saveId });
+    // --- 로그인 처리 로직 ---
 
-    // 3. 로그인 상태 저장 (핵심 포인트)
-    // LocalStorage에 저장하면 브라우저를 새로고침해도 로그인이 유지됩니다.
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('userName', userId); // 마이페이지 등에서 이름을 띄우기 위해 저장
+    // 1. 세션 기반 로그인 (현재 탭 유지)
+    sessionStorage.setItem('isLoggedIn', 'true');
+    sessionStorage.setItem('userName', userId);
 
-    // 4. 성공 알림 및 페이지 이동
+    // 2. 아이디 저장 및 자동 로그인 체크 시 처리
+    if (rememberId) {
+      // 아이디를 로컬 스토리지에 저장 (브라우저 재방문 시 자동 입력용)
+      localStorage.setItem('rememberedId', userId);
+      // 자동 로그인 활성화 여부 저장 (App.js나 Main에서 이 값을 보고 자동 로그인 처리)
+      localStorage.setItem('isAutoLogin', 'true');
+    } else {
+      // 체크 해제 시 관련 정보 삭제
+      localStorage.removeItem('rememberedId');
+      localStorage.removeItem('isAutoLogin');
+    }
+
     alert(`${userId}님, 환영합니다!`);
     navigate('/'); 
     
-    // 5. 상태 즉시 반영을 위한 새로고침 (헤더의 UI를 바꾸기 위함)
+    // 헤더 및 전역 상태 반영을 위한 새로고침
     window.location.reload();
   };
 
@@ -46,7 +63,6 @@ const IdPwLogin = () => {
 
         <hr className="border-t border-gray-200 my-8" />
 
-        {/* Main Content */}
         <div className="flex flex-col md:flex-row gap-10 lg:gap-16 mb-10">
           <div className="flex-1 order-1">
             <form onSubmit={handleLogin} className="space-y-5 text-left">
@@ -78,16 +94,30 @@ const IdPwLogin = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 py-2">
-                <input
-                  type="checkbox"
-                  id="saveId"
-                  checked={saveId}
-                  onChange={(e) => setSaveId(e.target.checked)}
-                  className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                />
-                <label htmlFor="saveId" className="text-sm text-gray-600 cursor-pointer select-none">
-                  아이디 저장
+              {/* 아이디 저장 (자동 로그인 기능 통합) */}
+              <div className="py-2">
+                <label className="flex items-center gap-2 cursor-pointer group w-fit">
+                  <div className="relative flex items-center justify-center">
+                    <input 
+                      type="checkbox" 
+                      id="saveId" 
+                      checked={rememberId} 
+                      onChange={(e) => setRememberId(e.target.checked)} 
+                      className="peer appearance-none w-6 h-6 border-2 border-slate-300 rounded-md checked:bg-blue-600 checked:border-blue-600 transition-all cursor-pointer" 
+                    />
+                    <Check 
+                      size={16} 
+                      className={`absolute transition-all pointer-events-none ${
+                        rememberId ? 'text-white scale-110 opacity-100' : 'text-transparent scale-50 opacity-0'
+                      }`} 
+                      strokeWidth={4} 
+                    />
+                  </div>
+                  <span className={`text-[15px] font-semibold transition-colors ${
+                    rememberId ? 'text-blue-600' : 'text-slate-500 group-hover:text-slate-700'
+                  }`}>
+                    아이디 저장
+                  </span>
                 </label>
               </div>
 
