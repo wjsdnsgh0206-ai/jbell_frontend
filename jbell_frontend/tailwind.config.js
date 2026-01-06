@@ -19,6 +19,10 @@ export default {
         secondary: {
           5: "var(--secondary-5)",
           50: "var(--secondary-50)",
+          80: "var(--secondary-80)",
+        },
+        primary: {
+          50: "var(--primary-50)", 
         },
       },
       // 2. 폰트 패밀리 (필요한 경우만 기본값 재정의)
