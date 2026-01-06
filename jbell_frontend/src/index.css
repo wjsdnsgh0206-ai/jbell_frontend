@@ -32,6 +32,9 @@
   --secondary-5: #EDF1F5;
   --secondary-10: #eff6ff66;
   --secondary-50: #003675;
+  --secondary-80: #052561;
+
+  --primary-50: #256EF5;
 
   /* --- Typography Basics --- */
   --font-base: "Pretendard GOV", -apple-system, sans-serif;

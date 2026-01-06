@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
-import { Search, Home, ChevronRight, ChevronLeft, ChevronDown, Menu, User, Globe, MessageCircle } from 'lucide-react';
+import { Search, Home, ChevronRight, ChevronLeft, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 
 const QnAListPage = () => {
   const navigate = useNavigate();
+
+  // --- Breadcrumb 데이터 설정 ---
+  const breadcrumbItems = [
+    { label: "홈", path: "/", hasIcon: true },
+    { label: "고객센터", path: "/qna", hasIcon: false },
+    { label: "1:1문의", path: "/qna", hasIcon: false },
+  ];
 
   // 샘플 데이터
   const inquiries = [
@@ -309,40 +317,37 @@ const QnAListPage = () => {
   return (
     <div className="w-full bg-white font-sans text-gray-800">
       {/* ================= Breadcrumb ================= */}
-      <div className="w-full bg-gray-50 border-b border-gray-200">
-        <div className="max-w-[1280px] mx-auto px-4 py-3 flex items-center text-gray-500 text-sm">
-          <Home size={16} />
-          <ChevronRight size={16} className="mx-2" />
-          <span className="font-medium text-gray-900">고객센터</span>
-          <ChevronRight size={16} className="mx-2" />
-          <span className="font-medium text-gray-900">1:1문의</span>
-        </div>
-      </div>
+       <PageBreadcrumb items={breadcrumbItems} />
 
       {/* ================= Main Content ================= */}
       <main className="max-w-[1280px] mx-auto px-4 py-10">
-        <h1 className="text-3xl font-bold mb-8 text-gray-900">1:1문의</h1>
+        <h1 className="text-heading-xl font-bold mb-8 text-gray-900">1:1문의</h1>
 
         {/* Search Bar (FAQPage 스타일 통일) */}
-        <div className="flex border-2 border-gray-300 rounded-none mb-10 h-14">
-          <div className="relative w-32 md:w-48 border-r border-gray-300">
-            <select className="w-full h-full appearance-none px-4 text-gray-600 bg-white focus:outline-none">
+        <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg mb-10 flex flex-row items-center justify-center gap-2">
+          <div className="relative w-24 h-10 flex-none">
+            <select className="w-full h-full appearance-none border border-gray-300 rounded px-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-sm pr-6">
               <option>전체</option>
               <option>제목</option>
               <option>내용</option>
             </select>
-            <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+              <ChevronDown size={14} className="text-gray-500" />
+            </div>
           </div>
-          <div className="flex-1 relative">
+          <div className="relative flex-1 h-10 min-w-0">
             <input 
               type="text" 
               placeholder="검색어를 입력해주세요." 
-              className="w-full h-full px-4 focus:outline-none"
+              className="w-full h-full border border-gray-300 rounded px-4 pr-10 focus:ring-2 focus:ring-blue-500 text-sm bg-white"
             />
-            <button className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">
-              <Search size={24} />
-            </button>
+            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <Search size={18} />
+            </span>
           </div>
+          <button className="h-10 bg-blue-600 text-white px-6 rounded font-medium hover:bg-blue-700 transition active:scale-95 shadow-sm whitespace-nowrap flex-none flex items-center justify-center">
+            검색
+          </button>
         </div>
 
         {/* Filter & Count & Button */}
