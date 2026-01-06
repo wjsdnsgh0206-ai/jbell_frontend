@@ -29,6 +29,17 @@ const MountainSafetyActionGuide = lazy(() => import("@/pages/user/behavioralGuid
 const UserFacilityList = lazy(() => import("@/pages/user/facility/UserFacilityList"));
 const UserFacilityDetail = lazy(() => import("@/pages/user/facility/UserFacilityDetail"));
 
+// 도시안전기본계획 import
+const CitySafetyMasterPlan = lazy(() => import("@/pages/user/mainSafetyPolicies/citySafetyMasterPlan/CitySafetyMasterPlan"));
+// 재난별 안전정책 import
+const EarthquakeSafetyPolicy = lazy(() => import("@/pages/user/mainSafetyPolicies/disasterSafetyPolicy/earthquake/EarthquakeSafetyPolicy"));
+const StormAndFloodSafetyPolicy = lazy(() => import("@/pages/user/mainSafetyPolicies/disasterSafetyPolicy/stormAndFlood/StormAndFloodSafetyPolicy"));
+// // 시민 안전보험 import
+const CitizenSafetyInsurance = lazy(() => import("@/pages/user/mainSafetyPolicies/citizenSafetyInsurance/CitizenSafetyInsurance"));
+// // 풍수해 안전보험 import
+const StormAndFloodInsurance = lazy(() => import("@/pages/user/mainSafetyPolicies/stormAndFloodInsurance/StormAndFloodInsurance"));
+
+
 export const jhUserRoutes = [
   /* 자연재난행동요령 */
   // 지진 행동요령
@@ -168,5 +179,42 @@ export const jhUserRoutes = [
     element: <UserFacilityDetail />,
     sidebarData: SIDE_MENU_DATA.FACILITY,
     nowPage: "대피소 소개",
+  },
+  /* 도시안전기본계획*/
+  // 도시안전기본계획 개요
+  { 
+    path: "/citySafetyMasterPlan",
+    element: <CitySafetyMasterPlan />, 
+    sidebarData: SIDE_MENU_DATA.MAIN_SAFETY_POLICIES,
+    nowPage: "주요 안전정책",
+  },
+  /* 재난별 안전정책*/
+  // 지진
+  { 
+    path: "/earthquakeSafetyPolicy",
+    element: <EarthquakeSafetyPolicy />, 
+    sidebarData: SIDE_MENU_DATA.MAIN_SAFETY_POLICIES,
+    nowPage: "주요 안전정책",
+  },
+  // 태풍, 호우
+  { 
+    path: "/stormAndFloodSafetyPolicy",
+    element: <StormAndFloodSafetyPolicy />, 
+    sidebarData: SIDE_MENU_DATA.MAIN_SAFETY_POLICIES,
+    nowPage: "주요 안전정책",
+  },
+  // 시민 안전보험
+  { 
+    path: "/citizenSafetyInsurance",
+    element: <CitizenSafetyInsurance />, 
+    sidebarData: SIDE_MENU_DATA.MAIN_SAFETY_POLICIES,
+    nowPage: "주요 안전정책",
+  },
+  // 풍수해 안전보험
+  { 
+    path: "/stormAndFloodInsurance",
+    element: <StormAndFloodInsurance />, 
+    sidebarData: SIDE_MENU_DATA.MAIN_SAFETY_POLICIES,
+    nowPage: "주요 안전정책",
   },
 ];

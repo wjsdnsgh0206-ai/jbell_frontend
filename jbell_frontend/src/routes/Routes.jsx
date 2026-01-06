@@ -48,6 +48,9 @@ const AllRoutes = (props) => {
 
   // [A] 마이페이지 사이드바 그룹
   const myPageRoutes = allUserRoutes.filter(route => route.nowPage === "마이페이지");
+  
+  // [A] 주요 안전정책 사이드바 그룹
+  const mainSafetyPoliciesPageRoutes = allUserRoutes.filter(route => route.nowPage === "주요 안전정책");
 
   return (
     <Routes>
@@ -75,6 +78,15 @@ const AllRoutes = (props) => {
       <Route element={<UserLayout sidebarData={SIDE_MENU_DATA.FACILITY} nowPage="대피소 소개" {...props} />}>
         {facilityRoutes.map((route, idx) => (
           <Route key={`facility-${idx}`} path={route.path} element={route.element} />
+        ))}
+      </Route>
+
+      {/* --------------------------------------------------------- */}
+      {/* 주요 안전정책 레이아웃 그룹 (UserLayout이 한 번만 마운트됨) */}
+      {/* --------------------------------------------------------- */}
+      <Route element={<UserLayout sidebarData={SIDE_MENU_DATA.MAIN_SAFETY_POLICIES} nowPage="주요 안전정책" {...props} />}>
+        {mainSafetyPoliciesPageRoutes.map((route, idx) => (
+          <Route key={`mainSafetyPolicies-${idx}`} path={route.path} element={route.element} />
         ))}
       </Route>
 

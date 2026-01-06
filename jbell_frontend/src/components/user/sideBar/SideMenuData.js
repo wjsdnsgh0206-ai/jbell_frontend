@@ -1,3 +1,4 @@
+// src/components/uuser/sideBar/SideMenuData.js
 export const SIDE_MENU_DATA = {
   MY_PAGE: [
     { 
@@ -91,4 +92,28 @@ export const SIDE_MENU_DATA = {
       items: [],
     },
   ],
+  MAIN_SAFETY_POLICIES: [
+    { 
+      title: '도시안전기본계획', 
+      path: '/citySafetyMasterPlan',
+      items: [],
+    },
+    { 
+      title: '재난별 안전정책', 
+      items: [
+        { name: '지진', path: '/earthquakeSafetyPolicy' },
+        { name: '태풍, 호우', path: '/stormAndFloodSafetyPolicy' },
+      ] 
+    },
+    { 
+      title: '시민 안전보험', 
+      path: '/citizenSafetyInsurance',
+      items: [],
+    },
+    { 
+      title: '풍수해 안전보험', 
+      path: '/stormAndFloodInsurance',
+      items: [],
+    },
+  ]
 };
