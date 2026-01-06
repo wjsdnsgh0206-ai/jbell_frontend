@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, Navigation, User, Layers, Home, RotateCcw, Menu, X } from 'lucide-react';
+import DaumPostcode from 'react-daum-postcode'; // 카카오 우편번호 서비스
 
 /* <================ SelectBox 부품 (동일) ================> */
 const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
@@ -22,22 +23,29 @@ const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
     </div>
   );
 };
+/* <================ SelectBox 부품 (동일) ================> */
+
+
+
 
 const UserMap = () => {
-  /* <================ 상태 관리 ================> */
+/* <========================== 상태 관리(앱의 기억력) ==========================> */
+  // ui 상태
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null); 
   const [addressType, setAddressType] = useState('road');
 
-  // 주소 선택 값
-  const [selectedSido, setSelectedSido] = useState('');
-  const [selectedSigun, setSelectedSigun] = useState('');
-  const [selectedGoo, setSelectedGoo] = useState('');
-  const [selectedDong, setSelectedDong] = useState('');
-  const [selectedInitial, setSelectedInitial] = useState('');
-  const [selectedRoad, setSelectedRoad] = useState('');
+  // 주소 선택 값 -> 사용자의 선택 상태
+  // ( 사용자가 지금 무엇을 선택했는가 ) - 이것이 검색 키워드의 재료
+  const [selectedSido, setSelectedSido] = useState('');         // 시도
+  const [selectedSigun, setSelectedSigun] = useState('');       // 시군
+  const [selectedGoo, setSelectedGoo] = useState('');           // 구
+  const [selectedDong, setSelectedDong] = useState('');         // 읍면동
+  const [selectedInitial, setSelectedInitial] = useState('');   // 초성
+  const [selectedRoad, setSelectedRoad] = useState('');         // 도로명
 
-  // 대피소 및 검색 결과
+  // 대피소 및 검색 결과 -> 핵심 데이터 상태
+  // 리스트에 보여짐 / 마커로 변환됨 / 클릭 시 지도 이동 -> 상태가 바뀌면 사이드 바, 마커가 다시 그려짐
   const [shelterResults, setShelterResults] = useState([]); 
   const [selectedShelter, setSelectedShelter] = useState(null);
 
@@ -47,13 +55,19 @@ const UserMap = () => {
   const [mountainSelect, setMountainSelect] = useState('');
   const [sortType, setSortType] = useState('distance');
 
-  // ★ [카카오맵 관련 상태]
+  // 카카오 모음
+  // ★ [카카오맵 관련 상태] - 지도 전용 상태
   const mapRef = useRef(null); // 지도를 담을 DOM 레퍼런스
   const [mapInstance, setMapInstance] = useState(null); // 지도 객체 저장
   const [markers, setMarkers] = useState([]); // 현재 표시된 마커들 관리
   const [searchKeyword, setSearchKeyword] = useState(''); // 검색어 상태 추가
+  // 카카오 우편번호 서비스
+  const [showPostcode, setShowPostcode] = useState(false);
+ /* <========================== 상태 관리 ==========================> */
 
-  /* <================ 데이터 정의 (동일) ================> */
+
+
+/* <====================== 데이터 정의 (동일) =======================> */
   const REGION_DATA = {
     '전주시': ['완산구', '덕진구'],
     '군산시': [], '익산시': [], '정읍시': [], '남원시': [], '김제시': [],
@@ -71,7 +85,12 @@ const UserMap = () => {
   const MBY_SELECTS = { '민방위대피소':[], '비상급수시설':[], '지진옥외대피장소':[], '이재민임시주거시설(지진겸용)':[], '이재민임시주거시설':[] };
   const TE_SELECTS = { '빗물펌프장':[], '빗물저류장':[], '대피소정보':[] };
   const MT_SELECTS = { '산사태대피소':[], '산불대피소':[] };
-  const JB_REGIONS_FOR_SELECTS = { '전주시 완산구':[], '전주시 덕진구':[], '군산시':[], '익산시':[], '정읍시':[], '남원시':[], '김제시':[], '완주군':[], '고창군':[], '부안군':[], '순창군':[], '임실군':[], '무주군':[], '진안군':[], '장수군':[] };
+  const JB_REGIONS_FOR_SELECTS = { '전주시 완산구':[], '전주시 덕진구':[], 
+    '군산시':[], '익산시':[], '정읍시':[], '남원시':[], '김제시':[], 
+    '완주군':[], '고창군':[], '부안군':[], '순창군':[], '임실군':[], '무주군':[], '진안군':[], '장수군':[] };
+/* <====================== 데이터 정의 (동일) =======================> */
+
+
 
 /* <================================ 핸들러 함수들 ================================> */
 // handleGoHome
@@ -81,6 +100,8 @@ const UserMap = () => {
     // 마커 제거
     removeMarkers();
   };
+//
+//
 //
 // handleSigunSelect
   const handleSigunSelect = (city) => { 
@@ -99,6 +120,8 @@ const UserMap = () => {
     return DETAILED_DATA[selectedSigun]?.['기본'] || [];
   };
 //
+//
+//
 // handleCivilChange
 // 재난 유형 변경 시 실제 검색 실행 (예시: 키워드로 검색)
   const handleCivilChange = (value) => { 
@@ -113,6 +136,8 @@ const UserMap = () => {
     setMountainSelect(value); setCivilSelect(''); setWeatherSelect('');
     if(value && selectedSigun) searchPlaces(`${selectedSigun} ${value}`);
   };
+//
+//
 //
 // handleResultClick
 const handleResultClick = (item) => {
@@ -130,6 +155,7 @@ const handleResultClick = (item) => {
 
   if (window.innerWidth < 768) setIsMobileMenuOpen(false);
 };
+//
 //
 //
 // handleSearch
@@ -154,13 +180,33 @@ const handleSearch = async () => {
   }
 };
 //
+//
+//
+// handleComplete
+ {/* 카카오 우편번호 서비스(daum.postcode) */}
+    const handleComplete = (data) => {
+    // 상세 주소(건물번호 등)를 제외한 기본 주소만 추출
+    // 예: "전북특별자치도 전주시 완산구 효자동3가 123-4" -> "전주시 완산구 효자동3가"
+    const displayAddr = data.address;
+    const searchAddr = data.bname || data.address.split(' ').slice(0, 4).join(' ');
+
+    setSelectedRoad(displayAddr); 
+    
+    // 주소 뒤에 '대피소'를 붙여서 검색
+    searchPlaces(`${searchAddr} 대피소`); 
+    
+    setShowPostcode(false); 
+    if (window.innerWidth < 768) setIsMobileMenuOpen(false); 
+};
+//
 /* <================================ 핸들러 함수들 ================================> */
 
 
-  /* <================ ★ 카카오맵 로직 시작 ★ ================> */
+/* <================ ★ 카카오맵 로직 시작 ★ ================> */
   // useEffect 모음
   //
-      // 1. 지도 초기화
+    /* <========== 지도 초기화 ==========> */
+    // 1. 지도 초기화
       useEffect(() => {
         if (!window.kakao) {
           console.error("카카오맵 스크립트가 로드되지 않았습니다.");
@@ -199,8 +245,9 @@ const handleSearch = async () => {
         });
       };
     //
-//
-    // [수정된 useEffect]
+    /* <========== 지도 초기화 ==========> */
+    /* <========== 지도 초기화 ==========> */
+    // 2
     useEffect(() => {
       if (!mapInstance || !Array.isArray(shelterResults)) return;
 
@@ -246,10 +293,10 @@ const handleSearch = async () => {
       }
     }, [shelterResults, mapInstance]);
     //
-// useEffect 최종 막줄
+    /* <========== 지도 초기화 ==========> */
+  // useEffect 최종 막줄
 
 
-  
 
   // 마커 제거 헬퍼 함수
   const removeMarkers = () => {
@@ -388,9 +435,9 @@ const handleSearch = async () => {
                   />
                </div>
                {/* 검색 결과 */}
-               <div className="mt-4">
+               <div className="space-y-2 pt-2 border-t">
                   <p className="text-xs text-slate-500 mb-2">검색 결과 {shelterResults.length}건</p>
-                    <div className="flex gap-2 mt-4">
+                    <div className="flex gap-2 mt-4 text-sm">
                     <button onClick={() => setSortType('distance')}>
                       거리순
                     </button>
@@ -412,45 +459,69 @@ const handleSearch = async () => {
             </div>
           ) : activeMenu === 'address' ? (
              <>
-             <div className="flex border-b text-sm font-medium sticky top-0 bg-white z-10">
-                <button 
-                  onClick={() => setAddressType('road')}
-                  className={`flex-1 py-3 ${addressType === 'road' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400'}`}
-                >도로명 주소</button>
-                <button 
-                  onClick={() => setAddressType('jibun')}
-                  className={`flex-1 py-3 ${addressType === 'jibun' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-slate-400'}`}
-                >지번 주소</button>
-              </div>
-
             <div className="p-4 space-y-4">
-                {addressType === 'road' ? (
-                  <div className="space-y-4">
-                    <SelectBox label="시도 선택" value={selectedSido} options={['전북특별자치도']} onChange={setSelectedSido} />
-                    <SelectBox label="시군 선택" value={selectedSigun} options={Object.keys(REGION_DATA)} onChange={handleSigunSelect} />
-                    <SelectBox label="구 선택" value={selectedGoo} options={REGION_DATA[selectedSigun] || []} disabled={!REGION_DATA[selectedSigun]?.length} onChange={setSelectedGoo} />
-                    <SelectBox label="초성 선택" value={selectedInitial} onChange={setSelectedInitial} />
-                    <SelectBox label="도로명 선택" value={selectedRoad} onChange={setSelectedRoad} />
+                 {/* 시군 버튼 */}
+                <div>
+                  <SelectBox label="시군 선택" value={selectedSigun} options={Object.keys(REGION_DATA)} onChange={handleSigunSelect} />
+                </div>
+                  {/* 안내 문구 */}
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+                    <p className="text-sm text-green-800 font-bold mb-1">🔍 주소로 바로 찾기</p>
+                    <p className="text-xs text-green-600">동네 이름이나 주소를 입력하면 주변 대피소를 찾아드려요.</p>
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    <SelectBox label="시도 선택" value={selectedSido} options={['전북특별자치도']} onChange={setSelectedSido} />
-                    <SelectBox label="시군 선택" value={selectedSigun} options={Object.keys(REGION_DATA)} onChange={handleSigunSelect} />
-                    <SelectBox label="구 선택" value={selectedGoo} options={REGION_DATA[selectedSigun] || []} disabled={!REGION_DATA[selectedSigun]?.length} onChange={setSelectedGoo} />
-                    <SelectBox label="읍면동 선택" value={selectedDong} options={getDongOptions()} disabled={getDongOptions().length === 0} onChange={setSelectedDong} />
-                  </div>
-                )}
 
-                {/* [3. 주소 검색 메뉴하단 고정 영역] 메뉴가 선택되었을 때만 검색하기 버튼 표시 */}
-                {activeMenu === 'address' && (
-                  <div className="p-4 border-t bg-slate-50">
+                  {/* 주소 검색창 열기 버튼 */}
+                  {!showPostcode ? (
                     <button 
-                    onClick={() => setShelterResults([])}
-                    className="w-full bg-blue-600 text-white py-3 rounded-md font-bold hover:bg-blue-700 transition-all shadow-lg active:scale-95">
-                      검색하기
+                      onClick={() => setShowPostcode(true)}
+                      className="w-full flex items-center justify-between p-4 bg-white border-2 border-green-500 rounded-xl text-green-600 font-bold shadow-md hover:bg-green-100 transition-all"
+                    >
+                      <span className="truncate mr-2">{selectedRoad || "주소를 검색하려면 클릭하세요"}</span>
+                      <Search size={20} className="shrink-0" />
                     </button>
-                  </div>
-                )}
+                  ) : (
+                    <div className="border-2 border-green-500 rounded-xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+                      <div className="bg-green-500 p-2 flex justify-between items-center text-white text-xs">
+                        <span>주소를 입력해주세요</span>
+                        <button onClick={() => setShowPostcode(false)}><X size={18}/></button>
+                      </div>
+                      <DaumPostcode onComplete={handleComplete} style={{ height: '450px' }} />
+                    </div>
+                  )}
+
+                {/* 검색 결과 리스트 표시 영역 */}
+                <div className="mt-6">
+                  {shelterResults.length > 0 ? (
+                    <>
+                      <p className="text-[11px] text-slate-400 mb-3 border-b pb-1">
+                        📍 {selectedRoad.split(' ').slice(-1)} 주변 대피소 {shelterResults.length}건
+                      </p>
+                      <div className="space-y-3">
+                        {shelterResults.map((item, idx) => (
+                          <div 
+                            key={idx} 
+                            onClick={() => handleResultClick(item)}
+                            className="p-4 bg-white border rounded-xl hover:border-blue-500 hover:shadow-md cursor-pointer transition-all group"
+                          >
+                            <div className="flex justify-between items-start mb-1">
+                              <h4 className="font-bold text-slate-800 group-hover:text-blue-600">{item.place_name}</h4>
+                              <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded">
+                                {item.category_group_name || '대피시설'}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-500 mb-2">{item.address_name}</p>
+                            {item.phone && <p className="text-[11px] text-blue-400">{item.phone}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : selectedRoad && !showPostcode ? (
+                    <div className="py-10 text-center">
+                      <p className="text-slate-400 text-sm">해당 주소 주변에 검색된<br/>대피소 정보가 없습니다.</p>
+                    </div>
+                  ) : null}
+                </div>
+
             </div>
             </>
           ) : (
