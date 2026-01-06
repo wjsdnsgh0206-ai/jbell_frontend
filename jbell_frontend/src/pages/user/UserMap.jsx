@@ -255,6 +255,8 @@ const handleSearch = async () => {
     /* <========== 지도 초기화 ==========> */
     // 1. 지도 초기화
       useEffect(() => {
+        shelterRequest();
+        
         if (!window.kakao) {
           console.error("카카오맵 스크립트가 로드되지 않았습니다.");
           return;
