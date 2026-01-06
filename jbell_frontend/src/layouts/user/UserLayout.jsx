@@ -1,24 +1,32 @@
-// src/layouts/user/UserLayout.jsx
 import { Suspense } from "react";
-import { Outlet } from "react-router-dom"; // Outlet 필수
+import { Outlet } from "react-router-dom"; 
 import UserHeader from './UserHeader';
 import UserFooter from './UserFooter';
 import UserSideBar from "./UserSideBar";
+
+/*
+  UserLayout 컴포넌트
+  > 작성자 : 최지영
+  > 컴포넌트 이름 : 모든 페이지에서 사용되는 기본 layout
+  > 컴포넌트 설명 : header와 footer, sideBar 컴포넌트를 불러와서 사용 할 수 있는 기본 페이지 layout.
+*/
 
 const UserLayout = ({ sidebarData, nowPage }) => {
   return (
     <Suspense fallback={<div>로딩 중...</div>}>
       <div className="min-h-screen flex flex-col w-full bg-white">
+        {/* header */}
         <UserHeader />
         <div className="flex-1 w-full">
           {sidebarData ? (
             <div className="flex w-full max-w-screen-xl mx-auto h-full">
               <aside className="hidden md:block shrink-0 border-r border-graygray-40">
-                {/* activeItem 제거 (URL 기반 자동 활성화) */}
+                {/* sideBar */}
                 <UserSideBar nowPage={nowPage} categories={sidebarData} />
               </aside>
               <main className="flex-1 w-full pl-0 md:pl-12 lg:pl-20 pb-20 px-4 md:px-0">
-                <Outlet /> {/* 여기가 핵심! */}
+                {/* 다른 페이지가 들어올 수 있도록 중앙에 outlet으로 뚫어놓음.  */}
+                <Outlet /> 
               </main>
             </div>
           ) : (
@@ -27,6 +35,7 @@ const UserLayout = ({ sidebarData, nowPage }) => {
             </main>
           )}
         </div>
+        {/* footer */}
         <UserFooter />
       </div>
     </Suspense>
