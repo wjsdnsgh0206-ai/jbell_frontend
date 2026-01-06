@@ -1,11 +1,11 @@
-// src/Routes.jsx
+// src/routes/Routes.jsx
 import { Routes, Route } from "react-router-dom";
 import UserLayout from "@/layouts/user/UserLayout";
 import DisasterModalLayout from "@/layouts/user/disasterModal/DisasterModalLayout";
 import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
 // 팀원별 라우트 파일 import
-import { jyUserRoutes, disasterModal, sideBarFacility } from "@/routes/route-jy";
+import { jyUserRoutes, disasterModal } from "@/routes/route-jy";
 import { shUserRoutes } from "@/routes/route-sh";
 import { ehUserRoutes } from "@/routes/route-eh";
 import { mjUserRoutes } from "@/routes/route-mj";
@@ -22,11 +22,17 @@ const AllRoutes = (props) => {
     ...mjUserRoutes,
     ...bjUserRoutes,
     ...jhUserRoutes,
-    ...sideBarFacility, // 대피소 등 기타 라우트도 병합
   ];
 
-  // 2. 사이드바 종류별로 라우트 필터링
+  // 2. 사이드바 종류별로 라우트 필터링.
+  // 본인 라우터(route-jh.jsx) 등에서 nowPage를 맞춰주세요.
   // (참조 비교가 정확하지 않을 수 있으므로 nowPage 텍스트나 별도 키값으로 비교하는 것이 안전합니다)
+  // [A] 사이드바 그룹 (마이페이지, 행동요령, 대피소 소개, 고객센터, 열린마당)
+  // const behavioralRoutes = allUserRoutes.filter(route => route.nowPage === "행동요령");
+  // [B] 사이드바 없는 그룹 (메인페이지, 로그인) 
+  const noSidebarRoutes = allUserRoutes.filter(route => !route.sidebarData);
+  // [C] 기타 사이드바 그룹 (예: 민주처럼 안전정보지도 등 별도 사이드바가 있다면 추가 필터링)
+  // const facilityRoutes = allUserRoutes.filter(route => route.nowPage === "대피소안내");
   
   // [A] 행동요령 사이드바 그룹
   const behavioralRoutes = allUserRoutes.filter(route => route.nowPage === "행동요령");
@@ -34,19 +40,14 @@ const AllRoutes = (props) => {
   // [A] 대피소 소개 사이드바 그룹
   const facilityRoutes = allUserRoutes.filter(route => route.nowPage === "대피소 소개");
   
+  // [A] 고객센터 사이드바 그룹
   const customerServiceRoutes = allUserRoutes.filter(route => route.nowPage === "고객센터");
 
-  // [B] 열린마당 사이드바 그룹
-  const communityRoutes = allUserRoutes.filter(route => route.nowPage === "열린마당"); // route-jh.jsx 등에서 nowPage를 맞춰줘야 함
+  // [A] 열린마당 사이드바 그룹
+  const communityRoutes = allUserRoutes.filter(route => route.nowPage === "열린마당");
 
-  // [B] 마이페이지 사이드바 그룹
-  const myPageRoutes = allUserRoutes.filter(route => route.nowPage === "마이페이지"); // route-jh.jsx 등에서 nowPage를 맞춰줘야 함
-
-  // [C] 사이드바 없는 그룹 (메인, 로그인 등)
-  const noSidebarRoutes = allUserRoutes.filter(route => !route.sidebarData);
-
-  // [D] 기타 사이드바 그룹 (예: 민주처럼 안전정보지도 등 별도 사이드바가 있다면 추가 필터링)
-  // const facilityRoutes = allUserRoutes.filter(route => route.nowPage === "대피소안내");
+  // [A] 마이페이지 사이드바 그룹
+  const myPageRoutes = allUserRoutes.filter(route => route.nowPage === "마이페이지");
 
   return (
     <Routes>
@@ -69,7 +70,7 @@ const AllRoutes = (props) => {
       </Route>
 
       {/* --------------------------------------------------------- */}
-      {/* 대피소 레이아웃 그룹 (UserLayout이 한 번만 마운트됨) */}
+      {/* 대피소 소개 레이아웃 그룹 (UserLayout이 한 번만 마운트됨) */}
       {/* --------------------------------------------------------- */}
       <Route element={<UserLayout sidebarData={SIDE_MENU_DATA.FACILITY} nowPage="대피소 소개" {...props} />}>
         {facilityRoutes.map((route, idx) => (
@@ -120,7 +121,6 @@ const AllRoutes = (props) => {
           />
         ))}
       </Route>
-
     </Routes>
   );
 };

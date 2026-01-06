@@ -1,3 +1,4 @@
+// src/routes/route-jh.jsx
 import { lazy } from "react";
 import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
@@ -24,6 +25,9 @@ const FoodPoisoningActionGuide = lazy(() => import("@/pages/user/behavioralGuide
 const ElevatorAccidentActionGuide = lazy(() => import("@/pages/user/behavioralGuide/life/elevatorAccident/ElevatorAccidentActionGuide"));
 const MountainSafetyActionGuide = lazy(() => import("@/pages/user/behavioralGuide/life/mountainSafety/MountainSafetyActionGuide"));
 
+// 대피소 소개 import
+const UserFacilityList = lazy(() => import("@/pages/user/facility/UserFacilityList"));
+const UserFacilityDetail = lazy(() => import("@/pages/user/facility/UserFacilityDetail"));
 
 export const jhUserRoutes = [
   /* 자연재난행동요령 */
@@ -149,5 +153,20 @@ export const jhUserRoutes = [
     element: <MountainSafetyActionGuide />,
     sidebarData: SIDE_MENU_DATA.BEHAVIORALGUIDE,
     nowPage: "행동요령",
+  },
+  /* 대피소 소개 */
+  // 시설 목록
+  { 
+    path: "/facilityList",
+    element: <UserFacilityList />, 
+    sidebarData: SIDE_MENU_DATA.FACILITY,
+    nowPage: "대피소 소개",
+  },
+  // 시설 상세 페이지
+  {
+    path: "/facility/detail/:id",
+    element: <UserFacilityDetail />,
+    sidebarData: SIDE_MENU_DATA.FACILITY,
+    nowPage: "대피소 소개",
   },
 ];
