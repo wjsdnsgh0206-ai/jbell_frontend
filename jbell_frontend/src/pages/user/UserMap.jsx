@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, Navigation, User, Layers, Home, RotateCcw, Menu, X } from 'lucide-react';
+import DaumPostcode from 'react-daum-postcode'; // 카카오 우편번호 서비스
 import { api, configUtils, authUtils } from '@/utils/axiosConfig';
 
 /* <================ SelectBox 부품 (동일) ================> */
@@ -23,8 +24,14 @@ const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
     </div>
   );
 };
+/* <================ SelectBox 부품 (동일) ================> */
+
+
+
 
 const UserMap = () => {
+/* <========================== 상태 관리(앱의 기억력) ==========================> */
+  // ui 상태
 
   /* <================ 상태 관리 ================> */
   const shelterServiceKey = import.meta.env.VITE_API_OPEN_SHELTER_SERVICE_KEY;
@@ -35,15 +42,17 @@ const UserMap = () => {
   const [activeMenu, setActiveMenu] = useState(null); 
   const [addressType, setAddressType] = useState('road');
 
-  // 주소 선택 값
-  const [selectedSido, setSelectedSido] = useState('');
-  const [selectedSigun, setSelectedSigun] = useState('');
-  const [selectedGoo, setSelectedGoo] = useState('');
-  const [selectedDong, setSelectedDong] = useState('');
-  const [selectedInitial, setSelectedInitial] = useState('');
-  const [selectedRoad, setSelectedRoad] = useState('');
+  // 주소 선택 값 -> 사용자의 선택 상태
+  // ( 사용자가 지금 무엇을 선택했는가 ) - 이것이 검색 키워드의 재료
+  const [selectedSido, setSelectedSido] = useState('');         // 시도
+  const [selectedSigun, setSelectedSigun] = useState('');       // 시군
+  const [selectedGoo, setSelectedGoo] = useState('');           // 구
+  const [selectedDong, setSelectedDong] = useState('');         // 읍면동
+  const [selectedInitial, setSelectedInitial] = useState('');   // 초성
+  const [selectedRoad, setSelectedRoad] = useState('');         // 도로명
 
-  // 대피소 및 검색 결과
+  // 대피소 및 검색 결과 -> 핵심 데이터 상태
+  // 리스트에 보여짐 / 마커로 변환됨 / 클릭 시 지도 이동 -> 상태가 바뀌면 사이드 바, 마커가 다시 그려짐
   const [shelterResults, setShelterResults] = useState([]); 
   const [selectedShelter, setSelectedShelter] = useState(null);
 
@@ -53,12 +62,19 @@ const UserMap = () => {
   const [mountainSelect, setMountainSelect] = useState('');
   const [sortType, setSortType] = useState('distance');
 
-  // ★ [카카오맵 관련 상태]
-  const mapRef = useRef(null);          // 지도를 담을 DOM 레퍼런스
+  // 카카오 모음
+  // ★ [카카오맵 관련 상태] - 지도 전용 상태
+  const mapRef = useRef(null); // 지도를 담을 DOM 레퍼런스
   const [mapInstance, setMapInstance] = useState(null); // 지도 객체 저장
   const [markers, setMarkers] = useState([]); // 현재 표시된 마커들 관리
+  const [searchKeyword, setSearchKeyword] = useState(''); // 검색어 상태 추가
+  // 카카오 우편번호 서비스
+  const [showPostcode, setShowPostcode] = useState(false);
+ /* <========================== 상태 관리 ==========================> */
 
-  /* <================ 데이터 정의 (동일) ================> */
+
+
+/* <====================== 데이터 정의 (동일) =======================> */
   const REGION_DATA = {
     '전주시': ['완산구', '덕진구'],
     '군산시': [], '익산시': [], '정읍시': [], '남원시': [], '김제시': [],
@@ -76,17 +92,32 @@ const UserMap = () => {
   const MBY_SELECTS = { '민방위대피소':[], '비상급수시설':[], '지진옥외대피장소':[], '이재민임시주거시설(지진겸용)':[], '이재민임시주거시설':[] };
   const TE_SELECTS = { '빗물펌프장':[], '빗물저류장':[], '대피소정보':[] };
   const MT_SELECTS = { '산사태대피소':[], '산불대피소':[] };
-  const JB_REGIONS_FOR_SELECTS = { '전주시 완산구':[], '전주시 덕진구':[], '군산시':[], '익산시':[], '정읍시':[], '남원시':[], '김제시':[], '완주군':[], '고창군':[], '부안군':[], '순창군':[], '임실군':[], '무주군':[], '진안군':[], '장수군':[] };
+  const JB_REGIONS_FOR_SELECTS = { '전주시 완산구':[], '전주시 덕진구':[], 
+    '군산시':[], '익산시':[], '정읍시':[], '남원시':[], '김제시':[], 
+    '완주군':[], '고창군':[], '부안군':[], '순창군':[], '임실군':[], '무주군':[], '진안군':[], '장수군':[] };
+/* <====================== 데이터 정의 (동일) =======================> */
 
-  /* <================ 핸들러 함수들 ================> */
+
+
+/* <================================ 핸들러 함수들 ================================> */
+// handleGoHome
   const handleGoHome = () => {
     setActiveMenu(null);
     setShelterResults([]);
     // 마커 제거
     removeMarkers();
   };
-
-  const handleSigunSelect = (city) => { setSelectedSigun(city); setSelectedGoo(''); };
+//
+//
+//
+// handleSigunSelect
+  const handleSigunSelect = (city) => { 
+    setSelectedSigun(city); 
+    setSelectedGoo(''); 
+    const value = civilSelect||'민방위대피소';
+    setCivilSelect(value);
+    searchPlaces(`${city} ${value}`)
+  };
   const getDongOptions = () => {
     if (!selectedSigun || selectedSigun === '시군 선택') return [];
     if (REGION_DATA[selectedSigun]?.length > 0) {
@@ -95,8 +126,11 @@ const UserMap = () => {
     } 
     return DETAILED_DATA[selectedSigun]?.['기본'] || [];
   };
-
-  // 재난 유형 변경 시 실제 검색 실행 (예시: 키워드로 검색)
+//
+//
+//
+// handleCivilChange
+// 재난 유형 변경 시 실제 검색 실행 (예시: 키워드로 검색)
   const handleCivilChange = (value) => { 
     setCivilSelect(value); setWeatherSelect(''); setMountainSelect('');
     if(value && selectedSigun) searchPlaces(`${selectedSigun} ${value}`);
@@ -109,19 +143,70 @@ const UserMap = () => {
     setMountainSelect(value); setCivilSelect(''); setWeatherSelect('');
     if(value && selectedSigun) searchPlaces(`${selectedSigun} ${value}`);
   };
+//
+//
+//
+// handleResultClick
+const handleResultClick = (item) => {
+  setSelectedShelter(item);
+  if (!mapInstance) return;
 
-  // 결과 클릭 시 지도 이동
-  const handleResultClick = (item) => {
-    setSelectedShelter(item);
-    if (!mapInstance) return;
+  const lat = item.y || item.latitude;
+  const lng = item.x || item.longitude;
+
+  if (lat && lng) {
+    const moveLatLng = new window.kakao.maps.LatLng(lat, lng);
+    mapInstance.setCenter(moveLatLng);
+    mapInstance.setLevel(3);
+  }
+
+  if (window.innerWidth < 768) setIsMobileMenuOpen(false);
+};
+//
+//
+//
+// handleSearch
+const handleSearch = async () => {
+  // 1. 공공데이터 API URL(실제로는 API 가이드의 URL을 넣어야 함)
+  const serviceKey = 'serviceKey';
+  const url =`https://V2/api/DSSP-IF-10941?serviceKey=xxxx`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
     
-    // 해당 위치로 지도 이동
-    const moveLatLon = new window.kakao.maps.LatLng(item.y, item.x);
-    mapInstance.panTo(moveLatLon);
+    // 2. 받아온 데이터를 상태에 저장
+    // API마다 데이터 구조가 다르니(예: data.response.body.items) 확인 필요!
+    const items = data.response.body.items;
+    setShelterResults(items); 
+
+    // 3. 지도에 마커 뿌려주기
+    displayMarkers(items); 
+  } catch (error) {
+    console.error("데이터를 못 가져오지 못 했습니다...", error);
+  }
+};
+//
+//
+//
+// handleComplete
+ {/* 카카오 우편번호 서비스(daum.postcode) */}
+    const handleComplete = (data) => {
+    // 상세 주소(건물번호 등)를 제외한 기본 주소만 추출
+    // 예: "전북특별자치도 전주시 완산구 효자동3가 123-4" -> "전주시 완산구 효자동3가"
+    const displayAddr = data.address;
+    const searchAddr = data.bname || data.address.split(' ').slice(0, 4).join(' ');
+
+    setSelectedRoad(displayAddr); 
     
-    // 모바일이면 메뉴 닫기
-    if(window.innerWidth < 768) setIsMobileMenuOpen(false);
-  };
+    // 주소 뒤에 '대피소'를 붙여서 검색
+    searchPlaces(`${searchAddr} 대피소`); 
+    
+    setShowPostcode(false); 
+    if (window.innerWidth < 768) setIsMobileMenuOpen(false); 
+};
+//
+/* <================================ 핸들러 함수들 ================================> */
 
 
   /* <================ ★ api 요청 시작 ★ ================> */
@@ -163,81 +248,104 @@ const UserMap = () => {
 
   /* <================ ★ 카카오맵 로직 시작 ★ ================> */
 
-  // 1. 지도 초기화
-  useEffect(() => {
-    shelterRequest();
+  
+/* <================ ★ 카카오맵 로직 시작 ★ ================> */
+  // useEffect 모음
+  //
+    /* <========== 지도 초기화 ==========> */
+    // 1. 지도 초기화
+      useEffect(() => {
+        shelterRequest();
+        
+        if (!window.kakao) {
+          console.error("카카오맵 스크립트가 로드되지 않았습니다.");
+          return;
+        }
 
-    if (!window.kakao) {
-      console.error("카카오맵 스크립트가 로드되지 않았습니다.");
-      return;
-    }
+        const container = mapRef.current;
+        const options = {
+          center: new window.kakao.maps.LatLng(35.8242238, 127.1479532), // 전주 시청 부근
+          level: 7 // 확대 레벨
+        };
 
-    const container = mapRef.current;
-    const options = {
-      center: new window.kakao.maps.LatLng(35.8242238, 127.1479532), // 전주 시청 부근
-      level: 7 // 확대 레벨
-    };
+        const map = new window.kakao.maps.Map(container, options);
+        setMapInstance(map);
 
-    const map = new window.kakao.maps.Map(container, options);
-    setMapInstance(map);
+        // 윈도우 리사이즈 시 지도 깨짐 방지
+        const handleResize = () => map.relayout();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+      }, []);
 
-    // 윈도우 리사이즈 시 지도 깨짐 방지
-    const handleResize = () => map.relayout();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+      // 2. 키워드 검색 함수
+      const searchPlaces = (keyword) => {
+        if (!window.kakao) return;
+        const ps = new window.kakao.maps.services.Places();
 
-  // 2. 키워드 검색 함수
-  const searchPlaces = (keyword) => {
-    if (!window.kakao) return;
-    const ps = new window.kakao.maps.services.Places();
+        ps.keywordSearch(keyword, (data, status) => {
+          if (status === window.kakao.maps.services.Status.OK) {
+            console.log(keyword);
+            console.log(data);
+            setShelterResults(data); // 사이드바 리스트 업데이트
+          } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
+            alert('검색 결과가 존재하지 않습니다.');
+            setShelterResults([]);
+          }
+        });
+      };
+    //
+    /* <========== 지도 초기화 ==========> */
+    /* <========== 지도 초기화 ==========> */
+    // 2
+    useEffect(() => {
+      if (!mapInstance || !Array.isArray(shelterResults)) return;
 
-    ps.keywordSearch(keyword, (data, status) => {
-      if (status === window.kakao.maps.services.Status.OK) {
-        setShelterResults(data); // 사이드바 리스트 업데이트
-      } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
-        alert('검색 결과가 존재하지 않습니다.');
-        setShelterResults([]);
-      }
-    });
-  };
+      // 1. 기존 마커 싹 지우기
+      removeMarkers();
 
-  // 3. 마커 표시 및 갱신 (shelterResults가 바뀔 때마다 실행)
-  useEffect(() => {
-    if (!mapInstance || !window.kakao) return;
+      if (shelterResults.length === 0) return;
 
-    // 기존 마커 제거
-    removeMarkers();
-
-    // 새 마커 생성
-    const newMarkers = shelterResults.map((place) => {
-      const markerPosition = new window.kakao.maps.LatLng(place.y, place.x);
-      const marker = new window.kakao.maps.Marker({
-        position: markerPosition,
-        map: mapInstance, // 지도에 올림
-        clickable: true
-      });
-
-      // 마커 클릭 이벤트 (인포윈도우 or 사이드바 연동)
-      window.kakao.maps.event.addListener(marker, 'click', () => {
-        setSelectedShelter(place); // 상태 업데이트
-        mapInstance.panTo(markerPosition); // 지도 중심 이동
-      });
-
-      return marker;
-    });
-
-    setMarkers(newMarkers);
-
-    // 검색 결과가 있으면 지도 범위를 결과에 맞게 재설정
-    if (shelterResults.length > 0) {
       const bounds = new window.kakao.maps.LatLngBounds();
-      shelterResults.forEach((place) => {
-        bounds.extend(new window.kakao.maps.LatLng(place.y, place.x));
-      });
-      mapInstance.setBounds(bounds);
-    }
-  }, [shelterResults, mapInstance]);
+      let hasValidPoints = false;
+
+      // 2. 새 마커 생성 및 범위 확장
+      const newMarkers = shelterResults.map((place) => {
+        // 카카오 API 응답 데이터는 x, y를 사용하므로 확인!
+        const lat = place.y || place.latitude; 
+        const lng = place.x || place.longitude;
+
+        if (lat && lng) {
+          const markerPosition = new window.kakao.maps.LatLng(lat, lng);
+          const marker = new window.kakao.maps.Marker({
+            position: markerPosition,
+            map: mapInstance,
+            clickable: true
+          });
+
+          window.kakao.maps.event.addListener(marker, 'click', () => {
+            setSelectedShelter(place);
+            mapInstance.panTo(markerPosition);
+          });
+
+          bounds.extend(markerPosition);
+          hasValidPoints = true;
+          return marker;
+        }
+        return null;
+      }).filter(m => m !== null); // 좌표 없는 데이터 제외
+
+      setMarkers(newMarkers);
+
+      // 3. 마커가 있을 때만 지도 화면 맞춤
+      if (hasValidPoints) {
+        mapInstance.setBounds(bounds);
+      }
+    }, [shelterResults, mapInstance]);
+    //
+    /* <========== 지도 초기화 ==========> */
+  // useEffect 최종 막줄
+
+
 
   // 마커 제거 헬퍼 함수
   const removeMarkers = () => {
@@ -261,12 +369,14 @@ const UserMap = () => {
 
   /* <================ ★ 카카오맵 로직 끝 ★ ================> */
 
-  // 정렬 로직
-  const sortedResults = [...shelterResults].sort((a, b) => {
-    if (sortType === 'name') return a.place_name?.localeCompare(b.place_name);
-    // 거리순은 현재 위치 기준이 필요하므로 생략하거나 API에서 제공하는 distance 사용
-    return 0;
-  });
+  // shelterResults가 배열인지 확인하고, 아니면 빈 배열로 처리
+  const sortedResults = Array.isArray(shelterResults) 
+    ? [...shelterResults].sort((a, b) => {
+        if (sortType === 'name') return (a.place_name || "").localeCompare(b.place_name || "");
+        return 0;
+      })
+    : []; // 배열이 아니면 그냥 빈 리스트 전달
+
 
 
   return (
@@ -285,7 +395,11 @@ const UserMap = () => {
       {/* 좌측 사이드바 */}
       <aside 
         className={`
-          fixed inset-y-0 left-0 z-50 w-full bg-white shadow-xl flex flex-col transition-transform duration-300 ease-in-out
+          fixed top-0 left-0 z-50 bg-white shadow-xl flex flex-col transition-transform duration-300 ease-in-out
+          /* 1. 너비를 화면의 80%만 차지*/
+          w-[80%] 
+          /* 2. 하단 버튼들이 보일 수 있게 높이를 조절하거나 스크롤 영역을 제한 */
+          h-full 
           md:static md:w-[380px] md:translate-x-0
           ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
@@ -370,9 +484,9 @@ const UserMap = () => {
                   />
                </div>
                {/* 검색 결과 */}
-               <div className="mt-4">
+               <div className="space-y-2 pt-2 border-t">
                   <p className="text-xs text-slate-500 mb-2">검색 결과 {shelterResults.length}건</p>
-                    <div className="flex gap-2 mt-4">
+                    <div className="flex gap-2 mt-4 text-sm">
                     <button onClick={() => setSortType('distance')}>
                       거리순
                     </button>
@@ -393,9 +507,72 @@ const UserMap = () => {
                </div>
             </div>
           ) : activeMenu === 'address' ? (
+             <>
             <div className="p-4 space-y-4">
-               <SelectBox label="시군" value={selectedSigun} options={Object.keys(REGION_DATA)} onChange={handleSigunSelect} />
+                 {/* 시군 버튼 */}
+                <div>
+                  <SelectBox label="시군 선택" value={selectedSigun} options={Object.keys(REGION_DATA)} onChange={handleSigunSelect} />
+                </div>
+                  {/* 안내 문구 */}
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+                    <p className="text-sm text-green-800 font-bold mb-1">🔍 주소로 바로 찾기</p>
+                    <p className="text-xs text-green-600">동네 이름이나 주소를 입력하면 주변 대피소를 찾아드려요.</p>
+                  </div>
+
+                  {/* 주소 검색창 열기 버튼 */}
+                  {!showPostcode ? (
+                    <button 
+                      onClick={() => setShowPostcode(true)}
+                      className="w-full flex items-center justify-between p-4 bg-white border-2 border-green-500 rounded-xl text-green-600 font-bold shadow-md hover:bg-green-100 transition-all"
+                    >
+                      <span className="truncate mr-2">{selectedRoad || "주소를 검색하려면 클릭하세요"}</span>
+                      <Search size={20} className="shrink-0" />
+                    </button>
+                  ) : (
+                    <div className="border-2 border-green-500 rounded-xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+                      <div className="bg-green-500 p-2 flex justify-between items-center text-white text-xs">
+                        <span>주소를 입력해주세요</span>
+                        <button onClick={() => setShowPostcode(false)}><X size={18}/></button>
+                      </div>
+                      <DaumPostcode onComplete={handleComplete} style={{ height: '450px' }} />
+                    </div>
+                  )}
+
+                {/* 검색 결과 리스트 표시 영역 */}
+                <div className="mt-6">
+                  {shelterResults.length > 0 ? (
+                    <>
+                      <p className="text-[11px] text-slate-400 mb-3 border-b pb-1">
+                        📍 {selectedRoad.split(' ').slice(-1)} 주변 대피소 {shelterResults.length}건
+                      </p>
+                      <div className="space-y-3">
+                        {shelterResults.map((item, idx) => (
+                          <div 
+                            key={idx} 
+                            onClick={() => handleResultClick(item)}
+                            className="p-4 bg-white border rounded-xl hover:border-blue-500 hover:shadow-md cursor-pointer transition-all group"
+                          >
+                            <div className="flex justify-between items-start mb-1">
+                              <h4 className="font-bold text-slate-800 group-hover:text-blue-600">{item.place_name}</h4>
+                              <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded">
+                                {item.category_group_name || '대피시설'}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-500 mb-2">{item.address_name}</p>
+                            {item.phone && <p className="text-[11px] text-blue-400">{item.phone}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : selectedRoad && !showPostcode ? (
+                    <div className="py-10 text-center">
+                      <p className="text-slate-400 text-sm">해당 주소 주변에 검색된<br/>대피소 정보가 없습니다.</p>
+                    </div>
+                  ) : null}
+                </div>
+
             </div>
+            </>
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center">
                <MapPin size={32} className="mb-4 text-slate-300" />
