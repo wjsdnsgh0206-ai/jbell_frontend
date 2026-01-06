@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
 import WeatherBox from "../modal/WeatherBox";
 import DisasterMessageBox from "../modal/DisasterMessageBox";
+import FacilityCheckGroup from "../modal/FacilityCheckGroup";
 
 /*
   HeavyRain 컴포넌트
@@ -13,12 +14,35 @@ import DisasterMessageBox from "../modal/DisasterMessageBox";
 const HeavyRain = () => {
   const [activeTab, setActiveTab] = useState("강수레이더");
 
+  // [추가] 체크박스 상태 관리
+  const [facilities, setFacilities] = useState({
+    shelter: true,
+    hospital: false,
+    pharmacy: false,
+  });
+
   const mapTabs = [
-    { id: "강수레이더", label: "실시간 강수레이더" },
-    { id: "침수위험", label: "침수 위험지역" },
-    { id: "댐수위", label: "주요 댐/하천 수위" },
-    { id: "대피소", label: "주변 대피시설", hasArrow: true },
+    { id: "침수흔적도", label: "침수흔적도" },
+    { id: "수방시설물", label: "수방시설물" },
+    { id: "재난안전시설", label: "재난안전시설", hasArrow: true }, 
   ];
+
+   // 재난안전시설 탭 데이터
+  const HeavyRainItems = [
+    { id: "shelter", label: "이재민임시시설" },
+    { id: "hospital", label: "병원" },
+    { id: "pharmacy", label: "약국" },
+  ];
+
+  // [추가] 탭 클릭 핸들러 (다시 누르면 닫힘)
+  const handleTabClick = (tabId) => {
+    setActiveTab(prev => (prev === tabId ? null : tabId));
+  };
+
+  // [추가] 체크박스 핸들러
+  const handleCheck = (key) => {
+    setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   return (
     <div className="grid grid-cols-12 gap-5 lg:gap-8">
@@ -50,25 +74,37 @@ const HeavyRain = () => {
             {/* 좌측 사이드바 */}
             <div className="absolute top-3 left-3 sm:top-5 sm:left-5 w-36 sm:w-44 flex flex-col gap-1.5 sm:gap-2 z-10">
               {mapTabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl text-[12px] sm:text-body-m font-black transition-all border
-                    ${
-                      activeTab === tab.id
-                        ? "bg-blue-600 text-white border-blue-600 shadow-blue shadow-lg translate-x-1"
-                        : "bg-white/95 backdrop-blur-sm text-graygray-60 border-graygray-10 hover:bg-white hover:translate-x-1 shadow-sm"
-                    }`}
-                >
-                  <span className="truncate">{tab.label}</span>
-                  {tab.hasArrow && (
-                    <span className="shrink-0 text-[8px] sm:text-[10px] ml-1">▶</span>
+                <div key={tab.id} className="flex flex-col gap-1.5">
+                  <button
+                    onClick={() => handleTabClick(tab.id)}
+                    className={`flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl text-[12px] sm:text-body-m font-black transition-all border
+                      ${
+                        activeTab === tab.id
+                          ? "bg-blue-600 text-white border-blue-600 shadow-blue shadow-lg translate-x-1"
+                          : "bg-white/95 backdrop-blur-sm text-graygray-60 border-graygray-10 hover:bg-white hover:translate-x-1 shadow-sm"
+                      }`}
+                  >
+                    <span className="truncate">{tab.label}</span>
+                    {tab.hasArrow && (
+                      <span className={`transition-transform duration-300 ${activeTab === tab.id ? "rotate-90" : ""}`}>
+                        <span className="text-[8px] sm:text-[10px]">▶</span>
+                      </span>
+                    )}
+                  </button>
+
+                  {/* [수정] ID를 '대피소'로 맞춤 */}
+                  {tab.id === "재난안전시설" && activeTab === "재난안전시설" && (
+                    <FacilityCheckGroup
+                      items={HeavyRainItems}
+                      facilities={facilities}
+                      onCheck={handleCheck}
+                    />
                   )}
-                </button>
+                </div>
               ))}
             </div>
 
-            {/* 우측 정보 요약 창 (호우 전용 데이터) */}
+            {/* 우측 정보 요약 창 */}
             <div className="absolute top-3 right-3 sm:top-5 sm:right-5 bg-white/90 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-graygray-10 shadow-xl z-10 min-w-[180px]">
               <div className="space-y-3">
                 <p className="text-[9px] sm:text-[10px] font-black text-graygray-40 uppercase tracking-widest">
@@ -94,18 +130,17 @@ const HeavyRain = () => {
           </div>
         </div>
 
-        {/* 하단 행동요령 (호우 타입 적용) */}
+        {/* 행동요령 */}
         <div className="bg-white rounded-[24px] p-6 lg:p-8 shadow-1 border border-graygray-10">
           <ActionTipBox type="호우" />
         </div>
       </div>
 
-      {/* === 우측 패널 - 날씨 & 재난문자 === */}
       <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 lg:gap-8">
         <div className="bg-white rounded-[24px] p-6 shadow-1 border border-graygray-10">
           <WeatherBox />
         </div>
-        <div className="bg-white rounded-[24px] shadow-1 border border-graygray-10 overflow-hidden min-h-[400px]">
+        <div className="bg-white rounded-[24px] shadow-1 flex flex-col h-full border border-graygray-10 overflow-hidden min-h-[400px]">
           <DisasterMessageBox />
         </div>
       </div>
