@@ -1,10 +1,19 @@
 import React from 'react';
-import { Search, Home, ChevronRight, ArrowLeft, ChevronLeft, ChevronDown, Menu, User, Globe, MessageCircle} from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
+import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 
 const QnADetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
+ // --- Breadcrumb 데이터 설정 ---
+  const breadcrumbItems = [
+    { label: "홈", path: "/", hasIcon: true },
+    { label: "고객센터", path: "/qna", hasIcon: false },
+    { label: "1:1문의", path: "/qna", hasIcon: false },
+    { label: "상세보기", path: "", hasIcon: false },
+  ];
 
   const inquiries = [
     {
@@ -262,22 +271,7 @@ const QnADetailPage = () => {
   return (
     <div className="w-full bg-white font-sans text-gray-800">
       {/* ================= Breadcrumb (FAQDetailPage 스타일) ================= */}
-      <div className="w-full bg-gray-50 border-b border-gray-200">
-        <div className="max-w-[1280px] mx-auto px-4 py-3 flex items-center text-gray-500 text-sm">
-          <Home size={16} />
-          <ChevronRight size={16} className="mx-2" />
-          <span className="font-medium text-gray-900">고객센터</span>
-          <ChevronRight size={16} className="mx-2" />
-          <span 
-            className="font-medium text-gray-900 cursor-pointer hover:underline" 
-            onClick={() => navigate('/qna')}
-          >
-            1:1문의
-          </span>
-          <ChevronRight size={16} className="mx-2" />
-          <span className="font-medium text-gray-900">상세보기</span>
-        </div>
-      </div>
+      <PageBreadcrumb items={breadcrumbItems} />
 
      <main className="max-w-[1280px] mx-auto px-4 py-10">
         {/* ================= Title Area (FAQDetailPage 스타일) ================= */}
