@@ -2,104 +2,145 @@ import React, { useState } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
 import WeatherBox from "../modal/WeatherBox";
 import DisasterMessageBox from "../modal/DisasterMessageBox";
+import FacilityCheckGroup from "../modal/FacilityCheckGroup";
+
+/*
+  HeavyRain 컴포넌트
+  > 작성자 : 최지영
+  > 컴포넌트 이름 : 재난사고속보 모달 - 호우 메뉴
+  > 컴포넌트 설명 : 실시간 강수량, 침수 위험 지역, 기상 특보 등 호우 관련 정보를 표시.
+*/
 
 const HeavyRain = () => {
-  // 현재 선택된 지도 탭 상태
-  const [activeTab, setActiveTab] = useState("기상레이더");
+  const [activeTab, setActiveTab] = useState("강수레이더");
 
-  // 호우 관련 탭 메뉴 구성
+  // [추가] 체크박스 상태 관리
+  const [facilities, setFacilities] = useState({
+    shelter: true,
+    hospital: false,
+    pharmacy: false,
+  });
+
   const mapTabs = [
-    { id: "기상레이더", label: "기상레이더" },
-    { id: "누적강수량", label: "누적강수량" },
-    { id: "낙뢰현황", label: "낙뢰현황" },
-    { id: "대피장소", label: "대피소(산사태)", hasArrow: true },
+    { id: "침수흔적도", label: "침수흔적도" },
+    { id: "수방시설물", label: "수방시설물" },
+    { id: "재난안전시설", label: "재난안전시설", hasArrow: true }, 
   ];
 
+   // 재난안전시설 탭 데이터
+  const HeavyRainItems = [
+    { id: "shelter", label: "이재민임시시설" },
+    { id: "hospital", label: "병원" },
+    { id: "pharmacy", label: "약국" },
+  ];
+
+  // [추가] 탭 클릭 핸들러 (다시 누르면 닫힘)
+  const handleTabClick = (tabId) => {
+    setActiveTab(prev => (prev === tabId ? null : tabId));
+  };
+
+  // [추가] 체크박스 핸들러
+  const handleCheck = (key) => {
+    setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   return (
-    <div className="grid grid-cols-12 gap-6">
-      {/* 왼쪽 & 중앙 콘텐츠 */}
-      <div className="col-span-12 lg:col-span-8 flex flex-col gap-6">
-        <div className="bg-white rounded-2xl p-6 shadow-sm border min-h-[550px]">
+    <div className="grid grid-cols-12 gap-5 lg:gap-8">
+      <div className="col-span-12 lg:col-span-8 flex flex-col gap-5 lg:gap-8">
+        <div className="bg-white rounded-[24px] p-5 sm:p-8 shadow-1 border border-graygray-10 min-h-[550px]">
           {/* 헤더 섹션 */}
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg font-bold text-gray-800">실시간 호우정보</h3>
-              <span className="text-xs px-2 py-0.5 bg-amber-50 border border-amber-100 rounded text-amber-600 font-medium">
-                기상주의보 발령 중
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <h3 className="text-body-l-bold sm:text-title-m font-black text-graygray-90 whitespace-nowrap">
+                실시간 강수 정보
+              </h3>
+              <span className="shrink-0 text-[10px] sm:text-detail-m px-3 py-1 bg-blue-50 border border-blue-100 rounded-full text-blue-600 font-black leading-none">
+                호우주의보 발령 중
               </span>
             </div>
-            <p className="text-xs text-gray-400">2026.01.02 기준</p>
+            <p className="text-[10px] sm:text-detail-m text-graygray-30 font-medium tabular-nums">
+              2026.01.05 기준
+            </p>
           </div>
 
-          {/* ⚡ 지도 및 내부 사이드바 컨테이너 */}
-          <div className="relative h-[450px] bg-slate-50 rounded-xl border overflow-hidden">
-            
-            {/* 배경: 지도 영역 */}
+          {/* 지도 영역 */}
+          <div className="relative h-[400px] sm:h-[500px] bg-secondary-5 rounded-2xl border border-graygray-10 overflow-hidden shadow-inner">
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-3xl font-black text-slate-200 uppercase tracking-widest">
-                Heavy Rain Map Area
+              <span className="text-title-s sm:text-title-l font-black text-graygray-20 uppercase tracking-[0.2em] opacity-50 px-4 text-center select-none">
+                Rainfall Radar Map
               </span>
             </div>
 
-            {/* 지도 내부 사이드바 (Left Menu) */}
-            <div className="absolute top-4 left-4 w-44 flex flex-col gap-2 z-10">
+            {/* 좌측 사이드바 */}
+            <div className="absolute top-3 left-3 sm:top-5 sm:left-5 w-36 sm:w-44 flex flex-col gap-1.5 sm:gap-2 z-10">
               {mapTabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`
-                    flex items-center justify-between px-4 py-3.5 rounded-xl text-[14px] font-black transition-all border
-                    ${activeTab === tab.id 
-                      ? "bg-blue-600 text-white border-blue-600 shadow-lg translate-x-1" 
-                      : "bg-white/95 backdrop-blur-sm text-gray-600 border-gray-200 hover:bg-white hover:translate-x-0.5 shadow-sm"
-                    }
-                  `}
-                >
-                  {tab.label}
-                  {tab.hasArrow && (
-                    <span className={`text-[10px] ${activeTab === tab.id ? "text-white" : "text-gray-400"}`}>
-                      ▶
-                    </span>
+                <div key={tab.id} className="flex flex-col gap-1.5">
+                  <button
+                    onClick={() => handleTabClick(tab.id)}
+                    className={`flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl text-[12px] sm:text-body-m font-black transition-all border
+                      ${
+                        activeTab === tab.id
+                          ? "bg-blue-600 text-white border-blue-600 shadow-blue shadow-lg translate-x-1"
+                          : "bg-white/95 backdrop-blur-sm text-graygray-60 border-graygray-10 hover:bg-white hover:translate-x-1 shadow-sm"
+                      }`}
+                  >
+                    <span className="truncate">{tab.label}</span>
+                    {tab.hasArrow && (
+                      <span className={`transition-transform duration-300 ${activeTab === tab.id ? "rotate-90" : ""}`}>
+                        <span className="text-[8px] sm:text-[10px]">▶</span>
+                      </span>
+                    )}
+                  </button>
+
+                  {/* [수정] ID를 '대피소'로 맞춤 */}
+                  {tab.id === "재난안전시설" && activeTab === "재난안전시설" && (
+                    <FacilityCheckGroup
+                      items={HeavyRainItems}
+                      facilities={facilities}
+                      onCheck={handleCheck}
+                    />
                   )}
-                </button>
+                </div>
               ))}
             </div>
 
-            {/* 정보 요약 창 (호우 특화) */}
-            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-4 rounded-xl border border-gray-100 shadow-md z-10">
-              <div className="space-y-2">
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-tight">Weather Summary</p>
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-3">
-                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                    <span className="text-sm font-bold text-gray-700">시간당 강수량: 35mm</span>
+            {/* 우측 정보 요약 창 */}
+            <div className="absolute top-3 right-3 sm:top-5 sm:right-5 bg-white/90 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-graygray-10 shadow-xl z-10 min-w-[180px]">
+              <div className="space-y-3">
+                <p className="text-[9px] sm:text-[10px] font-black text-graygray-40 uppercase tracking-widest">
+                  Rainfall Summary
+                </p>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <div className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                    </div>
+                    <span className="text-detail-l sm:text-body-m font-black text-graygray-80 tabular-nums uppercase">
+                      시간당 강수량:{" "}
+                      <span className="text-blue-600 font-black">25.5 mm</span>
+                    </span>
                   </div>
-                  <span className="text-[12px] text-blue-600 ml-4.5 font-medium">매우 강한 비 주의</span>
+                  <div className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-[11px] sm:text-detail-m font-black text-center border border-blue-100 shadow-sm">
+                    🌊 인근 하천 수위 상승 주의
+                  </div>
                 </div>
               </div>
-            </div>
-
-            {/* 지도 컨트롤 버튼 */}
-            <div className="absolute bottom-4 right-4 flex flex-col gap-1 z-10">
-              <button className="w-9 h-9 bg-white border border-gray-200 rounded-lg shadow-sm flex items-center justify-center font-bold text-gray-600 hover:bg-gray-50 active:scale-90 transition-transform">+</button>
-              <button className="w-9 h-9 bg-white border border-gray-200 rounded-lg shadow-sm flex items-center justify-center font-bold text-gray-600 hover:bg-gray-50 active:scale-90 transition-transform">-</button>
             </div>
           </div>
         </div>
 
-        {/* 행동요령 박스 */}
-        <div className="bg-white rounded-2xl p-4 lg:p-6 shadow-sm border">
+        {/* 행동요령 */}
+        <div className="bg-white rounded-[24px] p-6 lg:p-8 shadow-1 border border-graygray-10">
           <ActionTipBox type="호우" />
         </div>
       </div>
 
-      {/* 오른쪽 패널 */}
-      <div className="col-span-12 lg:col-span-4 flex flex-col gap-4 lg:gap-6">
-        <div className="bg-white rounded-2xl p-6 shadow-sm border">
+      <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 lg:gap-8">
+        <div className="bg-white rounded-[24px] p-6 shadow-1 border border-graygray-10">
           <WeatherBox />
         </div>
-
-        <div className="bg-white rounded-2xl shadow-sm flex flex-col h-full border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-[24px] shadow-1 flex flex-col h-full border border-graygray-10 overflow-hidden min-h-[400px]">
           <DisasterMessageBox />
         </div>
       </div>

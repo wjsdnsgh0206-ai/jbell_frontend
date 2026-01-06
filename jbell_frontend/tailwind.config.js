@@ -17,9 +17,28 @@ export default {
           80: "var(--graygray-80)",
           90: "var(--graygray-90)",
         },
+        orange: {
+          50: "var(--orange-50)",
+          200: "var(--orange-200)",
+          600: "var(--orange-600)",
+        },
+        green: {
+          100: "var(--green-100)",
+          200: "var(--green-200)",
+          700: "var(--green-700)",
+        },
+        blue: {
+          100: "var(--blue-100)",
+          200: "var(--blue-200)",
+          700: "var(--blue-700)",
+        },
         secondary: {
           5: "var(--secondary-5)",
           50: "var(--secondary-50)",
+          80: "var(--secondary-80)",
+        },
+        primary: {
+          50: "var(--primary-50)", 
         },
       },
       // 2. 폰트 패밀리 (필요한 경우만 기본값 재정의)

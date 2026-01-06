@@ -1,6 +1,16 @@
 import React from "react";
 
-// 직접 그린 재난별 SVG 아이콘 컴포넌트 (동일)
+
+/*
+  ActionTipBox 컴포넌트
+  > 작성자 : 최지영
+  > 컴포넌트 이름 : 재난사고속보 모달 - 행동요령 박스
+  > 컴포넌트 설명 : 재난사고속보 모달 내부의 행동요령 컴포넌트로, 행동요령 내용을 표시함. 
+    재난사고속보 모달 내의 모든 페이지(사고속보, 지진, 태풍, 호우, 홍수, 산사태, 산불)에서 공통으로 사용되는 컴포넌트임.
+*/
+
+
+// 재난별 SVG 아이콘 컴포넌트 (동일)
 const Icons = {
   Earthquake: [
     () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full text-amber-600"><path d="M3 10h18M5 10v10M19 10v10M9 14h6M10 17h4" strokeLinecap="round" /><circle cx="12" cy="16" r="1.5" fill="currentColor" /></svg>,
@@ -80,43 +90,45 @@ const ActionTipBox = ({ type = "지진" }) => {
     ],
   };
 
-  const currentTips = tipsData[type] || tipsData["지진"];
+const currentTips = tipsData[type] || tipsData["지진"];
 
-  return (
+return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-5 px-1">
-        <h3 className="text-[17px] font-black text-slate-800 tracking-tight">
+        <h3 className="text-body-l-bold font-black text-graygray-90 tracking-tight">
           {type} 발생 시 행동요령
         </h3>
-        <span className="text-[12px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100/50 uppercase">
+        <span className="text-[10px] sm:text-detail-m font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 uppercase">
           Safety Guide
         </span>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-        {currentTips.map((tip) => (
-          <div key={tip.id} className="group relative flex flex-col bg-white border border-gray-100 rounded-2xl p-4 lg:p-5 shadow-sm hover:shadow-md hover:border-blue-200 transition-all overflow-hidden min-h-[140px]">
-            {/* 수정된 숫자: 우측 하단으로 이동 및 투명도 조절로 텍스트 겹침 시인성 확보 */}
-            <span className="absolute right-4 bottom-2 text-5xl font-black text-slate-100/80 group-hover:text-blue-100/50 transition-colors pointer-events-none z-0 italic">
-              {tip.id}
-            </span>
+  {currentTips.map((tip) => (
+    <div 
+      key={tip.id} 
+      className="group relative flex flex-col bg-white border border-graygray-10 rounded-2xl p-4 lg:p-5 shadow-sm hover:shadow-md hover:border-graygray-20 transition-all duration-300 overflow-hidden min-h-[140px]"
+    >
+      <span className="absolute right-4 bottom-3 text-3xl font-black text-graygray-5/40 group-hover:text-blue-100/50 transition-colors pointer-events-none z-0 italic tabular-nums">
+        {tip.id}
+      </span>
 
-            {/* 아이콘: 숫자보다 위에 오도록 z-10 부여 */}
-            <div className="relative z-10 w-11 h-11 bg-slate-50 rounded-xl flex items-center justify-center p-2.5 mb-4 group-hover:bg-blue-50 transition-colors shadow-inner">
-              <tip.icon />
-            </div>
-
-            {/* 텍스트: 숫자보다 위에 오도록 z-10 부여 */}
-            <div className="relative z-10 pr-2">
-              <p className="text-[15px] lg:text-[15px] font-bold text-slate-600 leading-[1.6] break-keep">
-                {tip.text}
-              </p>
-            </div>
-          </div>
-        ))}
+      <div className="relative z-10 w-11 h-11 bg-graygray-5 rounded-xl flex items-center justify-center p-2.5 mb-4 group-hover:bg-blue-50 transition-colors">
+        <tip.icon />
       </div>
+
+      <div className="relative z-10 pr-2">
+        <p className="text-detail-l sm:text-body-m font-black text-graygray-80 leading-[1.6] break-keep">
+          {tip.text}
+        </p>
+      </div>
+    </div>
+  ))}
+</div>
     </div>
   );
 };
+
+
 
 export default ActionTipBox;

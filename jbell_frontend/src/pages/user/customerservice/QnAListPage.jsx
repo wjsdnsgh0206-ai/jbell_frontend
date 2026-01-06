@@ -1,18 +1,25 @@
 import React, { useState } from 'react';
-import { Search, Home, ChevronRight, ChevronLeft, ChevronDown, Menu, User, Globe, MessageCircle } from 'lucide-react';
+import { Search, ChevronRight, ChevronLeft, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 
 const QnAListPage = () => {
   const navigate = useNavigate();
+
+  // --- Breadcrumb 데이터 설정 ---
+  const breadcrumbItems = [
+    { label: "홈", path: "/", hasIcon: true },
+    { label: "고객센터", path: "/qna", hasIcon: false },
+    { label: "1:1문의", path: "/qna", hasIcon: false },
+  ];
 
   // 샘플 데이터
   const inquiries = [
   {
     id: 1,
-    status: 'progress', // 진행단계
+    status: 'progress', // 진행단계 
     statusText: '답변대기',
-    title: '비밀번호 변경이 되지 않습니다.',
-    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    title: '비밀번호 변경이 되지 않습니다.', content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
     date: '2024.04.30',
     category: '회원정보',
   },
@@ -20,8 +27,7 @@ const QnAListPage = () => {
     id: 2,
     status: 'complete', // 완료단계
     statusText: '답변완료',
-    title: '서비스 이용 관련 문의드립니다.',
-    content: '주말에도 고객센터 상담이 가능한가요?',
+    title: '서비스 이용 관련 문의드립니다.', content: '주말에도 고객센터 상담이 가능한가요?',
     date: '2024.05.01',
     category: '이용문의',
   },
@@ -29,8 +35,7 @@ const QnAListPage = () => {
     id: 3,
     status: 'receipt', // 접수단계
     statusText: '접수완료',
-    title: '결제 취소 요청',
-    content: '어제 결제한 내역을 취소하고 싶습니다.',
+    title: '결제 취소 요청', content: '어제 결제한 내역을 취소하고 싶습니다.',
     date: '2024.06.01',
     category: '결제/환불',
   },
@@ -38,8 +43,7 @@ const QnAListPage = () => {
     id: 4,
     status: 'waiting', // 예비/타기관 이송 등
     statusText: '확인중',
-    title: '기관 연동이 안돼요',
-    content: '타기관 인증서 등록 시 오류가 뜹니다.',
+    title: '기관 연동이 안돼요', content: '타기관 인증서 등록 시 오류가 뜹니다.',
     date: '2025.11.01',
     category: '시스템오류',
   },
@@ -48,8 +52,7 @@ const QnAListPage = () => {
     id: 5,
     status: 'progress', // 진행단계
     statusText: '답변대기',
-    title: '비밀번호 변경이 되지 않습니다.',
-    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    title: '비밀번호 변경이 되지 않습니다.', content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
     date: '2024.05.06',
     category: '회원정보',
   },
@@ -57,8 +60,7 @@ const QnAListPage = () => {
     id: 6,
     status: 'complete', // 완료단계
     statusText: '답변완료',
-    title: '서비스 이용 관련 문의드립니다.',
-    content: '주말에도 고객센터 상담이 가능한가요?',
+    title: '서비스 이용 관련 문의드립니다.', content: '주말에도 고객센터 상담이 가능한가요?',
     date: '2024.05.18',
     category: '이용문의',
   },
@@ -66,8 +68,7 @@ const QnAListPage = () => {
     id: 7,
     status: 'receipt', // 접수단계
     statusText: '접수완료',
-    title: '결제 취소 요청',
-    content: '어제 결제한 내역을 취소하고 싶습니다.',
+    title: '결제 취소 요청', content: '어제 결제한 내역을 취소하고 싶습니다.',
     date: '2024.06.09',
     category: '결제/환불',
   },
@@ -75,8 +76,7 @@ const QnAListPage = () => {
     id: 8,
     status: 'waiting', // 예비/타기관 이송 등
     statusText: '확인중',
-    title: '기관 연동이 안돼요',
-    content: '타기관 인증서 등록 시 오류가 뜹니다.',
+    title: '기관 연동이 안돼요', content: '타기관 인증서 등록 시 오류가 뜹니다.',
     date: '2024.07.03',
     category: '시스템오류',
   },
@@ -84,8 +84,7 @@ const QnAListPage = () => {
     id: 9,
     status: 'progress', // 진행단계
     statusText: '답변대기',
-    title: '비밀번호 변경이 되지 않습니다.',
-    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    title: '비밀번호 변경이 되지 않습니다.', content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
     date: '2024.08.14',
     category: '회원정보',
   },
@@ -93,8 +92,7 @@ const QnAListPage = () => {
     id: 10,
     status: 'complete', // 완료단계
     statusText: '답변완료',
-    title: '서비스 이용 관련 문의드립니다.',
-    content: '주말에도 고객센터 상담이 가능한가요?',
+    title: '서비스 이용 관련 문의드립니다.', content: '주말에도 고객센터 상담이 가능한가요?',
     date: '2024.09.02',
     category: '이용문의',
   },
@@ -102,8 +100,7 @@ const QnAListPage = () => {
     id: 11,
     status: 'receipt', // 접수단계
     statusText: '접수완료',
-    title: '결제 취소 요청',
-    content: '어제 결제한 내역을 취소하고 싶습니다.',
+    title: '결제 취소 요청', content: '어제 결제한 내역을 취소하고 싶습니다.',
     date: '2024.09.21',
     category: '결제/환불',
   },
@@ -111,8 +108,7 @@ const QnAListPage = () => {
     id: 12,
     status: 'waiting', // 예비/타기관 이송 등
     statusText: '확인중',
-    title: '기관 연동이 안돼요',
-    content: '타기관 인증서 등록 시 오류가 뜹니다.',
+    title: '기관 연동이 안돼요', content: '타기관 인증서 등록 시 오류가 뜹니다.',
     date: '2024.10.07',
     category: '시스템오류',
   },
@@ -120,8 +116,7 @@ const QnAListPage = () => {
     id: 13,
     status: 'progress', // 진행단계
     statusText: '답변대기',
-    title: '비밀번호 변경이 되지 않습니다.',
-    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    title: '비밀번호 변경이 되지 않습니다.', content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
     date: '2024.10.19',
     category: '회원정보',
   },
@@ -129,8 +124,7 @@ const QnAListPage = () => {
     id: 14,
     status: 'complete', // 완료단계
     statusText: '답변완료',
-    title: '서비스 이용 관련 문의드립니다.',
-    content: '주말에도 고객센터 상담이 가능한가요?',
+    title: '서비스 이용 관련 문의드립니다.', content: '주말에도 고객센터 상담이 가능한가요?',
     date: '2024.11.04',
     category: '이용문의',
   },
@@ -138,8 +132,7 @@ const QnAListPage = () => {
     id: 15,
     status: 'receipt', // 접수단계
     statusText: '접수완료',
-    title: '결제 취소 요청',
-    content: '어제 결제한 내역을 취소하고 싶습니다.',
+    title: '결제 취소 요청', content: '어제 결제한 내역을 취소하고 싶습니다.',
     date: '2024.11.22',
     category: '결제/환불',
   },
@@ -147,8 +140,7 @@ const QnAListPage = () => {
     id: 16,
     status: 'waiting', // 예비/타기관 이송 등
     statusText: '확인중',
-    title: '기관 연동이 안돼요',
-    content: '타기관 인증서 등록 시 오류가 뜹니다.',
+    title: '기관 연동이 안돼요', content: '타기관 인증서 등록 시 오류가 뜹니다.',
     date: '2024.12.03',
     category: '시스템오류',
   },
@@ -156,8 +148,7 @@ const QnAListPage = () => {
     id: 17,
     status: 'progress', // 진행단계
     statusText: '답변대기',
-    title: '비밀번호 변경이 되지 않습니다.',
-    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    title: '비밀번호 변경이 되지 않습니다.', content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
     date: '2025.01.09',
     category: '회원정보',
   },
@@ -165,8 +156,7 @@ const QnAListPage = () => {
     id: 18,
     status: 'complete', // 완료단계
     statusText: '답변완료',
-    title: '서비스 이용 관련 문의드립니다.',
-    content: '주말에도 고객센터 상담이 가능한가요?',
+    title: '서비스 이용 관련 문의드립니다.', content: '주말에도 고객센터 상담이 가능한가요?',
     date: '2025.01.27',
     category: '이용문의',
   },
@@ -174,8 +164,7 @@ const QnAListPage = () => {
     id: 19,
     status: 'receipt', // 접수단계
     statusText: '접수완료',
-    title: '결제 취소 요청',
-    content: '어제 결제한 내역을 취소하고 싶습니다.',
+    title: '결제 취소 요청', content: '어제 결제한 내역을 취소하고 싶습니다.',
     date: '2025.02.11',
     category: '결제/환불',
   },
@@ -183,8 +172,7 @@ const QnAListPage = () => {
     id: 20,
     status: 'waiting', // 예비/타기관 이송 등
     statusText: '확인중',
-    title: '기관 연동이 안돼요',
-    content: '타기관 인증서 등록 시 오류가 뜹니다.',
+    title: '기관 연동이 안돼요', content: '타기관 인증서 등록 시 오류가 뜹니다.',
     date: '2025.03.05',
     category: '시스템오류',
   },
@@ -192,8 +180,7 @@ const QnAListPage = () => {
     id: 21,
     status: 'progress', // 진행단계
     statusText: '답변대기',
-    title: '비밀번호 변경이 되지 않습니다.',
-    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    title: '비밀번호 변경이 되지 않습니다.', content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
     date: '2025.04.16',
     category: '회원정보',
   },
@@ -201,8 +188,7 @@ const QnAListPage = () => {
     id: 22,
     status: 'complete', // 완료단계
     statusText: '답변완료',
-    title: '서비스 이용 관련 문의드립니다.',
-    content: '주말에도 고객센터 상담이 가능한가요?',
+    title: '서비스 이용 관련 문의드립니다.', content: '주말에도 고객센터 상담이 가능한가요?',
     date: '2025.05.08',
     category: '이용문의',
   },
@@ -210,8 +196,7 @@ const QnAListPage = () => {
     id: 23,
     status: 'receipt', // 접수단계
     statusText: '접수완료',
-    title: '결제 취소 요청',
-    content: '어제 결제한 내역을 취소하고 싶습니다.',
+    title: '결제 취소 요청', content: '어제 결제한 내역을 취소하고 싶습니다.',
     date: '2025.06.20',
     category: '결제/환불',
   },
@@ -219,8 +204,7 @@ const QnAListPage = () => {
     id: 24,
     status: 'waiting', // 예비/타기관 이송 등
     statusText: '확인중',
-    title: '기관 연동이 안돼요',
-    content: '타기관 인증서 등록 시 오류가 뜹니다.',
+    title: '기관 연동이 안돼요', content: '타기관 인증서 등록 시 오류가 뜹니다.',
     date: '2025.08.12',
     category: '시스템오류',
   },
@@ -228,8 +212,7 @@ const QnAListPage = () => {
     id: 25,
     status: 'progress', // 진행단계
     statusText: '답변대기',
-    title: '비밀번호 변경이 되지 않습니다.',
-    content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
+    title: '비밀번호 변경이 되지 않습니다.', content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...',
     date: '2025.10.03',
     category: '회원정보',
   },
@@ -292,11 +275,11 @@ const QnAListPage = () => {
       case 'complete': // 답변완료 (파랑 - 강조)
         return 'bg-blue-100 text-blue-700 border-blue-200';
       case 'receipt': // 접수완료 (회색)
-        return 'bg-gray-100 text-gray-600 border-gray-200';
+       return 'bg-graygray-5 text-graygray-70 border-graygray-10';
       case 'waiting': // 확인중 (빨강 or 주황)
-        return 'bg-orange-50 text-orange-600 border-orange-200';
+       return 'bg-orange-50 text-orange-600 border-orange-200';
       default:
-        return 'bg-gray-50 text-gray-600 border-gray-200';
+        return 'bg-graygray-5 text-graygray-50 border-graygray-10';
     }
   };
 
@@ -308,60 +291,57 @@ const QnAListPage = () => {
 
   return (
     <div className="w-full bg-white font-sans text-gray-800">
-      {/* ================= Breadcrumb ================= */}
-      <div className="w-full bg-gray-50 border-b border-gray-200">
-        <div className="max-w-[1280px] mx-auto px-4 py-3 flex items-center text-gray-500 text-sm">
-          <Home size={16} />
-          <ChevronRight size={16} className="mx-2" />
-          <span className="font-medium text-gray-900">고객센터</span>
-          <ChevronRight size={16} className="mx-2" />
-          <span className="font-medium text-gray-900">1:1문의</span>
-        </div>
-      </div>
-
+     
       {/* ================= Main Content ================= */}
-      <main className="max-w-[1280px] mx-auto px-4 py-10">
-        <h1 className="text-3xl font-bold mb-8 text-gray-900">1:1문의</h1>
+      <main className="max-w-[1280px] mx-auto px-4">
+        {/* ================= Breadcrumb ================= */}
+       <PageBreadcrumb items={breadcrumbItems} />
+        <h1 className="text-heading-xl mb-8 text-graygray-90">1:1문의</h1>
 
         {/* Search Bar (FAQPage 스타일 통일) */}
-        <div className="flex border-2 border-gray-300 rounded-none mb-10 h-14">
-          <div className="relative w-32 md:w-48 border-r border-gray-300">
-            <select className="w-full h-full appearance-none px-4 text-gray-600 bg-white focus:outline-none">
+        <div className="bg-graygray-5 border border-graygray-10 p-4 rounded-lg mb-10 flex flex-row items-center justify-center gap-2">
+          <div className="relative w-24 h-12 flex-none">
+            <select className="w-full h-full appearance-none border border-graygray-30 rounded px-3 bg-white focus:outline-none focus:ring-2 focus:ring-secondary-50 cursor-pointer text-body-m pr-6 text-graygray-90">
               <option>전체</option>
               <option>제목</option>
               <option>내용</option>
             </select>
-            <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+              <ChevronDown size={16} className="text-graygray-50" />
+            </div>
           </div>
-          <div className="flex-1 relative">
+          <div className="relative flex-1 h-12 min-w-0">
             <input 
               type="text" 
               placeholder="검색어를 입력해주세요." 
-              className="w-full h-full px-4 focus:outline-none"
+              className="w-full h-full border border-graygray-30 rounded px-4 pr-10 focus:ring-2 focus:ring-secondary-50 text-body-m bg-white placeholder:text-graygray-40"
             />
-            <button className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">
-              <Search size={24} />
-            </button>
+            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-graygray-40">
+              <Search size={20} />
+            </span>
           </div>
+          <button className="h-12 bg-primary-50 text-white px-8 rounded font-medium hover:bg-blue-700 transition active:scale-95 shadow-sm whitespace-nowrap flex-none flex items-center justify-center">
+            검색            
+          </button>
         </div>
 
         {/* Filter & Count & Button */}
-        <div className="flex justify-between items-center mb-4 border-b border-gray-900 pb-2">
-          <div className="text-gray-700">
-            검색 결과 <span className="font-bold text-blue-700">{inquiries.length}</span>개
+        <div className="flex justify-between items-center mb-4 border-b border-graygray-90 pb-2">
+          <div className="text-body-m text-graygray-70">
+            검색 결과 <span className="font-bold text-secondary-50">{inquiries.length}</span>개
           </div>
-          <div className="flex items-center text-sm text-gray-500 gap-4">
-            {/* 문의하기 버튼 추가 */}
-            <button className="px-4 py-1.5 bg-blue-900 text-white font-bold rounded hover:bg-blue-800 transition-colors">
+          <div className="flex items-center text-detail-m text-graygray-50 gap-4">
+            {/* 문의하기 버튼 */}
+            <button className="px-5 py-1.5 bg-secondary-50 text-white font-bold rounded hover:bg-opacity-90 transition-colors text-detail-m">
               문의하기
             </button>
-            <div className="h-4 w-px bg-gray-300 mx-2"></div>
+            <div className="h-4 w-px bg-graygray-30 mx-2"></div>
             
             <div className="flex items-center gap-1">
               목록 표시 개수
-              {/* 수정됨: onChange 및 value 추가 */}
+              {/* onChange 및 value 추가 */}
               <select 
-                className="ml-1 border border-gray-300 rounded px-1 py-0.5"
+                className="ml-1 border border-graygray-30 rounded px-1 py-0.5 text-graygray-90"
                 onChange={handleItemsPerPageChange}
                 value={`${itemsPerPage}개`}
               >
@@ -370,16 +350,16 @@ const QnAListPage = () => {
               </select>
             </div>
             <div className="flex gap-2">
-              <button 
+             <button 
                 onClick={() => handleSortChange('latest')}
-                className={sortOrder === 'latest' ? "font-bold text-gray-900 underline underline-offset-4" : "hover:text-gray-900"}
+                className={sortOrder === 'latest' ? "font-bold text-graygray-90 underline underline-offset-4" : "hover:text-graygray-90 transition-colors"}
               >
                 최신순
               </button>
-              <span className="text-gray-300">|</span>
+              <span className="text-graygray-30">|</span>
               <button 
                 onClick={() => handleSortChange('oldest')}
-                className={sortOrder === 'oldest' ? "font-bold text-gray-900 underline underline-offset-4" : "hover:text-gray-900"}
+                className={sortOrder === 'oldest' ? "font-bold text-graygray-90 underline underline-offset-4" : "hover:text-graygray-90 transition-colors"}
               >
                 오래된순
               </button>
@@ -389,40 +369,40 @@ const QnAListPage = () => {
 
         {/* Inquiry List */}
         <div className="space-y-4">
-          {/* 핵심 수정: inquiries.map -> currentItems.map 으로 변경 */}
+          {/* inquiries.map -> currentItems.map 으로 변경 */}
           {currentItems.map((item) => (
             <div 
               key={item.id} 
               onClick={() => QnADetailClick(item.id)}
-              className="border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow cursor-pointer bg-white"
+              className="border border-graygray-10 rounded-lg p-6 hover:shadow-sm hover:border-graygray-30 transition-all cursor-pointer bg-white"
             >
               {/* Top: Status & Category */}
               <div className="flex items-center gap-2 mb-3">
-                <span className={`px-2 py-1 text-xs font-bold rounded border ${getStatusStyle(item.status)}`}>
+                <span className={`px-2 py-1 text-[13px] font-bold rounded border ${getStatusStyle(item.status)}`}>
                   {item.statusText}
                 </span>
-                <span className="text-xs text-gray-500 border border-gray-200 px-2 py-1 rounded bg-gray-50">
+                <span className="text-[13px] text-graygray-50 border border-graygray-10 px-2 py-1 rounded bg-graygray-5">
                   {item.category}
                 </span>
               </div>
 
               {/* Middle: Title */}
               <div className="mb-2">
-                <h3 className="text-lg font-bold text-gray-900">{item.title}</h3>
+                <h3 className="text-title-l text-graygray-90">{item.title}</h3>
               </div>
               
               {/* Content Preview (Optional) */}
-              <p className="text-gray-600 text-sm mb-4 line-clamp-1">
+              <p className="text-body-m text-graygray-70 mb-4 line-clamp-1">
                 {item.content}
               </p>
 
               {/* Bottom: Date */}
-              <div className="flex items-center justify-between border-t border-gray-100 pt-4">
-                <span className="text-sm text-gray-500">
-                  <span className="font-bold mr-2 text-gray-700">등록일</span> {item.date}
+              <div className="flex items-center justify-between border-t border-graygray-5 pt-4">
+                <span className="text-detail-m text-graygray-50">
+                  <span className="font-bold mr-2 text-graygray-70">등록일</span> {item.date}
                 </span>
                 {/* 화살표 아이콘 등 추가 가능 */}
-                <ChevronRight size={16} className="text-gray-400" />
+                <ChevronRight size={18} className="text-graygray-40" />
               </div>
             </div>
           ))}
@@ -433,7 +413,7 @@ const QnAListPage = () => {
          <button 
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className={`flex items-center gap-1 p-2 ${currentPage === 1 ? 'text-gray-300 cursor-default' : 'text-gray-400 hover:text-gray-600'}`}
+            className={`flex items-center gap-1 p-2 text-detail-m ${currentPage === 1 ? 'text-graygray-30 cursor-default' : 'text-graygray-50 hover:text-graygray-90'}`}
           >
             <ChevronLeft size={16} /> 이전
           </button>
@@ -442,10 +422,10 @@ const QnAListPage = () => {
             <button
               key={number}
               onClick={() => handlePageChange(number)}
-              className={`w-8 h-8 flex items-center justify-center text-sm font-bold rounded
+              className={`w-9 h-9 flex items-center justify-center text-detail-m rounded transition-colors
                 ${currentPage === number 
-                  ? 'bg-blue-900 text-white' 
-                  : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-secondary-50 text-white font-bold'
+                  : 'text-graygray-70 hover:bg-graygray-5'
                 }`}
             >
               {number}
@@ -455,7 +435,7 @@ const QnAListPage = () => {
           <button 
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className={`flex items-center gap-1 p-2 ${currentPage === totalPages ? 'text-gray-300 cursor-default' : 'text-gray-400 hover:text-gray-600'}`}
+            className={`flex items-center gap-1 p-2 text-detail-m ${currentPage === totalPages ? 'text-graygray-30 cursor-default' : 'text-graygray-50 hover:text-graygray-90'}`}
           >
             다음 <ChevronRight size={16} />
           </button>
