@@ -82,7 +82,7 @@ const UserFacilityList = () => {
 
   return (
     <div className="flex flex-col items-center w-full min-h-screen pb-20 px-4 lg:px-0">
-      <div className="w-full max-w-[1000px] flex flex-col pt-6">
+      <div className="w-full max-w-[1000px] flex flex-col">
         
         <PageBreadcrumb items={breadcrumbItems} />
 
