@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, Navigation, User, Layers, Home, RotateCcw, Menu, X } from 'lucide-react';
+import { safetyApi, configUtils, authUtils } from '@/utils/axiosConfig';
 
 /* <================ SelectBox 부품 (동일) ================> */
 const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
@@ -24,6 +25,11 @@ const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
 };
 
 const UserMap = () => {
+
+  /* <================ 상태 관리 ================> */
+  const shelterServiceKey = import.meta.env.VITE_API_OPEN_SHELTER_SERVICE_KEY;
+
+
   /* <================ 상태 관리 ================> */
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null); 
@@ -117,10 +123,27 @@ const UserMap = () => {
     if(window.innerWidth < 768) setIsMobileMenuOpen(false);
   };
 
+
+  /* <================ ★ api 요청 시작 ★ ================> */
+  const shelterRequest = async () => {
+    
+    const response = await safetyApi.get('/DSSP-IF-10941', {
+      serviceKey : shelterServiceKey,
+      returnType : 'json',
+      pageNo : 1,
+      numOfRows : 10,
+      shlt_se_cd : 3
+    });
+    console.log(response);
+    
+  } 
+
   /* <================ ★ 카카오맵 로직 시작 ★ ================> */
 
   // 1. 지도 초기화
   useEffect(() => {
+    shelterRequest();
+
     if (!window.kakao) {
       console.error("카카오맵 스크립트가 로드되지 않았습니다.");
       return;
