@@ -47,44 +47,54 @@ const FAQDetailPage = () => {
   const item = faqData.find(d => d.id === parseInt(id));
 
   if (!item) {
-    return <div className="p-10 text-center">게시글을 찾을 수 없습니다.</div>;
+    return(
+      <div className="p-10 text-center flex-col-center min-h-[400px]">
+        <p className="text-title-l text-graygray-70 mb-4">게시글을 찾을 수 없습니다.</p>
+        <button 
+          onClick={() => navigate('/faq')}
+          className="px-6 py-2 bg-graygray-90 text-white rounded text-body-m"
+        >
+          목록으로
+        </button>
+      </div>
+    )
   }
  return (
-    <div className="w-full bg-white font-sans text-gray-800">
+    <div className="w-full bg-white text-graygray-90">
       {/* Breadcrumb */}
      <PageBreadcrumb items={breadcrumbItems} />
 
       <main className="max-w-[1280px] mx-auto px-4 py-10">
         {/* Title Area */}
-        <div className="border-b-2 border-gray-800 pb-6 mb-8">
-            <div className="flex items-center gap-2 mb-2">
+        <div className="border-b border-graygray-90 pb-6 mb-8">
+            <div className="flex items-center gap-3 mb-3">
                 {/* 스타일 수정된 부분: FAQListPage와 동일한 디자인 적용 */}
-                <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded-full border border-gray-200">
+               <span className="px-3 py-1 bg-graygray-5 text-graygray-70 text-detail-m rounded-full border border-graygray-10">
                     {item.tag}
                 </span>
-                <span className="text-gray-500 text-sm">{item.date}</span>
+                <span className="text-detail-m text-graygray-50">{item.date}</span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                <span className="text-blue-700 mr-2">Q.</span>
+            <h1 className="text-heading-l text-graygray-90 mt-2">
+               <span className="text-secondary-50 mr-2">Q.</span>
                 {item.question}
             </h1>
         </div>
 
         {/* Content Area */}
-        <div className="min-h-[300px] bg-gray-50 p-8 rounded-lg mb-10 border border-gray-100">
+        <div className="min-h-[300px] bg-graygray-5 p-8 rounded-lg mb-10 border border-graygray-10">
             <div className="flex items-start gap-4">
-                <span className="text-2xl font-bold text-gray-500 mt-[-4px]">A.</span>
-                <div className="text-gray-700 leading-relaxed text-lg whitespace-pre-wrap">
+                <span className="text-heading-m text-graygray-50 mt-[-2px]">A.</span>
+                <div className="text-body-m text-graygray-70 whitespace-pre-wrap">
                     {item.answer}
                 </div>
             </div>
         </div>
 
         {/* Buttons */}
-        <div className="flex justify-center border-t border-gray-200 pt-8">
+        <div className="flex justify-center border-t border-graygray-10 pt-8">
             <button 
                 onClick={() => navigate(-1)}
-                className="flex items-center gap-2 px-8 py-3 bg-gray-900 text-white rounded hover:bg-gray-800 transition-colors font-medium"
+                className="flex items-center gap-2 px-8 py-3 bg-graygray-90 text-white rounded hover:bg-graygray-80 transition-colors text-body-m-bold shadow-sm"
             >
                 <ArrowLeft size={18} />
                 목록으로 돌아가기

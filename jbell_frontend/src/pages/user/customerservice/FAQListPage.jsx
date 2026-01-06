@@ -137,8 +137,8 @@ const FAQListPage = () => {
 
         {/* Filter & Count */}
         <div className="flex justify-between items-center mb-4 border-b border-graygray-90 pb-2">
-          <div className="text-gray-700">
-            검색 결과 <span className="font-bold text-primary-50">{totalItems}</span>개
+          <div className="text-body-m text-graygray-70">
+            검색 결과 <span className="font-bold text-secondary-50">{totalItems}</span>개
           </div>
           <div className="flex items-center text-detail-m text-graygray-50 gap-4">
             <div className="flex items-center gap-1">
@@ -184,7 +184,7 @@ const FAQListPage = () => {
               className="border border-graygray-10 rounded-lg p-6 hover:shadow-sm hover:border-graygray-30 transition-all cursor-pointer bg-white">
               {/* Question */}
               <div className="flex items-start gap-3 mb-2">
-                <span className="text-title-l text-graygray-90">Q</span>
+                <span className="text-title-l text-secondary-50">Q</span>
                 <h3 className="text-title-l text-graygray-90 pt-0.5">{item.question}</h3>
               </div>
               
