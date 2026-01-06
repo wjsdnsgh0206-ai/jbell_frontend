@@ -140,7 +140,7 @@ const Flood = () => {
       </div>
 
       <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 lg:gap-8">
-        <div className="bg-white rounded-[24px] p-6 shadow-1 border border-graygray-10">
+     <div className="bg-gradient-to-br from-[#62A1E9] to-[#4A90E2] rounded-[24px] p-6 shadow-1 border border-white/30">
           <WeatherBox />
         </div>
         <div className="bg-white rounded-[24px] shadow-1 flex flex-col h-full border border-graygray-10 overflow-hidden min-h-[400px]">
