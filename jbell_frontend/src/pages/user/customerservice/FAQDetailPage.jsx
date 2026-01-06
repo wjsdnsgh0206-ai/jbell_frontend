@@ -61,10 +61,10 @@ const FAQDetailPage = () => {
   }
  return (
     <div className="w-full bg-white text-graygray-90">
-      {/* Breadcrumb */}
-     <PageBreadcrumb items={breadcrumbItems} />
 
-      <main className="max-w-[1280px] mx-auto px-4 py-10">
+      <main className="max-w-[1280px] mx-auto px-4">
+        {/* Breadcrumb */}
+        <PageBreadcrumb items={breadcrumbItems} />
         {/* Title Area */}
         <div className="border-b border-graygray-90 pb-6 mb-8">
             <div className="flex items-center gap-3 mb-3">

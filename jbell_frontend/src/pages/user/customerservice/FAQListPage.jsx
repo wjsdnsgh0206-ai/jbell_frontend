@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Home, ChevronRight, ChevronLeft, ChevronDown, Menu, User, Globe, MessageCircle } from 'lucide-react';
+import { Search, ChevronRight, ChevronLeft, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb'
 
@@ -96,16 +96,14 @@ const FAQListPage = () => {
     navigate(`/faq/${id}`);
   };
     
-  
   return (
     <div className="w-full bg-white text-graygray-90">
       {/* ================= Header ================= */}
 
-      {/* ================= Breadcrumb ================= */}
-      <PageBreadcrumb items={breadcrumbItems} />
-
       {/* ================= Main Content ================= */}
-      <main className="max-w-[1280px] mx-auto px-4 py-10">
+      <main className="max-w-[1280px] mx-auto px-4">
+        {/* ================= Breadcrumb ================= */}
+        <PageBreadcrumb items={breadcrumbItems} />
         <h1 className="text-heading-xl mb-8 text-graygray-90">FAQ</h1>
 
         {/* Search Bar */}

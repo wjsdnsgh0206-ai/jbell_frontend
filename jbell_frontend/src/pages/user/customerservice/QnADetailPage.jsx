@@ -261,11 +261,11 @@ const QnADetailPage = () => {
 
   return (
     <div className="w-full bg-white text-graygray-90">
-      {/* ================= Breadcrumb (FAQDetailPage 스타일) ================= */}
-      <PageBreadcrumb items={breadcrumbItems} />
 
-     <main className="max-w-[1280px] mx-auto px-4 py-10">
-        {/* ================= Title Area (FAQDetailPage 스타일) ================= */}
+     <main className="max-w-[1280px] mx-auto px-4">
+      {/* ================= Breadcrumb ================= */}
+      <PageBreadcrumb items={breadcrumbItems} />
+        {/* ================= Title Area ================= */}
         <div className="border-b border-graygray-90 pb-6 mb-8">
             <div className="flex items-center gap-2 mb-3">
                 {/* 카테고리 태그 */}

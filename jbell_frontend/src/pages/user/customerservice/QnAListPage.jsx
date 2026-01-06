@@ -291,11 +291,11 @@ const QnAListPage = () => {
 
   return (
     <div className="w-full bg-white font-sans text-gray-800">
-      {/* ================= Breadcrumb ================= */}
-       <PageBreadcrumb items={breadcrumbItems} />
-
+     
       {/* ================= Main Content ================= */}
-      <main className="max-w-[1280px] mx-auto px-4 py-10">
+      <main className="max-w-[1280px] mx-auto px-4">
+        {/* ================= Breadcrumb ================= */}
+       <PageBreadcrumb items={breadcrumbItems} />
         <h1 className="text-heading-xl mb-8 text-graygray-90">1:1문의</h1>
 
         {/* Search Bar (FAQPage 스타일 통일) */}
