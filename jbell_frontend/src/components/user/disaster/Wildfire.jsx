@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
 import WeatherBox from "../modal/WeatherBox";
 import DisasterMessageBox from "../modal/DisasterMessageBox";
+import FacilityCheckGroup from "../modal/FacilityCheckGroup";
 
 /*
   Wildfire 컴포넌트
@@ -14,13 +15,36 @@ const Wildfire = () => {
   // 현재 선택된 지도 탭 상태
   const [activeTab, setActiveTab] = useState("산불위험지수");
 
+  // 체크박스 상태 관리
+  const [facilities, setFacilities] = useState({
+    shelter: true,
+    hospital: false,
+    pharmacy: false,
+  });
+
   // 산불 관련 탭 메뉴 구성
   const mapTabs = [
     { id: "산불위험지수", label: "산불위험지수" },
-    { id: "실시간화점", label: "실시간 화점정보" },
-    { id: "대형산불주의보", label: "대형산불 주의보" },
+    { id: "발생위치", label: "산불발생위치" },
     { id: "소방시설", label: "주변 소방시설", hasArrow: true },
   ];
+
+  // [수정] 오타 수정 및 데이터 정의
+  const WildfireItems = [
+    { id: "shelter", label: "이재민임시시설" }, 
+    { id: "hospital", label: "병원" },
+    { id: "pharmacy", label: "약국" },
+  ];
+
+  // 탭 클릭 핸들러 (토글 로직)
+  const handleTabClick = (tabId) => {
+    setActiveTab(prev => (prev === tabId ? null : tabId));
+  };
+
+  // 체크박스 변경 핸들러
+  const handleCheck = (key) => {
+    setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   return (
     <div className="grid grid-cols-12 gap-5 lg:gap-8">
@@ -45,8 +69,6 @@ const Wildfire = () => {
 
           {/* 지도 및 내부 사이드바 컨테이너 */}
           <div className="relative h-[400px] sm:h-[500px] bg-secondary-5 rounded-2xl border border-graygray-10 overflow-hidden shadow-inner">
-            
-            {/* 배경: 지도 영역 */}
             <div className="absolute inset-0 flex items-center justify-center">
               <span className="text-title-s sm:text-title-l font-black text-graygray-20 uppercase tracking-[0.2em] opacity-50 px-4 text-center select-none">
                 Wildfire Map Area
@@ -56,24 +78,34 @@ const Wildfire = () => {
             {/* 지도 내부 사이드바 */}
             <div className="absolute top-3 left-3 sm:top-5 sm:left-5 w-36 sm:w-44 flex flex-col gap-1.5 sm:gap-2 z-10">
               {mapTabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`
-                    flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl text-[12px] sm:text-body-m font-black transition-all border
-                    ${activeTab === tab.id 
-                      ? "bg-blue-600 text-white border-blue-600 shadow-blue shadow-lg translate-x-1" 
-                      : "bg-white/95 backdrop-blur-sm text-graygray-60 border-graygray-10 hover:bg-white hover:translate-x-1 shadow-sm"
-                    }
-                  `}
-                >
-                  <span className="truncate">{tab.label}</span>
-                  {tab.hasArrow && (
-                    <span className={`shrink-0 text-[8px] sm:text-[10px] ml-1 ${activeTab === tab.id ? "text-white" : "text-graygray-30"}`}>
-                      ▶
-                    </span>
+                <div key={tab.id} className="flex flex-col gap-1.5">
+                  <button
+                    onClick={() => handleTabClick(tab.id)}
+                    className={`
+                      flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl text-[12px] sm:text-body-m font-black transition-all border
+                      ${activeTab === tab.id 
+                        ? "bg-blue-600 text-white border-blue-600 shadow-blue shadow-lg translate-x-1" 
+                        : "bg-white/95 backdrop-blur-sm text-graygray-60 border-graygray-10 hover:bg-white hover:translate-x-1 shadow-sm"
+                      }
+                    `}
+                  >
+                    <span className="truncate">{tab.label}</span>
+                    {tab.hasArrow && (
+                      <span className={`transition-transform duration-300 ${activeTab === tab.id ? "rotate-90" : ""}`}>
+                        <span className="text-[8px] sm:text-[10px]">▶</span>
+                      </span>
+                    )}
+                  </button>
+
+                  {/* ID 매칭: "소방시설" 버튼 클릭 시 리스트 노출 */}
+                  {tab.id === "소방시설" && activeTab === "소방시설" && (
+                    <FacilityCheckGroup
+                      items={WildfireItems}
+                      facilities={facilities}
+                      onCheck={handleCheck}
+                    />
                   )}
-                </button>
+                </div>
               ))}
             </div>
 
@@ -82,7 +114,6 @@ const Wildfire = () => {
               <div className="space-y-3">
                 <p className="text-[9px] sm:text-[10px] font-black text-graygray-40 uppercase tracking-widest">Fire Risk Summary</p>
                 <div className="flex flex-col gap-2.5">
-                  {/* 위험 지수 바 */}
                   <div className="flex flex-col gap-1.5">
                     <div className="flex justify-between items-center text-[11px] sm:text-detail-m font-bold text-graygray-60">
                       <span>위험지수</span>
@@ -93,7 +124,6 @@ const Wildfire = () => {
                     </div>
                   </div>
                   
-                  {/* 최근 화점 정보 */}
                   <div className="flex items-center gap-2 py-1 border-t border-graygray-5 pt-2.5">
                     <div className="relative flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -104,7 +134,6 @@ const Wildfire = () => {
                     </span>
                   </div>
 
-                  {/* 하단 강조 배너 */}
                   <div className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-[11px] sm:text-detail-m font-black text-center border border-blue-100 shadow-sm">
                     ⚠️ 산불 발생 위험 높음
                   </div>
@@ -126,7 +155,7 @@ const Wildfire = () => {
         </div>
       </div>
 
-      {/* === 우측 패널 - 날씨 & 재난문자 === */}
+      {/* 우측 패널 - 날씨 & 재난문자 */}
       <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 lg:gap-8">
         <div className="bg-white rounded-[24px] p-6 shadow-1 border border-graygray-10">
           <WeatherBox />

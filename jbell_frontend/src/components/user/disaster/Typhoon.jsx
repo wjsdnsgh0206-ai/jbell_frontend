@@ -2,22 +2,46 @@ import React, { useState } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
 import WeatherBox from "../modal/WeatherBox";
 import DisasterMessageBox from "../modal/DisasterMessageBox";
+import FacilityCheckGroup from "../modal/FacilityCheckGroup";
 
 /*
   Typhoon 컴포넌트
-  > 작성자 : 최지영
-  > 컴포넌트 이름 : 재난사고속보 모달 - 산사태 메뉴
-  > 컴포넌트 설명 : 재난사고속보 모달 내부의 산사태 메뉴 컴포넌트로, 현재 산사태관련 내용을 표시함. 추후 api연동 필요.
+  > 작성자 : 최지영 (수정: Gemini)
+  > 컴포넌트 설명 : 재난사고속보 모달 내부의 태풍 메뉴 컴포넌트.
+    '재난안전시설' 클릭 시 하위 체크박스 노출 및 토글 기능 추가.
 */
 
 const Typhoon = () => {
-  const [activeTab, setActiveTab] = useState("태풍경로");
+  const [activeTab, setActiveTab] = useState("태풍경로도");
+
+  // 체크박스 상태 관리
+  const [facilities, setFacilities] = useState({
+    shelter: true,
+    hospital: false,
+    pharmacy: false,
+  });
 
   const mapTabs = [
-    { id: "태풍경로", label: "태풍 이동경로" },
-    { id: "강풍반경", label: "강풍/폭풍반경" },
-    { id: "기상특보", label: "해역별 특보" },
-    { id: "대피시설", label: "항만 대피시설", hasArrow: true },
+    { id: "기상특보", label: "기상특보" },
+    { id: "태풍경로도", label: "태풍경로도" },
+    { id: "재난안전시설", label: "재난안전시설", hasArrow: true },
+  ];
+
+  // 탭 토글 핸들러 (이미 활성화된 탭 클릭 시 닫힘)
+  const handleTabClick = (tabId) => {
+    setActiveTab((prev) => (prev === tabId ? null : tabId));
+  };
+
+  // 체크박스 핸들러
+  const handleCheck = (key) => {
+    setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  // 재난안전시설 탭 데이터
+  const typhoonItems = [
+    { id: "shelter", label: "이재민임시시설" }, 
+    { id: "hospital", label: "병원" },
+    { id: "pharmacy", label: "약국" },
   ];
 
   return (
@@ -50,23 +74,37 @@ const Typhoon = () => {
             {/* 좌측 사이드바 메뉴 */}
             <div className="absolute top-3 left-3 sm:top-5 sm:left-5 w-36 sm:w-44 flex flex-col gap-1.5 sm:gap-2 z-10">
               {mapTabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl text-[12px] sm:text-body-m font-black transition-all border
-                    ${
-                      activeTab === tab.id
-                        ? "bg-blue-600 text-white border-blue-600 shadow-blue shadow-lg translate-x-1"
-                        : "bg-white/95 backdrop-blur-sm text-graygray-60 border-graygray-10 hover:bg-white hover:translate-x-1 shadow-sm"
-                    }`}
-                >
-                  <span className="truncate">{tab.label}</span>
-                  {tab.hasArrow && (
-                    <span className="shrink-0 text-[8px] sm:text-[10px] ml-1">
-                      ▶
-                    </span>
-                  )}
-                </button>
+                <div key={tab.id} className="flex flex-col gap-1.5">
+                  <button
+                    onClick={() => handleTabClick(tab.id)}
+                    className={`flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl text-[12px] sm:text-body-m font-black transition-all border
+                      ${
+                        activeTab === tab.id
+                          ? "bg-blue-600 text-white border-blue-600 shadow-blue shadow-lg translate-x-1"
+                          : "bg-white/95 backdrop-blur-sm text-graygray-60 border-graygray-10 hover:bg-white hover:translate-x-1 shadow-sm"
+                      }`}
+                  >
+                    <span className="truncate">{tab.label}</span>
+                    {tab.hasArrow && (
+                      <span
+                        className={`transition-transform duration-300 ${
+                          activeTab === tab.id ? "rotate-90" : ""
+                        }`}
+                      >
+                        <span className="text-[8px] sm:text-[10px]">▶</span>
+                      </span>
+                    )}
+                  </button>
+
+                  {tab.id === "재난안전시설" &&
+                    activeTab === "재난안전시설" && (
+                      <FacilityCheckGroup
+                        items={typhoonItems} 
+                        facilities={facilities}
+                        onCheck={handleCheck}
+                      />
+                    )}
+                </div>
               ))}
             </div>
 
@@ -82,7 +120,6 @@ const Typhoon = () => {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                     </div>
-                    {/* 네가 강조한 그 클래스 그대로 적용 */}
                     <span className="text-detail-l sm:text-body-m font-black text-graygray-80 tabular-nums uppercase">
                       중심기압:{" "}
                       <span className="text-red-600 font-black">965 hPa</span>
@@ -111,8 +148,8 @@ const Typhoon = () => {
           <ActionTipBox type="태풍" />
         </div>
       </div>
-      
-      {/* === 우측 패널 - 날씨 & 재난문자 === */}
+
+      {/* === 우측 패널 === */}
       <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 lg:gap-8">
         <div className="bg-white rounded-[24px] p-6 shadow-1 border border-graygray-10">
           <WeatherBox />
