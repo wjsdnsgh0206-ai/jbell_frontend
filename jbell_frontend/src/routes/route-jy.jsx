@@ -1,6 +1,6 @@
 // src/routes/route-jy.jsx
 import { lazy } from "react";
-import { AccidentNews, Earthquake, Flood, HeavyRain, LandSlide, Typhoon, Wildfire } from "@/components/user/disaster";
+import { AccidentNews, Earthquake, Flood, HeavyRain, LandSlide, Typhoon, ForestFire } from "@/components/user/disaster";
 import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
 const UserPageMain = lazy(() => import("@/pages/user/UserPageMain"));
@@ -73,8 +73,8 @@ const disasterModal = [
     element: <Typhoon />,
   },
   {
-    path: "/disaster/wildfire",
-    element: <Wildfire />,
+    path: "/disaster/forestFire",
+    element: <ForestFire />,
   },
 ];
 

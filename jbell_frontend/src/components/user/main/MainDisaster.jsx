@@ -33,7 +33,7 @@ const MainDisaster = () => {
       type: "산불",
       title: "건조주의보 발령 중, 입산 시 화기 소지 금지 및 산불 예방 수칙 준수",
       date: "2025.12.02",
-      path: "/disaster/wildfire", // 산불 탭으로 이동
+      path: "/disaster/forestFire", // 산불 탭으로 이동
     },
     {
       id: 5,
