@@ -102,7 +102,7 @@ export const SIDE_MENU_DATA = {
       title: '재난별 안전정책', 
       items: [
         { name: '지진', path: '/earthquakeSafetyPolicy' },
-        { name: '태풍, 호우', path: '/stormAndFloodSafetyPolicy' },
+        { name: '태풍·호우', path: '/stormAndFloodSafetyPolicy' },
       ] 
     },
     { 

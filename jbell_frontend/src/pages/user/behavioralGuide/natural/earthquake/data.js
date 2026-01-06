@@ -15,7 +15,7 @@ export const earthquakeData = {
       { label: "자연재난행동요령", path: "/earthquakeActionGuide", hasIcon: false }, 
 
       // 4. 현재 페이지 (마지막 항목이므로 path 없어도 됨)
-      { label: "지진", path: "/", hasIcon: false }, 
+      { label: "지진", hasIcon: false }, 
     ],
     tabs: [
       { label: "평상시 대비요령" },
