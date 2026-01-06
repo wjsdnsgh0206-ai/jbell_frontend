@@ -149,12 +149,12 @@ const Typhoon = () => {
         </div>
       </div>
 
-      {/* === 우측 패널 === */}
+      {/* 우측 패널 - 날씨 & 재난문자 */}
       <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 lg:gap-8">
         <div className="bg-white rounded-[24px] p-6 shadow-1 border border-graygray-10">
           <WeatherBox />
         </div>
-        <div className="bg-white rounded-[24px] shadow-1 border border-graygray-10 overflow-hidden min-h-[400px]">
+        <div className="bg-white rounded-[24px] shadow-1 flex flex-col h-full border border-graygray-10 overflow-hidden min-h-[400px]">
           <DisasterMessageBox />
         </div>
       </div>
