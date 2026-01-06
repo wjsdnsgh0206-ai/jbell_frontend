@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, Navigation, User, Layers, Home, RotateCcw, Menu, X } from 'lucide-react';
 import DaumPostcode from 'react-daum-postcode'; // 카카오 우편번호 서비스
+import { api, configUtils, authUtils } from '@/utils/axiosConfig';
 
 /* <================ SelectBox 부품 (동일) ================> */
 const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
@@ -31,6 +32,12 @@ const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
 const UserMap = () => {
 /* <========================== 상태 관리(앱의 기억력) ==========================> */
   // ui 상태
+
+  /* <================ 상태 관리 ================> */
+  const shelterServiceKey = import.meta.env.VITE_API_OPEN_SHELTER_SERVICE_KEY;
+
+
+  /* <================ 상태 관리 ================> */
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null); 
   const [addressType, setAddressType] = useState('road');
@@ -202,6 +209,46 @@ const handleSearch = async () => {
 /* <================================ 핸들러 함수들 ================================> */
 
 
+  /* <================ ★ api 요청 시작 ★ ================> */
+  /**
+   * <================ ★ 외부 api 요청 작성요령 ★ ================>
+   * 1. /safety-api 주소요청 시 => vite.config.js 파일 proxy 부분에 설정
+   * '/safety-api': {
+   *    target: 'https://www.safetydata.go.kr/V2/api',
+   *    changeOrigin: true,
+   *    rewrite: (path) => path.replace(/^\/safety-api/, ''),
+   *    secure: false,
+   *    configure: (proxy, options) => {
+   *      proxy.on('proxyReq', (proxyReq, req, res) => {
+   *        console.log('Proxy Request:', req.method, req.url);
+   *      });
+   *      proxy.on('proxyRes', (proxyRes, req, res) => {
+   *        console.log('Proxy Response:', proxyRes.statusCode, req.url);
+   *      });
+   *    }
+   *  }
+   * 2. api.external(URL, config) 메소드 호출
+   */
+  const shelterRequest = async () => {
+    
+    const response = await api.external('/safety-api/DSSP-IF-10941', {
+      // = https://www.safetydata.go.kr/V2/api/DSSP-IF-10941
+      method: 'get',
+      params: {
+        serviceKey : shelterServiceKey,
+        returnType : 'json',
+        pageNo : 1,
+        numOfRows : 10,
+        shlt_se_cd : 3
+      }
+    });
+    console.log(response);
+    
+  } 
+
+  /* <================ ★ 카카오맵 로직 시작 ★ ================> */
+
+  
 /* <================ ★ 카카오맵 로직 시작 ★ ================> */
   // useEffect 모음
   //

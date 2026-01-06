@@ -5,10 +5,10 @@ import DisasterMessageBox from "../modal/DisasterMessageBox";
 
 /*
   AccidentNews 컴포넌트
-  > 작성자 : 최지영
-  > 컴포넌트 이름 : 재난사고속보 모달 - 사고속보 메뉴
-  > 컴포넌트 설명 : 재난사고속보 모달 내부의 사고속보 메뉴 컴포넌트로, 현재 사고속보관련 내용을 표시함. 
-    (사고속보 목록, 사고난 지점 및 진행 상황 표시, 지도에 사고위치 표시 등), 추후 api연동 필요.
+  > 수정 사항: 
+    1. 날씨 박스 배경색을 다시 bg-white로 변경
+    2. 모든 박스의 border-radius를 rounded-[24px]로 유지 (Earthquake와 통일)
+    3. 전체적인 간격 및 레이아웃 구조 유지
 */
 
 const AccidentNews = () => {
@@ -18,10 +18,12 @@ const AccidentNews = () => {
   const categories = ["전체", "화재사고", "차량사고", "도로공사"];
 
   return (
-    <div className="grid grid-cols-12 gap-4 lg:gap-6">
-      <div className="col-span-12 lg:col-span-8 flex flex-col gap-4 lg:gap-6">
+    <div className="grid grid-cols-12 gap-5 lg:gap-8">
+      <div className="col-span-12 lg:col-span-8 flex flex-col gap-5 lg:gap-8">
+        
         {/* === 사고 목록 + 지도 통합 섹션 === */}
-        <div className="bg-white rounded-2xl shadow-1 border border-graygray-10 flex flex-col lg:flex-row overflow-hidden min-h-[600px]">
+        <div className="bg-white rounded-[24px] shadow-1 border border-graygray-10 flex flex-col lg:flex-row overflow-hidden min-h-[600px]">
+          
           {/* 1. 왼쪽: 사고 리스트 사이드바 */}
           <div className="w-full lg:w-[320px] border-r border-graygray-10 p-5 flex flex-col gap-4 z-20">
             <div className="flex items-center justify-between">
@@ -42,7 +44,6 @@ const AccidentNews = () => {
                 <span className={`text-[10px] transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`}>▼</span>
               </button>
 
-              {/* 드롭다운 Floating 창 */}
               {isDropdownOpen && (
                 <div className="absolute top-[105%] left-0 w-full bg-white border border-graygray-10 shadow-xl rounded-xl py-2 z-[100] animate-in fade-in zoom-in-95 duration-200">
                   {categories.map((cat) => (
@@ -58,7 +59,7 @@ const AccidentNews = () => {
               )}
             </div>
 
-            {/* 사고 카드 리스트 (스크롤) */}
+            {/* 사고 카드 리스트 */}
             <div className="flex-1 overflow-y-auto space-y-3 pr-1 custom-scrollbar max-h-[400px] lg:max-h-none">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="bg-white border border-graygray-10 rounded-xl overflow-hidden shadow-sm hover:border-blue-300 transition-all group cursor-pointer">
@@ -89,9 +90,7 @@ const AccidentNews = () => {
 
           {/* 2. 오른쪽: 지도 영역 */}
           <div className="flex-1 min-h-[400px] lg:min-h-full bg-secondary-5 relative overflow-hidden flex items-center justify-center">
-            {/* 배경 패턴 */}
             <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
-            
             <div className="relative z-10 flex flex-col items-center gap-4">
               <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center animate-pulse">
                 <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
@@ -100,30 +99,25 @@ const AccidentNews = () => {
               </div>
               <span className="text-title-m font-black text-graygray-20 tracking-[0.3em] uppercase select-none">Map Area</span>
             </div>
-
-            {/* 지도 컨트롤 */}
-            <div className="absolute bottom-6 right-6 flex flex-col gap-2">
-              <button className="w-10 h-10 bg-white shadow-1 rounded-xl border border-graygray-10 flex items-center justify-center text-xl font-bold text-graygray-60 hover:text-blue-600 hover:bg-gray-50 transition-all">+</button>
-              <button className="w-10 h-10 bg-white shadow-1 rounded-xl border border-graygray-10 flex items-center justify-center text-xl font-bold text-graygray-60 hover:text-blue-600 hover:bg-gray-50 transition-all">-</button>
-            </div>
           </div>
         </div>
 
         {/* 행동요령 박스 */}
-        <div className="bg-white rounded-2xl p-4 lg:p-6 shadow-1 border border-graygray-10">
+        <div className="bg-white rounded-[24px] p-6 lg:p-8 shadow-1 border border-graygray-10">
           <ActionTipBox />
         </div>
       </div>
 
       {/* 오른쪽 패널 */}
-      <div className="col-span-12 lg:col-span-4 flex flex-col gap-4 lg:gap-6">
-        {/* 날씨 박스 */}
-        <div className="bg-white rounded-2xl p-6 shadow-1 border border-graygray-10">
+      <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 lg:gap-8">
+        
+        {/* 날씨 박스 - bg-white로 복구 및 디자인 통일 */}
+        <div className="bg-white rounded-[24px] p-6 shadow-1 border border-graygray-10">
           <WeatherBox />
         </div>
 
         {/* 재난문자 */}
-        <div className="bg-white rounded-2xl shadow-1 flex flex-col h-full border border-graygray-10 overflow-hidden">
+        <div className="bg-white rounded-[24px] shadow-1 flex flex-col h-full border border-graygray-10 overflow-hidden min-h-[400px]">
           <DisasterMessageBox />
         </div>
       </div>
