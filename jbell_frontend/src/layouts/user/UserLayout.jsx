@@ -21,12 +21,10 @@ const UserLayout = ({ sidebarData, nowPage }) => {
           {sidebarData ? (
             <div className="flex w-full max-w-screen-xl mx-auto h-full">
               <aside className="hidden md:block shrink-0 border-r border-graygray-40">
-                {/* sideBar */}
                 <UserSideBar nowPage={nowPage} categories={sidebarData} />
               </aside>
               <main className="flex-1 w-full pl-0 md:pl-12 lg:pl-20 pb-20 px-4 md:px-0">
-                {/* 다른 페이지가 들어올 수 있도록 중앙에 outlet으로 뚫어놓음.  */}
-                <Outlet /> 
+                <Outlet />
               </main>
             </div>
           ) : (

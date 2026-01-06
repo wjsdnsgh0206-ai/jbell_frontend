@@ -1,5 +1,5 @@
 // src/components/shared/DetailPageTemplate.jsx
-import PageBreadcrumb from './PageBreadcrumb';
+import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 
 const DetailPageTemplate = ({ breadcrumbItems, title, lastUpdated, children }) => {
   return (
@@ -9,15 +9,17 @@ const DetailPageTemplate = ({ breadcrumbItems, title, lastUpdated, children }) =
       <PageBreadcrumb items={breadcrumbItems} />
 
       {/* 2. 상세 페이지 헤더 */}
-      <header className="flex flex-col items-start gap-4 w-full mb-10 border-b border-graygray-20 pb-6">
-        <h1 className="text-heading-l text-graygray-90">
-          {title}
-        </h1>
-        {lastUpdated && (
-          <p className="text-detail-m text-graygray-70">
-            최종 정보 수정일: {lastUpdated}
-          </p>
-        )}
+      <header className="flex flex-col w-full gap-8 lg:gap-10 mb-16">
+        <div className="flex flex-col gap-4">
+          <h1 className="text-heading-xl text-graygray-90">
+            {title}
+          </h1>
+          {lastUpdated && (
+            <p className="text-detail-m text-graygray-70">
+              최종 정보 수정일: {lastUpdated}
+            </p>
+          )}
+        </div>
       </header>
 
       {/* 3. 컨텐츠 영역 */}
