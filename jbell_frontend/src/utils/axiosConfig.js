@@ -1,22 +1,11 @@
 import axios from 'axios';
 
 // 기본 설정
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 const TIMEOUT = 10000;
-
-// 공공데이터 API용 별도 인스턴스
-const safetyApiClient = axios.create({
-  baseURL: '/safety-api', // Vite 프록시를 통해 요청
-  timeout: TIMEOUT,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: false,
-});
 
 // axios 인스턴스 생성
 const apiClient = axios.create({
-  baseURL: BASE_URL,
+  baseURL: '/api',
   timeout: TIMEOUT,
   headers: {
     'Content-Type': 'application/json',

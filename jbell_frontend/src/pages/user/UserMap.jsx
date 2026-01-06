@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, Navigation, User, Layers, Home, RotateCcw, Menu, X } from 'lucide-react';
-import { safetyApi, configUtils, authUtils } from '@/utils/axiosConfig';
+import { api, configUtils, authUtils } from '@/utils/axiosConfig';
 
 /* <================ SelectBox 부품 (동일) ================> */
 const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
@@ -125,14 +125,36 @@ const UserMap = () => {
 
 
   /* <================ ★ api 요청 시작 ★ ================> */
+  /**
+   * <================ ★ 외부 api 요청 작성요령 ★ ================>
+   * 1. /safety-api 주소요청 시 => vite.config.js 파일 proxy 부분에 설정
+   * '/safety-api': {
+   *    target: 'https://www.safetydata.go.kr/V2/api',
+   *    changeOrigin: true,
+   *    rewrite: (path) => path.replace(/^\/safety-api/, ''),
+   *    secure: false,
+   *    configure: (proxy, options) => {
+   *      proxy.on('proxyReq', (proxyReq, req, res) => {
+   *        console.log('Proxy Request:', req.method, req.url);
+   *      });
+   *      proxy.on('proxyRes', (proxyRes, req, res) => {
+   *        console.log('Proxy Response:', proxyRes.statusCode, req.url);
+   *      });
+   *    }
+   *  }
+   * 2. api.external(URL, config) 메소드 호출
+   */
   const shelterRequest = async () => {
     
-    const response = await safetyApi.get('/DSSP-IF-10941', {
-      serviceKey : shelterServiceKey,
-      returnType : 'json',
-      pageNo : 1,
-      numOfRows : 10,
-      shlt_se_cd : 3
+    const response = await api.external('/safety-api/DSSP-IF-10941', {
+      method: 'get',
+      params: {
+        serviceKey : shelterServiceKey,
+        returnType : 'json',
+        pageNo : 1,
+        numOfRows : 10,
+        shlt_se_cd : 3
+      }
     });
     console.log(response);
     

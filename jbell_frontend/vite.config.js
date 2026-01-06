@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
       proxy : {
         // /api로 시작하는 요청을 외부 API로 프록시
         '/api': {
-          target: 'http://localhost:8080', // 외부 API 주소
+          target: 'http://localhost:8080/api', // 외부 API 주소
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ''),
           
