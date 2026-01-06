@@ -147,6 +147,7 @@ const UserMap = () => {
   const shelterRequest = async () => {
     
     const response = await api.external('/safety-api/DSSP-IF-10941', {
+      // = https://www.safetydata.go.kr/V2/api/DSSP-IF-10941
       method: 'get',
       params: {
         serviceKey : shelterServiceKey,
