@@ -2,13 +2,13 @@
 export const elevatorAccidentData = {
   // 1. 페이지 메타 정보
   meta: {
-    title: "재난 타이틀",
+    title: "승강기 안전사고",
     lastUpdated: "2025년 12월 16일",
     breadcrumbs: [
-      { label: "홈", hasIcon: true },
-      { label: "행동요령", hasIcon: false },
-      { label: "자연재난행동요령", hasIcon: false },
-      { label: "재난 타이틀", hasIcon: false },
+      { label: "홈", path: "/", hasIcon: true },
+      { label: "행동요령", path: "/earthquakeActionGuide", hasIcon: false },
+      { label: "생활안전행동요령", path: "/firstAidActionGuide", hasIcon: false },
+      { label: "승강기 안전사고", hasIcon: false },
     ],
     tabs: [
       { label: "발생 전 대비요령" },
