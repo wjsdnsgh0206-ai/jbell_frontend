@@ -45,7 +45,7 @@ const FAQListPage = () => {
   // --- 상태 관리 ---
   const [currentPage, setCurrentPage] = useState(1); // 현재 페이지
   const [itemsPerPage, setItemsPerPage] = useState(12); // 페이지당 표시 개수
-  const [sortOrder, setSortOrder] = useState('latest'); // [추가] 정렬 상태: 'latest' | 'oldest'
+  const [sortOrder, setSortOrder] = useState('latest'); // 정렬 상태: 'latest' | 'oldest'
 
   // --- 데이터 정렬 로직 [추가] ---
   const getSortedData = () => {
@@ -92,7 +92,7 @@ const FAQListPage = () => {
     setCurrentPage(1); // 정렬 방식이 바뀌면 1페이지로 이동
   };
 
-  // [추가] 상세 페이지 이동 핸들러
+  // 상세 페이지 이동 핸들러
   const FAQDetailClick = (id) => {
     navigate(`/faq/${id}`);
   };
