@@ -1,10 +1,20 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Lock, Unlock } from 'lucide-react';
+import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
+
+
 
 const QnAFormPage = () => {
   const navigate = useNavigate();
-  // 상태 관리
+// --- Breadcrumb 데이터 설정 ---
+  const breadcrumbItems = [
+    { label: "홈", path: "/", hasIcon: true },
+    { label: "고객센터", path: "/qna", hasIcon: false },
+    { label: "1:1문의", path: "/qna", hasIcon: false },
+    { label: "1:1문의하기", path: "/qna/form", hasIcon: false },
+  ];
+// 상태 관리
   const [isPublic, setIsPublic] = useState(true); // 공개: true, 비공개: false
   const [category, setCategory] = useState('');
   const [title, setTitle] = useState('');
@@ -12,7 +22,7 @@ const QnAFormPage = () => {
   const [file, setFile] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false); // 성공 메시지 표시 여부
 
-  // == 핸들러
+// == 핸들러
     const handleFileChange = (e) => {
         if (e.target.files && e.target.files[0]) {
         setFile(e.target.files[0].name);
@@ -24,13 +34,13 @@ const QnAFormPage = () => {
       alert("모든 항목을 입력해주세요.");
       return;
     }
-    // API 호출 로직 시뮬레이션
+// API 호출 로직 시뮬레이션
     console.log({ isPublic, category, title, content, file });
     
-    // 성공 메시지 보여주기
+// 성공 메시지 보여주기
     setShowSuccess(true);
 
-    // 2초 뒤 목록으로 자동 이동
+// 2초 뒤 목록으로 자동 이동
     setTimeout(() => {
       navigate('/qna');
     }, 2000);
@@ -39,10 +49,11 @@ const QnAFormPage = () => {
 
   return (
     <div className="w-full bg-white font-sans text-graygray-90">
-      <main className="max-w-[1280px] mx-auto px-4 lg:px-0 py-10">
+      <main className="max-w-[1280px] mx-auto px-4 lg:px-0">
         
         {/* 페이지 타이틀 */}
-        <h1 className="text-heading-xl mb-8 text-graygray-90">1:1 문의 작성</h1>
+         <PageBreadcrumb items={breadcrumbItems} />
+        <h1 className="text-heading-xl pb-10 text-graygray-90">1:1문의 작성</h1>
 
         {/* 상단 안내 및 폼 컨테이너 */}
         <div className="border-t border-graygray-90 pt-8">
