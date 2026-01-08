@@ -19,10 +19,10 @@ const FAQListPage = () => {
     { id: 2, question: "비밀번호를 변경하고 싶어요.", answer: "마이페이지 > 회원정보 수정 메뉴에서 변경 가능합니다.", date: "2023.10.02", tag: "계정 관리" },
     { id: 3, question: "환불 규정이 어떻게 되나요?", answer: "결제 후 7일 이내에는 100% 환불이 가능합니다.", date: "2023.10.03", tag: "결제/환불" },
     { id: 4, question: "서비스 이용 시간이 궁금해요.", answer: "24시간 언제든지 이용 가능합니다.", date: "2023.10.04", tag: "이용 문의" },
-    { id: 5, question: "사람은 어떻게 태어나는 건가요? (5)", answer: "답변 내용...", date: "2023.10.05", tag: "질문 유형" },
-    { id: 6, question: "비밀번호를 변경하고 싶어요. (6)", answer: "답변 내용...", date: "2023.10.06", tag: "계정 관리" },
-    { id: 7, question: "환불 규정이 어떻게 되나요? (7)", answer: "답변 내용...", date: "2023.10.07", tag: "결제/환불" },
-    { id: 8, question: "서비스 이용 시간이 궁금해요. (8)", answer: "답변 내용...", date: "2023.10.08", tag: "이용 문의" },
+    { id: 5, question: "사람은 어떻게 태어나는 건가요?", answer: "답변 내용...", date: "2023.10.05", tag: "질문 유형" },
+    { id: 6, question: "비밀번호를 변경하고 싶어요.", answer: "답변 내용...", date: "2023.10.06", tag: "계정 관리" },
+    { id: 7, question: "환불 규정이 어떻게 되나요?", answer: "답변 내용...", date: "2023.10.07", tag: "결제/환불" },
+    { id: 8, question: "서비스 이용 시간이 궁금해요.", answer: "답변 내용...", date: "2023.10.08", tag: "이용 문의" },
     { id: 9, question: "질문 9", answer: "답변 9", date: "2023.10.09", tag: "질문 유형" },
     { id: 10, question: "질문 10", answer: "답변 10", date: "2023.10.10", tag: "계정 관리" },
     { id: 11, question: "질문 11", answer: "답변 11", date: "2023.10.11", tag: "결제/환불" },
@@ -45,7 +45,7 @@ const FAQListPage = () => {
   // --- 상태 관리 ---
   const [currentPage, setCurrentPage] = useState(1); // 현재 페이지
   const [itemsPerPage, setItemsPerPage] = useState(12); // 페이지당 표시 개수
-  const [sortOrder, setSortOrder] = useState('latest'); // [추가] 정렬 상태: 'latest' | 'oldest'
+  const [sortOrder, setSortOrder] = useState('latest'); // 정렬 상태: 'latest' | 'oldest'
 
   // --- 데이터 정렬 로직 [추가] ---
   const getSortedData = () => {
@@ -75,6 +75,7 @@ const FAQListPage = () => {
   // 페이지 변경 핸들러
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
+    window.scrollTo(0, 0); // 페이지 변경 시 상단으로 스크롤
   };
 
   // 표시 개수 변경 핸들러
@@ -91,7 +92,7 @@ const FAQListPage = () => {
     setCurrentPage(1); // 정렬 방식이 바뀌면 1페이지로 이동
   };
 
-  // [추가] 상세 페이지 이동 핸들러
+  // 상세 페이지 이동 핸들러
   const FAQDetailClick = (id) => {
     navigate(`/faq/${id}`);
   };
