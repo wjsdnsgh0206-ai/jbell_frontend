@@ -50,7 +50,7 @@ const DisasterModalLayout = ({ children }) => {
       />
 
       {/* 모달 가장 최상단 div박스 */}
-      <div className="relative z-10 w-full sm:w-[98%] max-w-[1800px] h-full sm:h-[96vh] bg-white rounded-none sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row transition-all duration-300">
+      <div className="relative z-10 w-full sm:w-[98%] max-w-[1700px] h-full sm:h-[96vh] bg-white rounded-none sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row transition-all duration-300">
         {/* === 1. 데스크탑용 사이드바 === */}
         <aside className="hidden lg:flex w-[280px] bg-graygray-90 text-white shrink-0 flex-col border-r border-white/5">
           <div
@@ -135,7 +135,7 @@ const DisasterModalLayout = ({ children }) => {
             </button>
           </header>
 
-          <main className="flex-1 overflow-y-auto p-4 sm:p-8 lg:p-10 scrollbar-hide">
+          <main className="flex-1 overflow-y-auto p-4 sm:p-8 lg:p-6 scrollbar-hide">
             <Suspense
               fallback={
                 <div className="flex items-center justify-center h-full text-graygray-40 font-bold">
