@@ -26,7 +26,6 @@ const MyProfile = () => {
   });
 
   return (
-    <>
     <div className="flex flex-col items-center w-full pb-20 px-4 lg:px-0">
       {/* 브레드크럼 */}
       <PageBreadcrumb items={breadcrumbItems} />
@@ -127,7 +126,6 @@ const MyProfile = () => {
         </div>
       </div>
     </div>
-    </>
   );
 };
 
