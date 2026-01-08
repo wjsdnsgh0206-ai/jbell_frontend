@@ -60,7 +60,7 @@ const FAQDetailPage = () => {
     )
   }
  return (
-    <div className="w-full bg-white text-graygray-90">
+    <div className="w-full bg-white text-graygray-90 pb-20 px-4 lg:px-0">
 
       <main className="max-w-[1280px] mx-auto px-4 lg:px-0">
         {/* Breadcrumb */}

@@ -28,6 +28,75 @@ const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
 
 
 
+/* <==================== 검색한 장소 누르면 나오는 우측 창 ====================> */
+/* 상세 정보 패널 컴포넌트 */
+const DetailPanel = ({ item, onClose }) => {
+  if (!item) return null;
+
+  // 좌표 추출 (item 구조에 따라 확인 필요)
+  const lat = item.y || item.latitude;
+  const lng = item.x || item.longitude;
+  const name = encodeURIComponent(item.place_name || item.shlt_nm);
+
+  // 카카오맵 길찾기 URL (도착지로 설정)
+  const goNavi = () => {
+    // dest: 도착지 이름,좌표
+    // 도착지가 검색한 장소로 지정된 상태로 화면이 나옴
+    const url = `https://map.kakao.com/link/to/${name},${lat},${lng}`;
+    window.open(url, '_blank');
+  };
+
+  return (
+    <div className="absolute top-0 left-full z-[60] w-full h-full bg-white shadow-2xl border-l animate-in slide-in-from-left-5 duration-300 md:w-[380px]">
+      {/* 헤더 이미지 (이미지가 없다면 기본 배경색) */}
+      <div className="relative h-48 bg-slate-200 overflow-hidden">
+        <button 
+          onClick={onClose}
+          className="absolute top-4 left-4 z-10 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full backdrop-blur-md"
+        >
+          <X size={20} />
+        </button>
+        {/* 장소 사진이 있다면 img 태그 사용, 여기선 placeholder */}
+        <div className="w-full h-full flex items-center justify-center text-slate-400 bg-blue-50">
+           <MapPin size={48} className="text-blue-200" />
+        </div>
+      </div>
+
+      <div className="p-6 space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-1">{item.place_name}</h2>
+          <p className="text-sm text-slate-500">{item.category_group_name || '안전시설'}</p>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex gap-3 text-sm">
+            <MapPin className="text-slate-400 shrink-0" size={18} />
+            <span className="text-slate-700">{item.address_name || item.road_nm_addr}</span>
+          </div>
+          {item.phone && (
+            <div className="flex gap-3 text-sm">
+              <Search className="text-slate-400 shrink-0" size={18} />
+              <span className="text-blue-600 font-medium">{item.phone}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="pt-6 border-t flex gap-2">
+         <button 
+        onClick={goNavi} // 도착 버튼에 연결
+        className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+      >
+        길 찾기 (카카오 맵으로 연결)
+      </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+/* <==================== 검색한 장소 누르면 나오는 우측 창 ====================> */
+
+
+
 
 const UserMap = () => {
 /* <========================== 상태 관리(앱의 기억력) ==========================> */
@@ -151,16 +220,18 @@ const handleResultClick = (item) => {
   setSelectedShelter(item);
   if (!mapInstance) return;
 
-  const lat = item.y || item.latitude;
-  const lng = item.x || item.longitude;
+  // 카카오 검색 결과는 x, y를 쓰고, 공공데이터는 위도/경도 이름을 다르게 쓸 수 있음
+  const lat = item.y || item.latitude || item.lat;
+  const lng = item.x || item.longitude || item.lng;
 
   if (lat && lng) {
     const moveLatLng = new window.kakao.maps.LatLng(lat, lng);
-    mapInstance.setCenter(moveLatLng);
-    mapInstance.setLevel(3);
+    mapInstance.setCenter(moveLatLng);  // 중심으로 이동
+    mapInstance.setLevel(3);  // 확대
   }
 
   if (window.innerWidth < 768) setIsMobileMenuOpen(false);
+
 };
 //
 //
@@ -295,54 +366,101 @@ const handleSearch = async () => {
       };
     //
     /* <========== 지도 초기화 ==========> */
-    /* <========== 지도 초기화 ==========> */
-    // 2
-    useEffect(() => {
-      if (!mapInstance || !Array.isArray(shelterResults)) return;
-
-      // 1. 기존 마커 싹 지우기
-      removeMarkers();
-
-      if (shelterResults.length === 0) return;
-
-      const bounds = new window.kakao.maps.LatLngBounds();
-      let hasValidPoints = false;
-
-      // 2. 새 마커 생성 및 범위 확장
-      const newMarkers = shelterResults.map((place) => {
-        // 카카오 API 응답 데이터는 x, y를 사용하므로 확인!
-        const lat = place.y || place.latitude; 
-        const lng = place.x || place.longitude;
-
-        if (lat && lng) {
-          const markerPosition = new window.kakao.maps.LatLng(lat, lng);
-          const marker = new window.kakao.maps.Marker({
-            position: markerPosition,
-            map: mapInstance,
-            clickable: true
-          });
-
-          window.kakao.maps.event.addListener(marker, 'click', () => {
-            setSelectedShelter(place);
-            mapInstance.panTo(markerPosition);
-          });
-
-          bounds.extend(markerPosition);
-          hasValidPoints = true;
-          return marker;
-        }
-        return null;
-      }).filter(m => m !== null); // 좌표 없는 데이터 제외
-
-      setMarkers(newMarkers);
-
-      // 3. 마커가 있을 때만 지도 화면 맞춤
-      if (hasValidPoints) {
-        mapInstance.setBounds(bounds);
-      }
-    }, [shelterResults, mapInstance]);
+    /* <========== 지도 마커 및 커스텀 오버레이 로직 ==========> */
     //
-    /* <========== 지도 초기화 ==========> */
+      useEffect(() => {
+        if (!mapInstance || !Array.isArray(shelterResults)) return;
+
+        removeMarkers(); // 기존 마커 제거
+        if (shelterResults.length === 0) return;
+
+        const bounds = new window.kakao.maps.LatLngBounds();
+        let hasValidPoints = false;
+        let currentOverlay = null; // 현재 열려있는 팝업을 추적하기 위한 변수
+
+        // 2. 새 마커 생성 및 범위 확장
+        const newMarkers = shelterResults.map((place) => {
+          // ★ API마다 다른 좌표 변수명을 통합합니다.
+          const lat = place.y || place.latitude || place.la || place.lat; 
+          const lng = place.x || place.longitude || place.lo || place.lng;
+          // ★ API마다 다른 장소명 변수명을 통합합니다.
+          const title = place.place_name || place.shlt_nm || place.facility_name;
+          const addr = place.address_name || place.road_nm_addr || place.addr;
+
+          if (lat && lng) {
+            const markerPosition = new window.kakao.maps.LatLng(lat, lng);
+            const marker = new window.kakao.maps.Marker({
+              position: markerPosition,
+              map: mapInstance,
+              clickable: true
+            });
+            
+
+
+            {/* 지도 위 마커를 누르면 나오는 소형 팝업 창 */}
+            // 팝업창(CustomOverlay) 내용에 위에서 정의한 title, addr 사용
+            const content = document.createElement('div');
+            content.className = "popup-style"; // 디자인 입히기
+            // z-index를 높게 줘서 지도 위로 확실히 올리고, pointer-events를 살려야 버튼이 클릭됩니다.
+            content.style.cssText = `
+              position: absolute;
+              bottom: 40px; 
+              left: 50%;
+              transform: translateX(-50%);
+              z-index: 100;
+            `;
+            content.innerHTML = `
+              <div class="bg-white p-4 rounded-lg shadow-xl border border-slate-200 min-w-[200px]">
+                <div class="flex justify-between items-center mb-2">
+                  <strong class="text-sm text-blue-600">${place.place_name || '장소명 없음'}</strong>
+                  <button class="close-btn p-1 hover:bg-slate-100 rounded">✕</button>
+                </div>
+                <p class="text-xs text-slate-600">${place.address_name || '주소 정보 없음'}</p>
+              </div>
+            `;
+
+            const closeBtn = content.querySelector('.close-btn');
+            closeBtn.onclick = () => {
+              if (currentOverlay) {
+                currentOverlay.setMap(null); // 지도에서 팝업 제거
+                setSelectedShelter(null);    // 선택된 데이터 초기화
+              }
+            };
+
+            window.kakao.maps.event.addListener(marker, 'click', () => {
+              
+              // 1. 기존에 열려있는 오버레이가 있다면 닫기 (이 로직이 필요함)
+              if (currentOverlay) currentOverlay.setMap(null);
+
+              // 2. 새 오버레이 생성
+              const overlay = new window.kakao.maps.CustomOverlay({
+                content: content, // 위에서 만든 content 변수
+                map: mapInstance,
+                position: markerPosition
+              });
+
+              currentOverlay = overlay; // 현재 오버레이 저장
+              // 팝업 띄우는 로직...
+              setSelectedShelter(place);
+              mapInstance.panTo(markerPosition); 
+            });
+
+            bounds.extend(markerPosition);
+            hasValidPoints = true;
+            return marker;
+          }
+          return null;
+        }).filter(m => m !== null); // 좌표 없는 데이터 제외
+
+        setMarkers(newMarkers);
+
+        // 3. 마커가 있을 때만 지도 화면 맞춤
+        if (hasValidPoints) {
+          mapInstance.setBounds(bounds);
+        }
+      }, [shelterResults, mapInstance]);
+    //
+    /* <========== 지도 마커 및 커스텀 오버레이 로직 ==========> */
   // useEffect 최종 막줄
 
 
@@ -395,15 +513,29 @@ const handleSearch = async () => {
       {/* 좌측 사이드바 */}
       <aside 
         className={`
-          fixed top-0 left-0 z-50 bg-white shadow-xl flex flex-col transition-transform duration-300 ease-in-out
+          fixed top-0 z-[70] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out
           /* 1. 너비를 화면의 80%만 차지*/
           w-[80%] 
           /* 2. 하단 버튼들이 보일 수 있게 높이를 조절하거나 스크롤 영역을 제한 */
           h-full 
-          md:static md:w-[380px] md:translate-x-0
+          md:fixed md:w-[380px] md:translate-x-0
+          /* 모바일: 화면 전체를 덮음 */
+          left-0 w-[80%] h-full
+          /* PC(md 이상): 왼쪽 사이드바 너비만큼만 차지 */
+          md:w-[380px]
           ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+          ${selectedShelter ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
+
+           {/* ★★★ 상세 정보가 있을 때 상세 패널을 띄움 ★★★ */}
+          {selectedShelter && (
+            <DetailPanel 
+              item={selectedShelter} 
+              onClose={() => setSelectedShelter(null)} 
+            />
+          )}
+
         {/* 상단 헤더 */}
         <div className="p-4 border-b space-y-4 bg-white shrink-0">
           <div className="flex items-center justify-between">
@@ -443,7 +575,7 @@ const handleSearch = async () => {
           </div>
         </div>
 
-        {/* 중단 가변 영역 */}
+        {/* 길 찾기 메뉴 ★ */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden relative">
           {activeMenu === 'path' ? (
              <div className="p-4 space-y-6">
@@ -579,8 +711,11 @@ const handleSearch = async () => {
                <p>메뉴를 선택해주세요.</p>
             </div>
           )}
+
         </div>
       </aside>
+
+
 
       {/* 우측 지도 영역 (실제 카카오맵) */}
       <main className="flex-1 relative w-full h-full">

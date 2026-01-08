@@ -24,7 +24,7 @@ const UserSafetyEducation = () => {
 
       <main className="w-full">
         {/* 페이지 메인 타이틀 */}
-        <h1 className="text-[28px] font-bold mb-10 text-black text-left">시민안전교육</h1>
+        <h1 className="text-heading-xl text-graygray-90 pb-10">시민안전교육</h1>
         <hr className="mb-10 border-gray-200" />
 
         {/* --- 섹션 1: 도입부 (교육 취지 설명) --- */}

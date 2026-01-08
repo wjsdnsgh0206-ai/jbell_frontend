@@ -56,11 +56,11 @@ const UserNoticeDetail = () => {
     <div className="w-full px-5 md:px-0">
       <PageBreadcrumb items={breadcrumbItems} />
       <main className="w-full">
-        <h2 className="text-3xl font-bold mb-10 text-gray-900 tracking-tight text-left">공지사항</h2>
+        <h1 className="text-heading-xl text-graygray-90 pb-10">공지사항</h1>
         {/* --- 상단 헤더 영역 (제목/등록정보) --- */}
         <div className="border-t border-gray-200">
           <div className="py-8 px-2 text-left">
-            <h3 className="text-[20px] font-bold text-black mb-6">제목 : {data.title}</h3>
+            <h2 className="text-[20px] font-bold text-black mb-6">제목 : {data.title}</h2>
             {/* 등록정보 (등록자, 등록일) */}
             <div className="flex items-center gap-x-6 text-[14px] text-[#222]">
               <div><span className="text-[#444]">등록자 :</span> {data.author}</div>

@@ -290,13 +290,13 @@ const QnAListPage = () => {
   };
 
   return (
-    <div className="w-full bg-white font-sans text-gray-800">
+    <div className="w-full bg-white text-graygray-90 pb-20 px-4 lg:px-0">
      
       {/* ================= Main Content ================= */}
       <main className="max-w-[1280px] mx-auto px-4 lg:px-0">
         {/* ================= Breadcrumb ================= */}
        <PageBreadcrumb items={breadcrumbItems} />
-        <h1 className="text-heading-xl mb-8 text-graygray-90">1:1문의</h1>
+        <h1 className="text-heading-xl pb-10 text-graygray-90">1:1문의</h1>
 
         {/* Search Bar (FAQPage 스타일 통일) */}
         <div className="bg-graygray-5 border border-graygray-10 p-4 rounded-lg mb-10 flex flex-row items-center justify-center gap-2">
