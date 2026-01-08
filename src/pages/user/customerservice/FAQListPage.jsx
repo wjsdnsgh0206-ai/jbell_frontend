@@ -115,7 +115,7 @@ const FAQListPage = () => {
         {/* Search Bar */}
        <div className="bg-gray-50 border border-gray-200 p-4 md:p-6 rounded-lg mb-10 flex flex-col md:flex-row justify-center items-center gap-3">
             <div className="relative w-full md:w-32 h-10"> 
-            <select className="w-full h-full appearance-none border border-gray-300 rounded px-4 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-sm pr-10">
+            <select className="w-full h-full appearance-none border border-gray-300 rounded px-4 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer pr-10">
               <option>전체</option>
               <option>제목</option>
               <option>내용</option>
@@ -128,7 +128,7 @@ const FAQListPage = () => {
             <input 
               type="text" 
               placeholder="검색어를 입력해주세요." 
-              className="w-full h-full border border-gray-300 rounded px-4 pr-10 focus:ring-2 focus:ring-blue-500 text-sm bg-white"
+              className="w-full h-full border border-gray-300 rounded px-4 pr-10 focus:ring-2 focus:ring-blue-500 bg-white"
             />
             <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
               <Search size={18} />
