@@ -28,7 +28,7 @@ const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
 
 
 
-/* <==================== 검색한 장소 누르면 나오는 우측 창 ====================> */
+/* <==================== 검색한 장소 누르면 사이드 바 내부에서 해당 장소와 관련된 정보 창이 등장 ====================> */
 /* 상세 정보 패널 컴포넌트 */
 const DetailPanel = ({ item, onClose }) => {
   if (!item) return null;
@@ -47,53 +47,57 @@ const DetailPanel = ({ item, onClose }) => {
   };
 
   return (
-    <div className="absolute top-0 left-full z-[60] w-full h-full bg-white shadow-2xl border-l animate-in slide-in-from-left-5 duration-300 md:w-[380px]">
-      {/* 헤더 이미지 (이미지가 없다면 기본 배경색) */}
-      <div className="relative h-48 bg-slate-200 overflow-hidden">
+   /* 중요: absolute top-0 left-0으로 설정해서 부모 aside를 완전히 덮어버립니다. */
+    <div className="absolute inset-0 z-[110] w-full h-full bg-white flex flex-col animate-in fade-in slide-in-from-right-5 duration-300">
+      {/* 상단 이미지 영역 */}
+      <div className="relative h-48 bg-blue-50 shrink-0">
         <button 
           onClick={onClose}
-          className="absolute top-4 left-4 z-10 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full backdrop-blur-md"
+          className="absolute top-4 left-4 z-10 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full backdrop-blur-md transition-all"
         >
           <X size={20} />
         </button>
-        {/* 장소 사진이 있다면 img 태그 사용, 여기선 placeholder */}
-        <div className="w-full h-full flex items-center justify-center text-slate-400 bg-blue-50">
+        <div className="w-full h-full flex items-center justify-center">
            <MapPin size={48} className="text-blue-200" />
         </div>
       </div>
 
-      <div className="p-6 space-y-6">
+      {/* 정보 영역 (스크롤 가능) */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-1">{item.place_name}</h2>
-          <p className="text-sm text-slate-500">{item.category_group_name || '안전시설'}</p>
+          <h2 className="text-2xl font-bold text-slate-900 break-all">{item.place_name}</h2>
+          <p className="text-sm text-slate-500 mt-1">{item.category_group_name || '안전시설'}</p>
         </div>
 
         <div className="space-y-4">
           <div className="flex gap-3 text-sm">
-            <MapPin className="text-slate-400 shrink-0" size={18} />
-            <span className="text-slate-700">{item.address_name || item.road_nm_addr}</span>
+            <MapPin className="text-blue-500 shrink-0" size={18} />
+            <span className="text-slate-700 leading-relaxed">{item.address_name || item.road_nm_addr}</span>
           </div>
           {item.phone && (
-            <div className="flex gap-3 text-sm">
-              <Search className="text-slate-400 shrink-0" size={18} />
-              <span className="text-blue-600 font-medium">{item.phone}</span>
+            <div className="flex gap-3 text-sm font-medium">
+              <span className="text-slate-400 shrink-0">📞</span>
+              <span className="text-blue-600">{item.phone}</span>
             </div>
           )}
         </div>
 
-        <div className="pt-6 border-t flex gap-2">
-         <button 
-        onClick={goNavi} // 도착 버튼에 연결
-        className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
-      >
-        길 찾기 (카카오 맵으로 연결)
-      </button>
+        {/* 길찾기 버튼 하단 고정 느낌 */}
+        <div className="pt-6 border-t">
+          <button 
+            onClick={goNavi}
+            className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold 
+            hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 flex items-center justify-center gap-2"
+          >
+            <Navigation size={18} />
+            카카오 맵 길찾기
+          </button>
         </div>
       </div>
     </div>
   );
 };
-/* <==================== 검색한 장소 누르면 나오는 우측 창 ====================> */
+/* <==================== 검색한 장소 누르면 사이드 바 내부에서 해당 장소와 관련된 정보 창이 등장 ====================> */
 
 
 
@@ -513,28 +517,16 @@ const handleSearch = async () => {
       {/* 좌측 사이드바 */}
       <aside 
         className={`
-          fixed top-0 z-[70] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out
-          /* 1. 너비를 화면의 80%만 차지*/
-          w-[80%] 
-          /* 2. 하단 버튼들이 보일 수 있게 높이를 조절하거나 스크롤 영역을 제한 */
-          h-full 
-          md:fixed md:w-[380px] md:translate-x-0
-          /* 모바일: 화면 전체를 덮음 */
-          left-0 w-[80%] h-full
-          /* PC(md 이상): 왼쪽 사이드바 너비만큼만 차지 */
-          md:w-[380px]
-          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
-          ${selectedShelter ? 'translate-x-0' : '-translate-x-full'}
+          /* 모바일에서는 absolute로 띄워서 지도를 밀지 않게 함 */
+          fixed md:relative top-0 left-0 z-[70] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out
+          /* 너비 설정 */
+          w-[85%] md:w-[380px] h-full
+          /* 열림/닫힘 상태에 따른 이동 */
+          ${(isMobileMenuOpen || (selectedShelter && window.innerWidth < 768)) ? 'translate-x-0' : '-translate-x-full'}
+          /* PC에서는 항상 보이게 */
+          md:translate-x-0
         `}
       >
-
-           {/* ★★★ 상세 정보가 있을 때 상세 패널을 띄움 ★★★ */}
-          {selectedShelter && (
-            <DetailPanel 
-              item={selectedShelter} 
-              onClose={() => setSelectedShelter(null)} 
-            />
-          )}
 
         {/* 상단 헤더 */}
         <div className="p-4 border-b space-y-4 bg-white shrink-0">
@@ -575,8 +567,17 @@ const handleSearch = async () => {
           </div>
         </div>
 
+         {/* ★★★ 상세 정보 패널 (우측에 새로운 창이 나오는 것이 아니라, 사이드바 내부에서 교체되는 방식) ★★★ */}
+          {selectedShelter && (
+            <DetailPanel 
+              item={selectedShelter} 
+              onClose={() => setSelectedShelter(null)} 
+            />
+          )}
+
         {/* 길 찾기 메뉴 ★ */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden relative">
+          
           {activeMenu === 'path' ? (
              <div className="p-4 space-y-6">
               <div className="bg-blue-50 p-4 rounded-lg text-sm text-blue-800">현재 위치에서 네이버 지도를 연결합니다.</div>

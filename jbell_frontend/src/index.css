@@ -5,7 +5,10 @@
 
 @layer base {
   /* 기본 리셋 */
-  button, input, select, textarea {
+  button,
+  input,
+  select,
+  textarea {
     @apply appearance-none bg-transparent border-0 outline-none;
   }
   body {
@@ -81,7 +84,7 @@
     line-height: 150%;
     letter-spacing: 1px;
   }
-  
+
   .text-heading-l {
     font-family: var(--font-base);
     font-size: 32px;
@@ -134,6 +137,12 @@
     font-weight: 700;
     line-height: 150%;
   }
+  .text-body-s-bold {
+    font-family: var(--font-base);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 150%;
+  }
 
   .text-body-m {
     font-family: var(--font-base);
@@ -141,19 +150,42 @@
     font-weight: 400;
     line-height: 150%;
   }
-
+  .text-detail-l {
+    font-family: var(--font-base);
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 150%;
+  }
   .text-detail-m {
     font-family: var(--font-base);
     font-size: 15px;
     font-weight: 400;
     line-height: 150%;
   }
-  
+  .text-detail-s {
+    font-family: var(--font-base);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 150%;
+  }
+  .text-detail-s-bold {
+    font-family: var(--font-base);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 150%;
+  }
+  .text-detail-xs {
+    font-family: var(--font-base);
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 150%;
+  }
+
   /* --- Utils --- */
   .flex-center {
     @apply flex items-center justify-center;
   }
-  
+
   .flex-col-center {
     @apply flex flex-col items-center justify-center;
   }
