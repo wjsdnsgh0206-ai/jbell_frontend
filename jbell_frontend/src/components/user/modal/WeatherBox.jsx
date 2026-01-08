@@ -7,15 +7,17 @@ const WeatherBox = () => {
   const [address, setAddress] = useState(null);
   const [error, setError] = useState(null);
 
-  // ✅ 주소에서 '전북특별자치도' 등 긴 앞부분을 제거하는 함수
-  const formatAddress = (fullAddr) => {
-    if (!fullAddr) return "";
-    return fullAddr
+  // 📍 주소 길이 정리 (전북특별자치도 / 전라북도 제거)
+  const normalizeAddress = (addr) => {
+    if (!addr) return addr;
+
+    return addr
       .replace("전북특별자치도", "")
       .replace("전라북도", "")
       .trim();
   };
 
+  // 📍 위치 권한 거부 시 기본 날씨
   const fetchFallbackWeather = async () => {
     try {
       const response = await api.external("/weather-api", {
@@ -28,8 +30,8 @@ const WeatherBox = () => {
         },
       });
       setWeather(response.data);
-      setAddress("전주시"); // 기본 위치도 깔끔하게 전주시로 변경
-    } catch (e) {
+      setAddress(normalizeAddress("전북특별자치도"));
+    } catch {
       setError("날씨 정보를 불러오지 못했어요 😢");
     }
   };
@@ -45,72 +47,105 @@ const WeatherBox = () => {
       ({ coords }) => {
         const { latitude, longitude } = coords;
 
-        api.external("/weather-api", {
-          params: { lat: latitude, lon: longitude, appid: weatherKey, units: "metric", lang: "kr" },
-        })
+        // 🌤 날씨
+        api
+          .external("/weather-api", {
+            params: {
+              lat: latitude,
+              lon: longitude,
+              appid: weatherKey,
+              units: "metric",
+              lang: "kr",
+            },
+          })
           .then((res) => setWeather(res.data))
           .catch(() => setError("날씨 정보를 불러오지 못했어요 😢"));
 
+        // 📍 주소 (카카오 역지오코딩)
         if (window.kakao?.maps?.services) {
           const geocoder = new window.kakao.maps.services.Geocoder();
           geocoder.coord2Address(longitude, latitude, (result, status) => {
             if (status === window.kakao.maps.services.Status.OK) {
-              const fullAddr = result[0].road_address?.address_name || result[0].address.address_name;
-              // 📍 주소 정제 적용
-              setAddress(formatAddress(fullAddr));
+              const rawAddress =
+                result[0].road_address?.address_name ||
+                result[0].address.address_name;
+
+              setAddress(normalizeAddress(rawAddress));
             } else {
               setAddress("위치 확인 불가");
             }
           });
+        } else {
+          setAddress("위치 정보 없음");
         }
       },
-      () => fetchFallbackWeather(),
-      { timeout: 5000, maximumAge: 300000 }
+      () => {
+        fetchFallbackWeather();
+      },
+      {
+        timeout: 5000,
+        maximumAge: 300000,
+      }
     );
   }, [weatherKey]);
 
-  if (error) return <div className="p-4 text-white text-detail-m">{error}</div>;
-  if (!weather) return <div className="p-4 text-white text-detail-m">날씨 확인 중...</div>;
+  if (error)
+    return (
+      <div className="h-full flex items-center justify-center text-white text-detail-m">
+        {error}
+      </div>
+    );
+
+  if (!weather)
+    return (
+      <div className="h-full flex items-center justify-center text-white text-detail-m animate-pulse">
+        날씨 확인 중...
+      </div>
+    );
 
   const details = [
-    { label: "체감온도", value: `${Math.round(weather.main.feels_like)}°`, color: "text-white" },
-    { label: "습도", value: `${weather.main.humidity}%`, color: "text-white" },
-    { label: "풍속", value: `${weather.wind.speed} m/s`, color: "text-white" },
-    { label: "구름", value: `${weather.clouds.all}%`, color: "text-white" },
+    { label: "체감온도", value: `${Math.round(weather.main.feels_like)}°` },
+    { label: "습도", value: `${weather.main.humidity}%` },
+    { label: "풍속", value: `${weather.wind.speed}m/s` },
+    { label: "구름", value: `${weather.clouds.all}%` },
   ];
 
   return (
     <div className="relative h-full flex flex-col justify-between">
       {/* 위치 배지 */}
       <div className="absolute top-0 right-0 z-10">
-        <span className="text-[10px] px-1.5 py-0.5 bg-white/20 text-white rounded font-medium whitespace-nowrap backdrop-blur-sm">
-          {!address || address.includes("전주") ? "기본위치" : "현재위치"}
+        <span className="text-detail-s px-2.5 py-1 bg-white/25 text-white rounded-md font-bold whitespace-nowrap backdrop-blur-md border border-white/20">
+          {address ? "실시간 위치" : "기본위치"}
         </span>
       </div>
 
-      {/* 상단 섹션 */}
-      <div className="flex justify-between items-end pb-3 border-b border-white/10">
-        <div className="flex flex-col gap-1 flex-1 pr-16">
-          <span className="text-white text-body-m-bold font-semibold truncate block">
+      {/* 상단 */}
+      <div className="flex flex-col flex-1 justify-center pb-3 border-b border-white/10 mt-2">
+        <div className="pr-20">
+          <span className="text-white text-body-m-bold truncate block">
             {address || "위치 계산 중..."}
           </span>
-          <div className="flex items-baseline gap-1 mt-0.5">
-            <span className="text-3xl font-light text-white leading-none">
+          <div className="flex items-baseline gap-2 mt-2">
+            <span className="text-4xl font-light text-white">
               {Math.round(weather.main.temp)}°
             </span>
-            <span className="text-detail-m text-white/60 font-medium">
+            <span className="text-body-s text-white/80 font-medium">
               {weather.weather[0].description}
             </span>
           </div>
         </div>
       </div>
 
-      {/* 하단 섹션 */}
-      <div className="grid grid-cols-2 gap-x-8 gap-y-2.5 pt-3">
+      {/* 하단 */}
+      <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 pt-4">
         {details.map((item, idx) => (
           <div key={idx} className="flex justify-between items-center">
-            <span className="text-detail-m text-white/50 font-medium">{item.label}</span>
-            <span className={`text-detail-m font-semibold ${item.color}`}>{item.value}</span>
+            <span className="text-detail-m text-white/60 font-medium">
+              {item.label}
+            </span>
+            <span className="text-detail-m font-bold text-white">
+              {item.value}
+            </span>
           </div>
         ))}
       </div>
