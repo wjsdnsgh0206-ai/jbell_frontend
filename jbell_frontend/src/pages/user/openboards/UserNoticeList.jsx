@@ -98,7 +98,7 @@ const UserNoticeList = () => {
       {/* 페이지 상단 경로 안내 */}
       <PageBreadcrumb items={breadcrumbItems} />
       <main className="w-full">
-        <h2 className="text-3xl font-bold mb-10 text-gray-900 tracking-tight text-left">공지사항</h2>
+        <h1 className="text-heading-xl text-graygray-90 pb-10">공지사항</h1>
 
         {/* --- 검색바 영역 --- */}
         {/* flex-col(모바일:세로), md:flex-row(데스크탑:가로)로 반응형 배치 */}
