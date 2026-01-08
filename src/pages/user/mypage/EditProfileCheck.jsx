@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // 1. useNavigate 임포트
 import { Lock, Eye, EyeOff, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
+import PageBreadcrumb from '@/components/shared/PageBreadcrumb'; // 1. import
 
 const EditProfileCheck = () => {
   const [password, setPassword] = useState('');
@@ -44,9 +45,17 @@ const EditProfileCheck = () => {
     }
   };
 
+  const breadcrumbItems = [
+    { label: "홈", path: "/", hasIcon: true },
+    { label: "마이페이지",path: "/myProfile", hasIcon: false }, // 중간 경로 (클릭 안되게 하려면 path 생략)
+    { label: "내 정보 수정", hasIcon: false },    // 현재 페이지
+  ];
+
   return (
+    <>
+        <PageBreadcrumb items={breadcrumbItems} />
     <div className="min-h-screen bg-white flex justify-center items-start py-20 px-5 font-sans text-slate-900">
-      <div className="max-w-[540px] w-full animate-in fade-in slide-in-from-top-4 duration-700">
+      <div className="max-w-[1280px] w-full animate-in fade-in slide-in-from-top-4 duration-700">
         
         <h1 className="text-3xl font-extrabold tracking-tight mb-8 text-left">
           내 정보 수정
@@ -111,6 +120,7 @@ const EditProfileCheck = () => {
         </form>
       </div>
     </div>
+    </>
   );
 };
 
