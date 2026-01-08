@@ -332,7 +332,10 @@ const QnAListPage = () => {
           </div>
           <div className="flex items-center text-detail-m text-graygray-50 gap-4">
             {/* 문의하기 버튼 */}
-            <button className="px-5 py-1.5 bg-secondary-50 text-white font-bold rounded hover:bg-opacity-90 transition-colors text-detail-m">
+            <button 
+              onClick={() => navigate('/qna/form')}
+              className="px-5 py-1.5 bg-secondary-50 text-white font-bold rounded hover:bg-opacity-90 transition-colors text-detail-m"
+            >
               문의하기
             </button>
             <div className="h-4 w-px bg-graygray-30 mx-2"></div>
