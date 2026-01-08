@@ -1,4 +1,7 @@
 /* tailwind.config.js */
+
+import { Scale } from 'lucide-react';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./src/**/*.{html,js,ts,jsx,tsx}"],
@@ -6,13 +9,16 @@ export default {
     extend: {
       // 1. 색상 토큰 연결 (CSS 변수 활용)
       colors: {
+        // Gray Scale 연결
         graygray: {
           0: "var(--graygray-0)",
           5: "var(--graygray-5)",
           10: "var(--graygray-10)",
+          20: "var(--graygray-20)",
           30: "var(--graygray-30)",
           40: "var(--graygray-40)",
           50: "var(--graygray-50)",
+          60: "var(--graygray-60)",
           70: "var(--graygray-70)",
           80: "var(--graygray-80)",
           90: "var(--graygray-90)",
@@ -27,10 +33,15 @@ export default {
           200: "var(--green-200)",
           700: "var(--green-700)",
         },
+        // Blue Scale 연결
         blue: {
+          50: "var(--blue-50)",
           100: "var(--blue-100)",
           200: "var(--blue-200)",
+          500: "var(--blue-500)",
+          600: "var(--blue-600)",
           700: "var(--blue-700)",
+          800: "var(--blue-800)",
         },
         secondary: {
           5: "var(--secondary-5)",
@@ -40,6 +51,9 @@ export default {
         primary: {
           50: "var(--primary-50)", 
         },
+      },
+      scale: {
+        98: "0.98",
       },
       // 2. 폰트 패밀리 (필요한 경우만 기본값 재정의)
       fontFamily: {
