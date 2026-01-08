@@ -5,34 +5,10 @@ import VideoCardList from '@/components/shared/VideoCardList';
 import { earthquakeData } from './data';
 
 const EarthquakeActionGuide = () => {
-  // ----------------------------------------------------------------------
-  // 1. FilterSection Component
-  // ----------------------------------------------------------------------
-    const [searchKeyword, setSearchKeyword] = useState("");
-    const [startDate, setStartDate] = useState("2023-10-10");
-    const [endDate, setEndDate] = useState("2023-11-10");
-    const [dropdown1Value, setDropdown1Value] = useState("");
-    const [dropdown2Value, setDropdown2Value] = useState("");
+  // 데이터 구조 분해 할당
+  const { meta, contents } = earthquakeData;
 
-    const handleReset = () => {
-      setSearchKeyword("");
-      setStartDate("2023-10-10");
-      setEndDate("2023-11-10");
-      setDropdown1Value("");
-      setDropdown2Value("");
-    };
-
-    const handleSearch = () => {
-      console.log("Search triggered with:", {
-        searchKeyword,
-        dropdown1Value,
-        dropdown2Value,
-        startDate,
-        endDate,
-      });
-    };
-
-    return (
+  return (
     <GuidePageTemplate 
       title={meta.title}
       lastUpdated={meta.lastUpdated}
@@ -42,11 +18,11 @@ const EarthquakeActionGuide = () => {
       {/* 템플릿에서 activeTab(현재 선택된 탭 인덱스)을 render prop으로 받아옴 */}
       {(activeTab) => {
         const currentContent = contents[activeTab];
-
+        
         // 데이터 방어 로직
         if (!currentContent) return null;
 
-    return (
+        return (
           <>
             {/* 1. 텍스트 가이드라인 영역 */}
             <article className="flex flex-col gap-8">
@@ -67,16 +43,16 @@ const EarthquakeActionGuide = () => {
                     </li>
                   ))}
                 </ol>
-        </div>
+              </div>
             </article>
 
             {/* 2. 관련 영상 카드 리스트 */}
             <VideoCardList videos={currentContent.videos} />
           </>
-    );
+        );
       }}
     </GuidePageTemplate>
-    );
+  );
 };
 
 export default EarthquakeActionGuide;
