@@ -112,7 +112,7 @@ const UserNoticeList = () => {
       <button onClick={() => navigate("/admin/adminCommonCodeList")}>코드관리</button>
       <PageBreadcrumb items={breadcrumbItems} />
       <main className="w-full">
-        <h1 className="text-heading-xl text-graygray-90 pb-10">공지사항</h1>
+        <h1 className="text-heading-xl text-graygray-90 pb-20">공지사항</h1>
 
         {/* --- 검색바 영역 --- */}
         {/* --- 검색바 영역 병합 적용 --- */}
@@ -124,11 +124,11 @@ const UserNoticeList = () => {
           placeholder="검색어를 입력해주세요."
         >
           {/* 공지사항 전용 필터: 카테고리 선택 */}
-          <div className="relative w-full md:w-32">
+          <div className="relative w-full col-span-2 lg:col-span-1 lg:w-32">
             <select 
               value={searchCategory} 
               onChange={(e) => setSearchCategory(e.target.value)}
-              className="w-full h-16 px-4 pr-10 bg-white border border-graygray-30 rounded-lg text-body-s text-graygray-90 appearance-none outline-none focus:border-secondary-50 cursor-pointer"
+              className="w-full lg:min-w-fit h-14 px-4 pr-10 bg-white border border-graygray-30 rounded-lg text-body-s text-graygray-90 outline-none focus:border-secondary-50 cursor-pointer appearance-none"
             >
               <option value="선택">선택</option>
               <option value="제목">제목</option>

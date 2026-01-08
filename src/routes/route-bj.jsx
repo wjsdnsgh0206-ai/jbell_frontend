@@ -3,13 +3,13 @@ import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
 
 //FAQ 관련 페이지
-const FAQListPage = lazy(() => import("@/pages/user/customerservice/FAQListPage"));
-const FAQDetailPage = lazy(() => import("@/pages/user/customerservice/FAQDetailPage"));
+const FAQListPage = lazy(() => import("@/pages/user/customerservice/faq/FAQListPage"));
+const FAQDetailPage = lazy(() => import("@/pages/user/customerservice/faq/FAQDetailPage"));
 
 //QnA 관련 페이지
-const QnAListPage = lazy(() => import("@/pages/user/customerservice/QnAListPage"));
-const QnADetailPage = lazy(() => import("@/pages/user/customerservice/QnADetailPage"));
-const QnAFormPage = lazy(() => import("@/pages/user/customerservice/QnAFormPage"))
+const QnAListPage = lazy(() => import("@/pages/user/customerservice/qna/QnAListPage"));
+const QnADetailPage = lazy(() => import("@/pages/user/customerservice/qna/QnADetailPage"));
+const QnAFormPage = lazy(() => import("@/pages/user/customerservice/qna/QnAFormPage"))
 
 
 // ------ 라우트 페이지 경로 입력 파일 ------ //
