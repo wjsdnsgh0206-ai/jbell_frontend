@@ -45,12 +45,12 @@ export const bjUserRoutes = [
         nowPage: "고객센터",
     },
 //QnA 관련 경로
-     { 
+    { 
         path: "/qna", element: <QnAListPage />,
         sidebarData: SIDE_MENU_DATA.CUSTOMERSERVICE,
         nowPage: "고객센터",
     },
-     { 
+    { 
         path: "/qna/:id", element: <QnADetailPage />,
         sidebarData: SIDE_MENU_DATA.CUSTOMERSERVICE,
         nowPage: "고객센터",
