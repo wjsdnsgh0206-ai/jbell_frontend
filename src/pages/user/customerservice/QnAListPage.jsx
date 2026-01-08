@@ -298,34 +298,39 @@ const QnAListPage = () => {
        <PageBreadcrumb items={breadcrumbItems} />
         <h1 className="text-heading-xl pb-10 text-graygray-90">1:1문의</h1>
 
-        {/* Search Bar (FAQPage 스타일 통일) */}
-         <div className="flex border-2 border-gray-300 rounded-none mb-10 h-14">
-          <div className="relative w-32 md:w-48 border-r border-gray-300">
-            <select className="w-full h-full appearance-none px-4 text-gray-600 bg-white focus:outline-none">
+      {/* Search Bar (FAQPage 스타일 통일) */}
+        <div className="bg-gray-50 border border-gray-200 p-4 md:p-6 rounded-lg mb-10 flex flex-col md:flex-row justify-center items-center gap-3">
+          <div className="relative w-full md:w-32 h-10"> 
+            <select className="w-full h-full appearance-none border border-gray-300 rounded px-4 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-sm pr-10">
               <option>전체</option>
               <option>제목</option>
               <option>내용</option>
             </select>
-            <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+            <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+              <ChevronDown size={16} className="text-gray-500" />
+            </div>
           </div>
-          <div className="flex-1 relative">
+          <div className="relative w-full md:flex-1 max-w-lg h-10">
             <input 
               type="text" 
               placeholder="검색어를 입력해주세요." 
-              className="w-full h-full px-4 focus:outline-none"
+              className="w-full h-full border border-gray-300 rounded px-4 pr-10 focus:ring-2 focus:ring-blue-500 text-sm bg-white"
             />
-            <button className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">
-              <Search size={24} />
-            </button>
+            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <Search size={18} />
+            </span>
           </div>
-        </div>
+        <button className="w-full md:w-auto h-10 bg-blue-600 text-white px-8 rounded font-medium hover:bg-blue-700 transition active:scale-95 shadow-sm whitespace-nowrap flex items-center justify-center">
+          검색
+        </button>
+      </div>
 
         {/* Filter & Count & Button */}
          <div className="flex flex-wrap md:flex-nowrap justify-between items-center mb-4 border-b border-gray-900 pb-2 gap-y-2">
           <div className="w-full md:w-auto text-gray-700 order-1 md:order-1 mb-2 md:mb-0">
             검색 결과 <span className="font-bold text-blue-700">{totalItems}</span>개
           </div>
-          <div className="flex w-full md:w-auto items-center justify-between text-sm text-graygray-50 order-2 md:order-2">
+          <div className="flex w-full md:w-auto items-center justify-between text-sm text-gray-500 order-2 md:order-2">
             <button 
               onClick={() => navigate('/qna/form')}
               className="px-5 py-1.5 bg-secondary-50 text-white font-bold rounded hover:bg-opacity-90 transition-colors text-detail-m"
@@ -351,14 +356,14 @@ const QnAListPage = () => {
               <div className="flex gap-2">
                 <button 
                   onClick={() => handleSortChange('latest')}
-                  className={sortOrder === 'latest' ? "font-bold text-graygray-90 underline underline-offset-4" : "hover:text-graygray-90"}
+                  className={sortOrder === 'latest' ? "font-bold text-gray-900 underline underline-offset-4" : "hover:text-gray-900"}
                 >
                   최신순
                 </button>
                 <span className="text-gray-300">|</span>
                 <button 
                   onClick={() => handleSortChange('oldest')}
-                  className={sortOrder === 'oldest' ? "font-bold text-graygray-90 underline underline-offset-4" : "hover:text-graygray-90"}
+                  className={sortOrder === 'oldest' ? "font-bold text-gray-900 underline underline-offset-4" : "hover:text-gray-900"}
                 >
                   오래된순
                 </button>
