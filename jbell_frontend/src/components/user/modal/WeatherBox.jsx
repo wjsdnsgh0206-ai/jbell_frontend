@@ -37,11 +37,11 @@ const WeatherBox = () => {
   };
 
   useEffect(() => {
-    if (!navigator.geolocation) {
-      setError("이 브라우저는 위치 정보를 지원하지 않아요 😢");
-      fetchFallbackWeather();
-      return;
-    }
+    // if (!navigator.geolocation) {
+    //   setError("이 브라우저는 위치 정보를 지원하지 않아요 😢");
+    //   fetchFallbackWeather();
+    //   return;
+    // }
 
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
@@ -120,13 +120,13 @@ const WeatherBox = () => {
       </div>
 
       {/* 상단 */}
-      <div className="flex flex-col flex-1 justify-center pb-3 border-b border-white/10 mt-2">
+      <div className="flex flex-col flex-1 justify-center pb-2 border-b border-white/10">
         <div className="pr-20">
           <span className="text-white text-body-m-bold truncate block">
             {address || "위치 계산 중..."}
           </span>
-          <div className="flex items-baseline gap-2 mt-2">
-            <span className="text-4xl font-light text-white">
+          <div className="flex items-baseline gap-2">
+            <span className="text-title-xl mt-1 text-white">
               {Math.round(weather.main.temp)}°
             </span>
             <span className="text-body-s text-white/80 font-medium">

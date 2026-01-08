@@ -47,7 +47,7 @@ const Typhoon = () => {
   return (
     <div className="grid grid-cols-12 gap-5 lg:gap-6">
       <div className="col-span-12 lg:col-span-8 flex flex-col gap-5 lg:gap-6">
-        <div className="bg-white rounded-[24px] p-5 sm:p-8 shadow-1 border border-graygray-10 min-h-[550px]">
+        <div className="bg-white rounded-xl p-5 sm:p-8 shadow-1 border border-graygray-10 min-h-[550px]">
           {/* 헤더 섹션 */}
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
             <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
@@ -144,20 +144,19 @@ const Typhoon = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-[24px] p-6 lg:p-8 shadow-1 border border-graygray-10">
+                <div className="bg-white h-[250px] rounded-xl p-6 shadow-1 border border-graygray-10">
           <ActionTipBox type="태풍" />
         </div>
       </div>
 
-      {/* 오른쪽 패널 */}
-      <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 lg:gap-6">
-        {/* 날씨 박스 */}
-        <div className="py-3 w-[350px] h-[180px] bg-gradient-to-br from-[#62A1E9] to-[#4A90E2] rounded-xl p-6 shadow-1 border border-white/30">
+       {/* === 오른쪽 패널 === */}
+      <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 lg:gap-6 items-center lg:items-start">
+        <div className="w-full lg:max-w-[370px] h-[200px] bg-gradient-to-br from-[#62A1E9] to-[#4A90E2] rounded-xl p-5 lg:p-6 shadow-1 border border-white/30">
           <WeatherBox />
         </div>
 
-        {/* 재난문자 */}
-        <div className="w-[350px] h-[550px] bg-white rounded-xl shadow-1 flex border border-graygray-10 overflow-hidden min-h-[400px]">
+        {/* 재난문자 높이도 왼쪽과 맞추고 싶다면 같이 h-[480px] 정도로 조절 가능 */}
+        <div className="w-full max-w-[370px] h-[530px] bg-white rounded-xl shadow-1 border border-graygray-10 overflow-hidden flex flex-col">
           <DisasterMessageBox />
         </div>
       </div>
