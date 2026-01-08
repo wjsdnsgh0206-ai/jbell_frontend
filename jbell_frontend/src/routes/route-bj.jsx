@@ -9,6 +9,7 @@ const FAQDetailPage = lazy(() => import("@/pages/user/customerservice/FAQDetailP
 //QnA 관련 페이지
 const QnAListPage = lazy(() => import("@/pages/user/customerservice/QnAListPage"));
 const QnADetailPage = lazy(() => import("@/pages/user/customerservice/QnADetailPage"));
+const QnAFormPage = lazy(() => import("@/pages/user/customerservice/QnAFormPage"))
 
 
 // ------ 라우트 페이지 경로 입력 파일 ------ //
@@ -49,6 +50,11 @@ export const bjUserRoutes = [
         path: "/qna", element: <QnAListPage />,
         sidebarData: SIDE_MENU_DATA.CUSTOMERSERVICE,
         nowPage: "고객센터",
+    },
+     {
+        path:"/qna/form", element: <QnAFormPage />,
+        sidebarData: SIDE_MENU_DATA.CUSTOMERSERVICE,
+        nowPage: "고객센터"
     },
     { 
         path: "/qna/:id", element: <QnADetailPage />,
