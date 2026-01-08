@@ -50,6 +50,20 @@ export default defineConfig(({ mode }) => {
               console.log('Proxy Response:', proxyRes.statusCode, req.url);
             });
           }
+        },
+        '/weather-api': {
+          target : 'https://api.openweathermap.org/data/2.5/weather',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/weather-api/, ''),
+          secure: false,
+          configure: (proxy, options) => {
+            proxy.on('proxyReq', (proxyReq, req, res) => {
+              console.log('Proxy Request:', req.method, req.url);
+            });
+            proxy.on('proxyRes', (proxyRes, req, res) => {
+              console.log('Proxy Response:', proxyRes.statusCode, req.url);
+            });
+          }
         }
       
       }
