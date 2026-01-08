@@ -6,9 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>전북안전누리</title>
 
-    <script
-      src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<%=kakaoApiKey%>&libraries=services,clusterer,drawing">
-    </script>
+    <!-- <script
+      src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<%=kakaoApiKey%>&libraries=services,clusterer,drawing,autoload=false">
+    </script> -->
+
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<%=kakaoApiKey%>&libraries=services,clusterer,drawing&autoload=false"></script>
   </head>
   <body>
     <div id="root"></div>
