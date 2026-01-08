@@ -11,7 +11,6 @@ import FacilityCheckGroup from "../modal/FacilityCheckGroup";
   > 컴포넌트 설명 : 재난사고속보 모달 내부의 홍수 메뉴 컴포넌트로, 현재 홍수관련 내용을 표시함. 추후 api연동 필요.
 */
 
-
 const Flood = () => {
   // 현재 선택된 지도 탭 상태 (초기값 강수량)
   const [activeTab, setActiveTab] = useState("강수량");
@@ -32,14 +31,14 @@ const Flood = () => {
 
   // 재난안전시설 탭 데이터
   const FloodItems = [
-    { id: "shelter", label: "이재민임시시설" }, 
+    { id: "shelter", label: "이재민임시시설" },
     { id: "hospital", label: "병원" },
     { id: "pharmacy", label: "약국" },
   ];
 
   // === [추가] 탭 클릭 핸들러 (토글 로직) ===
   const handleTabClick = (tabId) => {
-    setActiveTab(prev => (prev === tabId ? null : tabId));
+    setActiveTab((prev) => (prev === tabId ? null : tabId));
   };
 
   // === [추가] 체크박스 변경 핸들러 ===
@@ -48,9 +47,9 @@ const Flood = () => {
   };
 
   return (
-    <div className="grid grid-cols-12 gap-5 lg:gap-8">
-      <div className="col-span-12 lg:col-span-8 flex flex-col gap-5 lg:gap-8">
-        <div className="bg-white rounded-[24px] p-5 sm:p-8 shadow-1 border border-graygray-10 min-h-[550px]">
+    <div className="grid grid-cols-12 gap-5 lg:gap-6">
+      <div className="col-span-12 lg:col-span-8 flex flex-col gap-5 lg:gap-6">
+        <div className="bg-white rounded-xl p-5 sm:p-8 shadow-1 border border-graygray-10 min-h-[550px]">
           {/* 헤더 섹션 */}
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
             <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
@@ -82,28 +81,34 @@ const Flood = () => {
                     onClick={() => handleTabClick(tab.id)}
                     className={`
                       flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl text-[12px] sm:text-body-m font-black transition-all border
-                      ${activeTab === tab.id
-                        ? "bg-blue-600 text-white border-blue-600 shadow-blue shadow-lg translate-x-1"
-                        : "bg-white/95 backdrop-blur-sm text-graygray-60 border-graygray-10 hover:bg-white hover:translate-x-1 shadow-sm"
+                      ${
+                        activeTab === tab.id
+                          ? "bg-blue-600 text-white border-blue-600 shadow-blue shadow-lg translate-x-1"
+                          : "bg-white/95 backdrop-blur-sm text-graygray-60 border-graygray-10 hover:bg-white hover:translate-x-1 shadow-sm"
                       }
                     `}
                   >
                     <span className="truncate">{tab.label}</span>
                     {tab.hasArrow && (
-                      <span className={`transition-transform duration-300 ${activeTab === tab.id ? "rotate-90" : ""}`}>
+                      <span
+                        className={`transition-transform duration-300 ${
+                          activeTab === tab.id ? "rotate-90" : ""
+                        }`}
+                      >
                         <span className="text-[8px] sm:text-[10px]">▶</span>
                       </span>
                     )}
                   </button>
-                  
+
                   {/* 체크박스 그룹 표시 로직 - ID 매칭 확인 */}
-                  {tab.id === "재난안전시설" && activeTab === "재난안전시설" && (
-                    <FacilityCheckGroup
-                      items={FloodItems}
-                      facilities={facilities}
-                      onCheck={handleCheck}
-                    />
-                  )}
+                  {tab.id === "재난안전시설" &&
+                    activeTab === "재난안전시설" && (
+                      <FacilityCheckGroup
+                        items={FloodItems}
+                        facilities={facilities}
+                        onCheck={handleCheck}
+                      />
+                    )}
                 </div>
               ))}
             </div>
@@ -128,22 +133,29 @@ const Flood = () => {
 
             {/* 지도 컨트롤 버튼 */}
             <div className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 flex flex-col gap-1.5 z-10">
-              <button className="w-9 h-9 sm:w-10 sm:h-10 bg-white border border-graygray-10 rounded-xl shadow-1 flex items-center justify-center text-lg sm:text-xl font-bold text-graygray-60 hover:text-blue-600 transition-all active:scale-90">+</button>
-              <button className="w-9 h-9 sm:w-10 sm:h-10 bg-white border border-graygray-10 rounded-xl shadow-1 flex items-center justify-center text-lg sm:text-xl font-bold text-graygray-60 hover:text-blue-600 transition-all active:scale-90">-</button>
+              <button className="w-9 h-9 sm:w-10 sm:h-10 bg-white border border-graygray-10 rounded-xl shadow-1 flex items-center justify-center text-lg sm:text-xl font-bold text-graygray-60 hover:text-blue-600 transition-all active:scale-90">
+                +
+              </button>
+              <button className="w-9 h-9 sm:w-10 sm:h-10 bg-white border border-graygray-10 rounded-xl shadow-1 flex items-center justify-center text-lg sm:text-xl font-bold text-graygray-60 hover:text-blue-600 transition-all active:scale-90">
+                -
+              </button>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-[24px] p-6 lg:p-8 shadow-1 border border-graygray-10">
+        <div className="bg-white h-[250px] rounded-xl p-6 shadow-1 border border-graygray-10">
           <ActionTipBox type="홍수" />
         </div>
       </div>
 
-      <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 lg:gap-8">
-        <div className="bg-white rounded-[24px] p-6 shadow-1 border border-graygray-10">
+      {/* === 오른쪽 패널 === */}
+      <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 lg:gap-6 items-center lg:items-start">
+        <div className="w-full lg:max-w-[370px] h-[200px] bg-gradient-to-br from-[#62A1E9] to-[#4A90E2] rounded-xl p-5 lg:p-6 shadow-1 border border-white/30">
           <WeatherBox />
         </div>
-        <div className="bg-white rounded-[24px] shadow-1 flex flex-col h-full border border-graygray-10 overflow-hidden min-h-[400px]">
+
+        {/* 재난문자 높이도 왼쪽과 맞추고 싶다면 같이 h-[480px] 정도로 조절 가능 */}
+        <div className="w-full max-w-[370px] h-[530px] bg-white rounded-xl shadow-1 border border-graygray-10 overflow-hidden flex flex-col">
           <DisasterMessageBox />
         </div>
       </div>
