@@ -299,30 +299,25 @@ const QnAListPage = () => {
         <h1 className="text-heading-xl pb-10 text-graygray-90">1:1문의</h1>
 
         {/* Search Bar (FAQPage 스타일 통일) */}
-         <div className="bg-graygray-5 border border-graygray-10 p-4 rounded-lg mb-10 flex flex-col lg:flex-row items-center justify-center gap-3 lg:gap-2">
-          <div className="relative w-full lg:w-32 h-12 flex-none">
-            <select className="w-full h-full appearance-none border border-graygray-30 rounded px-3 bg-white cursor-pointer text-body-m pr-6 text-graygray-90 focus:outline-none focus:ring-2 focus:ring-blue-500">
+         <div className="flex border-2 border-gray-300 rounded-none mb-10 h-14">
+          <div className="relative w-32 md:w-48 border-r border-gray-300">
+            <select className="w-full h-full appearance-none px-4 text-gray-600 bg-white focus:outline-none">
               <option>전체</option>
               <option>제목</option>
               <option>내용</option>
             </select>
-            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-              <ChevronDown size={16} className="text-graygray-50" />
-            </div>
+            <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
           </div>
-          <div className="relative w-full lg:flex-1 h-12 min-w-0">
+          <div className="flex-1 relative">
             <input 
               type="text" 
               placeholder="검색어를 입력해주세요." 
-              className="w-full h-full border border-graygray-30 rounded px-4 pr-10 text-body-m bg-white placeholder:text-graygray-40 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full h-full px-4 focus:outline-none"
             />
-            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-graygray-40">
-              <Search size={20} />
-            </span>
+            <button className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">
+              <Search size={24} />
+            </button>
           </div>
-           <button className="w-full lg:w-auto h-12 bg-primary-50 text-white px-8 rounded font-medium hover:bg-blue-700 transition active:scale-95 shadow-sm whitespace-nowrap flex-none flex items-center justify-center">
-            검색            
-          </button>
         </div>
 
         {/* Filter & Count & Button */}
