@@ -28,10 +28,23 @@ const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
 
 
 
-/* <==================== 검색한 장소 누르면 나오는 창 ====================> */
+/* <==================== 검색한 장소 누르면 나오는 우측 창 ====================> */
 /* 상세 정보 패널 컴포넌트 */
 const DetailPanel = ({ item, onClose }) => {
   if (!item) return null;
+
+  // 좌표 추출 (item 구조에 따라 확인 필요)
+  const lat = item.y || item.latitude;
+  const lng = item.x || item.longitude;
+  const name = encodeURIComponent(item.place_name || item.shlt_nm);
+
+  // 카카오맵 길찾기 URL (도착지로 설정)
+  const goNavi = () => {
+    // dest: 도착지 이름,좌표
+    // 도착지가 검색한 장소로 지정된 상태로 화면이 나옴
+    const url = `https://map.kakao.com/link/to/${name},${lat},${lng}`;
+    window.open(url, '_blank');
+  };
 
   return (
     <div className="absolute top-0 left-full z-[60] w-full h-full bg-white shadow-2xl border-l animate-in slide-in-from-left-5 duration-300 md:w-[380px]">
@@ -69,18 +82,18 @@ const DetailPanel = ({ item, onClose }) => {
         </div>
 
         <div className="pt-6 border-t flex gap-2">
-          <button className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors">
-            출발
-          </button>
-          <button className="flex-1 bg-blue-50 text-blue-600 py-3 rounded-xl font-bold hover:bg-blue-100 transition-colors">
-            도착
-          </button>
+         <button 
+        onClick={goNavi} // 도착 버튼에 연결
+        className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+      >
+        길 찾기 (카카오 맵으로 연결)
+      </button>
         </div>
       </div>
     </div>
   );
 };
-/* <==================== 검색한 장소 누르면 나오는 창 ====================> */
+/* <==================== 검색한 장소 누르면 나오는 우측 창 ====================> */
 
 
 
@@ -500,12 +513,16 @@ const handleSearch = async () => {
       {/* 좌측 사이드바 */}
       <aside 
         className={`
-          fixed top-0 left-0 z-50 bg-white shadow-xl flex flex-col transition-transform duration-300 ease-in-out
+          fixed top-0 z-[70] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out
           /* 1. 너비를 화면의 80%만 차지*/
           w-[80%] 
           /* 2. 하단 버튼들이 보일 수 있게 높이를 조절하거나 스크롤 영역을 제한 */
           h-full 
-          md:static md:w-[380px] md:translate-x-0
+          md:fixed md:w-[380px] md:translate-x-0
+          /* 모바일: 화면 전체를 덮음 */
+          left-0 w-[80%] h-full
+          /* PC(md 이상): 왼쪽 사이드바 너비만큼만 차지 */
+          md:w-[380px]
           ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
           ${selectedShelter ? 'translate-x-0' : '-translate-x-full'}
         `}
