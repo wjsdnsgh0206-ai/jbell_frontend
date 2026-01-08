@@ -58,7 +58,7 @@ const UserPressRelDetail = () => {
     <div className="w-full px-5 md:px-0">
       <PageBreadcrumb items={breadcrumbItems} />
       <main className="w-full">
-        <h2 className="text-3xl font-bold mb-10 text-gray-900 tracking-tight text-left">보도자료</h2>
+        <h1 className="text-heading-xl text-graygray-90 pb-10">보도자료</h1>
 
         {/* --- 상단 헤더 영역 --- */}        
         <div className="border-t border-gray-200">

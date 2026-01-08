@@ -98,14 +98,14 @@ const FAQListPage = () => {
   };
     
   return (
-    <div className="w-full bg-white text-graygray-90">
+    <div className="w-full bg-white text-graygray-90 pb-20 px-4 lg:px-0">
       {/* ================= Header ================= */}
 
       {/* ================= Main Content ================= */}
-      <main className="max-w-[1280px] mx-auto px-4">
+      <main className="max-w-[1280px] mx-auto">
         {/* ================= Breadcrumb ================= */}
         <PageBreadcrumb items={breadcrumbItems} />
-        <h1 className="text-heading-xl mb-8 text-graygray-90">FAQ</h1>
+        <h1 className="text-heading-xl pb-10 text-graygray-90">FAQ</h1>
 
         {/* Search Bar */}
        <div className="bg-graygray-5 border border-graygray-10 p-4 rounded-lg mb-10 flex flex-row items-center justify-center gap-2">
