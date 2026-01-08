@@ -2,23 +2,24 @@ import React, { Suspense, useEffect, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import WeatherBox from "@/components/user/modal/WeatherBox";
 import DisasterMessageBox from "@/components/user/modal/DisasterMessageBox";
-import { disasterModal } from "@/routes/route-jy";
+// import { disasterModal } from "@/routes/route-jy";
 
 const DisasterModalLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // const menuList = [
-  //   { label: "사고속보", path: "/disaster/accident" },
-  //   { label: "지진", path: "/disaster/earthquake" },
-  //   { label: "지진", path: "/disaster/earthquake" },
-  //   { label: "지진", path: "/disaster/earthquake" },
-  //   { label: "지진", path: "/disaster/earthquake" },
-  //   { label: "지진", path: "/disaster/earthquake" },
-  // ];
+  const menuList = [
+    { label: "사고속보", path: "/disaster/accident" },
+    { label: "지진", path: "/disaster/earthquake" },
+    { label: "홍수", path: "/disaster/flood" },
+    { label: "호우", path: "/disaster/heavyRain" },
+    { label: "산사태", path: "/disaster/landSlide" },
+    { label: "태풍", path: "/disaster/typhoon" },
+    { label: "산불", path: "/disaster/forestFire" },
+  ];
 
   const currentTitle =
-    disasterModal.find((m) => m.path === location.pathname)?.label || "재난정보";
+    menuList.find((m) => m.path === location.pathname)?.label || "재난정보";
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-4">
@@ -34,7 +35,7 @@ const DisasterModalLayout = () => {
         {/* === 왼쪽 사이드바: 모바일(hidden), PC(flex) === */}
         <aside className="hidden lg:flex w-[260px] bg-graygray-90 text-white flex-col">
           <nav className="mt-6 px-4 space-y-2">
-            {disasterModal.map((menu) => (
+            {menuList.map((menu) => (
               <button
                 key={menu.path}
                 onClick={() => navigate(menu.path)}
