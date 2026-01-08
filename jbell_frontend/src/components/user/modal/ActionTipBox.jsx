@@ -38,7 +38,7 @@ const Icons = {
     () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full text-secondary-50"><path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" /></svg>,
     () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full text-amber-700"><path d="M12 3c-5 0-9 4-9 9s4 9 9 9 9-4 9-9-4-9-9-9z" /><path d="M12 8v4l2 2" strokeLinecap="round" /></svg>
   ],
-  Wildfire: [
+  ForestFire: [
     () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full text-rose-600"><path d="M12 2c0 4-4 6-4 10a4 4 0 008 0c0-4-4-6-4-10z" fill="currentColor" fillOpacity="0.2" /><path d="M8 12c0 2 2 3 4 3s4-1 4-3" /></svg>,
     () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full text-orange-600"><path d="M17 10l-5-5-5 5M12 5v14" strokeLinecap="round" strokeLinejoin="round" /><path d="M5 14c-2 0-3 1-3 3s1 3 3 3h14c2 0 3-1 3-3s-1-3-3-3" /></svg>,
     () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full text-green-700"><path d="M12 19V5M5 13l7-8 7 8M8 19h8" strokeLinecap="round" strokeLinejoin="round" /></svg>,
@@ -79,10 +79,17 @@ const ActionTipBox = ({ type = "지진" }) => {
       { id: "04", text: "땅 울림이 들리면 즉시 대피하세요.", icon: Icons.Landslide[3] },
     ],
     산불: [
+<<<<<<< HEAD
       { id: "01", text: "등산 시 라이터 등을 챙기지 마세요.", icon: Icons.Wildfire[0] },
       { id: "02", text: "바람을 등지고 신속히 하산하세요.", icon: Icons.Wildfire[1] },
       { id: "03", text: "공터나 이미 탄 지역으로 대피하세요.", icon: Icons.Wildfire[2] },
       { id: "04", text: "발견 즉시 119 등에 신고하세요.", icon: Icons.Wildfire[3] },
+=======
+      { id: "01", text: "불씨가 남지 않도록 등산 시 라이터를 챙기지 마세요.", icon: Icons.ForestFire[0] },
+      { id: "02", text: "산불 발생 시 바람을 등지고 신속히 하산하세요.", icon: Icons.ForestFire[1] },
+      { id: "03", text: "대피가 어렵다면 이미 탄 지역이나 공터로 대피하세요.", icon: Icons.ForestFire[2] },
+      { id: "04", text: "산불 발견 즉시 119나 산림청에 신고하세요.", icon: Icons.ForestFire[3] },
+>>>>>>> develop
     ],
   };
 

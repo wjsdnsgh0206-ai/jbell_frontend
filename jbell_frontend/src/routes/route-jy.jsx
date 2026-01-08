@@ -1,5 +1,6 @@
+// src/routes/route-jy.jsx
 import { lazy } from "react";
-import { AccidentNews, Earthquake, Flood, HeavyRain, LandSlide, Typhoon, Wildfire } from "@/components/user/disaster";
+import { AccidentNews, Earthquake, Flood, HeavyRain, LandSlide, Typhoon, ForestFire } from "@/components/user/disaster";
 import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
 /*
@@ -12,8 +13,6 @@ import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 const UserPageMain = lazy(() => import("@/pages/user/UserPageMain"));
 const UserMap = lazy(() => import("@/pages/user/UserMap"));
 const UserNoticeList = lazy(() => import("@/pages/user/openboards/UserNoticeList"));
-const UserFacilityList = lazy(() => import("@/pages/user/facility/UserFacilityList"));
-const UserFacilityDetail = lazy(() => import("@/pages/user/facility/UserFacilityDetail"));
 
 const jyUserRoutes = [
   {
@@ -60,26 +59,9 @@ const disasterModal = [
     element: <Typhoon />,
   },
   {
-    path: "/disaster/wildfire",
-    element: <Wildfire />,
+    path: "/disaster/forestFire",
+    element: <ForestFire />,
   },
-
 ];
 
-const sideBarFacility = [
-    { 
-      path: "/facilityList", // UserFacilityList의 실제 경로와 맞춰줘
-      element: <UserFacilityList /> , 
-      sidebarData: SIDE_MENU_DATA.FACILITY, // 위에서 수정한 배열 데이터
-      nowPage: "대피소 소개",
-    },
-    {
-      path: "/facility/detail/:id",
-      element: <UserFacilityDetail />,
-      sidebarData: SIDE_MENU_DATA.FACILITY, // 위에서 수정한 배열 데이터
-      nowPage: "대피소 소개",
-    },
-];
-
-
-export { jyUserRoutes, disasterModal,sideBarFacility };
+export { jyUserRoutes, disasterModal };

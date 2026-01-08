@@ -96,7 +96,7 @@ const UserPressRelList = () => {
       {/* 상단 경로 안내 컴포넌트 */}
       <PageBreadcrumb items={breadcrumbItems} />
       <main className="w-full">
-        <h2 className="text-3xl font-bold mb-10 text-gray-900 tracking-tight text-left">보도자료</h2>
+        <h1 className="text-heading-xl text-graygray-90 pb-10">보도자료</h1>
         
         {/* --- 검색바 영역 (반응형: 모바일은 세로, 데스크탑은 가로) --- */}
         <div className="bg-gray-50 border border-gray-200 p-4 md:p-6 rounded-lg mb-10 flex flex-col md:flex-row justify-center gap-3">

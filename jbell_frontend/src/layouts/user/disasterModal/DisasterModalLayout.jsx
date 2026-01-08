@@ -21,7 +21,7 @@ const DisasterModalLayout = ({ children }) => {
     { label: "호우", path: "/disaster/heavyRain" },
     { label: "홍수", path: "/disaster/flood" },
     { label: "산사태", path: "/disaster/landslide" },
-    { label: "산불", path: "/disaster/wildfire" },
+    { label: "산불", path: "/disaster/forestFire" },
   ];
 
   // 메뉴 클릭 시 페이지 이동 후 메뉴 닫기
