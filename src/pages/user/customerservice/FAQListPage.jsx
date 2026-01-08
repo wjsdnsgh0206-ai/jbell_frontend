@@ -1,3 +1,4 @@
+// src/pages/user/customerservice/FAQListPage.jsx
 import React, { useState } from 'react';
 import { Search, ChevronRight, ChevronLeft, ChevronDown } from 'lucide-react';
 import { useNavigate} from 'react-router-dom';
