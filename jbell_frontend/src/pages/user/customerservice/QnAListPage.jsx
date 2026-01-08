@@ -293,7 +293,7 @@ const QnAListPage = () => {
     <div className="w-full bg-white font-sans text-gray-800">
      
       {/* ================= Main Content ================= */}
-      <main className="max-w-[1280px] mx-auto px-4">
+      <main className="max-w-[1280px] mx-auto px-4 lg:px-0">
         {/* ================= Breadcrumb ================= */}
        <PageBreadcrumb items={breadcrumbItems} />
         <h1 className="text-heading-xl mb-8 text-graygray-90">1:1문의</h1>
