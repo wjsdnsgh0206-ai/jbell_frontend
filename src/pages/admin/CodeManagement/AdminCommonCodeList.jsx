@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-
-const CommonCodeList = () => {
+// import AdminSideBar from '@/layouts/admin/AdminSideBar';
+import BreadCrumb from '@/components/Admin/board/BreadCrumb';
+const AdminCommonCodeList = () => {
   // 데이터 샘플 (추후 백엔드 API 연동 시 fetch로 가져올 부분)
   const [codes] = useState([
     { id: 1, groupCode: 'Category-1', groupName: '카테고리1', detailCode: 'ABCD-1', detailName: '행정구역', desc: '대한민국 행정 구역 코드번호', date: '2025-05-20 06:00', order: 1, visible: true },
@@ -13,44 +14,14 @@ const CommonCodeList = () => {
   ]);
 
   return (
-    <div className="flex min-h-screen bg-[#f4f7f9]">
-      {/* 좌측 사이드바 */}
-      <aside className="w-64 bg-[#001529] text-gray-300 flex flex-col">
-        <div className="p-6 flex items-center gap-3">
-          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-             <div className="w-5 h-5 bg-red-500 rounded-full"></div>
-          </div>
-          <span className="text-white font-bold text-lg tracking-tight">대한민국정부</span>
-        </div>
-        
-        <nav className="flex-1">
-          <ul className="text-sm">
-            <li className="px-6 py-4 bg-[#1890ff] text-white font-semibold cursor-pointer">공통코드 관리</li>
-            <li className="px-6 py-4 hover:bg-[#1e2d3d] hover:text-white cursor-pointer transition">그룹코드 등록</li>
-            <li className="px-6 py-4 hover:bg-[#1e2d3d] hover:text-white cursor-pointer transition">상세코드 등록</li>
-            <div className="mt-8 border-t border-gray-700"></div>
-            <li className="px-6 py-4 hover:bg-[#1e2d3d] hover:text-white cursor-pointer transition">로그 관리</li>
-          </ul>
-        </nav>
-      </aside>
-
+    
+    <>
       {/* 우측 메인 영역 */}
       <div className="flex-1 flex flex-col">
-        {/* 헤더 네비게이션 */}
-        <header className="bg-white h-16 border-b flex items-center px-10 gap-10 text-[15px] font-medium text-gray-600">
-          <span className="cursor-pointer hover:text-blue-600">실시간 정보 관리</span>
-          <span className="cursor-pointer hover:text-blue-600">콘텐츠 관리</span>
-          <span className="cursor-pointer hover:text-blue-600">안전정보 관리</span>
-          <span className="cursor-pointer hover:text-blue-600">회원 관리</span>
-          <span className="text-blue-600 border-b-2 border-blue-600 h-full flex items-center px-2">시스템 관리</span>
-        </header>
-
         {/* 컨텐츠 본문 */}
         <main className="p-8 overflow-y-auto">
-          <div className="mb-6">
-            <nav className="text-xs text-gray-400 mb-1">시스템 관리 &nbsp; &gt; &nbsp; <span className="font-bold text-gray-700">공통 코드 관리</span></nav>
-            <h2 className="text-2xl font-bold text-gray-800">공통코드관리</h2>
-          </div>
+          <BreadCrumb/>
+          <h2 className="text-2xl  pb-4 font-bold text-gray-800">공통코드관리</h2>
 
           {/* 검색 필터 바 */}
           <section className="bg-white p-5 rounded-md border border-gray-200 shadow-sm flex gap-4 mb-6">
@@ -141,13 +112,9 @@ const CommonCodeList = () => {
             </div>
           </section>
         </main>
-
-        <footer className="mt-auto border-t py-4 bg-white text-center text-[11px] text-gray-400">
-           © The Government of the Republic of Korea. All rights reserved.
-        </footer>
       </div>
-    </div>
+</>
   );
 };
 
-export default CommonCodeList;
+export default AdminCommonCodeList;
