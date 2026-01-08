@@ -28,12 +28,12 @@ const DisasterModalLayout = () => {
         className="absolute inset-0 bg-black/60"
         onClick={() => navigate("/")}
       />
-
       {/* 모달 컨테이너: 모바일은 꽉 차게, PC는 h-[96vh] */}
       <div className="relative z-10 w-full max-w-[1700px] h-full md:h-[96vh] bg-white md:rounded-2xl flex overflow-hidden">
         
         {/* === 왼쪽 사이드바: 모바일(hidden), PC(flex) === */}
-        <aside className="hidden lg:flex w-[260px] bg-graygray-90 text-white flex-col">
+        <aside className="items-center hidden lg:flex w-[260px] bg-graygray-90 text-white flex-col">
+          <img className="text-center py-6 w-[140px] sm:w-[160px] xl:w-[200px] h-auto" alt="전북안전누리 로고" src="../src/assets/logo/jeonbuk_safety_nuri_watermark.svg"></img>
           <nav className="mt-6 px-4 space-y-2">
             {menuList.map((menu) => (
               <button
