@@ -49,7 +49,7 @@ const Wildfire = () => {
     <div className="grid grid-cols-12 gap-5 lg:gap-6">
       {/* 왼쪽 & 중앙 콘텐츠 */}
       <div className="col-span-12 lg:col-span-8 flex flex-col gap-5 lg:gap-6">
-        <div className="bg-white rounded-xl p-5 sm:p-8 shadow-1 border border-graygray-10 min-h-[550px]">
+        <div className="bg-white rounded-xl p-5 sm:p-5 shadow-1 border border-graygray-10 h-[200px] min-h-[480px]">
           {/* 헤더 섹션 */}
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
             <div className="flex items-center gap-2 sm:gap-3 flex-wrap">

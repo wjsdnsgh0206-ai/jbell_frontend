@@ -1905,7 +1905,7 @@ queue-microtask@^1.2.2:
 
 react-daum-postcode@^3.2.0:
   version "3.2.0"
-  resolved "https://registry.npmjs.org/react-daum-postcode/-/react-daum-postcode-3.2.0.tgz"
+  resolved "https://registry.yarnpkg.com/react-daum-postcode/-/react-daum-postcode-3.2.0.tgz#07fbbc38f4b0c48ee3c8f703eba5e4c9d82ffb2f"
   integrity sha512-NHY8TUicZXMqykbKYT8kUo2PEU7xu1DFsdRmyWJrLEUY93Xhd3rEdoJ7vFqrvs+Grl9wIm9Byxh3bI+eZxepMQ==
 
 react-dom@^19.2.0:
