@@ -48,8 +48,8 @@ const Flood = () => {
   };
 
   return (
-    <div className="grid grid-cols-12 gap-5 lg:gap-8">
-      <div className="col-span-12 lg:col-span-8 flex flex-col gap-5 lg:gap-8">
+    <div className="grid grid-cols-12 gap-5 lg:gap-6">
+      <div className="col-span-12 lg:col-span-8 flex flex-col gap-5 lg:gap-6">
         <div className="bg-white rounded-[24px] p-5 sm:p-8 shadow-1 border border-graygray-10 min-h-[550px]">
           {/* 헤더 섹션 */}
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
@@ -139,11 +139,15 @@ const Flood = () => {
         </div>
       </div>
 
-      <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 lg:gap-8">
-     <div className="bg-gradient-to-br from-[#62A1E9] to-[#4A90E2] rounded-[24px] p-6 shadow-1 border border-white/30">
+      {/* 오른쪽 패널 */}
+      <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 lg:gap-6">
+        {/* 날씨 박스 */}
+        <div className="py-3 w-[350px] h-[180px] bg-gradient-to-br from-[#62A1E9] to-[#4A90E2] rounded-xl p-6 shadow-1 border border-white/30">
           <WeatherBox />
         </div>
-        <div className="bg-white rounded-[24px] shadow-1 flex flex-col h-full border border-graygray-10 overflow-hidden min-h-[400px]">
+
+        {/* 재난문자 */}
+        <div className="w-[350px] h-[550px] bg-white rounded-xl shadow-1 flex border border-graygray-10 overflow-hidden min-h-[400px]">
           <DisasterMessageBox />
         </div>
       </div>

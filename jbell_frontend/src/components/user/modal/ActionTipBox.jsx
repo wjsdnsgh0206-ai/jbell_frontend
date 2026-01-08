@@ -93,8 +93,8 @@ const ActionTipBox = ({ type = "지진" }) => {
   const currentTips = tipsData[type] || tipsData["지진"];
 
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between mb-5 px-1">
+    <div className="w-full h-full">
+      <div className="flex items-center justify-between mb-3 px-1">
         <h3 className="text-body-l-bold text-graygray-90 tracking-tight">
           {type} 발생 시 행동요령
         </h3>
@@ -104,7 +104,7 @@ const ActionTipBox = ({ type = "지진" }) => {
         {currentTips.map((tip) => (
           <div 
             key={tip.id} 
-            className="group relative flex flex-col bg-graygray-0 border border-graygray-10 rounded-2xl p-4 lg:p-5 shadow-1 hover:shadow-md hover:border-graygray-30 transition-all duration-300 overflow-hidden min-h-[140px]"
+            className="group relative flex flex-col bg-graygray-0 border border-graygray-10 rounded-2xl p-4 lg:p-3 shadow-1 hover:shadow-md hover:border-graygray-30 transition-all duration-300 overflow-hidden min-h-[140px]"
           >
             {/* 배경 숫자 강조: secondary-50 계열로 살짝 강조 */}
             <span className="absolute right-4 bottom-3 text-3xl font-black text-graygray-10/40 group-hover:text-secondary-5/60 transition-colors pointer-events-none z-0 italic tabular-nums">

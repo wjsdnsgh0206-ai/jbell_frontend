@@ -4,7 +4,10 @@
 
 @layer base {
   /* 기본 리셋 */
-  button, input, select, textarea {
+  button,
+  input,
+  select,
+  textarea {
     @apply appearance-none bg-transparent border-0 outline-none;
   }
   body {
@@ -18,35 +21,35 @@
    ========================================= */
 :root {
   /* --- Colors --- */
-  --graygray-0: #FFFFFF;
+  --graygray-0: #ffffff;
   --graygray-3: #eff6ff66;
-  --graygray-5: #F8F8F8;
-  --graygray-10: #E6E8EA;
-  --graygray-30: #D8D8D8;
-  --graygray-40: #C6C6C6;
-  --graygray-50: #8E8E8E;
+  --graygray-5: #f8f8f8;
+  --graygray-10: #e6e8ea;
+  --graygray-30: #d8d8d8;
+  --graygray-40: #c6c6c6;
+  --graygray-50: #8e8e8e;
   --graygray-70: #555555;
-  --graygray-80: #2D2D2D;
-  --graygray-90: #1D1D1D;
+  --graygray-80: #2d2d2d;
+  --graygray-90: #1d1d1d;
 
-  --orange-50: #FFF7ED;
-  --orange-200: #FED7AA;
-  --orange-600: #EA580C;
+  --orange-50: #fff7ed;
+  --orange-200: #fed7aa;
+  --orange-600: #ea580c;
 
-  --green-100: #DCFCE7;
-  --green-200: #BBF7D0;
-  --green-700: #15803D;
+  --green-100: #dcfce7;
+  --green-200: #bbf7d0;
+  --green-700: #15803d;
 
-  --blue-100: #DBEAFE;
-  --blue-200: #BFDBFE;
-  --blue-700: #1D4ED8;
+  --blue-100: #dbeafe;
+  --blue-200: #bfdbfe;
+  --blue-700: #1d4ed8;
 
-  --secondary-5: #EDF1F5;
+  --secondary-5: #edf1f5;
   --secondary-10: #eff6ff66;
   --secondary-50: #003675;
   --secondary-80: #052561;
 
-  --primary-50: #256EF5;
+  --primary-50: #256ef5;
 
   /* --- Typography Basics --- */
   --font-base: "Pretendard GOV", -apple-system, sans-serif;
@@ -66,7 +69,7 @@
     line-height: 150%;
     letter-spacing: 1px;
   }
-  
+
   .text-heading-l {
     font-family: var(--font-base);
     font-size: 32px;
@@ -119,6 +122,12 @@
     font-weight: 700;
     line-height: 150%;
   }
+  .text-body-s-bold {
+    font-family: var(--font-base);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 150%;
+  }
 
   .text-body-m {
     font-family: var(--font-base);
@@ -126,19 +135,36 @@
     font-weight: 400;
     line-height: 150%;
   }
-
+  .text-detail-l {
+    font-family: var(--font-base);
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 150%;
+  }
   .text-detail-m {
     font-family: var(--font-base);
     font-size: 15px;
     font-weight: 400;
     line-height: 150%;
   }
-  
+  .text-detail-s {
+    font-family: var(--font-base);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 150%;
+  }
+  .text-detail-xs {
+    font-family: var(--font-base);
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 150%;
+  }
+
   /* --- Utils --- */
   .flex-center {
     @apply flex items-center justify-center;
   }
-  
+
   .flex-col-center {
     @apply flex flex-col items-center justify-center;
   }
