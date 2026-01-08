@@ -35,14 +35,15 @@ const WeatherBox = () => {
       setError("날씨 정보를 불러오지 못했어요 😢");
     }
   };
-
+  
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        const { latitude, longitude } = coords;
-
-        // 🌤 날씨
-        api
+      
+      navigator.geolocation.getCurrentPosition(
+        ({ coords }) => {
+          const { latitude, longitude } = coords;
+          
+          // 🌤 날씨
+          api
           .external("/weather-api", {
             params: {
               lat: latitude,
@@ -54,39 +55,40 @@ const WeatherBox = () => {
           })
           .then((res) => setWeather(res.data))
           .catch(() => setError("날씨 정보를 불러오지 못했어요 😢"));
+          console.log("실행실행실행실행실행실행실행실행실행실행실행 ",latitude,longitude);
 
+        // 📍 주소 (카카오 역지오코딩)
         // 📍 주소 (카카오 역지오코딩) 수정 부분
-        if (window.kakao && window.kakao.maps) {
-          // autoload=false일 때 반드시 load 콜백을 사용해야 합니다.
-          window.kakao.maps.load(() => {
-            const geocoder = new window.kakao.maps.services.Geocoder();
-            const coord = new window.kakao.maps.LatLng(latitude, longitude);
+      if (window.kakao && window.kakao.maps) {
+        // autoload=false일 때 반드시 load 콜백을 사용해야 합니다.
+        window.kakao.maps.load(() => {
+          const geocoder = new window.kakao.maps.services.Geocoder();
+          const coord = new window.kakao.maps.LatLng(latitude, longitude);
 
-            geocoder.coord2Address(coord.getLng(), coord.getLat(), (result, status) => {
-              if (status === window.kakao.maps.services.Status.OK) {
-                const rawAddress =
-                  result[0].road_address?.address_name ||
-                  result[0].address.address_name;
+          geocoder.coord2Address(coord.getLng(), coord.getLat(), (result, status) => {
+            if (status === window.kakao.maps.services.Status.OK) {
+              const rawAddress =
+                result[0].road_address?.address_name ||
+                result[0].address.address_name;
 
-                setAddress(normalizeAddress(rawAddress));
-              } else {
-                setAddress("위치 확인 불가");
-              }
-            });
+              setAddress(normalizeAddress(rawAddress));
+            } else {
+              setAddress("위치 확인 불가");
+            }
           });
-        } else {
-          setAddress("지도 라이브러리 로드 실패");
-        }
-      },
-      () => {
-        fetchFallbackWeather();
-      },
-      {
-        timeout: 5000,
-        maximumAge: 300000,
+        });
+      } else {
+        setAddress("지도 라이브러리 로드 실패");
       }
-    );
-  }, [weatherKey]);
+    },
+    () => {
+      fetchFallbackWeather();
+    },
+    {
+      timeout: 5000,
+      maximumAge: 300000,
+    }
+  )}, [weatherKey]);
 
   if (error)
     return (

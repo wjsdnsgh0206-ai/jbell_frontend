@@ -1,6 +1,8 @@
 // src/routes/route-jy.jsx
 import { lazy } from "react";
 import { AccidentNews, Earthquake, Flood, HeavyRain, LandSlide, Typhoon, ForestFire } from "@/components/user/disaster";
+import DisasterModalLayout from '@/layouts/user/disasterModal/DisasterModalLayout';
+
 import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
 /*
@@ -29,39 +31,21 @@ const jyUserRoutes = [
   },
 
 ];
+
 const disasterModal = [
   {
-    path: "/disaster",
-    element: <AccidentNews />,
-  },
-  {
-    path: "/disaster/accident",
-    element: <AccidentNews />,
-  },
-  {
-    path: "/disaster/earthquake",
-    element: <Earthquake />,
-  },
-  {
-    path: "/disaster/flood",
-    element: <Flood />,
-  },
-  {
-    path: "/disaster/heavyRain",
-    element: <HeavyRain />,
-  },
-  {
-    path: "/disaster/landSlide",
-    element: <LandSlide />,
-  },
-  {
-    path: "/disaster/typhoon",
-    element: <Typhoon />,
-  },
-  {
-    path: "/disaster/forestFire",
-    element: <ForestFire />,
+    path: "/disaster/",
+    element: <DisasterModalLayout />,   // 🔥 레이아웃만
+    children: [
+      { index: true, element: <AccidentNews /> },
+      { path: "accident", element: <AccidentNews /> },
+      { path: "earthquake", element: <Earthquake /> },
+      { path: "flood", element: <Flood /> },
+      { path: "heavyRain", element: <HeavyRain /> },
+      { path: "landSlide", element: <LandSlide /> },
+      { path: "typhoon", element: <Typhoon /> },
+      { path: "forestFire", element: <ForestFire /> },
+    ],
   },
 ];
-
 export { jyUserRoutes, disasterModal };

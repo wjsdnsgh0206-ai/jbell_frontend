@@ -89,7 +89,7 @@ const ActionTipBox = ({ type = "지진" }) => {
   const currentTips = tipsData[type] || tipsData["지진"];
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="flex flex-col">
       <div className="mb-2.5 lg:mb-4 px-1">
         <h3 className="text-body-m-bold lg:text-body-l-bold text-graygray-90 tracking-tight">
           {type} 발생 시 행동요령
