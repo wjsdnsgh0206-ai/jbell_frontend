@@ -187,7 +187,7 @@ const UserMap = () => {
   const handleSigunSelect = (city) => { 
     setSelectedSigun(city); 
     setSelectedGoo(''); 
-    const value = civilSelect||'민방위대피소';
+    const value = civilSelect||'민방위대피소';  // 이거 없으면 선택한 지역의 모든 장소가 다 나옴
     setCivilSelect(value);
     searchPlaces(`${city} ${value}`)
   };
