@@ -1,4 +1,4 @@
-// src/components/user/sideBar/UserSideBar.jsx
+// src/layouts/user/UserSideBar.jsx
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom'; // useLocation 추가

@@ -1,4 +1,4 @@
-import React from 'react';
+// src/pages/user/behavioralGuide/natural/earthquake/EarthquakeActionGuide.jsx
 import GuidePageTemplate from '@/components/shared/GuidePageTemplate';
 import VideoCardList from '@/components/shared/VideoCardList';
 // [핵심] 지진 데이터 파일 import

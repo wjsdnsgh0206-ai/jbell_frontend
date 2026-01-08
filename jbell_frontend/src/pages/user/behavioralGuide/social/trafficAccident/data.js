@@ -5,9 +5,9 @@ export const trafficAccidentData = {
     title: "교통사고",
     lastUpdated: "2025년 12월 16일",
     breadcrumbs: [
-      { label: "홈", hasIcon: true },
-      { label: "행동요령", hasIcon: false },
-      { label: "사회재난행동요령", hasIcon: false },
+      { label: "홈", path: "/", hasIcon: true },
+      { label: "행동요령", path: "/earthquakeActionGuide", hasIcon: false },
+      { label: "사회재난특보요령", path: "/trafficAccidentActionGuide", hasIcon: false },
       { label: "교통사고", hasIcon: false },
     ],
     tabs: [

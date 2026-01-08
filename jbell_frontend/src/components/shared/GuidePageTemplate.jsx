@@ -1,3 +1,4 @@
+// src/components/shared/GuidePageTemplate.jsx
 import { useState } from 'react';
 import PageBreadcrumb from './PageBreadcrumb';
 import PageTabs from './PageTabs';
