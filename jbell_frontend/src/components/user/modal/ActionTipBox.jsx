@@ -79,17 +79,10 @@ const ActionTipBox = ({ type = "지진" }) => {
       { id: "04", text: "땅 울림이 들리면 즉시 대피하세요.", icon: Icons.Landslide[3] },
     ],
     산불: [
-<<<<<<< HEAD
-      { id: "01", text: "등산 시 라이터 등을 챙기지 마세요.", icon: Icons.Wildfire[0] },
-      { id: "02", text: "바람을 등지고 신속히 하산하세요.", icon: Icons.Wildfire[1] },
-      { id: "03", text: "공터나 이미 탄 지역으로 대피하세요.", icon: Icons.Wildfire[2] },
-      { id: "04", text: "발견 즉시 119 등에 신고하세요.", icon: Icons.Wildfire[3] },
-=======
       { id: "01", text: "불씨가 남지 않도록 등산 시 라이터를 챙기지 마세요.", icon: Icons.ForestFire[0] },
       { id: "02", text: "산불 발생 시 바람을 등지고 신속히 하산하세요.", icon: Icons.ForestFire[1] },
       { id: "03", text: "대피가 어렵다면 이미 탄 지역이나 공터로 대피하세요.", icon: Icons.ForestFire[2] },
       { id: "04", text: "산불 발견 즉시 119나 산림청에 신고하세요.", icon: Icons.ForestFire[3] },
->>>>>>> develop
     ],
   };
 

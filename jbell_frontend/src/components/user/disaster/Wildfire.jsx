@@ -11,7 +11,7 @@ import FacilityCheckGroup from "../modal/FacilityCheckGroup";
   > 컴포넌트 설명 : 재난사고속보 모달 내부의 산불 메뉴 컴포넌트로, 현재 산불관련 내용을 표시함. 추후 api연동 필요.
 */
 
-const ForestFire = () => {
+const Wildfire = () => {
   // 현재 선택된 지도 탭 상태
   const [activeTab, setActiveTab] = useState("산불위험지수");
 
@@ -69,7 +69,7 @@ const ForestFire = () => {
           <div className="relative h-[400px] sm:h-[500px] bg-secondary-5 rounded-2xl border border-graygray-10 overflow-hidden shadow-inner">
             <div className="absolute inset-0 flex items-center justify-center">
               <span className="text-title-s sm:text-title-l font-black text-graygray-20 uppercase tracking-[0.2em] opacity-50 px-4 text-center select-none">
-                ForestFire Map Area
+                Wildfire Map Area
               </span>
             </div>
 
@@ -181,4 +181,4 @@ const ForestFire = () => {
   );
 };
 
-export default ForestFire;
+export default Wildfire;
