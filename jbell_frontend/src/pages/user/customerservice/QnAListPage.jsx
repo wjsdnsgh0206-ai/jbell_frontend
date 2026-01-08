@@ -299,9 +299,9 @@ const QnAListPage = () => {
         <h1 className="text-heading-xl pb-10 text-graygray-90">1:1문의</h1>
 
         {/* Search Bar (FAQPage 스타일 통일) */}
-        <div className="bg-graygray-5 border border-graygray-10 p-4 rounded-lg mb-10 flex flex-row items-center justify-center gap-2">
-          <div className="relative w-24 h-12 flex-none">
-            <select className="w-full h-full appearance-none border border-graygray-30 rounded px-3 bg-white focus:outline-none focus:ring-2 focus:ring-secondary-50 cursor-pointer text-body-m pr-6 text-graygray-90">
+         <div className="bg-graygray-5 border border-graygray-10 p-4 rounded-lg mb-10 flex flex-col lg:flex-row items-center justify-center gap-3 lg:gap-2">
+          <div className="relative w-full lg:w-32 h-12 flex-none">
+            <select className="w-full h-full appearance-none border border-graygray-30 rounded px-3 bg-white cursor-pointer text-body-m pr-6 text-graygray-90 focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option>전체</option>
               <option>제목</option>
               <option>내용</option>
@@ -310,62 +310,64 @@ const QnAListPage = () => {
               <ChevronDown size={16} className="text-graygray-50" />
             </div>
           </div>
-          <div className="relative flex-1 h-12 min-w-0">
+          <div className="relative w-full lg:flex-1 h-12 min-w-0">
             <input 
               type="text" 
               placeholder="검색어를 입력해주세요." 
-              className="w-full h-full border border-graygray-30 rounded px-4 pr-10 focus:ring-2 focus:ring-secondary-50 text-body-m bg-white placeholder:text-graygray-40"
+              className="w-full h-full border border-graygray-30 rounded px-4 pr-10 text-body-m bg-white placeholder:text-graygray-40 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-graygray-40">
               <Search size={20} />
             </span>
           </div>
-          <button className="h-12 bg-primary-50 text-white px-8 rounded font-medium hover:bg-blue-700 transition active:scale-95 shadow-sm whitespace-nowrap flex-none flex items-center justify-center">
+           <button className="w-full lg:w-auto h-12 bg-primary-50 text-white px-8 rounded font-medium hover:bg-blue-700 transition active:scale-95 shadow-sm whitespace-nowrap flex-none flex items-center justify-center">
             검색            
           </button>
         </div>
 
         {/* Filter & Count & Button */}
-        <div className="flex justify-between items-center mb-4 border-b border-graygray-90 pb-2">
-          <div className="text-body-m text-graygray-70">
-            검색 결과 <span className="font-bold text-secondary-50">{inquiries.length}</span>개
+         <div className="flex flex-wrap md:flex-nowrap justify-between items-center mb-4 border-b border-gray-900 pb-2 gap-y-2">
+          <div className="w-full md:w-auto text-gray-700 order-1 md:order-1 mb-2 md:mb-0">
+            검색 결과 <span className="font-bold text-blue-700">{totalItems}</span>개
           </div>
-          <div className="flex items-center text-detail-m text-graygray-50 gap-4">
-            {/* 문의하기 버튼 */}
+          <div className="flex w-full md:w-auto items-center justify-between text-sm text-graygray-50 order-2 md:order-2">
             <button 
               onClick={() => navigate('/qna/form')}
               className="px-5 py-1.5 bg-secondary-50 text-white font-bold rounded hover:bg-opacity-90 transition-colors text-detail-m"
             >
               문의하기
             </button>
-            <div className="h-4 w-px bg-graygray-30 mx-2"></div>
             
-            <div className="flex items-center gap-1">
-              목록 표시 개수
-              {/* onChange 및 value 추가 */}
-              <select 
-                className="ml-1 border border-graygray-30 rounded px-1 py-0.5 text-graygray-90"
-                onChange={handleItemsPerPageChange}
-                value={`${itemsPerPage}개`}
-              >
-                <option value="10개">10개</option>
-                <option value="20개">20개</option>
-              </select>
-            </div>
-            <div className="flex gap-2">
-             <button 
-                onClick={() => handleSortChange('latest')}
-                className={sortOrder === 'latest' ? "font-bold text-graygray-90 underline underline-offset-4" : "hover:text-graygray-90 transition-colors"}
-              >
-                최신순
-              </button>
-              <span className="text-graygray-30">|</span>
-              <button 
-                onClick={() => handleSortChange('oldest')}
-                className={sortOrder === 'oldest' ? "font-bold text-graygray-90 underline underline-offset-4" : "hover:text-graygray-90 transition-colors"}
-              >
-                오래된순
-              </button>
+            <div className="flex items-center gap-4">
+              <div className="h-4 w-px bg-gray-300 mx-2 hidden md:block"></div>
+              
+              <div className="flex items-center gap-1">
+                <span className="hidden sm:inline">목록 표시 개수</span>
+                <select 
+                  className="ml-1 border border-gray-300 rounded px-1 py-0.5"
+                  onChange={handleItemsPerPageChange}
+                  value={`${itemsPerPage}개`}
+                >
+                  <option value="10개">10개</option>
+                  <option value="20개">20개</option>
+                </select>
+              </div>
+              
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => handleSortChange('latest')}
+                  className={sortOrder === 'latest' ? "font-bold text-graygray-90 underline underline-offset-4" : "hover:text-graygray-90"}
+                >
+                  최신순
+                </button>
+                <span className="text-gray-300">|</span>
+                <button 
+                  onClick={() => handleSortChange('oldest')}
+                  className={sortOrder === 'oldest' ? "font-bold text-graygray-90 underline underline-offset-4" : "hover:text-graygray-90"}
+                >
+                  오래된순
+                </button>
+              </div>
             </div>
           </div>
         </div>

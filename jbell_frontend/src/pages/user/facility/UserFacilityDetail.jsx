@@ -6,6 +6,7 @@ import { Info, AlertCircle } from 'lucide-react';
 import DetailPageTemplate from '@/components/user/facility/DetailPageTemplate';
 import InfoList from '@/components/user/facility/InfoList';
 import { getFacilityDetail } from './data';
+import { Button } from '@/components/shared/Button';
 
 const UserFacilityDetail = () => {
   const { id } = useParams();
@@ -122,18 +123,34 @@ const UserFacilityDetail = () => {
       
       {/* 하단 목록 버튼 영역 */}
       <div className="flex justify-center md:justify-end pt-10 border-t border-graygray-20">
-        <button 
-          onClick={() => navigate('/facilityList')}
-          className="h-16 px-8 rounded-lg border border-graygray-70 bg-graygray-0 flex items-center justify-center hover:bg-graygray-5 transition-all active:scale-95"
-        >
-          <span className="text-title-m text-graygray-90">
+        <div className="flex justify-center md:justify-end">
+          <Button 
+            variant="tertiary"
+            onClick={() => navigate('/facilityList')}
+            className="px-8" 
+          >
             목록으로
-          </span>
-        </button>
+          </Button>
+        </div>
+        <div className="flex justify-center md:justify-end">
+          <Button 
+            variant="secondary"
+            onClick={() => navigate('/facilityList')}
+            className="px-8" 
+          >
+            목록으로
+          </Button>
+        </div>
+        <div className="flex justify-center md:justify-end">
+          <Button 
+            variant="primary"
+            onClick={() => navigate('/facilityList')}
+            className="px-8" 
+          >
+            목록으로
+          </Button>
+        </div>
       </div>
-
-      
-
     </DetailPageTemplate>
   );
 };
