@@ -101,6 +101,77 @@ const DetailPanel = ({ item, onClose }) => {
 
 
 
+/* <==================== api ====================> */
+//
+// 급수시설 심부름꾼
+const fetchWaterData = async (region) => {
+  const key = import.meta.env.VITE_API_EMERGENCY_WATER_KEY;
+  const response = await fetch(`https://www.safetydata.go.kr/V2/api/DSSP-IF-10941?serviceKey=XJ3AJ2D23382L2Z1`);
+  const data = await response.json();
+  return data.items.map(item => ({
+    title: item.facilityName,
+    latlng: new window.kakao.maps.LatLng(item.lat, item.lng)
+  }));
+};
+
+// 지진대피소 심부름꾼
+const fetchEarthquakeData = async (region) => {
+  const key = import.meta.env.VITE_API_SHELTER_EARTHQUAKE;
+  const response = await fetch(`https://api.공공데이터.kr/v1/earthquake?serviceKey=${key}&area=${region}`);
+  const data = await response.json();
+  return data.items.map(item => ({
+    title: item.shelterName,
+    latlng: new window.kakao.maps.LatLng(item.latitude, item.longitude)
+  }));
+};
+//
+//
+const MapComponent = ({ selectedType, region }) => {
+  const [map, setMap] = useState(null);
+  const [markers, setMarkers] = useState([]);
+
+  // (지도 초기화 useEffect는 생략 - 아까랑 똑같아요!)
+
+  useEffect(() => {
+    if (!map || !selectedType) return;
+
+    const fetchDataAndMark = async () => {
+      // 1. 일단 기존 마커들 퇴근시켜! (지우기)
+      markers.forEach(marker => marker.setMap(null));
+      
+      let positions = [];
+
+      // 2. 주방장이 심부름꾼 부르기 (선택에 따라 블록처럼 쌓기!)
+      if (selectedType === '민방위대피소') {
+        positions = getLocalShelterData(region); // 이건 원래 쓰던 방식
+      } else if (selectedType === '비상급수시설') {
+        positions = await fetchWaterData(region); // 급수시설 심부름꾼 호출!
+      } else if (selectedType === '지진옥외대피소') {
+        positions = await fetchEarthquakeData(region); // 지진대피소 심부름꾼 호출!
+      }
+
+      // 3. 심부름꾼이 가져온 재료(positions)로 지도 요리(마커 찍기)
+      const newMarkers = positions.map(pos => {
+        const marker = new window.kakao.maps.Marker({ // Marker 객체 생성
+          position: pos.latlng,
+          map: map,
+          title: pos.title
+        });
+        return marker;
+      });
+
+      setMarkers(newMarkers); 
+    };
+
+    fetchDataAndMark();
+  }, [selectedType, region, map]); // map도 추가해주면 더 안전해요!
+
+  return <div id="map" style={{ width: '100%', height: '500px' }}></div>;
+};
+//
+/* <==================== api ====================> */
+
+
 
 const UserMap = () => {
 /* <========================== 상태 관리(앱의 기억력) ==========================> */
@@ -245,7 +316,24 @@ const handleResultClick = (item) => {
 //
 //
 // handleSearch
-const handleSearch = async () => {
+const handleSearch = async (region, facilityType) => {
+  let data = [];
+
+  switch (facilityType) {
+    case '민방위대피소':
+      // 현재 잘 나오고 있는 방식 그대로 유지
+      data = getCivilDefenseData(); 
+      break;
+    case '비상급수시설':
+      // 여기서 API 호출!
+      data = await fetchWaterFacility(region); 
+      break;
+    case '지진옥외대피소':
+      data = await fetchEarthquakeShelter(region);
+      break;
+    // ... 나머지 타입들
+  }
+  
   // 1. 공공데이터 API URL(실제로는 API 가이드의 URL을 넣어야 함)
   const serviceKey = 'serviceKey';
   const url =`https://V2/api/DSSP-IF-10941?serviceKey=xxxx`;
