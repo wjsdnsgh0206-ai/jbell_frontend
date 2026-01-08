@@ -49,7 +49,7 @@ const LandSlide = () => {
   return (
     <div className="grid grid-cols-12 gap-5 lg:gap-6">
       <div className="col-span-12 lg:col-span-8 flex flex-col gap-5 lg:gap-6">
-        <div className="bg-white rounded-xl p-5 sm:p-8 shadow-1 border border-graygray-10 min-h-[550px]">
+        <div className="bg-white rounded-xl p-5 sm:p-5 shadow-1 border border-graygray-10 h-[200px] min-h-[480px]">
           
           {/* 헤더 섹션 */}
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
@@ -67,7 +67,7 @@ const LandSlide = () => {
           </div>
 
           {/* 지도 및 내부 사이드바 컨테이너 */}
-          <div className="relative h-[400px] sm:h-[500px] bg-secondary-5 rounded-2xl border border-graygray-10 overflow-hidden shadow-inner">
+          <div className="relative h-[200px] sm:h-[384px] bg-secondary-5 rounded-xl border border-graygray-10 overflow-hidden shadow-inner">
             <div className="absolute inset-0 flex items-center justify-center">
               <span className="text-title-s sm:text-title-l font-black text-graygray-20 uppercase tracking-[0.2em] sm:tracking-[0.3em] opacity-50 px-4 text-center select-none">
                 Landslide Map Area
@@ -133,8 +133,12 @@ const LandSlide = () => {
 
             {/* 지도 컨트롤 버튼 */}
             <div className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 flex flex-col gap-1.5 z-10">
-              <button className="w-9 h-9 sm:w-10 sm:h-10 bg-white border border-graygray-10 rounded-xl shadow-1 flex items-center justify-center text-lg sm:text-xl font-bold text-graygray-60 hover:text-blue-600 transition-all active:scale-90">+</button>
-              <button className="w-9 h-9 sm:w-10 sm:h-10 bg-white border border-graygray-10 rounded-xl shadow-1 flex items-center justify-center text-lg sm:text-xl font-bold text-graygray-60 hover:text-blue-600 transition-all active:scale-90">-</button>
+              <button className="w-9 h-9 sm:w-10 sm:h-10 bg-white border border-graygray-10 rounded-xl shadow-1 flex items-center justify-center text-lg sm:text-xl font-bold text-graygray-60 hover:text-blue-600 transition-all active:scale-90">
+                +
+              </button>
+              <button className="w-9 h-9 sm:w-10 sm:h-10 bg-white border border-graygray-10 rounded-xl shadow-1 flex items-center justify-center text-lg sm:text-xl font-bold text-graygray-60 hover:text-blue-600 transition-all active:scale-90">
+                -
+              </button>
             </div>
           </div>
         </div>

@@ -53,7 +53,7 @@ const Earthquake = () => {
             </p>
           </div>
 
-          <div className="relative h-[200px] sm:h-[500px] bg-secondary-5 rounded-2xl border border-graygray-10 overflow-hidden shadow-inner">
+          <div className="relative h-[200px] sm:h-[384px] bg-secondary-5 rounded-xl border border-graygray-10 overflow-hidden shadow-inner">
             <div className="absolute inset-0 flex items-center justify-center">
               <span className="text-title-s sm:text-title-l font-black text-graygray-20 uppercase tracking-[0.2em] sm:tracking-[0.3em] opacity-50 px-4 text-center">
                 Earthquake Map
