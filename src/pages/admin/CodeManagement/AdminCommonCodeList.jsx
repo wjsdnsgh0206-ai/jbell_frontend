@@ -1,12 +1,13 @@
-// src/pages/admin/CodeManagement/AdminCommonCodeList.jsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import BreadCrumb from '@/components/Admin/board/BreadCrumb';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
 import { Button } from '@/components/shared/Button';
 
-// 코드관리-> 공통코드관리목록 페이지 //
+// 공통코드 목록 페이지 //
 
 const AdminCommonCodeList = () => {
+  const navigate = useNavigate();
   const [codes, setCodes] = useState(AdminCommonCodeData);
   const [selectedIds, setSelectedIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -14,23 +15,26 @@ const AdminCommonCodeList = () => {
   const [appliedSearch, setAppliedSearch] = useState(""); 
 
   const [selectedGroup, setSelectedGroup] = useState("그룹코드 전체");
-  const [selectedDetail, setSelectedDetail] = useState("상세코드 전체");
+  const [selectedSub, setSelectedSub] = useState("상세코드 전체"); // detail -> sub
 
   const itemsPerPage = 10;
 
-  // 필터링 로직 (유지)
+  useEffect(() => {
+    setCodes([...AdminCommonCodeData]);
+  }, []);
+
   const filteredData = useMemo(() => {
     return codes.filter(code => {
       const isGroupMatch = selectedGroup === "그룹코드 전체" || code.groupCode === selectedGroup;
-      const isDetailMatch = selectedDetail === "상세코드 전체" || code.detailCode === selectedDetail;
+      const isSubMatch = selectedSub === "상세코드 전체" || code.subCode === selectedSub; // detail -> sub
       const isSearchMatch = !appliedSearch || 
         code.groupName.includes(appliedSearch) || 
-        code.detailName.includes(appliedSearch) ||
+        (code.subName && code.subName.includes(appliedSearch)) || // detail -> sub
         code.groupCode.includes(appliedSearch) ||
         (code.desc && code.desc.includes(appliedSearch));
-      return isGroupMatch && isDetailMatch && isSearchMatch;
+      return isGroupMatch && isSubMatch && isSearchMatch;
     });
-  }, [codes, appliedSearch, selectedGroup, selectedDetail]);
+  }, [codes, appliedSearch, selectedGroup, selectedSub]);
 
   const currentData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -42,7 +46,6 @@ const AdminCommonCodeList = () => {
   const handleSearch = () => { setAppliedSearch(searchInput); setCurrentPage(1); };
   const handleClearSearch = () => { setSearchInput(""); setAppliedSearch(""); setCurrentPage(1); };
   
-  // 전체 선택 여부 확인 로직
   const isAllSelectedOnPage = currentData.length > 0 && currentData.every(item => selectedIds.includes(item.id));
   
   const handleSelectAllOnPage = (e) => {
@@ -54,8 +57,10 @@ const AdminCommonCodeList = () => {
   const handleSelectOne = (id) => setSelectedIds(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
   const handleToggleVisible = (id) => setCodes(prev => prev.map(code => code.id === id ? { ...code, visible: !code.visible } : code));
   
-  // [기억된 정보] 상세 페이지 이동
-  const handleViewDetail = (id) => console.log(`${id}번 상세 페이지 이동`);
+  const handleViewDetail = (id) => {
+    // [2026-01-08] 'View' 버튼 클릭 시 상세 페이지 이동
+    navigate(`/admin/adminCommonCodeDetail/${id}`);
+  };
 
   const CustomCheckbox = ({ checked, onChange }) => (
     <label className="relative flex items-center justify-center cursor-pointer select-none">
@@ -76,9 +81,7 @@ const AdminCommonCodeList = () => {
     <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
       <main className="p-10">
         <BreadCrumb />
-        <h2 className="text-[32px] font-bold mt-2 mb-10 tracking-tight">공통코드관리</h2>
-
-        {/* 상단 검색 영역 */}
+        <h2 className="text-[32px] font-bold mt-2 mb-10 tracking-tight text-left">공통코드관리</h2>
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-8 flex items-center gap-4 mb-8">
           <div className="relative w-72">
             <select value={selectedGroup} onChange={(e) => { setSelectedGroup(e.target.value); setCurrentPage(1); }} className="appearance-none w-full border border-gray-300 focus:border-[#2563EB] rounded-md px-5 py-3.5 text-[16px] text-[#666] outline-none bg-white">
@@ -90,9 +93,9 @@ const AdminCommonCodeList = () => {
             <CustomArrow />
           </div>
           <div className="relative w-72">
-            <select value={selectedDetail} onChange={(e) => { setSelectedDetail(e.target.value); setCurrentPage(1); }} className="appearance-none w-full border border-gray-300 focus:border-[#2563EB] rounded-md px-5 py-3.5 text-[16px] text-[#666] outline-none bg-white">
+            <select value={selectedSub} onChange={(e) => { setSelectedSub(e.target.value); setCurrentPage(1); }} className="appearance-none w-full border border-gray-300 focus:border-[#2563EB] rounded-md px-5 py-3.5 text-[16px] text-[#666] outline-none bg-white">
               <option value="상세코드 전체">상세코드 전체</option>
-              {Array.from(new Map(codes.map(c => [c.detailCode, c.detailName]))).map(([code, name]) => (
+              {Array.from(new Map(codes.filter(c => c.subCode !== '-').map(c => [c.subCode, c.subName]))).map(([code, name]) => (
                 <option key={code} value={code}>{`${code}(${name})`}</option>
               ))}
             </select>
@@ -102,41 +105,33 @@ const AdminCommonCodeList = () => {
             <input type="text" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSearch()} placeholder="검색어를 입력해주세요" className="w-full border border-gray-300 focus:border-[#2563EB] rounded-md px-5 py-3.5 text-[16px] outline-none font-medium" />
             {searchInput && <button type="button" onClick={handleClearSearch} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-xl font-light">✕</button>}
           </div>
-          {/* 검색 버튼 */}
           <Button variant="none" size="none" onClick={handleSearch} className="px-8 h-14 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 font-bold rounded-md transition-all">검색</Button>
         </section>
 
-        {/* 리스트 영역 */}
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
           <div className="flex justify-between items-end mb-6">
             <div className="flex items-center">
               <div className="w-[80px] flex justify-center"><CustomCheckbox checked={isAllSelectedOnPage} onChange={handleSelectAllOnPage} /></div>
-              {/* [수정] 전체 선택 시 문구 변경 로직 적용 */}
               <span className="font-medium text-[16px] text-[#4B5563]">
                 {selectedIds.length > 0 && isAllSelectedOnPage 
                   ? `${selectedIds.length}개 전체 선택됨` 
-                  : `${selectedIds.length}개 선택됨`}
+                  : selectedIds.length > 0 ? `${selectedIds.length}개 선택됨` : `총 ${filteredData.length}건`}
               </span>
             </div>
-            {/* 삭제 버튼: 검색 버튼과 동일한 너비(px-8) 및 높이(h-14) 적용 */}
-            <button className="px-8 h-14 bg-[#FF003E] text-white rounded-md text-[16px] font-bold hover:bg-[#D90035] transition-all shadow-sm">
-              삭제
-            </button>
+            <button className="px-8 h-14 bg-[#FF003E] text-white rounded-md text-[16px] font-bold hover:bg-[#D90035] transition-all shadow-sm">삭제</button>
           </div>
-
           <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-[#F2F4F7] border-b border-gray-200 text-[#333] text-[15px]">
                   <th className="py-5 w-[80px] text-center"><div className="flex justify-center"><CustomCheckbox checked={isAllSelectedOnPage} onChange={handleSelectAllOnPage} /></div></th>
-                  <th className="py-5 px-2 font-bold text-center">그룹코드</th>
+                  <th className="py-5 px-2 font-bold text-center">그룹코드 ID</th>
                   <th className="py-5 px-2 font-bold text-center">그룹코드명</th>
-                  <th className="py-5 px-2 font-bold text-center">상세코드</th>
+                  <th className="py-5 px-2 font-bold text-center">상세코드 ID</th>
                   <th className="py-5 px-2 font-bold text-center">상세코드명</th>
-                  <th className="py-5 px-6 font-bold text-center w-[25%]">코드설명</th>
+                  <th className="py-5 px-6 font-bold text-center w-[25%]">코드 설명</th>
                   <th className="py-5 px-2 font-bold text-center">등록 일시</th>
                   <th className="py-5 px-2 font-bold text-center">순서</th>
-                  {/* 중앙 정렬 유지 */}
                   <th className="py-5 px-4 font-bold text-center w-[120px]">등록 여부</th>
                   <th className="py-5 px-4 font-bold text-center w-[120px]">상세</th>
                 </tr>
@@ -145,15 +140,16 @@ const AdminCommonCodeList = () => {
                 {currentData.length > 0 ? (
                   currentData.map((code) => {
                     const isSelected = selectedIds.includes(code.id);
+                    const isNoSub = code.subCode === '-'; // detail -> sub
                     return (
                       <tr key={code.id} className={`border-b border-gray-100 last:border-0 transition-colors ${isSelected ? 'bg-[#F0F7FF]' : 'hover:bg-gray-50/50'}`}>
                         <td className="py-5 w-[80px] text-center"><div className="flex justify-center"><CustomCheckbox checked={isSelected} onChange={() => handleSelectOne(code.id)} /></div></td>
                         <td className="py-5 px-2 text-center">{code.groupCode}</td>
                         <td className="py-5 px-2 text-center">{code.groupName}</td>
-                        <td className="py-5 px-2 text-center">{code.detailCode}</td>
-                        <td className="py-5 px-2 text-center">{code.detailName}</td>
+                        <td className={`py-5 px-2 text-center ${isNoSub ? 'text-gray-300' : ''}`}>{code.subCode}</td>
+                        <td className={`py-5 px-2 text-center ${isNoSub ? 'text-gray-300' : ''}`}>{code.subName}</td>
                         <td className="py-5 px-6 text-left leading-relaxed">{code.desc}</td>
-                        <td className="py-5 px-2 text-center">{code.date}</td>
+                        <td className="py-5 px-2 text-center text-gray-400 text-[13px]">{code.date}</td>
                         <td className="py-5 px-2 text-center">{code.order}</td>
                         <td className="py-5 px-4">
                           <div className="flex justify-center">
@@ -176,8 +172,6 @@ const AdminCommonCodeList = () => {
               </tbody>
             </table>
           </div>
-
-          {/* 페이지네이션 */}
           <div className="py-14 flex justify-center items-center gap-3">
             <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} className={`px-5 py-2 text-[15px] font-bold ${currentPage === 1 ? 'text-gray-200 cursor-default' : 'text-[#999]'}`}>〈 이전</button>
             <div className="flex items-center gap-2">

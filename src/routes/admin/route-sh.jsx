@@ -4,7 +4,7 @@ import { lazy } from 'react';
 // 1. 선언이 잘 되어 있는지 확인
 export const AdminCommonCodeList = lazy(() => import("@/pages/admin/CodeManagement/AdminCommonCodeList"));
 export const AdminGroupCodeAdd = lazy(() => import("@/pages/admin/CodeManagement/AdminGroupCodeAdd"));
-
+export const AdminSubCodeAdd = lazy(() => import("@/pages/admin/CodeManagement/AdminSubCodeAdd"));
 
 export const shAdminRoutes = [
 
@@ -20,6 +20,13 @@ export const shAdminRoutes = [
         path: "/admin/adminGroupCodeAdd", 
         element: <AdminGroupCodeAdd />,
         nowPage: "그룹코드등록",
+  },
+
+  // 상세코드 등록 페이지 //
+    {
+        path: "/admin/adminSubCodeAdd", 
+        element: <AdminSubCodeAdd />,
+        nowPage: "상세코드등록",
   },
 
 
