@@ -298,39 +298,39 @@ const QnAListPage = () => {
        <PageBreadcrumb items={breadcrumbItems} />
         <h1 className="text-heading-xl pb-10 text-graygray-90">1:1문의</h1>
 
-        {/* Search Bar (FAQPage 스타일 통일) */}
-         <div className="bg-graygray-5 border border-graygray-10 p-4 rounded-lg mb-10 flex flex-col lg:flex-row items-center justify-center gap-3 lg:gap-2">
-          <div className="relative w-full lg:w-32 h-12 flex-none">
-            <select className="w-full h-full appearance-none border border-graygray-30 rounded px-3 bg-white cursor-pointer text-body-m pr-6 text-graygray-90 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      {/* Search Bar (FAQPage 스타일 통일) */}
+        <div className="bg-gray-50 border border-gray-200 p-4 md:p-6 rounded-lg mb-10 flex flex-col md:flex-row justify-center items-center gap-3">
+          <div className="relative w-full md:w-32 h-10"> 
+            <select className="w-full h-full appearance-none border border-gray-300 rounded px-4 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer pr-10">
               <option>전체</option>
               <option>제목</option>
               <option>내용</option>
             </select>
-            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-              <ChevronDown size={16} className="text-graygray-50" />
+            <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+              <ChevronDown size={16} className="text-gray-500" />
             </div>
           </div>
-          <div className="relative w-full lg:flex-1 h-12 min-w-0">
+          <div className="relative w-full md:flex-1 max-w-lg h-10">
             <input 
               type="text" 
               placeholder="검색어를 입력해주세요." 
-              className="w-full h-full border border-graygray-30 rounded px-4 pr-10 text-body-m bg-white placeholder:text-graygray-40 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full h-full border border-gray-300 rounded px-4 pr-10 focus:ring-2 focus:ring-blue-500 bg-white"
             />
-            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-graygray-40">
-              <Search size={20} />
+            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <Search size={18} />
             </span>
           </div>
-           <button className="w-full lg:w-auto h-12 bg-primary-50 text-white px-8 rounded font-medium hover:bg-blue-700 transition active:scale-95 shadow-sm whitespace-nowrap flex-none flex items-center justify-center">
-            검색            
-          </button>
-        </div>
+        <button className="w-full md:w-auto h-10 bg-blue-600 text-white px-8 rounded font-medium hover:bg-blue-700 transition active:scale-95 shadow-sm whitespace-nowrap flex items-center justify-center">
+          검색
+        </button>
+      </div>
 
         {/* Filter & Count & Button */}
-         <div className="flex flex-wrap md:flex-nowrap justify-between items-center mb-4 border-b border-gray-900 pb-2 gap-y-2">
-          <div className="w-full md:w-auto text-gray-700 order-1 md:order-1 mb-2 md:mb-0">
-            검색 결과 <span className="font-bold text-blue-700">{totalItems}</span>개
+        <div className="flex flex-wrap md:flex-nowrap justify-between items-center mb-4 border-b border-gray-900 pb-2 gap-y-2 ">
+          <div className="w-full md:w-auto text-body-m text-gray-700 order-1 md:order-1 mb-2 md:mb-0">
+            검색 결과 <span className="font-bold text-secondary-50">{totalItems}</span>개
           </div>
-          <div className="flex w-full md:w-auto items-center justify-between text-sm text-graygray-50 order-2 md:order-2">
+          <div className="flex w-full md:w-auto items-center justify-between text-gray-500 order-2 md:order-2">
             <button 
               onClick={() => navigate('/qna/form')}
               className="px-5 py-1.5 bg-secondary-50 text-white font-bold rounded hover:bg-opacity-90 transition-colors text-detail-m"
@@ -341,7 +341,7 @@ const QnAListPage = () => {
             <div className="flex items-center gap-4">
               <div className="h-4 w-px bg-gray-300 mx-2 hidden md:block"></div>
               
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 text-detail-m">
                 <span className="hidden sm:inline">목록 표시 개수</span>
                 <select 
                   className="ml-1 border border-gray-300 rounded px-1 py-0.5"
@@ -353,17 +353,17 @@ const QnAListPage = () => {
                 </select>
               </div>
               
-              <div className="flex gap-2">
+              <div className="flex gap-2 text-detail-m">
                 <button 
                   onClick={() => handleSortChange('latest')}
-                  className={sortOrder === 'latest' ? "font-bold text-graygray-90 underline underline-offset-4" : "hover:text-graygray-90"}
+                  className={sortOrder === 'latest' ? "font-bold text-gray-900 underline underline-offset-4" : "hover:text-gray-900"}
                 >
                   최신순
                 </button>
                 <span className="text-gray-300">|</span>
                 <button 
                   onClick={() => handleSortChange('oldest')}
-                  className={sortOrder === 'oldest' ? "font-bold text-graygray-90 underline underline-offset-4" : "hover:text-graygray-90"}
+                  className={sortOrder === 'oldest' ? "font-bold text-gray-900 underline underline-offset-4" : "hover:text-gray-900"}
                 >
                   오래된순
                 </button>
