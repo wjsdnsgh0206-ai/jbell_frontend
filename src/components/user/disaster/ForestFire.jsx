@@ -1,28 +1,12 @@
 import React, { useState } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
-import WeatherBox from "../modal/WeatherBox";
-import DisasterMessageBox from "../modal/DisasterMessageBox";
 import FacilityCheckGroup from "../modal/FacilityCheckGroup";
 import MapControlBtn from "@/components/user/modal/MapControlBtn";
-/*
-  Wildfire 컴포넌트
-  > 작성자 : 최지영
-  > 컴포넌트 이름 : 재난사고속보 모달 - 산불 메뉴
-  > 컴포넌트 설명 : 재난사고속보 모달 내부의 산불 메뉴 컴포넌트로, 현재 산불관련 내용을 표시함. 추후 api연동 필요.
-*/
 
 const ForestFire = () => {
-  // 현재 선택된 지도 탭 상태
   const [activeTab, setActiveTab] = useState("산불위험지수");
+  const [facilities, setFacilities] = useState({ shelter: true, hospital: false, pharmacy: false });
 
-  // 체크박스 상태 관리
-  const [facilities, setFacilities] = useState({
-    shelter: true,
-    hospital: false,
-    pharmacy: false,
-  });
-
-  // 산불 관련 탭 메뉴 구성
   const mapTabs = [
     { id: "산불위험지수", label: "산불위험지수" },
     { id: "발생위치", label: "산불발생위치" },
@@ -35,127 +19,62 @@ const ForestFire = () => {
     { id: "pharmacy", label: "약국" },
   ];
 
-  // 탭 클릭 핸들러 (토글 로직)
-  const handleTabClick = (tabId) => {
-    setActiveTab((prev) => (prev === tabId ? null : tabId));
-  };
-
-  // 체크박스 변경 핸들러
-  const handleCheck = (key) => {
-    setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+  const handleTabClick = (tabId) => setActiveTab(prev => (prev === tabId ? null : tabId));
+  const handleCheck = (key) => setFacilities(prev => ({ ...prev, [key]: !prev[key] }));
 
   return (
     <div className="flex-1 flex flex-col min-h-0 gap-5 lg:gap-6">
-      {/* === 상단 지도 섹션 (높이가 유연하게 늘어남) === */}
-      <div className="bg-white rounded-xl p-5 shadow-1 border border-graygray-10 flex-1 flex flex-col min-h-0">
-        {/* 헤더 섹션 */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-1 flex-shrink-0">
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap pb-2">
-            <h3 className="text-body-l-bold sm:text-title-m font-black text-graygray-90 whitespace-nowrap">
-              실시간 산불정보
-            </h3>
-            <span className="shrink-0 text-[10px] sm:text-detail-m px-3 py-1 bg-orange-50 border border-orange-100 rounded-full text-orange-600 font-bold leading-none">
-              건조주의보 발령 중
-            </span>
-          </div>
-          <p className="text-[10px] sm:text-detail-m text-graygray-30 font-medium tabular-nums">
-            2026.01.02 기준
-          </p>
+      <div className="bg-white rounded-2xl p-4 lg:p-5 shadow-sm border border-gray-100 flex-1 flex flex-col min-h-0">
+        <div className="flex justify-between items-center mb-4 flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <h3 className="md:text-body-m lg:text-title-m  text-body-s-bold text-gray-900">실시간 산불정보</h3>
+            <span className={`
+  rounded-xl font-bold
+  bg-[var(--graygray-10)] text-[var(--graygray-50)] text-center
+  
+  /* 모바일 (기존 유지) */
+  text-[10px] px-2.5 py-1 
+  
+  /* 웹 (PC): 폰트 15px로 키우고 여백 넉넉하게 */
+  md:text-detail-s md:px-4 md:py-1.5 md:w-[80px]
+`}>
+  특보없음
+</span>          </div>
+          <p className="text-[11px] text-gray-400">2026.01.09 기준</p>
         </div>
 
-        {/* 지도 영역 (flex-1로 남은 높이를 모두 차지) */}
-        <div className="relative flex-1 bg-secondary-5 rounded-xl border border-graygray-10 overflow-hidden shadow-inner min-h-[300px]">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-title-s sm:text-title-l font-black text-graygray-20 uppercase tracking-[0.2em] opacity-50 px-4 text-center select-none">
-              ForestFire Map Area
-            </span>
-          </div>
-
-          {/* 지도 내부 사이드바 */}
-          <div className="absolute top-3 left-3 sm:top-5 sm:left-5 w-36 sm:w-44 flex flex-col gap-1.5 sm:gap-2 z-10">
+        <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[400px] lg:min-h-0">
+          <div className="absolute top-3 left-0 right-0 px-3 lg:px-0 lg:text-detail-m lg:top-5 lg:left-5 lg:right-auto flex lg:flex-col gap-2 z-20 overflow-x-auto no-scrollbar">
             {mapTabs.map((tab) => (
-              <div key={tab.id} className="flex flex-col gap-1.5">
-                <button
-                  onClick={() => handleTabClick(tab.id)}
-                  className={`
-                    flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl text-[12px] sm:text-body-m font-black transition-all border
-                    ${
-                      activeTab === tab.id
-                        ? "bg-blue-600 text-white border-blue-600 shadow-blue shadow-lg translate-x-1"
-                        : "bg-white/95 backdrop-blur-sm text-graygray-60 border-graygray-10 hover:bg-white hover:translate-x-1 shadow-sm"
-                    }
-                  `}
-                >
-                  <span className="truncate">{tab.label}</span>
-                  {tab.hasArrow && (
-                    <span
-                      className={`transition-transform duration-300 ${
-                        activeTab === tab.id ? "rotate-90" : ""
-                      }`}
-                    >
-                      <span className="text-[8px] sm:text-[10px]">▶</span>
-                    </span>
-                  )}
+              <div key={tab.id} className="relative flex flex-col gap-2 flex-shrink-0 lg:flex-shrink">
+                <button onClick={() => handleTabClick(tab.id)} className={`flex items-center justify-center px-3 py-2 lg:px-5 text-center lg:py-3 lg-px-3 rounded-2xl lg:rounded-xl text-detail-s-bold lg:text-body-m transition-all border ${activeTab === tab.id ? "bg-blue-600 text-white" : "bg-white/95 backdrop-blur-md text-gray-600 border-gray-100"}`}>
+                  <span className="whitespace-nowrap">{tab.label}</span>
                 </button>
-
-                {/* ID 매칭: "소방시설" 버튼 클릭 시 리스트 노출 */}
                 {tab.id === "소방시설" && activeTab === "소방시설" && (
-                  <FacilityCheckGroup
-                    items={WildfireItems}
-                    facilities={facilities}
-                    onCheck={handleCheck}
-                  />
+                  <div className="absolute top-12 left-0 lg:static lg:mt-1"><FacilityCheckGroup items={WildfireItems} facilities={facilities} onCheck={handleCheck} /></div>
                 )}
               </div>
             ))}
           </div>
 
-          {/* 우측 정보 요약 창 */}
-          <div className="absolute top-3 right-3 sm:top-5 sm:right-5 bg-white/90 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-graygray-10 shadow-xl z-10 min-w-[180px] sm:min-w-[200px] animate-in fade-in zoom-in-95">
-            <div className="space-y-3">
-              <p className="text-[9px] sm:text-[10px] font-black text-graygray-40 uppercase tracking-widest">
-                Fire Risk Summary
-              </p>
-              <div className="flex flex-col gap-2.5">
-                <div className="flex flex-col gap-1.5">
-                  <div className="flex justify-between items-center text-[11px] sm:text-detail-m font-bold text-graygray-60">
-                    <span>위험지수</span>
-                    <span className="text-orange-600 font-black">65 (높음)</span>
-                  </div>
-                  <div className="w-full bg-graygray-10 h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-orange-500 h-full w-[65%] rounded-full" />
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 py-1 border-t border-graygray-5 pt-2.5">
-                  <div className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                  </div>
-                  <span className="text-detail-l sm:text-body-m font-black text-graygray-80 tabular-nums">
-                    최근 화점: <span className="text-red-600">0건</span>
-                  </span>
-                </div>
-
-                <div className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-[11px] sm:text-detail-m font-black text-center border border-blue-100 shadow-sm">
-                  ⚠️ 산불 발생 위험 높음
-                </div>
-              </div>
+          <div className="absolute bottom-4 right-4 lg:top-5 lg:bottom-auto bg-white/90 backdrop-blur-md p-4 rounded-2xl border border-gray-100 z-10 min-w-[170px]">
+            {/* <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Fire Risk</p> */}
+            <div className="flex justify-between items-center text-detail-s lg:text-body-m mb-1.5">
+              <span>위험지수</span>
+              <span className="text-orange-600 text-detail-s lg:text-detail-s-bold">65 (높음)</span>
             </div>
+            <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mb-3">
+              <div className="bg-orange-500 h-full w-[65%]" />
+            </div>
+            <div className="bg-orange-50 text-orange-700 px-3 py-1.5 rounded-lg text-detail-s lg:text-body-s text-center">산불 발생 위험 높음</div>
           </div>
-
-          {/* 지도 컨트롤 버튼 */}
-          <MapControlBtn/>
+          <MapControlBtn />
         </div>
       </div>
-
-      {/* === 하단 행동요령 박스 === */}
-      <div className="bg-white rounded-xl p-6 shadow-1 border border-graygray-10 flex-shrink-0">
+      <div className="bg-white rounded-2xl p-5 lg:p-6 shadow-sm border border-gray-100 flex-shrink-0">
         <ActionTipBox type="산불" />
       </div>
     </div>
   );
 };
-
 export default ForestFire;

@@ -26,7 +26,7 @@ const AllRoutes = (props) => {
     ...jhUserRoutes,
   ];
 
-  const allAdminRoutes = [...shAdminRoutes];
+  // const allAdminRoutes = [...shAdminRoutes];
 
   // 2. 사이드바 종류별로 라우트 필터링.
   // 본인 라우터(route-jh.jsx) 등에서 nowPage를 맞춰주세요.
