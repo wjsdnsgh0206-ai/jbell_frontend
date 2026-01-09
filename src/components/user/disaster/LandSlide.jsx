@@ -40,7 +40,7 @@ const LandSlide = () => {
   return (
     <div className="flex-1 flex flex-col min-h-0 gap-5 lg:gap-6">
       {/* === 상단 지도 섹션 === */}
-      <div className="bg-white rounded-2xl p-4 lg:p-5 shadow-sm border border-gray-100 flex-1 flex flex-col min-h-0">
+      <div className="bg-white rounded-2xl p-4 lg:p-5 border border-gray-100 flex-1 flex flex-col min-h-0">
         
         {/* 헤더 섹션 */}
         <div className="flex justify-between items-center mb-4 flex-shrink-0">
@@ -133,7 +133,7 @@ const LandSlide = () => {
       </div>
 
       {/* === 하단 행동요령 박스 === */}
-      <div className="bg-white rounded-2xl p-5 lg:p-6 shadow-sm border border-gray-100 flex-shrink-0">
+      <div className="bg-white rounded-2xl p-5 lg:p-6 border border-gray-100 flex-shrink-0">
         <ActionTipBox type="산사태" />
       </div>
     </div>

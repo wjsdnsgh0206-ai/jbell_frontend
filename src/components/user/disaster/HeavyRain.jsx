@@ -24,7 +24,7 @@ const HeavyRain = () => {
 
   return (
     <div className="flex-1 flex flex-col min-h-0 gap-5 lg:gap-6">
-      <div className="bg-white rounded-2xl p-4 lg:p-5 shadow-sm border border-gray-100 flex-1 flex flex-col min-h-0">
+      <div className="bg-white rounded-2xl p-4 lg:p-5 border border-gray-100 flex-1 flex flex-col min-h-0">
         <div className="flex justify-between items-center mb-4 flex-shrink-0">
           <div className="flex items-center gap-2">
             <h3 className="md:text-body-m-bold lg:text-title-m text-body-s-bold text-gray-900">실시간 강수 정보</h3>
@@ -65,7 +65,7 @@ const HeavyRain = () => {
           <MapControlBtn />
         </div>
       </div>
-      <div className="bg-white rounded-2xl p-5 lg:p-6 shadow-sm border border-gray-100 flex-shrink-0">
+      <div className="bg-white rounded-2xl p-5 lg:p-6 border border-gray-100 flex-shrink-0">
         <ActionTipBox type="호우" />
       </div>
     </div>

@@ -105,7 +105,7 @@ const WeatherBox = () => {
       <div className="flex flex-col flex-1 justify-center pb-2 border-b border-white/10">
         <div className="flex justify-between items-start mb-1 md:mb-0">
           {/* 모바일에서 주소가 너무 길면 짤릴 수 있으니 폰트 크기 미세 조정 */}
-          <span className="text-white text-[14px] md:text-body-m-bold truncate block max-w-[150px] md:max-w-full font-bold">
+          <span className="text-white text-detail-l md:text-body-m-bold truncate block max-w-[200px] md:max-w-full font-bold">
             {address || "위치 계산 중..."}
           </span>
           <span className="text-[10px] md:text-detail-s px-2 py-0.5 md:py-1 bg-white/25 text-white rounded-md font-bold whitespace-nowrap backdrop-blur-md border border-white/20">
@@ -115,10 +115,10 @@ const WeatherBox = () => {
         
         <div className="flex items-baseline gap-2">
           {/* 모바일 온도 텍스트 크기 최적화 */}
-          <span className="text-[32px] md:text-title-xl mt-1 text-white font-black">
+          <span className="text-heading-l md:text-title-xl mt-1 text-white font-black">
             {Math.round(weather.main.temp)}°
           </span>
-          <span className="text-[12px] md:text-body-s text-white/80 font-medium">
+          <span className="text-detail-m md:text-body-s text-white/80 font-medium">
             {weather.weather[0].description}
           </span>
         </div>
@@ -129,10 +129,10 @@ const WeatherBox = () => {
         {details.map((item, idx) => (
           <div key={idx} className="flex justify-between items-center">
             {/* 모바일 라벨 폰트 크기 조정 */}
-            <span className="text-[11px] md:text-detail-m text-white/60 font-medium">
+            <span className="text-detail-m md:text-detail-m text-white/60 font-medium">
               {item.label}
             </span>
-            <span className="text-[11px] md:text-detail-m font-bold text-white">
+            <span className="text-detail-m md:text-detail-m font-bold text-white">
               {item.value}
             </span>
           </div>
