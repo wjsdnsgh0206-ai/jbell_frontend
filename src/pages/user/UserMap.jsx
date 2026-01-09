@@ -101,77 +101,6 @@ const DetailPanel = ({ item, onClose }) => {
 
 
 
-/* <==================== api ====================> */
-//
-// 급수시설 심부름꾼
-const fetchWaterData = async (region) => {
-  const key = import.meta.env.VITE_API_EMERGENCY_WATER_KEY;
-  const response = await fetch(`https://www.safetydata.go.kr/V2/api/DSSP-IF-10941?serviceKey=XJ3AJ2D23382L2Z1`);
-  const data = await response.json();
-  return data.items.map(item => ({
-    title: item.facilityName,
-    latlng: new window.kakao.maps.LatLng(item.lat, item.lng)
-  }));
-};
-
-// 지진대피소 심부름꾼
-const fetchEarthquakeData = async (region) => {
-  const key = import.meta.env.VITE_API_SHELTER_EARTHQUAKE;
-  const response = await fetch(`https://api.공공데이터.kr/v1/earthquake?serviceKey=${key}&area=${region}`);
-  const data = await response.json();
-  return data.items.map(item => ({
-    title: item.shelterName,
-    latlng: new window.kakao.maps.LatLng(item.latitude, item.longitude)
-  }));
-};
-//
-//
-const MapComponent = ({ selectedType, region }) => {
-  const [map, setMap] = useState(null);
-  const [markers, setMarkers] = useState([]);
-
-  // (지도 초기화 useEffect는 생략 - 아까랑 똑같아요!)
-
-  useEffect(() => {
-    if (!map || !selectedType) return;
-
-    const fetchDataAndMark = async () => {
-      // 1. 일단 기존 마커들 퇴근시켜! (지우기)
-      markers.forEach(marker => marker.setMap(null));
-      
-      let positions = [];
-
-      // 2. 주방장이 심부름꾼 부르기 (선택에 따라 블록처럼 쌓기!)
-      if (selectedType === '민방위대피소') {
-        positions = getLocalShelterData(region); // 이건 원래 쓰던 방식
-      } else if (selectedType === '비상급수시설') {
-        positions = await fetchWaterData(region); // 급수시설 심부름꾼 호출!
-      } else if (selectedType === '지진옥외대피소') {
-        positions = await fetchEarthquakeData(region); // 지진대피소 심부름꾼 호출!
-      }
-
-      // 3. 심부름꾼이 가져온 재료(positions)로 지도 요리(마커 찍기)
-      const newMarkers = positions.map(pos => {
-        const marker = new window.kakao.maps.Marker({ // Marker 객체 생성
-          position: pos.latlng,
-          map: map,
-          title: pos.title
-        });
-        return marker;
-      });
-
-      setMarkers(newMarkers); 
-    };
-
-    fetchDataAndMark();
-  }, [selectedType, region, map]); // map도 추가해주면 더 안전해요!
-
-  return <div id="map" style={{ width: '100%', height: '500px' }}></div>;
-};
-//
-/* <==================== api ====================> */
-
-
 
 const UserMap = () => {
 /* <========================== 상태 관리(앱의 기억력) ==========================> */
@@ -219,7 +148,6 @@ const UserMap = () => {
 
 
 /* <====================== 데이터 정의 (동일) =======================> */
-  // 얘네는 지워도 될 거 같은데...
   const REGION_DATA = {
     '전주시': ['완산구', '덕진구'],
     '군산시': [], '익산시': [], '정읍시': [], '남원시': [], '김제시': [],
@@ -235,7 +163,6 @@ const UserMap = () => {
     '익산시': { '기본': ['중앙동', '인화동', '마동', '남중동'] }
   };
   //
-  // 얘는 지우면 안 됨
   const MBY_SELECTS = { '민방위대피소':[], '비상급수시설':[], '지진옥외대피장소':[], '이재민임시주거시설(지진겸용)':[], '이재민임시주거시설':[] };
   const TE_SELECTS = { '빗물펌프장':[], '빗물저류장':[], '대피소정보':[] };
   const MT_SELECTS = { '산사태대피소':[], '산불대피소':[] };
@@ -258,7 +185,7 @@ const UserMap = () => {
 //
 //
 //
-// handleSigunSelect
+// handleSigunSelect(+ api 호출)
   const handleSigunSelect = (city) => { 
     setSelectedSigun(city); 
     setSelectedGoo(''); 
@@ -279,10 +206,26 @@ const UserMap = () => {
 //
 // handleCivilChange
 // 재난 유형 변경 시 실제 검색 실행 (예시: 키워드로 검색)
-  const handleCivilChange = (value) => { 
-    setCivilSelect(value); setWeatherSelect(''); setMountainSelect('');
-    if(value && selectedSigun) searchPlaces(`${selectedSigun} ${value}`);
-  };
+const handleCivilChange = async (value) => {
+    setCivilSelect(value);
+    
+    // 1. 메뉴 명칭에 따라 API 번호를 매칭합니다.
+    let targetApiNum = '';
+    
+    if (value === '이재민임시주거시설') {
+        await fetchFacilities('52110', '10945', 'TEMPORARY_HOUSING');
+    } else if (value === '지진옥외대피장소') {
+        await fetchFacilities('52110', '00706', 'EARTHQUAKE');
+    }
+    
+    // 2. 번호가 결정됐다면 API 호출!
+    if (targetApiNum && selectedSigun) {
+        // 지역명(전주시)을 코드('52111')로 바꾸는 로직이 있으면 더 좋습니다.
+        const data = await shelterRequest(targetApiNum, '52111'); 
+        setShelterResults(data);
+    }
+};
+
   const handleWeatherChange = (value) => { 
     setWeatherSelect(value); setCivilSelect(''); setMountainSelect('');
     if(value && selectedSigun) searchPlaces(`${selectedSigun} ${value}`);
@@ -300,8 +243,9 @@ const handleResultClick = (item) => {
   if (!mapInstance) return;
 
   // 카카오 검색 결과는 x, y를 쓰고, 공공데이터는 위도/경도 이름을 다르게 쓸 수 있음
-  const lat = item.y || item.latitude || item.lat;
-  const lng = item.x || item.longitude || item.lng;
+  const lat = Number(item.y ?? item.latitude ?? item.lat);
+  const lng = Number(item.x ?? item.longitude ?? item.lon);
+
 
   if (lat && lng) {
     const moveLatLng = new window.kakao.maps.LatLng(lat, lng);
@@ -315,44 +259,7 @@ const handleResultClick = (item) => {
 //
 //
 //
-// handleSearch
-const handleSearch = async (region, facilityType) => {
-  let data = [];
 
-  switch (facilityType) {
-    case '민방위대피소':
-      // 현재 잘 나오고 있는 방식 그대로 유지
-      data = getCivilDefenseData(); 
-      break;
-    case '비상급수시설':
-      // 여기서 API 호출!
-      data = await fetchWaterFacility(region); 
-      break;
-    case '지진옥외대피소':
-      data = await fetchEarthquakeShelter(region);
-      break;
-    // ... 나머지 타입들
-  }
-  
-  // 1. 공공데이터 API URL(실제로는 API 가이드의 URL을 넣어야 함)
-  const serviceKey = 'serviceKey';
-  const url =`https://V2/api/DSSP-IF-10941?serviceKey=xxxx`;
-
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    
-    // 2. 받아온 데이터를 상태에 저장
-    // API마다 데이터 구조가 다르니(예: data.response.body.items) 확인 필요!
-    const items = data.response.body.items;
-    setShelterResults(items); 
-
-    // 3. 지도에 마커 뿌려주기
-    displayMarkers(items); 
-  } catch (error) {
-    console.error("데이터를 못 가져오지 못 했습니다...", error);
-  }
-};
 //
 //
 //
@@ -376,44 +283,151 @@ const handleSearch = async (region, facilityType) => {
 /* <================================ 핸들러 함수들 ================================> */
 
 
-  /* <================ ★ api 요청 시작 ★ ================> */
-  /**
-   * <================ ★ 외부 api 요청 작성요령 ★ ================>
-   * 1. /safety-api 주소요청 시 => vite.config.js 파일 proxy 부분에 설정
-   * '/safety-api': {
-   *    target: 'https://www.safetydata.go.kr/V2/api',
-   *    changeOrigin: true,
-   *    rewrite: (path) => path.replace(/^\/safety-api/, ''),
-   *    secure: false,
-   *    configure: (proxy, options) => {
-   *      proxy.on('proxyReq', (proxyReq, req, res) => {
-   *        console.log('Proxy Request:', req.method, req.url);
-   *      });
-   *      proxy.on('proxyRes', (proxyRes, req, res) => {
-   *        console.log('Proxy Response:', proxyRes.statusCode, req.url);
-   *      });
-   *    }
-   *  }
-   * 2. api.external(URL, config) 메소드 호출
-   */
-  const shelterRequest = async () => {
-    
-    const response = await api.external('/safety-api/DSSP-IF-10941', {
-      // = https://www.safetydata.go.kr/V2/api/DSSP-IF-10941
-      method: 'get',
-      params: {
-        serviceKey : shelterServiceKey,
-        returnType : 'json',
-        pageNo : 1,
-        numOfRows : 10,
-        shlt_se_cd : 3
-      }
-    });
-    console.log(response);
-    
-  } 
+              /* <================ ★ api 요청 시작 ★ ================> */
+              /**
+               * <================ ★ 외부 api 요청 작성요령 ★ ================>
+               * 1. /safety-api 주소요청 시 => vite.config.js 파일 proxy 부분에 설정
+               * '/safety-api': {
+               *    target: 'https://www.safetydata.go.kr/V2/api',
+               *    changeOrigin: true,
+               *    rewrite: (path) => path.replace(/^\/safety-api/, ''),
+               *    secure: false,
+               *    configure: (proxy, options) => {
+               *      proxy.on('proxyReq', (proxyReq, req, res) => {
+               *        console.log('Proxy Request:', req.method, req.url);
+               *      });
+               *      proxy.on('proxyRes', (proxyRes, req, res) => {
+               *        console.log('Proxy Response:', proxyRes.statusCode, req.url);
+               *      });
+               *    }
+               *  }
+               * 2. api.external(URL, config) 메소드 호출
+               */
+            
+              const shelterRequest = async () => {
+                
+                const response = await api.external(`/safety-api/DSSP-IF-${apiNum}`, {
+                  // = https://www.safetydata.go.kr/V2/api/DSSP-IF-10941
+                  method: 'get',
+                  params: {
+                    serviceKey : shelterServiceKey,
+                    returnType : 'json',
+                    pageNo : 1,
+                    numOfRows : 10,
+                    // shlt_se_cd : 3
+                    sigunguCode : areaCode
+                  }
+                });
+                console.log(`${apiNum} 데이터 응답:`, response);
+                return response.data; // 보통 axios 기반인 api.external은 .data에 결과가 있어요.
+                
+              } 
+                    //
+                    // --- [1. 전역 변수: 관제 센터] ---
+                      const SERVICE_KEY = {
+                          TEMPORARY_HOUSING: import.meta.env.VITE_API_SHELTER_TEMPORARY_HOUSING_KEY,
+                          EARTHQUAKE: import.meta.env.VITE_API_SHELTER_EARTHQUAKE_KEY,
+                        }; 
+                        /** 여기에 실제 키를 입력 
+                         * 1. 이재민 임시 거주 시설
+                         * 2. 지진 대피소
+                         * **/
+                      let currentFacilities = []; // 현재 데이터 저장용
+                      // let markers = [];           // 지도 마커 관리용
+                      let map = null;             // 지도 객체 (초기화 시 할당)
 
-  /* <================ ★ 카카오맵 로직 시작 ★ ================> */
+                      // --- [2. 핵심 API 호출 함수: 수술 완료] ---
+                      async function fetchFacilities(areaCode, apiNum, keyType) {
+                          // Vite Proxy 설정(/safety-api)을 적용
+                          // baseUrl 뒤에 오는 경로는 실제 공공데이터포털 API 상세 경로에 맞춰야 함
+                          // 예: /safety-api/GisEarthquakeShelter (문서 확인 필요)
+                          const baseUrl = '/safety-api';
+                          
+                          // keyType에 따라 SERVICE_KEYS 객체에서 해당 키를 가져옵니다.
+                          const currentKey = SERVICE_KEYS[keyType];
+                          
+                          // URL 생성 (proxy가 target 주소로 바꿔주므로 도메인은 뺍니다)
+                          const url = `${baseUrl}/DSSP-IF-${apiNum}?serviceKey=${SERVICE_KEY}&sigunguCode=${areaCode}&type=json`;
+
+                          console.log("최종 요청 주소:", url);
+
+                          try {
+                              console.log("요청 시작:", url);
+                              const response = await fetch(url);
+                              
+                              if (!response.ok) throw new Error(`HTTP 에러: ${response.status}`);
+                              
+                              const data = await response.json();
+                              
+                              // 보통 공공데이터 결과는 data.response.body.items 등에 들어있으니 확인 필수!
+                              console.log("받아온 데이터:", data);
+
+                              // 데이터 구조에 따라 items를 잘 추출해야 함 (공공데이터 표준 구조 예시)
+                              const items = data?.response?.body?.items?.item || [];
+                              
+                              // 전역 변수에 저장 및 지도 업데이트
+                              currentFacilities = data; 
+                              updateMap(currentFacilities);
+
+                          } catch (error) {
+                              console.error("데이터를 가져오는 중 오류 발생:", error);
+                              alert("데이터 로딩에 실패했습니다.");
+                          }
+                      }
+
+                      // --- [3. 지도 업데이트 함수] ---
+                      function updateMap(facilityData) {
+                          if (!facilityData || !Array.isArray(facilityData)) return;
+
+                          // 1. 기존 마커 지우기
+                          markers.forEach(marker => marker.setMap(null));
+                          markers = [];
+
+                          // 2. 새로운 마커 찍기
+                          facilityData.forEach(item => {
+                              // [주의] item.latitude, item.lon 등 API 응답 필드명을 확인하세요!
+                              console.log("마커 생성 위치:", item.xPos, item.yPos); 
+                              
+                              /* 지도 라이브러리 예시 (네이버/카카오 등)
+                              const marker = new google.maps.Marker({
+                                  position: { lat: Number(item.yPos), lng: Number(item.xPos) },
+                                  map: map
+                              });
+                              markers.push(marker);
+                              */
+                          });
+
+                          console.log(`총 ${facilityData.length}개의 마커가 표시되었습니다.`);
+                      }
+
+                      // --- [4. 이벤트 핸들러: 사용자가 지역 선택 시] ---
+                      async function handleUserSelection() {
+                      // 1. 지역 코드 배열
+                        const selectedAreaCodes = [
+                            '52790', '52130'
+                        ];
+
+                        const apiNum = ['00706', '10945'];
+                        
+                        // 3. 시설 타입(또는 API 번호) 배열
+                        const selectedFacilityTypes = [
+                          'VITE_API_SHELTER_TEMPORARY_HOUSING_KEY',
+                          'VITE_API_SHELTER_EARTHQUAKE'];
+
+                        // 4. 하나씩 꺼내서 호출하기 (핵심!)
+                        for (const area of selectedAreaCodes) {
+                            for (const type of selectedFacilityTypes) {
+                                // 이제 함수가 '문자열' 하나씩을 받아서 정상적인 URL을 만듭니다.
+                                await fetchFacilities(area, type); 
+                            }
+                          }
+                        }
+                      //
+              /* <================ ★ api 요청 시작 ★ ================> */
+  
+
+
+
 
   
 /* <================ ★ 카카오맵 로직 시작 ★ ================> */
@@ -545,10 +559,12 @@ const handleSearch = async (region, facilityType) => {
 
   // 마커 제거 헬퍼 함수
   const removeMarkers = () => {
-    markers.forEach(marker => marker.setMap(null));
-    setMarkers([]);
+  if (window._currentOverlay) {
+    window._currentOverlay.setMap(null);
+  }
+  markers.forEach(marker => marker.setMap(null));
+  setMarkers([]);
   };
-
   // 4. 지도 컨트롤 함수
   const zoomIn = () => mapInstance?.setLevel(mapInstance.getLevel() - 1);
   const zoomOut = () => mapInstance?.setLevel(mapInstance.getLevel() + 1);
