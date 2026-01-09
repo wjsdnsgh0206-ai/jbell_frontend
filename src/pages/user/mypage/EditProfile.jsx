@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, MapPin, Mail, Lock, Eye, EyeOff, AlertCircle, Check, CalendarDays } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import PageBreadcrumb from '@/components/shared/PageBreadcrumb'; // 1. import
 
 const EditProfile = () => {
   const navigate = useNavigate();
@@ -89,9 +90,17 @@ const EditProfile = () => {
     errors[name] ? <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle size={12}/>{errors[name]}</p> : null
   );
 
+  const breadcrumbItems = [
+    { label: "홈", path: "/", hasIcon: true },
+    { label: "마이페이지",path: "/myProfile", hasIcon: false }, // 중간 경로 (클릭 안되게 하려면 path 생략)
+    { label: "내 정보 수정", hasIcon: false },    // 현재 페이지
+  ];
+
   return (
+    <>
+        <PageBreadcrumb items={breadcrumbItems} />
     <div className="min-h-screen bg-white flex justify-center py-10 px-4 font-sans text-slate-900 text-left">
-      <div className="max-w-[550px] w-full">
+      <div className="max-w-[1280px] w-full">
         <header className="mb-8 text-center">
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">프로필 수정</h1>
           <p className="text-slate-500 mt-2">회원님의 소중한 정보를 안전하게 관리하세요.</p>
@@ -229,6 +238,7 @@ const EditProfile = () => {
         </form>
       </div>
     </div>
+    </>
   );
 };
 
