@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { User, MapPin, Mail, Lock, Check, CalendarDays } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
-import { getUsers } from '@/services/api';
+import { userService } from '@/services/api';
 
 const MyProfile = () => {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ const MyProfile = () => {
     // 예시: 현재 로그인한 사용자의 아이디 등으로 검색하거나 전체 조회
     const searchOptions = { name: "김철수" }; // 테스트용 조건
 
-    getUsers(searchOptions)
+    userService.getUsers(searchOptions)
       .then(data => {
         console.log("✅ 백엔드 데이터 수신:", data);
         

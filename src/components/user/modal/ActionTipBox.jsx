@@ -89,33 +89,19 @@ const ActionTipBox = ({ type = "지진" }) => {
   const currentTips = tipsData[type] || tipsData["지진"];
 
   return (
-    <div className="w-full h-full flex flex-col">
-      <div className="mb-2.5 lg:mb-4 px-1">
-        <h3 className="text-body-m-bold lg:text-body-l-bold text-graygray-90 tracking-tight">
+    <div className="flex flex-col h-full">
+      <div className="mb-3 lg:mb-5 px-1">
+        <h3 className="md:text-body-m-bold lg:text-title-s text-body-s-bold text-graygray-90 tracking-tight flex items-center gap-2">
+          <span className="w-1 h-4 bg-blue-500 rounded-full lg:hidden" />
           {type} 발생 시 행동요령
         </h3>
       </div>
-
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-4 flex-1 items-stretch min-h-0">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 lg:gap-4 flex-1 min-h-0">
         {currentTips.map((tip) => (
-          <div 
-            key={tip.id} 
-            className="group relative flex flex-col items-center justify-center lg:items-start lg:justify-start bg-graygray-0 border border-graygray-10 rounded-xl p-3 lg:p-4 shadow-sm hover:border-blue-400 transition-all duration-300 overflow-hidden"
-          >
-            {/* 🔴 여기가 핵심! secondary 대신 표준 blue 컬러 사용 */}
-            <span className="absolute right-1 bottom-1 lg:right-2 lg:bottom-1 text-4xl lg:text-5xl font-black italic text-blue-400/15 group-hover:text-blue-500/30 transition-colors pointer-events-none z-0 tabular-nums">
-              {tip.id}
-            </span>
-
-            <div className="hidden lg:flex relative z-10 w-10 h-10 bg-graygray-5 rounded-xl items-center justify-center p-2.5 mb-3 group-hover:bg-blue-50 transition-colors">
-              <tip.icon />
-            </div>
-
-            <div className="relative z-10 w-full">
-              <p className="text-[12px] lg:text-body-m font-medium text-graygray-80 leading-tight lg:leading-snug break-keep text-center lg:text-left group-hover:text-graygray-90 transition-colors px-1">
-                {tip.text}
-              </p>
-            </div>
+          <div key={tip.id} className="group relative flex flex-col items-center justify-center lg:items-start lg:justify-start bg-white border border-graygray-10 rounded-xl p-3.5 lg:p-5 shadow-sm hover:border-blue-400 transition-all duration-300 overflow-hidden">
+            <span className="absolute right-1 bottom-0 md:right-2 md:bottom-1 text-3xl md:text-5xl font-black italic text-blue-400/10 group-hover:text-blue-500/20 pointer-events-none tabular-nums">{tip.id}</span>
+            <div className="hidden lg:flex relative z-10 w-12 h-12 bg-graygray-5 rounded-xl items-center justify-center p-3 mb-4 group-hover:bg-blue-50 transition-colors"><tip.icon /></div>
+            <p className="relative z-10 text-detail-s lg:text-body-m lg:font-medium text-graygray-80 leading-snug break-keep text-center lg:text-left">{tip.text}</p>
           </div>
         ))}
       </div>

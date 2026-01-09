@@ -1,164 +1,140 @@
 import React, { useState } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
-import WeatherBox from "../modal/WeatherBox";
-import DisasterMessageBox from "../modal/DisasterMessageBox";
 import FacilityCheckGroup from "../modal/FacilityCheckGroup";
+import MapControlBtn from "@/components/user/modal/MapControlBtn";
 
 /*
   LandSlide 컴포넌트
-  > 작성자 : 최지영
-  > 컴포넌트 이름 : 재난사고속보 모달 - 산사태 메뉴
-  > 컴포넌트 설명 : 재난사고속보 모달 내부의 산사태 메뉴 컴포넌트로, 현재 산사태관련 내용을 표시함. 추후 api연동 필요.
+  - PC: 세로형 사이드 탭 메뉴 구조 유지
+  - 모바일: 상단 가로 칩(Chip) + 하단 요약창 레이아웃
 */
 
 const LandSlide = () => {
-  // 현재 선택된 지도 탭 상태
   const [activeTab, setActiveTab] = useState("위험등급");
-
-  // [추가] 체크박스 상태 관리
   const [facilities, setFacilities] = useState({
     shelter: true,
     hospital: false,
     pharmacy: false,
   });
 
-  // 산사태 관련 탭 메뉴 구성
   const mapTabs = [
     { id: "위험등급", label: "산사태 위험등급" },
     { id: "예보현황", label: "주의보/경보 현황" },
-    { id: "대피장소", label: "산사태 대피소", hasArrow: true }, // ID: 대피장소
+    { id: "대피장소", label: "산사태 대피소", hasArrow: true },
   ];
 
-  // 산사태 전용 대피 시설 아이템 리스트
   const LandSlideItems = [
     { id: "shelter", label: "산사태대피소" }, 
     { id: "hospital", label: "병원" },
     { id: "pharmacy", label: "약국" },
   ];
 
-  // 탭 클릭 핸들러 (토글 로직)
   const handleTabClick = (tabId) => {
     setActiveTab(prev => (prev === tabId ? null : tabId));
   };
 
-  // 체크박스 변경 핸들러
   const handleCheck = (key) => {
     setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
-    <div className="grid grid-cols-12 gap-5 lg:gap-6">
-      <div className="col-span-12 lg:col-span-8 flex flex-col gap-5 lg:gap-6">
-        <div className="bg-white rounded-xl p-5 sm:p-5 shadow-1 border border-graygray-10 h-[200px] min-h-[480px]">
-          
-          {/* 헤더 섹션 */}
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
-            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-              <h3 className="text-body-l-bold sm:text-title-m font-black text-graygray-90 whitespace-nowrap">
-                실시간 산사태정보
-              </h3>
-              <span className="shrink-0 text-[10px] sm:text-detail-m px-2.5 py-1 bg-emerald-50 border border-emerald-100 rounded-full text-emerald-600 font-bold leading-none">
-                실시간 모니터링 중
-              </span>
-            </div>
-            <p className="text-[10px] sm:text-detail-m text-graygray-30 font-medium tabular-nums">
-              2026.01.02 기준
-            </p>
+    <div className="flex-1 flex flex-col min-h-0 gap-5 lg:gap-6">
+      {/* === 상단 지도 섹션 === */}
+      <div className="bg-white rounded-2xl p-4 lg:p-5 border border-gray-100 flex-1 flex flex-col min-h-0">
+        
+        {/* 헤더 섹션 */}
+        <div className="flex justify-between items-center mb-4 flex-shrink-0">
+          <div className="flex items-center gap-2 lg:gap-3">
+            <h3 className="md:text-body-m-bold lg:text-title-m text-body-s-bold text-gray-900">
+              실시간 산사태정보
+            </h3>
+            <span className={`
+  rounded-xl font-bold
+  bg-[var(--graygray-10)] text-[var(--graygray-50)] text-center
+  
+  /* 모바일 (기존 유지) */
+  text-[10px] px-2.5 py-1 
+  
+  /* 웹 (PC): 폰트 15px로 키우고 여백 넉넉하게 */
+  md:text-detail-s md:px-4 md:py-1.5 md:w-[80px]
+`}>
+  특보없음
+</span>
           </div>
+          <p className="text-[11px] lg:text-detail-m text-gray-400 font-medium">
+            2026.01.09 기준
+          </p>
+        </div>
 
-          {/* 지도 및 내부 사이드바 컨테이너 */}
-          <div className="relative h-[200px] sm:h-[384px] bg-secondary-5 rounded-xl border border-graygray-10 overflow-hidden shadow-inner">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-title-s sm:text-title-l font-black text-graygray-20 uppercase tracking-[0.2em] sm:tracking-[0.3em] opacity-50 px-4 text-center select-none">
-                Landslide Map Area
-              </span>
-            </div>
+        {/* 지도 영역 */}
+        <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[400px] lg:min-h-0">
+          
+          {/* [1] 탭 메뉴: 모바일(상단 가로 스크롤) / PC(좌측 세로) */}
+          <div className="absolute top-3 left-0 right-0 px-3 lg:px-0 lg:top-5 lg:left-5 lg:right-auto flex lg:flex-col gap-2 z-20 overflow-x-auto no-scrollbar">
+            {mapTabs.map((tab) => (
+              <div key={tab.id} className="relative flex flex-col gap-2 flex-shrink-0 lg:flex-shrink">
+                <button
+                  onClick={() => handleTabClick(tab.id)}
+                  className={`
+                    flex items-center justify-center px-3 py-2 lg:px-5 text-center lg:py-3 lg-px-3 rounded-2xl lg:rounded-xl text-detail-s-bold lg:text-body-m transition-all border
+                    ${activeTab === tab.id 
+                      ? "bg-blue-600 text-white border-blue-600 " 
+                      : "bg-white/95 backdrop-blur-md border-gray-100 hover:bg-white"
+                    }
+                  `}
+                >
+                  <span className="whitespace-nowrap">{tab.label}</span>
+                  {tab.hasArrow && (
+                    <span className={`hidden lg:block ml-2 transition-transform ${activeTab === tab.id ? "rotate-90" : ""}`}>
+                      <span className="text-[10px]">▶</span>
+                    </span>
+                  )}
+                </button>
 
-            {/* 지도 내부 사이드바 */}
-            <div className="absolute top-3 left-3 sm:top-5 sm:left-5 w-36 sm:w-44 flex flex-col gap-1.5 sm:gap-2 z-10">
-              {mapTabs.map((tab) => (
-                <div key={tab.id} className="flex flex-col gap-1.5">
-                  <button
-                    onClick={() => handleTabClick(tab.id)}
-                    className={`
-                      flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl text-[12px] sm:text-body-m font-black transition-all border
-                      ${activeTab === tab.id 
-                        ? "bg-blue-600 text-white border-blue-600 shadow-blue shadow-lg translate-x-1" 
-                        : "bg-white/95 backdrop-blur-sm text-graygray-60 border-graygray-10 hover:bg-white hover:translate-x-1 shadow-sm"
-                      }
-                    `}
-                  >
-                    <span className="truncate">{tab.label}</span>
-                    {tab.hasArrow && (
-                      <span className={`transition-transform duration-300 ${activeTab === tab.id ? "rotate-90" : ""}`}>
-                        <span className="text-[8px] sm:text-[10px]">▶</span>
-                      </span>
-                    )}
-                  </button>
-
-                  {/* [수정] ID 매칭: "대피장소" */}
-                  {tab.id === "대피장소" && activeTab === "대피장소" && (
+                {/* 대피장소 체크박스 그룹: 모바일은 버튼 바로 아래 띄우기 */}
+                {tab.id === "대피장소" && activeTab === "대피장소" && (
+                  <div className="absolute top-12 left-0 lg:static lg:top-auto lg:left-auto lg:mt-1">
                     <FacilityCheckGroup
                       items={LandSlideItems}
                       facilities={facilities}
                       onCheck={handleCheck}
                     />
-                  )}
-                </div>
-              ))}
-            </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
 
-            {/* 정보 요약 창 */}
-            <div className="absolute top-3 right-3 sm:top-5 sm:right-5 bg-white/90 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-graygray-10 shadow-xl z-10 min-w-[160px] sm:min-w-[200px] animate-in fade-in zoom-in-95">
-              <div className="space-y-3">
-                <p className="text-[9px] sm:text-[10px] font-black text-graygray-40 uppercase tracking-widest">Landslide Risk</p>
-                <div className="flex flex-col gap-2.5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]" />
-                      <span className="text-detail-l sm:text-body-m font-bold text-graygray-80">완산구</span>
-                    </div>
-                    <span className="text-detail-l sm:text-body-m font-black text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md">주의</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
-                      <span className="text-detail-l sm:text-body-m font-bold text-graygray-80">덕진구</span>
-                    </div>
-                    <span className="text-detail-l sm:text-body-m font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">보통</span>
-                  </div>
-                </div>
+          {/* [2] 정보 요약 창: 모바일은 우측 하단, PC는 우측 상단 */}
+          <div className="absolute bottom-4 right-4 lg:top-5 lg:bottom-auto bg-white/90 backdrop-blur-md p-4 lg:p-5 rounded-2xl border border-gray-100 shadow-xl z-10 min-w-[150px] lg:min-w-[200px]">
+            {/* <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Risk Level</p> */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-detail-l lg:text-body-m text-gray-700">전주시 완산구</span>
+                <span className="text-detail-s lg:text-detail-s-bold text-orange-600">주의</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-detail-l lg:text-body-m text-gray-700">전주시 덕진구</span>
+                <span className="text-detail-s lg:text-detail-s-bold text-emerald-600">보통</span>
               </div>
             </div>
-
-            {/* 지도 컨트롤 버튼 */}
-            <div className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 flex flex-col gap-1.5 z-10">
-              <button className="w-9 h-9 sm:w-10 sm:h-10 bg-white border border-graygray-10 rounded-xl shadow-1 flex items-center justify-center text-lg sm:text-xl font-bold text-graygray-60 hover:text-blue-600 transition-all active:scale-90">
-                +
-              </button>
-              <button className="w-9 h-9 sm:w-10 sm:h-10 bg-white border border-graygray-10 rounded-xl shadow-1 flex items-center justify-center text-lg sm:text-xl font-bold text-graygray-60 hover:text-blue-600 transition-all active:scale-90">
-                -
-              </button>
-            </div>
           </div>
-        </div>
 
-        {/* 행동요령 박스 */}
-                <div className="bg-white h-[250px] rounded-xl p-6 shadow-1 border border-graygray-10">
-          <ActionTipBox type="산사태" />
+          {/* [3] 지도 컨트롤 버튼 */}
+          <div className="absolute bottom-4 left-4 z-10">
+            <MapControlBtn />
+          </div>
+
+          {/* 지도 배경 플레이스홀더 */}
+          <div className="absolute inset-0 flex items-center justify-center -z-10 bg-slate-100">
+             <span className="text-gray-300 font-black tracking-widest opacity-40 text-xl">LANDSLIDE MAP</span>
+          </div>
         </div>
       </div>
 
-      {/* === 오른쪽 패널 === */}
-      <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 lg:gap-6 items-center lg:items-start">
-        <div className="w-full lg:max-w-[370px] h-[200px] bg-gradient-to-br from-[#62A1E9] to-[#4A90E2] rounded-xl p-5 lg:p-6 shadow-1 border border-white/30">
-          <WeatherBox />
-        </div>
-
-        {/* 재난문자 높이도 왼쪽과 맞추고 싶다면 같이 h-[480px] 정도로 조절 가능 */}
-        <div className="w-full max-w-[370px] h-[530px] bg-white rounded-xl shadow-1 border border-graygray-10 overflow-hidden flex flex-col">
-          <DisasterMessageBox />
-        </div>
+      {/* === 하단 행동요령 박스 === */}
+      <div className="bg-white rounded-2xl p-5 lg:p-6 border border-gray-100 flex-shrink-0">
+        <ActionTipBox type="산사태" />
       </div>
     </div>
   );

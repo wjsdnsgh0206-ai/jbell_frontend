@@ -1,198 +1,153 @@
-import React, { Suspense, useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { Suspense, useState } from "react";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import WeatherBox from "@/components/user/modal/WeatherBox";
+import DisasterMessageBox from "@/components/user/modal/DisasterMessageBox";
 
-/*
-  DisasterModalLayout 컴포넌트
-  > 작성자 : 최지영
-  > 컴포넌트 이름 : 재난사고속보 모달 레이아웃 컴포넌트
-  > 컴포넌트 설명 : header -> 재난사고속보 클릭 또는 main의 재난사고속보탭 더보기 클릭을 통해 오픈되는
-    재난사고속보 모달창. 각 재난별 속보를 표시해주는 컴포넌트. 추후 api연동 필요함. (재난별로)
-*/
-
-const DisasterModalLayout = ({ children }) => {
+const DisasterModalLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  // 모바일 전용 날씨 아코디언 상태 (기본은 닫힘 false)
+  const [isWeatherOpen, setIsWeatherOpen] = useState(false);
+
+  const titleMap = {
+    "accident": "사고속보", "earthquake": "지진", "flood": "홍수",
+    "heavyRain": "호우", "landSlide": "산사태", "typhoon": "태풍", "forestFire": "산불",
+  };
+
+  const currentPath = location.pathname.split("/").pop();
+  const currentTitle = titleMap[currentPath] || "재난정보";
 
   const menuList = [
     { label: "사고속보", path: "/disaster/accident" },
     { label: "지진", path: "/disaster/earthquake" },
-    { label: "태풍", path: "/disaster/typhoon" },
-    { label: "호우", path: "/disaster/heavyRain" },
     { label: "홍수", path: "/disaster/flood" },
-    { label: "산사태", path: "/disaster/landslide" },
+    { label: "호우", path: "/disaster/heavyRain" },
+    { label: "산사태", path: "/disaster/landSlide" },
+    { label: "태풍", path: "/disaster/typhoon" },
     { label: "산불", path: "/disaster/forestFire" },
   ];
 
-  // 메뉴 클릭 시 페이지 이동 후 메뉴 닫기
-  const handleMenuClick = (path) => {
-    navigate(path);
-    setIsMenuOpen(false);
-  };
-
-  // 현재 경로에 맞는 메뉴 라벨을 타이틀로 설정 (없으면 기본값 사용)
-  const currentTitle =
-    menuList.find((m) => m.path === location.pathname)?.label || "재난정보";
-
-  // 메뉴가 열리면 모달 바깥의 body 스크롤을 막고, 닫히면 다시 허용
-  useEffect(() => {
-    document.body.style.overflow = isMenuOpen ? "hidden" : "unset";
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isMenuOpen]);
-
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-3 lg:p-4 font-sans">
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
-        onClick={() => navigate("/")}
-      />
-
-      {/* 모달 가장 최상단 div박스 */}
-      <div className="relative z-10 w-full sm:w-[98%] max-w-[1700px] h-full sm:h-[96vh] bg-white rounded-none sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row transition-all duration-300">
-        {/* === 1. 데스크탑용 사이드바 === */}
-        <aside className="hidden lg:flex w-[280px] bg-graygray-90 text-white shrink-0 flex-col border-r border-white/5">
-          <div
-            className="p-8 font-black text-2xl tracking-tighter flex items-center gap-3 border-b border-white/5 group cursor-pointer"
-            onClick={() => navigate("/")}
-          >
-            <div className="w-1.5 h-6 bg-blue-500 rounded-full group-hover:scale-y-125 transition-all duration-300" />
-            <span className="group-hover:translate-x-1 transition-transform">
-              전북안전누리
-            </span>
+    <div className="fixed inset-0 z-[100] flex flex-col md:items-center md:justify-center bg-black/60 md:p-5 overflow-y-auto lg:overflow-hidden">
+      <div className="custom-scrollbar hidden md:block absolute inset-0 -z-10" onClick={() => navigate("/")} />
+      
+      <div className="relative w-full max-w-[1750px] h-fit md:h-[92vh] bg-[var(--graygray-0)] md:rounded-3xl flex flex-col lg:flex-row shadow-2xl overflow-visible lg:overflow-hidden">
+        
+        {/* PC 사이드바 */}
+        <aside className="hidden lg:flex w-[280px] bg-[var(--graygray-90)] text-[var(--graygray-0)] flex-col flex-shrink-0">
+          <div className="py-10 flex justify-center border-b border-white/5">
+             <img className="w-[170px]" alt="로고" src="/src/assets/logo/jeonbuk_safety_nuri_watermark.svg" />
           </div>
 
-          <nav className="flex-1 mt-6 px-4 space-y-2">
-            {menuList.map((menu) => {
-              const isActive = location.pathname === menu.path;
-              return (
-                <button
-                  key={menu.label}
-                  onClick={() => navigate(menu.path)}
-                  className={`
-                    group relative w-full flex items-center justify-between px-6 py-4 rounded-xl text-body-l-bold transition-all duration-300
-                    ${
-                      isActive
-                        ? "bg-blue-600 text-white shadow-lg translate-x-2"
-                        : "text-graygray-40 hover:text-white hover:bg-white/5 hover:translate-x-1"
-                    }
-                  `}
-                >
-                  {isActive && (
-                    <div className="absolute left-0 w-1.5 h-6 bg-white rounded-r-full shadow-sm" />
-                  )}
-                  <span className="relative z-10">{menu.label}</span>
-                  <span
-                    className={`text-xl transition-all duration-300 ${
-                      isActive
-                        ? "opacity-100 translate-x-0"
-                        : "opacity-0 -translate-x-2 group-hover:opacity-50 group-hover:translate-x-0"
-                    }`}
-                  >
-                    →
-                  </span>
-                </button>
-              );
-            })}
+          <nav className="mt-4 px-4 space-y-2 flex-1 overflow-y-auto">
+            {menuList.map((menu) => (
+              <button
+                key={menu.path}
+                onClick={() => navigate(menu.path)}
+                className={`w-full px-6 py-4 rounded-2xl text-left text-body-m-bold transition-all ${
+                  location.pathname === menu.path 
+                    ? "bg-[var(--blue-600)] text-[var(--graygray-0)]" 
+                    : "text-[var(--graygray-50)] hover:bg-white/5"
+                }`}
+              >
+                {menu.label}
+              </button>
+            ))}
           </nav>
-          <div className="p-8 opacity-20 text-[10px] font-medium tracking-widest text-center">
-            JEONBUK SAFETY NURI
-          </div>
         </aside>
 
-        {/* === 2. 메인 콘텐츠 영역 === */}
-        <div className="flex-1 flex flex-col min-h-0 text-graygray-90">
-          <header className="px-4 sm:px-8 py-5 flex justify-between items-center bg-white shrink-0 z-20 border-b border-graygray-10 shadow-sm">
+        {/* 콘텐츠 영역 */}
+        <div className="flex-1 flex flex-col min-w-0 bg-[var(--graygray-5)] overflow-visible lg:overflow-hidden">
+          <header className="sticky top-0 lg:relative px-6 py-4 border-b border-[var(--graygray-20)] bg-[var(--graygray-0)] flex justify-between items-center z-50 flex-shrink-0">
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => setIsMenuOpen(true)}
-                className="lg:hidden p-2.5 -ml-2 text-graygray-60 hover:bg-secondary-5 rounded-xl transition-transform"
-              >
-                <div className="space-y-1.5">
-                  <div className="w-6 h-0.5 bg-graygray-80"></div>
-                  <div className="w-6 h-0.5 bg-graygray-80"></div>
-                  <div className="w-4 h-0.5 bg-graygray-80"></div>
-                </div>
+              <button onClick={() => setIsMenuOpen(true)} className="lg:hidden p-2 hover:bg-[var(--graygray-10)] rounded-xl">
+                <svg className="w-6 h-6 text-[var(--graygray-90)]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
               </button>
-
-              <div className="flex items-center gap-2.5">
-                <span className="relative flex h-4 w-4">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500"></span>
-                </span>
-                <h2 className="text-title-m sm:text-title-xl font-black tracking-tight leading-none text-graygray-90">
-                  {currentTitle}
-                </h2>
-              </div>
+              <h2 className="text-body-m-bold md:text-title-xl text-[var(--graygray-90)]">{currentTitle}</h2>
             </div>
-
-            <button
-              onClick={() => navigate("/")}
-              className="bg-secondary-5 hover:bg-red-50 hover:text-red-500 text-graygray-40 w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-graygray-10"
-            >
-              <span className="text-xl font-light">✕</span>
+            <button className="p-2 hover:bg-[var(--graygray-10)] rounded-full" onClick={() => navigate("/")}>
+                <span className="text-2xl text-[var(--graygray-40)]">✕</span>
             </button>
           </header>
 
-          <main className="flex-1 overflow-y-auto p-4 sm:p-8 lg:p-6 scrollbar-hide">
-            <Suspense
-              fallback={
-                <div className="flex items-center justify-center h-full text-graygray-40 font-bold">
-                  데이터를 불러오는 중입니다...
+          <div className="flex-1 overflow-visible lg:overflow-hidden p-4 md:p-8 lg:h-full min-h-0">
+            <div className="flex flex-col lg:flex-row gap-6 lg:h-full">
+              <main className="w-full lg:flex-[1.6] flex flex-col min-h-0 order-1 lg:h-full">
+                <Suspense fallback={<div className="text-body-m text-[var(--graygray-50)]">로딩 중...</div>}>
+                  <Outlet />
+                </Suspense>
+              </main>
+
+              <aside className="w-full lg:max-w-[380px] flex flex-col gap-6 order-2 pb-10 lg:pb-0 lg:h-full min-h-0">
+                
+                {/* === 날씨 아코디언 섹션 === */}
+                <div className="flex-shrink-0 bg-gradient-to-br from-[#70a8e9] to-[#426cb9] rounded-2xl text-white overflow-hidden transition-all duration-300">
+                  {/* 모바일에서만 보이는 아코디언 헤더 버튼 */}
+                  <button 
+                    onClick={() => setIsWeatherOpen(!isWeatherOpen)}
+                    className="w-full px-5 py-4 flex lg:hidden justify-between items-center font-bold"
+                  >
+                    <span className="flex items-center gap-2">☀️ 현재 날씨 정보</span>
+                    <svg 
+                      className={`w-5 h-5 transition-transform duration-300 ${isWeatherOpen ? 'rotate-180' : ''}`} 
+                      fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {/* 날씨 내용: 모바일에서는 isWeatherOpen 상태에 따라 높이 조절, PC(lg)에서는 항상 보임 */}
+                  <div className={`
+                    ${isWeatherOpen ? 'max-h-[300px] opacity-100' : 'max-h-0 lg:max-h-[300px] opacity-0 lg:opacity-100'} 
+                    transition-all duration-300 overflow-hidden
+                  `}>
+                    <div className="p-5 pt-0 lg:pt-5 h-[200px]">
+                      <WeatherBox />
+                    </div>
+                  </div>
                 </div>
-              }
-            >
-              {children}
-            </Suspense>
-          </main>
+
+                {/* 재난문자 박스 */}
+                <div className="flex-1 min-h-[450px] lg:min-h-0 bg-[var(--graygray-0)] rounded-xl border border-[var(--graygray-20)] shadow-sm overflow-hidden flex flex-col">
+                  <DisasterMessageBox />
+                </div>
+              </aside>
+            </div>
+          </div>
         </div>
 
-        {/* === 3. 모바일 메뉴 (Drawer) === */}
-        <div
-          className={`fixed inset-0 z-[110] lg:hidden transition-all duration-300 ${
-            isMenuOpen ? "visible" : "invisible"
-          }`}
-        >
-          <div
-            className={`absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-300 ${
-              isMenuOpen ? "opacity-100" : "opacity-0"
-            }`}
-            onClick={() => setIsMenuOpen(false)}
-          />
-          <nav
-            className={`relative w-[300px] h-full bg-graygray-90 text-white flex flex-col shadow-2xl transition-transform duration-300 ease-out ${
-              isMenuOpen ? "translate-x-0" : "-translate-x-full"
-            }`}
-          >
-            <div className="p-8 border-b border-white/5 flex justify-between items-center">
-              <span className="font-black text-2xl tracking-tighter text-blue-400">
-                전북안전누리
-              </span>
-              <button
-                onClick={() => setIsMenuOpen(false)}
-                className="text-2xl font-light text-graygray-40 p-2"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6 space-y-1">
-              {menuList.map((menu) => (
-                <button
-                  key={menu.label}
-                  onClick={() => handleMenuClick(menu.path)}
-                  className={`w-full text-left px-5 py-5 rounded-2xl text-body-l-bold transition-all ${
-                    location.pathname === menu.path
-                      ? "bg-blue-600 text-white shadow-lg translate-x-2"
-                      : "text-graygray-40 active:bg-white/5"
-                  }`}
-                >
-                  {menu.label}
-                </button>
-              ))}
-            </div>
-          </nav>
-        </div>
+        {/* 햄버거 메뉴 Drawer (모바일 전용) */}
+        {isMenuOpen && (
+          <div className="fixed inset-0 z-[110] lg:hidden">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsMenuOpen(false)} />
+            <nav className="absolute top-0 left-0 bottom-0 w-[280px] bg-[var(--graygray-90)] text-[var(--graygray-0)] p-6 shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
+              <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-6">
+                <img className="w-[130px]" alt="로고" src="/src/assets/logo/jeonbuk_safety_nuri_watermark.svg" />
+                <button onClick={() => setIsMenuOpen(false)} className="text-white/60 hover:text-white text-xl">✕</button>
+              </div>
+              <div className="space-y-2 overflow-y-auto flex-1 no-scrollbar">
+                {menuList.map((menu) => (
+                  <button
+                    key={menu.path}
+                    onClick={() => {
+                      navigate(menu.path);
+                      setIsMenuOpen(false);
+                    }}
+                    className={`w-full px-5 py-4 rounded-2xl text-left text-body-m-bold transition-all ${
+                      location.pathname === menu.path 
+                        ? "bg-[var(--blue-600)] text-[var(--graygray-0)] shadow-lg" 
+                        : "text-[var(--graygray-50)] hover:bg-white/5"
+                    }`}
+                  >
+                    {menu.label}
+                  </button>
+                ))}
+              </div>
+            </nav>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -25,17 +25,17 @@
      1. Grayscale (Tertiary Button, Disabled, Text)
      - 버튼 Disabled, Tertiary 버튼의 배경/보더 색상을 단계별로 포함
      ========================================= */
-  --graygray-0:  #FFFFFF; /* Tertiary Default */
-  --graygray-5:  #F8F8F8; /* (기존 유지) */
-  --graygray-10: #F4F5F6; /* Tertiary Hover (New) */
-  --graygray-20: #E6E8EA; /* Tertiary Press / (기존 gray-10 대체) */
-  --graygray-30: #CDD1D5; /* Button Disabled (New) */
-  --graygray-40: #C6C6C6; /* (기존) */
-  --graygray-50: #8E8E8E; /* (기존) */
-  --graygray-60: #58616A; /* Tertiary Border (New) */
+  --graygray-0: #ffffff; /* Tertiary Default */
+  --graygray-5: #f8f8f8; /* (기존 유지) */
+  --graygray-10: #f4f5f6; /* Tertiary Hover (New) */
+  --graygray-20: #e6e8ea; /* Tertiary Press / (기존 gray-10 대체) */
+  --graygray-30: #cdd1d5; /* Button Disabled (New) */
+  --graygray-40: #c6c6c6; /* (기존) */
+  --graygray-50: #8e8e8e; /* (기존) */
+  --graygray-60: #58616a; /* Tertiary Border (New) */
   --graygray-70: #555555; /* (기존) */
-  --graygray-80: #2D2D2D; /* (기존) */
-  --graygray-90: #1D1D1D; /* (기존) */
+  --graygray-80: #2d2d2d; /* (기존) */
+  --graygray-90: #1d1d1d; /* (기존) */
 
   /* =========================================
      2. Blue Scale (Primary & Secondary Button)
@@ -43,28 +43,28 @@
      - 500: 브랜드 메인 (Secondary Border)
      - 600~800: Primary 버튼 (진한 톤)
      ========================================= */
-  --blue-50:  #ECF2FE; /* Secondary Default (New) */
-  --blue-100: #D8E5FD; /* Secondary Hover (New) */
-  --blue-200: #B1CEFB; /* Secondary Press (New) */
-  --blue-500: #256EF4; /* (기존) / Secondary Border */
-  --blue-600: #256EF4; /* Primary Default (New) */
-  --blue-700: #0B50D0; /* Primary Hover (New) */
+  --blue-50: #ecf2fe; /* Secondary Default (New) */
+  --blue-100: #d8e5fd; /* Secondary Hover (New) */
+  --blue-200: #b1cefb; /* Secondary Press (New) */
+  --blue-500: #256ef4; /* (기존) / Secondary Border */
+  --blue-600: #256ef4; /* Primary Default (New) */
+  --blue-700: #0b50d0; /* Primary Hover (New) */
   --blue-800: #083891; /* Primary Press (New) */
 
   /* =========================================
      3. Others (Orange, Green - 기존 유지)
      ========================================= */
-  --orange-50:  #FFF7ED;
-  --orange-200: #FED7AA;
-  --orange-600: #EA580C;
+  --orange-50: #fff7ed;
+  --orange-200: #fed7aa;
+  --orange-600: #ea580c;
 
-  --green-100: #DCFCE7;
-  --green-200: #BBF7D0;
-  --green-700: #15803D;
-  
+  --green-100: #dcfce7;
+  --green-200: #bbf7d0;
+  --green-700: #15803d;
+
   /* Secondary (기존값 유지 혹은 Blue 스케일로 통합 권장) */
   /* 필요하다면 기존 --secondary-* 값들도 남겨둘 수 있습니다 */
-  --secondary-5: #EDF1F5;
+  --secondary-5: #edf1f5;
   --secondary-50: #003675;
   /* --- Typography Basics --- */
   --font-base: "Pretendard GOV", -apple-system, sans-serif;
@@ -185,7 +185,23 @@
     font-weight: 400;
     line-height: 150%;
   }
+  /* 1. 전체적인 스크롤바 스타일 커스텀 (사고 리스트, 재난문자 등) */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px; /* 스크롤바 너비를 얇게 */
+  }
 
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent; /* 트랙 배경은 투명하게 해서 경계면 삭제 */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #d1d5db; /* gray-300 정도의 연한 회색 */
+    border-radius: 20px; /* 둥글게 처리 */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #9ca3af; /* 호버 시 조금 더 진하게 */
+  }
   /* --- Utils --- */
   .flex-center {
     @apply flex items-center justify-center;
