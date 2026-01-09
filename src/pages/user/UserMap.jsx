@@ -148,12 +148,35 @@ const UserMap = () => {
 
 
 /* <====================== 데이터 정의 (동일) =======================> */
+  //  
   const REGION_DATA = {
     '전주시': ['완산구', '덕진구'],
     '군산시': [], '익산시': [], '정읍시': [], '남원시': [], '김제시': [],
     '완주군': [], '고창군': [], '부안군': [], '순창군': [], '임실군': [],
     '무주군': [], '진안군': [], '장수군': [],
   };
+  //
+  //
+      /* for api */
+      const REGION_CODE_MAP = {
+      '전주시 완산구': '52111',
+      '전주시 덕진구': '52113',
+      '군산시': '52130',
+      '익산시': '52140',
+      '정읍시': '52150',
+      '남원시': '52160',
+      '김제시': '52170',
+      '완주군': '52710',
+      '고창군': '52790',
+      '부안군': '52800',
+      '순창군': '52770',
+      '임실군': '52750',
+      '무주군': '52730',
+      '진안군': '52720',
+      '장수군': '52740'
+    };
+  //
+  //
   const DETAILED_DATA = {
     '전주시': {
       '완산구': ['중앙동', '풍남동', '노송동', '완산동'],
@@ -162,12 +185,16 @@ const UserMap = () => {
     '군산시': { '기본': ['해신동', '월명동', '신풍동', '조촌동'] },
     '익산시': { '기본': ['중앙동', '인화동', '마동', '남중동'] }
   };
+  //
+  //
   const MBY_SELECTS = { '민방위대피소':[], '비상급수시설':[], '지진옥외대피장소':[], '이재민임시주거시설(지진겸용)':[], '이재민임시주거시설':[] };
   const TE_SELECTS = { '빗물펌프장':[], '빗물저류장':[], '대피소정보':[] };
   const MT_SELECTS = { '산사태대피소':[], '산불대피소':[] };
   const JB_REGIONS_FOR_SELECTS = { '전주시 완산구':[], '전주시 덕진구':[], 
     '군산시':[], '익산시':[], '정읍시':[], '남원시':[], '김제시':[], 
     '완주군':[], '고창군':[], '부안군':[], '순창군':[], '임실군':[], '무주군':[], '진안군':[], '장수군':[] };
+  //
+  //
 /* <====================== 데이터 정의 (동일) =======================> */
 
 
@@ -206,7 +233,7 @@ const UserMap = () => {
 // 재난 유형 변경 시 실제 검색 실행 (예시: 키워드로 검색)
 const handleCivilChange = async (value) => {
     setCivilSelect(value);
-    
+    /*
     // 1. 메뉴 명칭에 따라 API 번호를 매칭합니다.
     let targetApiNum = '';
     
@@ -222,8 +249,26 @@ const handleCivilChange = async (value) => {
         const data = await shelterRequest(targetApiNum, '52111'); 
         setShelterResults(data);
     }
-};
+    */
+    // 1. 현재 선택된 지역명(selectedSigun)을 코드로 변환
+    const areaCode = REGION_CODE_MAP[selectedSigun]; 
+    
+    if (!areaCode) {
+      alert("지역을 먼저 선택해주세요!");
+      return;
+    }
 
+    // 2. 시설 종류에 따른 API 번호와 키 타입 결정
+    if (value === '이재민임시주거시설') {
+      // 이제 숫자로 변환된 areaCode를 던집니다!
+      await fetchFacilities(areaCode, '10941', 'TEMPORARY_HOUSING');
+    } 
+    else if (value === '지진옥외대피장소') {
+      await fetchFacilities(areaCode, '10101', 'EARTHQUAKE');
+    }
+};
+//
+//
   const handleWeatherChange = (value) => { 
     setWeatherSelect(value); setCivilSelect(''); setMountainSelect('');
     if(value && selectedSigun) searchPlaces(`${selectedSigun} ${value}`);
@@ -255,14 +300,8 @@ const handleResultClick = (item) => {
 
 };
 //
-//
-//
-
-//
-//
-//
 // handleComplete
- {/* 카카오 우편번호 서비스(daum.postcode) */}
+// 카카오 우편번호 서비스(daum.postcode)
     const handleComplete = (data) => {
     // 상세 주소(건물번호 등)를 제외한 기본 주소만 추출
     // 예: "전북특별자치도 전주시 완산구 효자동3가 123-4" -> "전주시 완산구 효자동3가"
@@ -303,7 +342,17 @@ const handleResultClick = (item) => {
                */
             
               const shelterRequest = async () => {
-                
+                  // --- [1. 전역 변수: 관제 센터] ---
+                      const SERVICE_KEY = {
+                          TEMPORARY_HOUSING: import.meta.env.VITE_API_SHELTER_TEMPORARY_HOUSING_KEY,
+                          EARTHQUAKE: import.meta.env.VITE_API_SHELTER_EARTHQUAKE_KEY,
+                        }; 
+                        /** 여기에 실제 키를 입력 
+                         * 1. 이재민 임시 거주 시설
+                         * 2. 지진 대피소
+                         * **/
+
+
                 const response = await api.external(`/safety-api/DSSP-IF-${apiNum}`, {
                   // = https://www.safetydata.go.kr/V2/api/DSSP-IF-10941
                   method: 'get',
@@ -321,57 +370,43 @@ const handleResultClick = (item) => {
                 
               } 
                     //
-                    // --- [1. 전역 변수: 관제 센터] ---
-                      const SERVICE_KEY = {
-                          TEMPORARY_HOUSING: import.meta.env.VITE_API_SHELTER_TEMPORARY_HOUSING_KEY,
-                          EARTHQUAKE: import.meta.env.VITE_API_SHELTER_EARTHQUAKE_KEY,
-                        }; 
-                        /** 여기에 실제 키를 입력 
-                         * 1. 이재민 임시 거주 시설
-                         * 2. 지진 대피소
-                         * **/
+                      /* 3. API 호출 함수 (apiNum과 areaCode를 '인자'로 받게 수정) */
+                      const fetchFacilities = async (areaCode, apiNum, keyType) => {
+                        // 여기서 apiNum이 정의됩니다! 함수 호출할 때 넘겨준 값이 이리로 들어와요.
+                        const baseUrl = '/safety-api';
+                        const currentKey = SERVICE_KEYS[keyType] || shelterServiceKey; // 키가 없으면 기본키 사용
+
+                        const urlProxy = `${baseUrl}/DSSP-IF-${apiNum}?serviceKey=${currentKey}&sigunguCode=${areaCode}&type=json`;
+
+                       
+                        try {
+                          console.log("요청 시작:", urlProxy);
+                          const response = await fetch(urlProxy);
+                          if (!response.ok) throw new Error(`HTTP 에러: ${response.status}`);
+                          
+                          const data = await response.json();
+                          
+                          // 공공데이터 특유의 데이터 계층 뚫기 (items가 없을 경우 대비)
+                          const items = data?.response?.body?.items?.item || [];
+                          
+                          if (items.length === 0) {
+                            alert("검색 결과가 없습니다.");
+                            setShelterResults([]);
+                            return;
+                          }
+
+                          // 받아온 데이터를 상태에 저장 (이게 바뀌어야 화면이 그려짐)
+                          setShelterResults(items); 
+                          
+                        } catch (error) {
+                          console.error("데이터 로딩 오류:", error);
+                          alert("데이터를 가져오지 못했습니다. 콘솔을 확인하세요.");
+                        }
+                      };
+                  
                       let currentFacilities = []; // 현재 데이터 저장용
                       // let markers = [];           // 지도 마커 관리용
                       let map = null;             // 지도 객체 (초기화 시 할당)
-
-                      // --- [2. 핵심 API 호출 함수: 수술 완료] ---
-                      async function fetchFacilities(areaCode, apiNum, keyType) {
-                          // Vite Proxy 설정(/safety-api)을 적용
-                          // baseUrl 뒤에 오는 경로는 실제 공공데이터포털 API 상세 경로에 맞춰야 함
-                          // 예: /safety-api/GisEarthquakeShelter (문서 확인 필요)
-                          const baseUrl = '/safety-api';
-                          
-                          // keyType에 따라 SERVICE_KEYS 객체에서 해당 키를 가져옵니다.
-                          const currentKey = SERVICE_KEYS[keyType];
-                          
-                          // URL 생성 (proxy가 target 주소로 바꿔주므로 도메인은 뺍니다)
-                          const urlProxy = `${baseUrl}/DSSP-IF-${apiNum}?serviceKey=${SERVICE_KEY}&sigunguCode=${areaCode}&type=json`;
-
-                          console.log("최종 요청 주소:", urlProxy);
-
-                          try {
-                              console.log("요청 시작:", urlProxy);
-                              const response = await fetch(urlProxy);
-                              
-                              if (!response.ok) throw new Error(`HTTP 에러: ${response.status}`);
-                              
-                              const data = await response.json();
-                              
-                              // 보통 공공데이터 결과는 data.response.body.items 등에 들어있으니 확인 필수!
-                              console.log("받아온 데이터:", data);
-
-                              // 데이터 구조에 따라 items를 잘 추출해야 함 (공공데이터 표준 구조 예시)
-                              const items = data?.response?.body?.items?.item || [];
-                              
-                              // 전역 변수에 저장 및 지도 업데이트
-                              currentFacilities = data; 
-                              updateMap(currentFacilities);
-
-                          } catch (error) {
-                              console.error("데이터를 가져오는 중 오류 발생:", error);
-                              alert("데이터 로딩에 실패했습니다.");
-                          }
-                      }
 
                       // --- [3. 지도 업데이트 함수] ---
                       function updateMap(facilityData) {
@@ -405,7 +440,7 @@ const handleResultClick = (item) => {
                             '52790', '52130'
                         ];
 
-                        const apiNum = ['00706', '10945'];
+                        const selectedApiNum = ['00706', '10945'];
                         
                         // 3. 시설 타입(또는 API 번호) 배열
                         const selectedFacilityTypes = [
@@ -419,7 +454,6 @@ const handleResultClick = (item) => {
                                 await fetchFacilities(area, type); 
                             }
                           }
-                        }
                       //
               /* <================ ★ api 요청 시작 ★ ================> */
   
