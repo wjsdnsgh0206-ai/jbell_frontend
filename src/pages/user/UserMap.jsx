@@ -214,7 +214,8 @@ const UserMap = () => {
 //
 //
 // handleCivilChange
-// 재난 유형 변경 시 실제 검색 실행 (예시: 키워드로 검색)
+/** 재난 유형 변경 시 실제 검색 실행 (예시: 키워드로 검색) 
+ * 이재민임시주거시설, 지진옥외대피장소 부분이 api 호출을 위해서 작성한 부분**/
 const handleCivilChange = async (value) => {
     setCivilSelect(value);
     
@@ -255,12 +256,6 @@ const handleResultClick = (item) => {
   if (window.innerWidth < 768) setIsMobileMenuOpen(false);
 
 };
-//
-//
-//
-
-//
-//
 //
 // handleComplete - 카카오 우편번호 서비스(daum.postcode)
     const handleComplete = (data) => {
