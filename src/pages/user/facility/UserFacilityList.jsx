@@ -69,7 +69,7 @@ const UserFacilityList = () => {
         
         <PageBreadcrumb items={meta.breadcrumbs} />
 
-        <header className="flex flex-col w-full gap-8 lg:gap-10 mb-20">
+        <header className="flex flex-col w-full gap-8 lg:gap-10 pb-20">
           <div className="flex flex-col gap-4">
             <h1 className="text-heading-xl text-graygray-90">
               {meta.title}
