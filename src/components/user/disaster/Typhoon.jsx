@@ -51,7 +51,7 @@ const Typhoon = () => {
               특보없음
             </span>
           </div>
-          <p className="text-[11px] text-gray-400">2026.01.09 기준</p>
+          <p className="text-detail-xs md:text-detail-s text-gray-400">2026.01.09 기준</p>
         </div>
 
         <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[400px] lg:min-h-0">

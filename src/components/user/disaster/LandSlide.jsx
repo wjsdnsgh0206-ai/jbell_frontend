@@ -61,7 +61,7 @@ const LandSlide = () => {
   특보없음
 </span>
           </div>
-          <p className="text-[11px] lg:text-detail-m text-gray-400 font-medium">
+          <p className="text-detail-xs md:text-detail-s  text-gray-400 font-medium">
             2026.01.09 기준
           </p>
         </div>

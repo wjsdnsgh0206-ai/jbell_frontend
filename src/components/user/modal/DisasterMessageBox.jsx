@@ -55,7 +55,7 @@ const DisasterMessage = () => {
 
       {/* 푸터 */}
       <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex-shrink-0">
-        <p className="text-[10px] md:text-detail-xs text-gray-400 leading-tight">
+        <p className="text-detail-xs md:text-detail-xs text-gray-400 leading-tight">
           본 정보는 공공데이터를 기반으로 제공되며,<br className="md:hidden" />
           실제 상황과 일부 차이가 있을 수 있습니다.
         </p>
