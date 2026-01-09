@@ -108,8 +108,6 @@ const UserNoticeList = () => {
   return (
     <div className="w-full px-5 md:px-0">
       {/* 페이지 상단 경로 안내 */}
-      {/* ==== 나중에 경로수정 해야함 === */}
-      <button onClick={() => navigate("/admin/adminCommonCodeList")}>코드관리</button>
       <PageBreadcrumb items={breadcrumbItems} />
       <main className="w-full">
         <h1 className="text-heading-xl text-graygray-90 pb-20">공지사항</h1>

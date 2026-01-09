@@ -1,4 +1,4 @@
-// route-sh.jsx
+// src/routes/admin/route-sh.jsx
 import { lazy } from 'react';
 
 // 1. 선언이 잘 되어 있는지 확인

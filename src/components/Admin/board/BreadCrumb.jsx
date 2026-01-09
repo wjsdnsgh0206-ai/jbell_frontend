@@ -1,3 +1,4 @@
+// src/components/admin/board/BreadCrumb.jsx
 const BreadCrumb = () => {
     return (
         <>

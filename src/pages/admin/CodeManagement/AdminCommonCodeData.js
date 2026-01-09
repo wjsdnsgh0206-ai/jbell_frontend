@@ -1,4 +1,4 @@
-
+// src/pages/admin/CodeManagement/AdminCommonCodeData.js
 export const AdminCommonCodeData = [
   { id: 1, groupCode: 'Category-1', groupName: '카테고리1', detailCode: 'ABCD-1', detailName: '행정구역', desc: '대한민국 행정 구역 코드번호', date: '2025-05-20 06:00', order: 1, visible: true },
   { id: 2, groupCode: 'Category-2', groupName: '카테고리2', detailCode: 'ABCD-2', detailName: '재난유형', desc: '대한민국 재난 유형 코드번호', date: '2025-05-20 06:00', order: 1, visible: true },

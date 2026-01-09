@@ -1,3 +1,4 @@
+// src/layouts/admin/AdminLayout.jsx
 import { Suspense } from "react";
 import { Outlet } from "react-router-dom"; 
 import AdminSideBar from './AdminSideBar';
