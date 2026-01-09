@@ -1,6 +1,6 @@
 // src/components/shared/SearchBarTemplate.jsx
 import React from 'react';
-import { Search, RefreshCw } from 'lucide-react';
+import { Search, RefreshCw, X } from 'lucide-react'; // X 아이콘 추가
 import { Button } from '@/components/shared/Button';
 
 const SearchBarTemplate = ({ 
@@ -19,16 +19,26 @@ const SearchBarTemplate = ({
         {children}
       </div>
 
-      {/* 2. 공통 검색어 입력 영역 */}
-      <div className="relative w-full lg:flex-1">
+      {/* 2. 공통 검색어 입력 영역 (삭제 버튼 포함) */}
+      <div className="flex-1 relative">
         <input 
           type="text" 
           value={keyword}
           onChange={onKeywordChange}
           onKeyDown={(e) => e.key === 'Enter' && onSearch()} 
           placeholder={placeholder}
-          className="w-full h-14 px-4 bg-white border border-graygray-30 rounded-lg text-body-m placeholder:text-graygray-40 outline-none focus:border-secondary-50 transition-colors"
+          className="w-full border border-gray-300 focus:border-[#2563EB] rounded-md px-5 py-3.5 text-[16px] outline-none font-medium transition-all"
         />
+        {/* 삭제 버튼 추가: keyword가 있을 때만 노출 */}
+        {keyword && (
+          <button 
+            type="button" 
+            onClick={onReset} // 초기화 핸들러 호출
+            className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-xl font-light"
+          >
+            ✕
+          </button>
+        )}
       </div>
 
       {/* 3. 공통 버튼 그룹 */}

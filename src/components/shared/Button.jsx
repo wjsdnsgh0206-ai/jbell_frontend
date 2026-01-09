@@ -13,6 +13,7 @@ export const Button = ({
     primary: "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800",
     secondary: "bg-blue-50 text-blue-600 border border-blue-500 hover:bg-blue-100 active:bg-blue-200",
     tertiary: "bg-graygray-0 text-graygray-90 border border-graygray-60 hover:bg-graygray-10 active:bg-graygray-20",
+    none: "",
   };
 
   const sizes = {

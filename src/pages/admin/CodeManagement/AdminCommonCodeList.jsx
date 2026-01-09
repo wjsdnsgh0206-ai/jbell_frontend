@@ -1,6 +1,8 @@
+// src/pages/admin/CodeManagement/AdminCommonCodeList.jsx
 import React, { useState, useMemo } from 'react';
 import BreadCrumb from '@/components/Admin/board/BreadCrumb';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
+import { Button } from '@/components/shared/Button';
 
 const AdminCommonCodeList = () => {
   // --- 1. 상태 관리 ---
@@ -88,7 +90,7 @@ const AdminCommonCodeList = () => {
   );
 
   const cardStyle = "bg-white border border-gray-200 rounded-xl shadow-sm";
-  const focusInputStyle = "focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 focus:shadow-sm transition-all";
+  const focusInputStyle = "focus:shadow-sm transition-all";
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
@@ -99,13 +101,13 @@ const AdminCommonCodeList = () => {
         {/* 상단 검색 영역: 포커스 효과 적용 */}
         <section className={`${cardStyle} p-8 flex items-center gap-4 mb-8`}>
           <div className="relative w-72">
-            <select className={`appearance-none w-full border border-gray-300 rounded-md px-5 py-3.5 text-[16px] text-[#666] outline-none bg-white font-['Pretendard_GOV'] ${focusInputStyle}`}>
+            <select className={`appearance-none w-full border border-gray-300 focus:border-[#2563EB] focus:ring-2 focus:ring-blue-100 rounded-md px-5 py-3.5 text-[16px] text-[#666] outline-none bg-white font-['Pretendard_GOV'] ${focusInputStyle}`}>
               <option>그룹코드 전체</option>
             </select>
             <CustomArrow />
           </div>
           <div className="relative w-72">
-            <select className={`appearance-none w-full border border-gray-300 rounded-md px-5 py-3.5 text-[16px] text-[#666] outline-none bg-white font-['Pretendard_GOV'] ${focusInputStyle}`}>
+            <select className={`appearance-none w-full border border-gray-300 focus:ring-2 focus:ring-blue-100  rounded-md px-5 py-3.5 text-[16px] text-[#666] outline-none bg-white font-['Pretendard_GOV'] ${focusInputStyle}`}>
               <option>상세코드 전체</option>
             </select>
             <CustomArrow />
@@ -117,13 +119,23 @@ const AdminCommonCodeList = () => {
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="검색어를 입력해주세요" 
-              className={`w-full border border-gray-300 rounded-md px-5 py-3.5 text-[16px] outline-none font-medium font-['Pretendard_GOV'] ${focusInputStyle}`} 
+              className={`w-full border border-gray-300 focus:border-[#2563EB] rounded-md px-5 py-3.5 text-[16px] outline-none font-medium font-['Pretendard_GOV'] ${focusInputStyle}`} 
             />
             {searchInput && (
               <button type="button" onClick={handleClearSearch} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-xl font-light">✕</button>
             )}
           </div>
-          <button onClick={handleSearch} className="bg-[#EBF3FF] border border-[#BFDBFE] text-[#2563EB] px-14 py-3.5 rounded-md text-[16px] font-bold hover:bg-[#D6E6FF] transition-all">검색</button>
+          {/* 버튼 */}
+          <div className="flex justify-center md:justify-end">
+            <Button 
+              variant="none"
+              size="none"
+              onClick={handleSearch}
+              className="px-8 h-14 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 active:bg-blue-200" 
+            >
+              검색
+            </Button>
+          </div>
         </section>
 
         {/* 리스트 영역 */}
