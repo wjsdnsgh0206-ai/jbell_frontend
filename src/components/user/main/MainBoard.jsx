@@ -20,9 +20,9 @@ const MainBoard = () => {
   };
 
   return (
-    <div className="bg-white rounded-[24px] border border-graygray-10 p-6 sm:p-8 shadow-sm h-full">
-      <div className="flex justify-between items-end mb-8 border-b border-graygray-10">
-        <div className="flex gap-6 sm:gap-10 overflow-x-auto scrollbar-hide">
+    <div className="bg-white rounded-xl border border-graygray-10 p-6 sm:p-8 h-full">
+      <div className="flex justify-between items-end border-b border-graygray-10">
+        <div className="flex gap-3 sm:gap-10 overflow-x-auto scrollbar-hide">
           {["공지사항", "보도자료", "시민안전교육"].map((tab) => (
             <button
               key={tab}
@@ -42,7 +42,7 @@ const MainBoard = () => {
         </div>
 
         <button
-          className="shrink-0 mb-4 text-detail-m text-graygray-50 hover:text-graygray-90 transition-colors font-bold"
+          className="text-center shrink-0 mb-4 text-detail-m text-graygray-50 hover:text-graygray-90 transition-colors font-bold"
           onClick={() => navigate(tabPaths[activeTab])}
         >
           더보기 +
