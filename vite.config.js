@@ -64,9 +64,26 @@ export default defineConfig(({ mode }) => {
               console.log('Proxy Response:', proxyRes.statusCode, req.url);
             });
           }
-        }
+        },
+
+        // 재난문자 (속보) api 추가
+        '/message-api': {
+          target: 'https://www.safetydata.go.kr/V2/api',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/message-api/, ''),
+          secure: false,
+          configure: (proxy, options) => {
+            proxy.on('proxyReq', (proxyReq, req, res) => {
+              console.log('Proxy Request:', req.method, req.url);
+            });
+            proxy.on('proxyRes', (proxyRes, req, res) => {
+              console.log('Proxy Response:', proxyRes.statusCode, req.url);
+            });
+          }
+        },
       
       }
     }
   }
 });
+
