@@ -13,7 +13,7 @@ const AdminSideBar = () => {
       items: [
         { name: "공통코드 관리", path: "/admin/adminCommonCodeList" },
         { name: "그룹코드 등록", path: "/admin/adminGroupCodeAdd" },
-        { name: "상세코드 등록", path: "/admin/adminDetailCodeAdd" },
+        { name: "상세코드 등록", path: "/admin/adminSubCodeAdd" },
       ],
       isAvailable: true // 로직 동작 여부
     },
