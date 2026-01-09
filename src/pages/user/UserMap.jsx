@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, Navigation, User, Layers, Home, RotateCcw, Menu, X } from 'lucide-react';
 import DaumPostcode from 'react-daum-postcode'; // 카카오 우편번호 서비스
 import { api, configUtils, authUtils } from '@/utils/axiosConfig';
+import { shelterService } from '@/services/api';
 
 /* <================ SelectBox 부품 (동일) ================> */
 const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
@@ -320,55 +321,92 @@ const handleResultClick = (item) => {
 /* <================================ 핸들러 함수들 ================================> */
 
 
-              /* <================ ★ api 요청 시작 ★ ================> */
-              /**
-               * <================ ★ 외부 api 요청 작성요령 ★ ================>
-               * 1. /safety-api 주소요청 시 => vite.config.js 파일 proxy 부분에 설정
-               * '/safety-api': {
-               *    target: 'https://www.safetydata.go.kr/V2/api',
-               *    changeOrigin: true,
-               *    rewrite: (path) => path.replace(/^\/safety-api/, ''),
-               *    secure: false,
-               *    configure: (proxy, options) => {
-               *      proxy.on('proxyReq', (proxyReq, req, res) => {
-               *        console.log('Proxy Request:', req.method, req.url);
-               *      });
-               *      proxy.on('proxyRes', (proxyRes, req, res) => {
-               *        console.log('Proxy Response:', proxyRes.statusCode, req.url);
-               *      });
-               *    }
-               *  }
-               * 2. api.external(URL, config) 메소드 호출
-               */
-            
-              const shelterRequest = async () => {
-                  // --- [1. 전역 변수: 관제 센터] ---
-                      const SERVICE_KEY = {
-                          TEMPORARY_HOUSING: import.meta.env.VITE_API_SHELTER_TEMPORARY_HOUSING_KEY,
-                          EARTHQUAKE: import.meta.env.VITE_API_SHELTER_EARTHQUAKE_KEY,
-                        }; 
-                        /** 여기에 실제 키를 입력 
-                         * 1. 이재민 임시 거주 시설
-                         * 2. 지진 대피소
-                         * **/
+              /
+  /* <================ ★ api 요청 시작 ★ ================> */
+  /**
+   * <================ ★ 외부 api 요청 작성요령 ★ ================>
+   * 1. /safety-api 주소요청 시 => vite.config.js 파일 proxy 부분에 설정
+   * '/safety-api': {
+   *    target: 'https://www.safetydata.go.kr/V2/api',
+   *    changeOrigin: true,
+   *    rewrite: (path) => path.replace(/^\/safety-api/, ''),
+   *    secure: false,
+   *    configure: (proxy, options) => {
+   *      proxy.on('proxyReq', (proxyReq, req, res) => {
+   *        console.log('Proxy Request:', req.method, req.url);
+   *      });
+   *      proxy.on('proxyRes', (proxyRes, req, res) => {
+   *        console.log('Proxy Response:', proxyRes.statusCode, req.url);
+   *      });
+   *    }
+   *  }
+   * 2. api.external(URL, config) 메소드 호출
+   */
+
+ 
+
+  const shelterRequest = async () => {
+  try {
+    // shelterService.getShelters 형식을 사용합니다.
+    const response = await shelterService.getShelters({
+      serviceKey: shelterServiceKey, // 변수로 선언되어 있어야 함
+      returnType: 'json',
+      pageNo: 1,
+      numOfRows: 10,
+      shlt_se_cd: 3,
+    });
+
+    console.log('대피소 데이터:', response);
+  } catch (error) {
+    console.error('대피소 데이터 요청 실패:', error);
+  }
+};
+
+             // const shelterRequest = async () => {
+    
+  //   const response = await api.external('/safety-api/DSSP-IF-10941', {
+  //     // = https://www.safetydata.go.kr/V2/api/DSSP-IF-10941
+  //     method: 'get',
+  //     params: {
+  //       serviceKey : shelterServiceKey,
+  //       returnType : 'json',
+  //       pageNo : 1,
+  //       numOfRows : 10,
+  //       shlt_se_cd : 3
+  //     }
+  //   });
+  //   console.log(response);
+    
+  // } 
+  
+              // const shelterRequest = async () => {
+              //     // --- [1. 전역 변수: 관제 센터] ---
+              //         const SERVICE_KEY = {
+              //             TEMPORARY_HOUSING: import.meta.env.VITE_API_SHELTER_TEMPORARY_HOUSING_KEY,
+              //             EARTHQUAKE: import.meta.env.VITE_API_SHELTER_EARTHQUAKE_KEY,
+              //           }; 
+              //           /** 여기에 실제 키를 입력 
+              //            * 1. 이재민 임시 거주 시설
+              //            * 2. 지진 대피소
+              //            * **/
 
 
-                const response = await api.external(`/safety-api/DSSP-IF-${apiNum}`, {
-                  // = https://www.safetydata.go.kr/V2/api/DSSP-IF-10941
-                  method: 'get',
-                  params: {
-                    serviceKey : shelterServiceKey,
-                    returnType : 'json',
-                    pageNo : 1,
-                    numOfRows : 10,
-                    // shlt_se_cd : 3
-                    sigunguCode : areaCode
-                  }
-                });
-                console.log(`${apiNum} 데이터 응답:`, response);
-                return response.data; // 보통 axios 기반인 api.external은 .data에 결과가 있어요.
+              //   const response = await api.external(`/safety-api/DSSP-IF-${apiNum}`, {
+              //     // = https://www.safetydata.go.kr/V2/api/DSSP-IF-10941
+              //     method: 'get',
+              //     params: {
+              //       serviceKey : shelterServiceKey,
+              //       returnType : 'json',
+              //       pageNo : 1,
+              //       numOfRows : 10,
+              //       // shlt_se_cd : 3
+              //       sigunguCode : areaCode
+              //     }
+              //   });
+              //   console.log(`${apiNum} 데이터 응답:`, response);
+              //   return response.data; // 보통 axios 기반인 api.external은 .data에 결과가 있어요.
                 
-              } 
+              // } 
                     //
                       /* 3. API 호출 함수 (apiNum과 areaCode를 '인자'로 받게 수정) */
                       const fetchFacilities = async (areaCode, apiNum, keyType) => {
@@ -457,6 +495,9 @@ const handleResultClick = (item) => {
                       //
               /* <================ ★ api 요청 시작 ★ ================> */
   
+
+
+
 
 
 
