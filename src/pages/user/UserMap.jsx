@@ -219,16 +219,9 @@ const handleCivilChange = async (value) => {
     setCivilSelect(value);
     
     if (value === '이재민임시주거시설') {
-        await fetchFacilities('52110', '10945', 'TEMPORARY_HOUSING');
+        await fetchFacilities('10945', '52110', 'TEMPORARY_HOUSING');
     } else if (value === '지진옥외대피장소') {
-        await fetchFacilities('52110', '00706', 'EARTHQUAKE');
-    }
-    
-    // 2. 번호가 결정됐다면 API 호출!
-    if (targetApiNum && selectedSigun) {
-        // 지역명(전주시)을 코드('52111')로 바꾸는 로직이 있으면 더 좋습니다.
-        const data = await shelterRequest(targetApiNum, '52111'); 
-        setShelterResults(data);
+        await fetchFacilities('00706', '52110', 'EARTHQUAKE');
     }
 };
 
@@ -309,7 +302,6 @@ const handleResultClick = (item) => {
                * 2. api.external(URL, config) 메소드 호출
                */
             
-             // 수정 후
               const shelterRequest = async (apiNum, areaCode) => { 
                 const response = await api.external(`/safety-api/DSSP-IF-${apiNum}`, {
                   method: 'get',
@@ -359,7 +351,8 @@ const handleResultClick = (item) => {
                         console.error("데이터 로딩 오류:", error);
                         alert("데이터를 가져오는 중 오류가 발생했습니다.");
                       } // <--- try-catch 닫기
-                    }; // <--- fetchFacilities 함수 닫기 (이게 있어야 export 에러가 안 나요!)
+
+                    }; // <--- fetchFacilities 함수 닫기 (이게 있어야 export 에러가 안 남)
 
 
 
