@@ -1,7 +1,11 @@
+// src/pages/user/openboards/UserNoticeList.jsx
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ChevronDown } from 'lucide-react';
+
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 import BoardListSection from '@/components/shared/BoardListSection';
+import SearchBarTemplate from "@/components/shared/SearchBarTemplate";
 import { noticeData } from './BoardData';
 
 // 공지사항 목록 페이지 //
@@ -93,6 +97,14 @@ const UserNoticeList = () => {
     { label: "공지사항", path: "/userNoticeList", hasIcon: false },
   ];
 
+  // 1. 초기화 핸들러 함수 추가
+  const handleReset = () => {
+    setSearchCategory('선택'); // 카테고리 초기화
+    setSearchTerm('');        // 입력창 비우기
+    setActiveSearch({ category: '선택', term: '' }); // 검색 결과 리셋
+    setCurrentPage(1);        // 1페이지로 이동
+  };
+
   return (
     <div className="w-full px-5 md:px-0">
       {/* 페이지 상단 경로 안내 */}
@@ -100,50 +112,34 @@ const UserNoticeList = () => {
       <button onClick={() => navigate("/admin/adminCommonCodeList")}>코드관리</button>
       <PageBreadcrumb items={breadcrumbItems} />
       <main className="w-full">
-        <h1 className="text-heading-xl text-graygray-90 pb-10">공지사항</h1>
+        <h1 className="text-heading-xl text-graygray-90 pb-20">공지사항</h1>
 
         {/* --- 검색바 영역 --- */}
-        {/* flex-col(모바일:세로), md:flex-row(데스크탑:가로)로 반응형 배치 */}
-        <div className="bg-gray-50 border border-gray-200 p-4 md:p-6 rounded-lg mb-10 flex flex-col md:flex-row justify-center gap-3">
-          {/* 카테고리 선택 드롭다운 */}
-          <div className="relative w-full md:w-32">
+        {/* --- 검색바 영역 병합 적용 --- */}
+        <SearchBarTemplate
+          keyword={searchTerm}
+          onKeywordChange={(e) => setSearchTerm(e.target.value)}
+          onSearch={handleSearch}
+          onReset={handleReset} // 👈 이제 이 handleReset이 위에서 만든 함수를 가리킵니다.
+          placeholder="검색어를 입력해주세요."
+        >
+          {/* 공지사항 전용 필터: 카테고리 선택 */}
+          <div className="relative w-full col-span-2 lg:col-span-1 lg:w-32">
             <select 
               value={searchCategory} 
               onChange={(e) => setSearchCategory(e.target.value)}
-              className="appearance-none border border-gray-300 rounded px-4 py-2 w-full bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-sm pr-10"
+              className="w-full lg:min-w-fit h-14 px-4 pr-10 bg-white border border-graygray-30 rounded-lg text-body-s text-graygray-90 outline-none focus:border-secondary-50 cursor-pointer appearance-none"
             >
               <option value="선택">선택</option>
               <option value="제목">제목</option>
               <option value="내용">내용</option>
               <option value="등록인">등록인</option>
             </select>
-            {/* 커스텀 화살표 아이콘 */}
             <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
-              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-              </svg>
+              <ChevronDown className="w-4 h-4 text-graygray-50" />
             </div>
           </div>
-
-          {/* 검색어 입력창 */}
-          <div className="relative w-full md:flex-1 md:max-w-lg">
-            <input 
-              type="text" 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              placeholder="검색어를 입력해주세요." 
-              className="w-full border border-gray-300 rounded px-4 py-2 pr-10 focus:ring-2 focus:ring-blue-500 text-sm bg-white outline-none"
-            />
-          </div>
-          {/* 검색 버튼 */}
-          <button 
-            onClick={handleSearch}
-            className="w-full md:w-auto bg-blue-600 text-white px-8 py-2 rounded font-medium hover:bg-blue-700 transition active:scale-95 shadow-sm"
-          >
-            검색
-          </button>
-        </div>
+        </SearchBarTemplate>
 
          {/* --- 리스트 테이블 및 페이지네이션 컴포넌트 --- */} 
         <BoardListSection 

@@ -132,24 +132,6 @@ const UserFacilityDetail = () => {
             목록으로
           </Button>
         </div>
-        <div className="flex justify-center md:justify-end">
-          <Button 
-            variant="secondary"
-            onClick={() => navigate('/facilityList')}
-            className="px-8" 
-          >
-            목록으로
-          </Button>
-        </div>
-        <div className="flex justify-center md:justify-end">
-          <Button 
-            variant="primary"
-            onClick={() => navigate('/facilityList')}
-            className="px-8" 
-          >
-            목록으로
-          </Button>
-        </div>
       </div>
     </DetailPageTemplate>
   );
