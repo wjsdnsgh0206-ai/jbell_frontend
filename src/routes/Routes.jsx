@@ -1,6 +1,7 @@
 // src/routes/Routes.jsx
 import { Routes, Route } from "react-router-dom";
 import UserLayout from "@/layouts/user/UserLayout";
+import AdminLayout from "@/layouts/admin/AdminLayout";
 import DisasterModalLayout from "@/layouts/user/disasterModal/DisasterModalLayout";
 import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
@@ -11,6 +12,8 @@ import { ehUserRoutes } from "@/routes/route-eh";
 import { mjUserRoutes } from "@/routes/route-mj";
 import { bjUserRoutes } from "@/routes/route-bj";
 import { jhUserRoutes } from "@/routes/route-jh";
+import { shAdminRoutes } from "@/routes/admin/route-sh";
+import { AdminCommonCodeList } from './admin/route-sh';
 
 const AllRoutes = (props) => {
   
@@ -22,7 +25,13 @@ const AllRoutes = (props) => {
     ...mjUserRoutes,
     ...bjUserRoutes,
     ...jhUserRoutes,
+
   ];
+
+  const allAdminRoutes = [
+    ...shAdminRoutes,
+  ];
+
 
   // 2. 사이드바 종류별로 라우트 필터링.
   // 본인 라우터(route-jh.jsx) 등에서 nowPage를 맞춰주세요.
@@ -52,8 +61,11 @@ const AllRoutes = (props) => {
   // [A] 주요 안전정책 사이드바 그룹
   const mainSafetyPoliciesPageRoutes = allUserRoutes.filter(route => route.nowPage === "주요 안전정책");
 
+
+
   return (
     <Routes>
+
       {/* --------------------------------------------------------- */}
       {/* 1. 행동요령 레이아웃 그룹 (UserLayout이 한 번만 마운트됨) */}
       {/* --------------------------------------------------------- */}
@@ -61,7 +73,7 @@ const AllRoutes = (props) => {
         {behavioralRoutes.map((route, idx) => (
           <Route key={`behavioral-${idx}`} path={route.path} element={route.element} />
         ))}
-      </Route>
+      </Route>myPageRoutes
 
       {/* --------------------------------------------------------- */}
       {/* 2. 마이페이지 레이아웃 그룹 */}
@@ -131,6 +143,19 @@ const AllRoutes = (props) => {
               </DisasterModalLayout>
             } 
           />
+        ))}
+      </Route>
+
+        {/* ==== test ==== */}
+      {/* <Route path="/admin/adminCommonCodeList" element={<AdminCommonCodeList />} /> */}
+
+      {/* --------------------------------------------------------- */}
+      {/* 관리자 - 공통코드 페이지
+      {/* --------------------------------------------------------- */}
+      {/* <Route element={<UserLayout nowPage="공통코드관리" {...props} />}></Route> */}
+      <Route element={<AdminLayout/>}>
+        {shAdminRoutes.map((route, idx) => (
+          <Route key={`community-${idx}`} path={route.path} element={route.element} />
         ))}
       </Route>
     </Routes>
