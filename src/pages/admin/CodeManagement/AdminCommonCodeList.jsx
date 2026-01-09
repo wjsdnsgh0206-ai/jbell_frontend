@@ -4,6 +4,8 @@ import BreadCrumb from '@/components/Admin/board/BreadCrumb';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
 import { Button } from '@/components/shared/Button';
 
+// 코드관리-> 공통코드관리목록 페이지 //
+
 const AdminCommonCodeList = () => {
   const [codes, setCodes] = useState(AdminCommonCodeData);
   const [selectedIds, setSelectedIds] = useState([]);
