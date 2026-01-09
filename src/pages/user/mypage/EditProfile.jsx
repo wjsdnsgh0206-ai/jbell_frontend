@@ -26,7 +26,7 @@ const EditProfile = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
-    console.log("기존 사용자 정보를 로드했습니다.");
+    // console.log("기존 사용자 정보를 로드했습니다.");
   }, []);
 
   const handleChange = (e) => {
@@ -97,14 +97,19 @@ const EditProfile = () => {
   ];
 
   return (
-    <>
-        <PageBreadcrumb items={breadcrumbItems} />
-    <div className="min-h-screen bg-white flex justify-center py-10 px-4 font-sans text-slate-900 text-left">
+
+    <div className="flex flex-col items-center w-full pb-20 px-4 lg:px-0">
+      {/* 브레드크럼 */}
+      <PageBreadcrumb items={breadcrumbItems} />
+
+      {/* 헤더 타이틀 */}
       <div className="max-w-[1280px] w-full">
-        <header className="mb-8 text-center">
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">프로필 수정</h1>
-          <p className="text-slate-500 mt-2">회원님의 소중한 정보를 안전하게 관리하세요.</p>
-        </header>
+        <header className="flex flex-col w-full gap-8 lg:gap-10 mb-16">
+              <div className="flex flex-col gap-4">
+                <h1 className="text-heading-xl text-graygray-90">프로필 정보</h1>
+                <p className="text-detail-m text-graygray-70">회원님의 등록된 정보를 수정하실 수 있습니다.</p>
+              </div>
+            </header>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* 거주지 섹션 */}
@@ -238,7 +243,7 @@ const EditProfile = () => {
         </form>
       </div>
     </div>
-    </>
+    
   );
 };
 

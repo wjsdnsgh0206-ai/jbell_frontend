@@ -12,7 +12,7 @@ const MainStatistics = () => {
   return (
     <section className="w-full">
       {/* === 배경을 흰색으로 변경하고 행동요령과 같은 border, shadow 적용 === */}
-      <div className="bg-white rounded-[24px] border border-graygray-10 p-5 sm:p-8 shadow-1 flex flex-col md:flex-row justify-between items-center gap-6">
+      <div className="bg-white rounded-xl border border-graygray-10 p-5 sm:p-8 flex flex-col md:flex-row justify-between items-center gap-6">
         
         {/* 왼쪽: 타이틀 & 날짜 정보 */}
         <div className="flex items-center gap-4 w-full md:w-auto">

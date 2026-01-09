@@ -52,14 +52,22 @@ const EditProfileCheck = () => {
   ];
 
   return (
-    <>
-        <PageBreadcrumb items={breadcrumbItems} />
-    <div className="min-h-screen bg-white flex justify-center items-start py-20 px-5 font-sans text-slate-900">
+    
+    <div className="flex flex-col items-center w-full pb-20 px-4 lg:px-0">
+            {/* 브레드크럼 */}
+    <PageBreadcrumb items={breadcrumbItems} />
+      
+    {/* 헤더 타이틀 */}
+    <header className="flex flex-col w-full gap-8 lg:gap-10 mb-16">
+      <div className="flex flex-col gap-4">
+        <h1 className="text-heading-xl text-graygray-90">프로필 정보</h1>
+        <p className="text-detail-m text-graygray-70">회원님의 등록된 정보를 수정하실 수 있습니다.</p>
+      </div>
+    </header>
+
       <div className="max-w-[1280px] w-full animate-in fade-in slide-in-from-top-4 duration-700">
         
-        <h1 className="text-3xl font-extrabold tracking-tight mb-8 text-left">
-          내 정보 수정
-        </h1>
+    
 
         <form onSubmit={handleSubmit}>
           <div className={`bg-white border ${error ? 'border-red-500 shadow-sm shadow-red-50' : 'border-slate-200'} rounded-2xl p-8 sm:p-10 transition-all`}>
@@ -120,7 +128,6 @@ const EditProfileCheck = () => {
         </form>
       </div>
     </div>
-    </>
   );
 };
 
