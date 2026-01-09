@@ -3,6 +3,7 @@ import ActionTipBox from "../modal/ActionTipBox";
 import WeatherBox from "../modal/WeatherBox";
 import DisasterMessageBox from "../modal/DisasterMessageBox";
 import FacilityCheckGroup from "../modal/FacilityCheckGroup";
+import MapControlBtn from "@/components/user/modal/MapControlBtn";
 
 const Earthquake = () => {
   const [activeTab, setActiveTab] = useState("기상특보");
@@ -39,9 +40,9 @@ const Earthquake = () => {
       {/* === 상단 지도 섹션 (높이가 유연하게 늘어남) === */}
       <div className="bg-white rounded-xl p-5 shadow-1 border border-graygray-10 flex-1 flex flex-col min-h-0">
         {/* 타이틀 영역 */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6 flex-shrink-0">
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-            <h3 className="text-body-l-bold sm:text-title-m font-black text-graygray-90 whitespace-nowrap">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-1 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap pb-2">
+            <h3 className="text-body-l-bold sm:text-title-m text-graygray-90 whitespace-nowrap">
               실시간 지진정보
             </h3>
             <span className="shrink-0 text-[10px] sm:text-detail-m px-2.5 py-1 bg-secondary-5 border border-graygray-10 rounded-full text-graygray-50 font-bold leading-none">
@@ -62,7 +63,7 @@ const Earthquake = () => {
           </div>
 
           {/* 왼쪽 탭 버튼 메뉴 */}
-          <div className="absolute top-3 left-3 sm:top-5 sm:left-5 w-36 sm:w-48 flex flex-col gap-2 z-10">
+          <div className="absolute top-3 left-3 sm:top-5 sm:left-5 w-36 sm:w-44 flex flex-col gap-2 z-10">
             {mapTabs.map((tab) => (
               <div key={tab.id} className="flex flex-col gap-1.5">
                 <button
@@ -100,14 +101,7 @@ const Earthquake = () => {
           </div>
 
           {/* 줌 버튼 */}
-          <div className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 flex flex-col gap-1.5 z-10">
-            <button className="w-9 h-9 sm:w-10 sm:h-10 bg-white border border-graygray-10 rounded-xl shadow-1 flex items-center justify-center text-lg sm:text-xl font-bold text-graygray-60 hover:text-blue-600 transition-all active:scale-90">
-              +
-            </button>
-            <button className="w-9 h-9 sm:w-10 sm:h-10 bg-white border border-graygray-10 rounded-xl shadow-1 flex items-center justify-center text-lg sm:text-xl font-bold text-graygray-60 hover:text-blue-600 transition-all active:scale-90">
-              -
-            </button>
-          </div>
+          <MapControlBtn/>
         </div>
       </div>
 
