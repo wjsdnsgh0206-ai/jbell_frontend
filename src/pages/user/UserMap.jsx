@@ -162,12 +162,14 @@ const UserMap = () => {
     '군산시': { '기본': ['해신동', '월명동', '신풍동', '조촌동'] },
     '익산시': { '기본': ['중앙동', '인화동', '마동', '남중동'] }
   };
+  //
   const MBY_SELECTS = { '민방위대피소':[], '비상급수시설':[], '지진옥외대피장소':[], '이재민임시주거시설(지진겸용)':[], '이재민임시주거시설':[] };
   const TE_SELECTS = { '빗물펌프장':[], '빗물저류장':[], '대피소정보':[] };
   const MT_SELECTS = { '산사태대피소':[], '산불대피소':[] };
   const JB_REGIONS_FOR_SELECTS = { '전주시 완산구':[], '전주시 덕진구':[], 
     '군산시':[], '익산시':[], '정읍시':[], '남원시':[], '김제시':[], 
     '완주군':[], '고창군':[], '부안군':[], '순창군':[], '임실군':[], '무주군':[], '진안군':[], '장수군':[] };
+  //
 /* <====================== 데이터 정의 (동일) =======================> */
 
 
@@ -183,11 +185,11 @@ const UserMap = () => {
 //
 //
 //
-// handleSigunSelect
+// handleSigunSelect(+ api 호출)
   const handleSigunSelect = (city) => { 
     setSelectedSigun(city); 
     setSelectedGoo(''); 
-    const value = civilSelect||'민방위대피소';
+    const value = civilSelect||'민방위대피소';  // 이거 없으면 선택한 지역의 모든 장소가 다 나옴
     setCivilSelect(value);
     searchPlaces(`${city} ${value}`)
   };
@@ -204,10 +206,26 @@ const UserMap = () => {
 //
 // handleCivilChange
 // 재난 유형 변경 시 실제 검색 실행 (예시: 키워드로 검색)
-  const handleCivilChange = (value) => { 
-    setCivilSelect(value); setWeatherSelect(''); setMountainSelect('');
-    if(value && selectedSigun) searchPlaces(`${selectedSigun} ${value}`);
-  };
+const handleCivilChange = async (value) => {
+    setCivilSelect(value);
+    
+    // 1. 메뉴 명칭에 따라 API 번호를 매칭합니다.
+    let targetApiNum = '';
+    
+    if (value === '이재민임시주거시설') {
+        await fetchFacilities('52110', '10945', 'TEMPORARY_HOUSING');
+    } else if (value === '지진옥외대피장소') {
+        await fetchFacilities('52110', '00706', 'EARTHQUAKE');
+    }
+    
+    // 2. 번호가 결정됐다면 API 호출!
+    if (targetApiNum && selectedSigun) {
+        // 지역명(전주시)을 코드('52111')로 바꾸는 로직이 있으면 더 좋습니다.
+        const data = await shelterRequest(targetApiNum, '52111'); 
+        setShelterResults(data);
+    }
+};
+
   const handleWeatherChange = (value) => { 
     setWeatherSelect(value); setCivilSelect(''); setMountainSelect('');
     if(value && selectedSigun) searchPlaces(`${selectedSigun} ${value}`);
@@ -225,8 +243,9 @@ const handleResultClick = (item) => {
   if (!mapInstance) return;
 
   // 카카오 검색 결과는 x, y를 쓰고, 공공데이터는 위도/경도 이름을 다르게 쓸 수 있음
-  const lat = item.y || item.latitude || item.lat;
-  const lng = item.x || item.longitude || item.lng;
+  const lat = Number(item.y ?? item.latitude ?? item.lat);
+  const lng = Number(item.x ?? item.longitude ?? item.lon);
+
 
   if (lat && lng) {
     const moveLatLng = new window.kakao.maps.LatLng(lat, lng);
@@ -240,27 +259,7 @@ const handleResultClick = (item) => {
 //
 //
 //
-// handleSearch
-const handleSearch = async () => {
-  // 1. 공공데이터 API URL(실제로는 API 가이드의 URL을 넣어야 함)
-  const serviceKey = 'serviceKey';
-  const url =`https://V2/api/DSSP-IF-10941?serviceKey=xxxx`;
 
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    
-    // 2. 받아온 데이터를 상태에 저장
-    // API마다 데이터 구조가 다르니(예: data.response.body.items) 확인 필요!
-    const items = data.response.body.items;
-    setShelterResults(items); 
-
-    // 3. 지도에 마커 뿌려주기
-    displayMarkers(items); 
-  } catch (error) {
-    console.error("데이터를 못 가져오지 못 했습니다...", error);
-  }
-};
 //
 //
 //
@@ -284,44 +283,151 @@ const handleSearch = async () => {
 /* <================================ 핸들러 함수들 ================================> */
 
 
-  /* <================ ★ api 요청 시작 ★ ================> */
-  /**
-   * <================ ★ 외부 api 요청 작성요령 ★ ================>
-   * 1. /safety-api 주소요청 시 => vite.config.js 파일 proxy 부분에 설정
-   * '/safety-api': {
-   *    target: 'https://www.safetydata.go.kr/V2/api',
-   *    changeOrigin: true,
-   *    rewrite: (path) => path.replace(/^\/safety-api/, ''),
-   *    secure: false,
-   *    configure: (proxy, options) => {
-   *      proxy.on('proxyReq', (proxyReq, req, res) => {
-   *        console.log('Proxy Request:', req.method, req.url);
-   *      });
-   *      proxy.on('proxyRes', (proxyRes, req, res) => {
-   *        console.log('Proxy Response:', proxyRes.statusCode, req.url);
-   *      });
-   *    }
-   *  }
-   * 2. api.external(URL, config) 메소드 호출
-   */
-  const shelterRequest = async () => {
-    
-    const response = await api.external('/safety-api/DSSP-IF-10941', {
-      // = https://www.safetydata.go.kr/V2/api/DSSP-IF-10941
-      method: 'get',
-      params: {
-        serviceKey : shelterServiceKey,
-        returnType : 'json',
-        pageNo : 1,
-        numOfRows : 10,
-        shlt_se_cd : 3
-      }
-    });
-    console.log(response);
-    
-  } 
+              /* <================ ★ api 요청 시작 ★ ================> */
+              /**
+               * <================ ★ 외부 api 요청 작성요령 ★ ================>
+               * 1. /safety-api 주소요청 시 => vite.config.js 파일 proxy 부분에 설정
+               * '/safety-api': {
+               *    target: 'https://www.safetydata.go.kr/V2/api',
+               *    changeOrigin: true,
+               *    rewrite: (path) => path.replace(/^\/safety-api/, ''),
+               *    secure: false,
+               *    configure: (proxy, options) => {
+               *      proxy.on('proxyReq', (proxyReq, req, res) => {
+               *        console.log('Proxy Request:', req.method, req.url);
+               *      });
+               *      proxy.on('proxyRes', (proxyRes, req, res) => {
+               *        console.log('Proxy Response:', proxyRes.statusCode, req.url);
+               *      });
+               *    }
+               *  }
+               * 2. api.external(URL, config) 메소드 호출
+               */
+            
+              const shelterRequest = async () => {
+                
+                const response = await api.external(`/safety-api/DSSP-IF-${apiNum}`, {
+                  // = https://www.safetydata.go.kr/V2/api/DSSP-IF-10941
+                  method: 'get',
+                  params: {
+                    serviceKey : shelterServiceKey,
+                    returnType : 'json',
+                    pageNo : 1,
+                    numOfRows : 10,
+                    // shlt_se_cd : 3
+                    sigunguCode : areaCode
+                  }
+                });
+                console.log(`${apiNum} 데이터 응답:`, response);
+                return response.data; // 보통 axios 기반인 api.external은 .data에 결과가 있어요.
+                
+              } 
+                    //
+                    // --- [1. 전역 변수: 관제 센터] ---
+                      const SERVICE_KEY = {
+                          TEMPORARY_HOUSING: import.meta.env.VITE_API_SHELTER_TEMPORARY_HOUSING_KEY,
+                          EARTHQUAKE: import.meta.env.VITE_API_SHELTER_EARTHQUAKE_KEY,
+                        }; 
+                        /** 여기에 실제 키를 입력 
+                         * 1. 이재민 임시 거주 시설
+                         * 2. 지진 대피소
+                         * **/
+                      let currentFacilities = []; // 현재 데이터 저장용
+                      // let markers = [];           // 지도 마커 관리용
+                      let map = null;             // 지도 객체 (초기화 시 할당)
 
-  /* <================ ★ 카카오맵 로직 시작 ★ ================> */
+                      // --- [2. 핵심 API 호출 함수: 수술 완료] ---
+                      async function fetchFacilities(areaCode, apiNum, keyType) {
+                          // Vite Proxy 설정(/safety-api)을 적용
+                          // baseUrl 뒤에 오는 경로는 실제 공공데이터포털 API 상세 경로에 맞춰야 함
+                          // 예: /safety-api/GisEarthquakeShelter (문서 확인 필요)
+                          const baseUrl = '/safety-api';
+                          
+                          // keyType에 따라 SERVICE_KEYS 객체에서 해당 키를 가져옵니다.
+                          const currentKey = SERVICE_KEYS[keyType];
+                          
+                          // URL 생성 (proxy가 target 주소로 바꿔주므로 도메인은 뺍니다)
+                          const url = `${baseUrl}/DSSP-IF-${apiNum}?serviceKey=${SERVICE_KEY}&sigunguCode=${areaCode}&type=json`;
+
+                          console.log("최종 요청 주소:", url);
+
+                          try {
+                              console.log("요청 시작:", url);
+                              const response = await fetch(url);
+                              
+                              if (!response.ok) throw new Error(`HTTP 에러: ${response.status}`);
+                              
+                              const data = await response.json();
+                              
+                              // 보통 공공데이터 결과는 data.response.body.items 등에 들어있으니 확인 필수!
+                              console.log("받아온 데이터:", data);
+
+                              // 데이터 구조에 따라 items를 잘 추출해야 함 (공공데이터 표준 구조 예시)
+                              const items = data?.response?.body?.items?.item || [];
+                              
+                              // 전역 변수에 저장 및 지도 업데이트
+                              currentFacilities = data; 
+                              updateMap(currentFacilities);
+
+                          } catch (error) {
+                              console.error("데이터를 가져오는 중 오류 발생:", error);
+                              alert("데이터 로딩에 실패했습니다.");
+                          }
+                      }
+
+                      // --- [3. 지도 업데이트 함수] ---
+                      function updateMap(facilityData) {
+                          if (!facilityData || !Array.isArray(facilityData)) return;
+
+                          // 1. 기존 마커 지우기
+                          markers.forEach(marker => marker.setMap(null));
+                          markers = [];
+
+                          // 2. 새로운 마커 찍기
+                          facilityData.forEach(item => {
+                              // [주의] item.latitude, item.lon 등 API 응답 필드명을 확인하세요!
+                              console.log("마커 생성 위치:", item.xPos, item.yPos); 
+                              
+                              /* 지도 라이브러리 예시 (네이버/카카오 등)
+                              const marker = new google.maps.Marker({
+                                  position: { lat: Number(item.yPos), lng: Number(item.xPos) },
+                                  map: map
+                              });
+                              markers.push(marker);
+                              */
+                          });
+
+                          console.log(`총 ${facilityData.length}개의 마커가 표시되었습니다.`);
+                      }
+
+                      // --- [4. 이벤트 핸들러: 사용자가 지역 선택 시] ---
+                      async function handleUserSelection() {
+                      // 1. 지역 코드 배열
+                        const selectedAreaCodes = [
+                            '52790', '52130'
+                        ];
+
+                        const apiNum = ['00706', '10945'];
+                        
+                        // 3. 시설 타입(또는 API 번호) 배열
+                        const selectedFacilityTypes = [
+                          'VITE_API_SHELTER_TEMPORARY_HOUSING_KEY',
+                          'VITE_API_SHELTER_EARTHQUAKE'];
+
+                        // 4. 하나씩 꺼내서 호출하기 (핵심!)
+                        for (const area of selectedAreaCodes) {
+                            for (const type of selectedFacilityTypes) {
+                                // 이제 함수가 '문자열' 하나씩을 받아서 정상적인 URL을 만듭니다.
+                                await fetchFacilities(area, type); 
+                            }
+                          }
+                        }
+                      //
+              /* <================ ★ api 요청 시작 ★ ================> */
+  
+
+
+
 
   
 /* <================ ★ 카카오맵 로직 시작 ★ ================> */
@@ -371,7 +477,6 @@ const handleSearch = async () => {
     //
     /* <========== 지도 초기화 ==========> */
     /* <========== 지도 마커 및 커스텀 오버레이 로직 ==========> */
-    //
       useEffect(() => {
         if (!mapInstance || !Array.isArray(shelterResults)) return;
 
@@ -380,73 +485,58 @@ const handleSearch = async () => {
 
         const bounds = new window.kakao.maps.LatLngBounds();
         let hasValidPoints = false;
-        let currentOverlay = null; // 현재 열려있는 팝업을 추적하기 위한 변수
+        let currentOverlay = null; 
 
-        // 2. 새 마커 생성 및 범위 확장
         const newMarkers = shelterResults.map((place) => {
-          // ★ API마다 다른 좌표 변수명을 통합합니다.
           const lat = place.y || place.latitude || place.la || place.lat; 
           const lng = place.x || place.longitude || place.lo || place.lng;
-          // ★ API마다 다른 장소명 변수명을 통합합니다.
-          const title = place.place_name || place.shlt_nm || place.facility_name;
-          const addr = place.address_name || place.road_nm_addr || place.addr;
 
           if (lat && lng) {
             const markerPosition = new window.kakao.maps.LatLng(lat, lng);
+            
+            // 1. 마커 생성
             const marker = new window.kakao.maps.Marker({
               position: markerPosition,
               map: mapInstance,
-              clickable: true
+              clickable: true // 클릭 가능하도록 설정
             });
-            
 
-
-            {/* 지도 위 마커를 누르면 나오는 소형 팝업 창 */}
-            // 팝업창(CustomOverlay) 내용에 위에서 정의한 title, addr 사용
-            const content = document.createElement('div');
-            content.className = "popup-style"; // 디자인 입히기
-            // z-index를 높게 줘서 지도 위로 확실히 올리고, pointer-events를 살려야 버튼이 클릭됩니다.
-            content.style.cssText = `
-              position: absolute;
-              bottom: 40px; 
-              left: 50%;
-              transform: translateX(-50%);
-              z-index: 100;
-            `;
-            content.innerHTML = `
-              <div class="bg-white p-4 rounded-lg shadow-xl border border-slate-200 min-w-[200px]">
-                <div class="flex justify-between items-center mb-2">
-                  <strong class="text-sm text-blue-600">${place.place_name || '장소명 없음'}</strong>
-                  <button class="close-btn p-1 hover:bg-slate-100 rounded">✕</button>
-                </div>
-                <p class="text-xs text-slate-600">${place.address_name || '주소 정보 없음'}</p>
-              </div>
-            `;
-
-            const closeBtn = content.querySelector('.close-btn');
-            closeBtn.onclick = () => {
-              if (currentOverlay) {
-                currentOverlay.setMap(null); // 지도에서 팝업 제거
-                setSelectedShelter(null);    // 선택된 데이터 초기화
-              }
-            };
-
+            // 2. 마커 클릭 이벤트 등록
             window.kakao.maps.event.addListener(marker, 'click', () => {
-              
-              // 1. 기존에 열려있는 오버레이가 있다면 닫기 (이 로직이 필요함)
-              if (currentOverlay) currentOverlay.setMap(null);
+              // 기존 오버레이 닫기
+              if (window._currentOverlay) {
+                window._currentOverlay.setMap(null);
+              }
 
-              // 2. 새 오버레이 생성
+              // 팝업 HTML 생성
+              const content = document.createElement('div');
+              content.innerHTML = `
+                <div style="margin-bottom: 40px; background: white; padding: 10px; border-radius: 8px; shadow: 0 2px 6px rgba(0,0,0,0.3); border: 1px solid #ccc; min-width: 150px; position: relative;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <strong style="font-size: 13px; color: #2563eb;">${place.place_name || place.shlt_nm || '장소'}</strong>
+                    <button id="overlay-close-${place.id || lat}" style="cursor: pointer; border: none; background: none; font-size: 14px;">✕</button>
+                  </div>
+                  <p style="font-size: 11px; color: #666; margin: 0;">${place.address_name || place.road_nm_addr || ''}</p>
+                </div>
+              `;
+
+              // 3. 커스텀 오버레이 생성
               const overlay = new window.kakao.maps.CustomOverlay({
-                content: content, // 위에서 만든 content 변수
-                map: mapInstance,
-                position: markerPosition
+                content: content,
+                position: markerPosition,
+                yAnchor: 1 // 마커 바로 위에 위치하게 조절
               });
 
-              currentOverlay = overlay; // 현재 오버레이 저장
-              // 팝업 띄우는 로직...
+              overlay.setMap(mapInstance);
+              window._currentOverlay = overlay; // 전역/상위 참조에 저장
+
+              // 닫기 버튼 이벤트 연결
+              const closeBtn = content.querySelector(`#overlay-close-${place.id || lat}`);
+              closeBtn.onclick = () => overlay.setMap(null);
+
+              // 왼쪽 상세 패널 열기
               setSelectedShelter(place);
-              mapInstance.panTo(markerPosition); 
+              mapInstance.panTo(markerPosition);
             });
 
             bounds.extend(markerPosition);
@@ -454,16 +544,14 @@ const handleSearch = async () => {
             return marker;
           }
           return null;
-        }).filter(m => m !== null); // 좌표 없는 데이터 제외
+        }).filter(m => m !== null);
 
         setMarkers(newMarkers);
 
-        // 3. 마커가 있을 때만 지도 화면 맞춤
         if (hasValidPoints) {
           mapInstance.setBounds(bounds);
         }
       }, [shelterResults, mapInstance]);
-    //
     /* <========== 지도 마커 및 커스텀 오버레이 로직 ==========> */
   // useEffect 최종 막줄
 
@@ -471,10 +559,12 @@ const handleSearch = async () => {
 
   // 마커 제거 헬퍼 함수
   const removeMarkers = () => {
-    markers.forEach(marker => marker.setMap(null));
-    setMarkers([]);
+  if (window._currentOverlay) {
+    window._currentOverlay.setMap(null);
+  }
+  markers.forEach(marker => marker.setMap(null));
+  setMarkers([]);
   };
-
   // 4. 지도 컨트롤 함수
   const zoomIn = () => mapInstance?.setLevel(mapInstance.getLevel() - 1);
   const zoomOut = () => mapInstance?.setLevel(mapInstance.getLevel() + 1);
@@ -521,9 +611,8 @@ const handleSearch = async () => {
           fixed md:relative top-0 left-0 z-[70] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out
           /* 너비 설정 */
           w-[85%] md:w-[380px] h-full
-          /* 열림/닫힘 상태에 따른 이동 */
-          ${(isMobileMenuOpen || (selectedShelter && window.innerWidth < 768)) ? 'translate-x-0' : '-translate-x-full'}
-          /* PC에서는 항상 보이게 */
+          /* 수정된 부분: selectedShelter가 있어도 모바일 메뉴가 열려있어야 함 */
+          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
           md:translate-x-0
         `}
       >
@@ -571,7 +660,7 @@ const handleSearch = async () => {
           {selectedShelter && (
             <DetailPanel 
               item={selectedShelter} 
-              onClose={() => setSelectedShelter(null)} 
+              onClose={() => {setSelectedShelter(null)}} 
             />
           )}
 
