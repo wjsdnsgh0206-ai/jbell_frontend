@@ -26,7 +26,7 @@ const EditProfile = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
-    console.log("기존 사용자 정보를 로드했습니다.");
+    // console.log("기존 사용자 정보를 로드했습니다.");
   }, []);
 
   const handleChange = (e) => {

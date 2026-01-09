@@ -26,7 +26,7 @@ const Withdrawal = () => {
   const handleWithdrawal = () => {
     if (isAllAgreed) {
       // 탈퇴 처리 로직 (API 호출 등)
-      console.log("탈퇴 처리 시작");
+      // console.log("탈퇴 처리 시작");
       alert("탈퇴 처리가 완료되었습니다.");
       navigate('/'); // 탈퇴 후 메인으로 이동
     }
