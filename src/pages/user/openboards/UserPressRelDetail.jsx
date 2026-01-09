@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 import { pressData } from './BoardData';
+import { Button } from '@/components/shared/Button';
 
 // 보도자료 상세페이지 //
 
@@ -114,14 +115,17 @@ const UserPressRelDetail = () => {
         
         <div className="border-t border-gray-200"></div>
         
-        {/* --- 하단 액션 영역 --- */}
-        <div className="flex justify-end mt-8">
-          <button 
-            onClick={() => navigate('/userPressRelList')} 
-            className="bg-[#2b79f3] text-white px-5 py-2.5 rounded-md text-[15px] font-semibold hover:bg-[#1a65d6] transition-all duration-200"
-          >
-            목록
-          </button>
+        {/* 하단 목록 버튼 영역 */}
+        <div className="flex justify-center md:justify-end pt-10 border-t border-graygray-20">
+          <div className="flex justify-center md:justify-end">
+            <Button 
+              variant="tertiary"
+              onClick={() => navigate('/userPressRelList')}
+              className="px-8" 
+            >
+              목록으로
+            </Button>
+          </div>
         </div>
       </main>
     </div>

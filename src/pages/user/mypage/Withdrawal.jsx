@@ -36,7 +36,7 @@ const Withdrawal = () => {
     <>
     <PageBreadcrumb items={breadcrumbItems} />
     <div className="min-h-screen bg-white flex items-center justify-center p-4 sm:p-8">
-      <div className="bg-white w-full max-w-[600px] rounded-3xl overflow-hidden border border-slate-100">
+      <div className="bg-white w-full max-w-[1280px] rounded-3xl overflow-hidden border border-slate-100">
         
         {/* 상단 헤더 / 뒤로가기 */}
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">

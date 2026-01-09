@@ -1,10 +1,11 @@
+// src/components/user/facility/FacilityListSection.jsx
 import React from 'react';
 
 const FacilityListSection = ({ items, currentPage, totalPages, onPageChange, onDetail }) => {
   return (
     <div className="w-full">
       {/* 1. Table Area */}
-      <div className="w-full mt-4 bg-white border-t-2 border-graygray-90">
+      <div className="w-full bg-white border-t-2 border-graygray-90">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[600px] text-center table-fixed border-collapse">
             

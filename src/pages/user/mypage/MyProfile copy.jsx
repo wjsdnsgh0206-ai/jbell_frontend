@@ -27,17 +27,13 @@ const MyProfile = () => {
 
   return (
     <>
-    <div className="flex flex-col items-center w-full pb-20 px-4 lg:px-0">
-      {/* 브레드크럼 */}
-      <PageBreadcrumb items={breadcrumbItems} />
-
-      {/* 헤더 타이틀 */}
+    <PageBreadcrumb items={breadcrumbItems} />
+    <div className="min-h-screen bg-white flex justify-center py-10 px-4 font-sans text-slate-900 text-left">
       <div className="max-w-[1280px] w-full">
-        <header className="flex flex-col w-full gap-8 lg:gap-10 mb-16">
-          <div className="flex flex-col gap-4">
-            <h1 className="text-heading-xl text-graygray-90">프로필 정보</h1>
-            <p className="text-detail-m text-graygray-70">회원님의 등록된 정보를 확인하실 수 있습니다.</p>
-          </div>
+        {/* 3. 데이터 전달 */}
+        <header className="mb-8 text-center">
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">프로필 정보</h1>
+          <p className="text-slate-500 mt-2">회원님의 등록된 정보를 확인하실 수 있습니다.</p>
         </header>
 
         <div className="space-y-6">
