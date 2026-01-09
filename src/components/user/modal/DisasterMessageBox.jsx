@@ -9,63 +9,54 @@ const DisasterMessage = () => {
   ];
 
   return (
-    <div className="flex flex-col h-full bg-graygray-0">
-      {/* 헤더 섹션: 타이틀 크기 최적화 */}
-      <div className="px-6 py-3 border-b border-graygray-10 flex justify-between items-center">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-secondary-5">
-            <AlertCircle size={16} className="text-secondary-50" />
-          </div>
-          <h3 className="text-title-s text-graygray-90 tracking-tight">
-            실시간 재난문자
-          </h3>
+    <div className="flex flex-col h-full bg-white">
+      {/* 헤더: 모바일에서는 패딩을 줄이고, PC에서는 적당히 유지 */}
+      <div className="px-4 py-3 md:px-6 md:py-4 border-b border-gray-100 flex items-center gap-2.5 flex-shrink-0 bg-white">
+        <div className="h-6 w-6 flex items-center justify-center rounded-lg bg-red-50">
+          <AlertCircle size={16} className="text-red-500" />
         </div>
+        {/* 모바일 text-body-s-bold -> PC text-body-m-bold */}
+        <h3 className="text-body-s-bold md:text-body-m-bold text-gray-900">
+          실시간 재난문자
+        </h3>
       </div>
 
-      {/* 리스트 섹션: 가독성 중심 카드 설계 */}
-      <div className="flex-1 overflow-y-auto p-5 space-y-4">
+      {/* 리스트 영역 */}
+      <div className="flex-1 overflow-y-auto p-3 md:p-5 space-y-3 md:space-y-4 custom-scrollbar">
         {messages.map((msg) => (
           <div 
             key={msg.id} 
-            className="relative p-5 bg-graygray-0 border border-graygray-10 rounded-xl hover:border-secondary-20 transition-all duration-200 cursor-default shadow-sm group"
+            className="relative p-4 bg-gray-50/50 border border-gray-100 rounded-xl transition-all hover:bg-white hover:shadow-md group border-l-4"
+            style={{ borderLeftColor: msg.type === '화재' ? '#ef4444' : msg.type === '호우' ? '#3b82f6' : '#f97316' }}
           >
-            {/* 상단 메타 정보: 글자 크기 및 간격 조정 */}
-            <div className="flex justify-between items-center mb-3">
+            <div className="flex justify-between items-center mb-2">
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 text-body-s-bold text-graygray-60">
-                  <MapPin size={12} className="text-graygray-40" />
-                  {msg.region}
-                </div>
-                <span className="w-1 h-1 rounded-full bg-graygray-20" />
-                <span className={`text-body-s-bold ${
-                  msg.type === '화재' ? 'text-red-500' : msg.type === '호우' ? 'text-secondary-50' : 'text-orange-500'
+                {/* 모바일에서는 더 작게(text-[11px]), PC에서는 원래대로(text-detail-s-bold) */}
+                <span className="text-[11px] md:text-detail-s-bold text-gray-600 font-bold">{msg.region}</span>
+                <span className={`text-[10px] md:text-[11px] px-1.5 py-0.5 rounded font-black ${
+                  msg.type === '화재' ? 'bg-red-100 text-red-600' : msg.type === '호우' ? 'bg-blue-100 text-blue-600' : 'bg-orange-100 text-orange-600'
                 }`}>
                   {msg.type}
                 </span>
               </div>
-              <div className="flex items-center gap-1 text-detail-s font-medium text-graygray-40 tabular-nums">
-                <Clock size={12} />
+              <div className="flex items-center gap-1 text-[10px] md:text-detail-s text-gray-400 font-mono">
+                <Clock size={10} className="md:w-3 md:h-3" />
                 {msg.time}
               </div>
             </div>
 
-            {/* 본문 영역: 글자 크기를 키워 시인성 확보 */}
-            <p className="text-detail-m text-graygray-80 font-medium leading-[1.6] break-keep">
+            {/* 본문: 모바일 text-detail-s -> PC text-detail-m (혹은 body-s) */}
+            <p className="text-detail-s md:text-detail-m text-gray-700 leading-relaxed break-keep font-medium">
               {msg.content}
             </p>
-
-            {/* 디자인 포인트: 왼쪽 강조 바를 조금 더 굵게 */}
-            <div className={`absolute left-0 top-5 bottom-5 w-1 rounded-r-full transition-transform group-hover:scale-y-110 ${
-              msg.type === '화재' ? 'bg-red-500' : msg.type === '호우' ? 'bg-secondary-50' : 'bg-orange-500'
-            }`} />
           </div>
         ))}
       </div>
 
-      {/* 푸터: 폰트 가독성 한계치 고려 */}
-      <div className="px-6 py-2 bg-graygray-5 border-t border-graygray-10">
-        <p className="text-detail-xs text-graygray-50 leading-relaxed">
-          본 정보는 공공데이터를 기반으로 제공되며,<br/>
+      {/* 푸터 */}
+      <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex-shrink-0">
+        <p className="text-[10px] md:text-detail-xs text-gray-400 leading-tight">
+          본 정보는 공공데이터를 기반으로 제공되며,<br className="md:hidden" />
           실제 상황과 일부 차이가 있을 수 있습니다.
         </p>
       </div>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 /*
   MainActionGuide 컴포넌트
   > 작성자 : 최지영
@@ -35,18 +35,27 @@ const GUIDE_DATA = {
 };
 
 const MainActionGuide = () => {
+    const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("생활안전");
 
+
+
   return (
-    <div className="bg-graygray-0 rounded-[24px] border border-graygray-10 p-5 sm:p-8 shadow-1 h-full flex flex-col min-h-[420px]">
+    <div className="bg-graygray-0 rounded-xl border border-graygray-10 p-5 sm:p-8 h-full flex flex-col min-h-[420px]">
       <div className="mb-6">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-2 mb-2 justify-between">
           <h2 className="text-title-m sm:text-title-l text-graygray-90 font-bold">
             행동요령
           </h2>
+                  <button
+          className="shrink-0 text-detail-m text-graygray-50 hover:text-graygray-90 transition-colors font-bold"
+          onClick={() => navigate('/earthquakeActionGuide')}
+        >
+          더보기 +
+        </button>
         </div>
         {/* 하이라이트 바: 브랜드 컬러 secondary-50 적용 */}
-        <div className="w-10 sm:w-15 h-1 bg-secondary-50 rounded-full" />
+        <div className="w-20 sm:w-[80px] h-1 bg-secondary-50 rounded-full" />
       </div>
 
       {/* 탭 메뉴 */}
