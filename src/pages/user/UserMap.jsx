@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, Navigation, User, Layers, Home, RotateCcw, Menu, X } from 'lucide-react';
 import DaumPostcode from 'react-daum-postcode'; // 카카오 우편번호 서비스
 import { api, configUtils, authUtils } from '@/utils/axiosConfig';
-import { shelterService } from '@/services/api';
 
 /* <================ SelectBox 부품 (동일) ================> */
 const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
@@ -49,7 +48,7 @@ const DetailPanel = ({ item, onClose }) => {
 
   return (
    /* 중요: absolute top-0 left-0으로 설정해서 부모 aside를 완전히 덮어버립니다. */
-    <div className="absolute inset-0 z-[110] w-full h-full bg-white flex flex-col animate-in fade-in slide-in-from-right-5 duration-300">
+    <div className="absolute inset-0 z-[70] w-full h-full bg-white flex flex-col animate-in fade-in slide-in-from-right-5 duration-300">
       {/* 상단 이미지 영역 */}
       <div className="relative h-48 bg-blue-50 shrink-0">
         <button 
@@ -104,6 +103,17 @@ const DetailPanel = ({ item, onClose }) => {
 
 
 const UserMap = () => {
+
+  // --- [1. 전역 변수: 관제 센터] ---
+                      const SERVICE_KEY = {
+                          TEMPORARY_HOUSING: import.meta.env.VITE_API_SHELTER_TEMPORARY_HOUSING_KEY,
+                          EARTHQUAKE: import.meta.env.VITE_API_SHELTER_EARTHQUAKE_KEY,
+                        }; 
+                        /** 여기에 실제 키를 입력 
+                         * 1. 이재민 임시 거주 시설
+                         * 2. 지진 대피소
+                         * **/
+
 /* <========================== 상태 관리(앱의 기억력) ==========================> */
   // ui 상태
 
@@ -149,35 +159,12 @@ const UserMap = () => {
 
 
 /* <====================== 데이터 정의 (동일) =======================> */
-  //  
   const REGION_DATA = {
     '전주시': ['완산구', '덕진구'],
     '군산시': [], '익산시': [], '정읍시': [], '남원시': [], '김제시': [],
     '완주군': [], '고창군': [], '부안군': [], '순창군': [], '임실군': [],
     '무주군': [], '진안군': [], '장수군': [],
   };
-  //
-  //
-      /* for api */
-      const REGION_CODE_MAP = {
-      '전주시 완산구': '52111',
-      '전주시 덕진구': '52113',
-      '군산시': '52130',
-      '익산시': '52140',
-      '정읍시': '52150',
-      '남원시': '52160',
-      '김제시': '52170',
-      '완주군': '52710',
-      '고창군': '52790',
-      '부안군': '52800',
-      '순창군': '52770',
-      '임실군': '52750',
-      '무주군': '52730',
-      '진안군': '52720',
-      '장수군': '52740'
-    };
-  //
-  //
   const DETAILED_DATA = {
     '전주시': {
       '완산구': ['중앙동', '풍남동', '노송동', '완산동'],
@@ -186,16 +173,12 @@ const UserMap = () => {
     '군산시': { '기본': ['해신동', '월명동', '신풍동', '조촌동'] },
     '익산시': { '기본': ['중앙동', '인화동', '마동', '남중동'] }
   };
-  //
-  //
   const MBY_SELECTS = { '민방위대피소':[], '비상급수시설':[], '지진옥외대피장소':[], '이재민임시주거시설(지진겸용)':[], '이재민임시주거시설':[] };
   const TE_SELECTS = { '빗물펌프장':[], '빗물저류장':[], '대피소정보':[] };
   const MT_SELECTS = { '산사태대피소':[], '산불대피소':[] };
   const JB_REGIONS_FOR_SELECTS = { '전주시 완산구':[], '전주시 덕진구':[], 
     '군산시':[], '익산시':[], '정읍시':[], '남원시':[], '김제시':[], 
     '완주군':[], '고창군':[], '부안군':[], '순창군':[], '임실군':[], '무주군':[], '진안군':[], '장수군':[] };
-  //
-  //
 /* <====================== 데이터 정의 (동일) =======================> */
 
 
@@ -234,9 +217,6 @@ const UserMap = () => {
 // 재난 유형 변경 시 실제 검색 실행 (예시: 키워드로 검색)
 const handleCivilChange = async (value) => {
     setCivilSelect(value);
-    /*
-    // 1. 메뉴 명칭에 따라 API 번호를 매칭합니다.
-    let targetApiNum = '';
     
     if (value === '이재민임시주거시설') {
         await fetchFacilities('52110', '10945', 'TEMPORARY_HOUSING');
@@ -250,26 +230,8 @@ const handleCivilChange = async (value) => {
         const data = await shelterRequest(targetApiNum, '52111'); 
         setShelterResults(data);
     }
-    */
-    // 1. 현재 선택된 지역명(selectedSigun)을 코드로 변환
-    const areaCode = REGION_CODE_MAP[selectedSigun]; 
-    
-    if (!areaCode) {
-      alert("지역을 먼저 선택해주세요!");
-      return;
-    }
-
-    // 2. 시설 종류에 따른 API 번호와 키 타입 결정
-    if (value === '이재민임시주거시설') {
-      // 이제 숫자로 변환된 areaCode를 던집니다!
-      await fetchFacilities(areaCode, '10941', 'TEMPORARY_HOUSING');
-    } 
-    else if (value === '지진옥외대피장소') {
-      await fetchFacilities(areaCode, '10101', 'EARTHQUAKE');
-    }
 };
-//
-//
+
   const handleWeatherChange = (value) => { 
     setWeatherSelect(value); setCivilSelect(''); setMountainSelect('');
     if(value && selectedSigun) searchPlaces(`${selectedSigun} ${value}`);
@@ -301,8 +263,13 @@ const handleResultClick = (item) => {
 
 };
 //
-// handleComplete
-// 카카오 우편번호 서비스(daum.postcode)
+//
+//
+
+//
+//
+//
+// handleComplete - 카카오 우편번호 서비스(daum.postcode)
     const handleComplete = (data) => {
     // 상세 주소(건물번호 등)를 제외한 기본 주소만 추출
     // 예: "전북특별자치도 전주시 완산구 효자동3가 123-4" -> "전주시 완산구 효자동3가"
@@ -321,130 +288,82 @@ const handleResultClick = (item) => {
 /* <================================ 핸들러 함수들 ================================> */
 
 
-              /
-  /* <================ ★ api 요청 시작 ★ ================> */
-  /**
-   * <================ ★ 외부 api 요청 작성요령 ★ ================>
-   * 1. /safety-api 주소요청 시 => vite.config.js 파일 proxy 부분에 설정
-   * '/safety-api': {
-   *    target: 'https://www.safetydata.go.kr/V2/api',
-   *    changeOrigin: true,
-   *    rewrite: (path) => path.replace(/^\/safety-api/, ''),
-   *    secure: false,
-   *    configure: (proxy, options) => {
-   *      proxy.on('proxyReq', (proxyReq, req, res) => {
-   *        console.log('Proxy Request:', req.method, req.url);
-   *      });
-   *      proxy.on('proxyRes', (proxyRes, req, res) => {
-   *        console.log('Proxy Response:', proxyRes.statusCode, req.url);
-   *      });
-   *    }
-   *  }
-   * 2. api.external(URL, config) 메소드 호출
-   */
-
- 
-
-  const shelterRequest = async () => {
-  try {
-    // shelterService.getShelters 형식을 사용합니다.
-    const response = await shelterService.getShelters({
-      serviceKey: shelterServiceKey, // 변수로 선언되어 있어야 함
-      returnType: 'json',
-      pageNo: 1,
-      numOfRows: 10,
-      shlt_se_cd: 3,
-    });
-
-    console.log('대피소 데이터:', response);
-  } catch (error) {
-    console.error('대피소 데이터 요청 실패:', error);
-  }
-};
-
-             // const shelterRequest = async () => {
-    
-  //   const response = await api.external('/safety-api/DSSP-IF-10941', {
-  //     // = https://www.safetydata.go.kr/V2/api/DSSP-IF-10941
-  //     method: 'get',
-  //     params: {
-  //       serviceKey : shelterServiceKey,
-  //       returnType : 'json',
-  //       pageNo : 1,
-  //       numOfRows : 10,
-  //       shlt_se_cd : 3
-  //     }
-  //   });
-  //   console.log(response);
-    
-  // } 
-  
-              // const shelterRequest = async () => {
-              //     // --- [1. 전역 변수: 관제 센터] ---
-              //         const SERVICE_KEY = {
-              //             TEMPORARY_HOUSING: import.meta.env.VITE_API_SHELTER_TEMPORARY_HOUSING_KEY,
-              //             EARTHQUAKE: import.meta.env.VITE_API_SHELTER_EARTHQUAKE_KEY,
-              //           }; 
-              //           /** 여기에 실제 키를 입력 
-              //            * 1. 이재민 임시 거주 시설
-              //            * 2. 지진 대피소
-              //            * **/
-
-
-              //   const response = await api.external(`/safety-api/DSSP-IF-${apiNum}`, {
-              //     // = https://www.safetydata.go.kr/V2/api/DSSP-IF-10941
-              //     method: 'get',
-              //     params: {
-              //       serviceKey : shelterServiceKey,
-              //       returnType : 'json',
-              //       pageNo : 1,
-              //       numOfRows : 10,
-              //       // shlt_se_cd : 3
-              //       sigunguCode : areaCode
-              //     }
-              //   });
-              //   console.log(`${apiNum} 데이터 응답:`, response);
-              //   return response.data; // 보통 axios 기반인 api.external은 .data에 결과가 있어요.
-                
-              // } 
+              /* <================ ★ api 요청 시작 ★ ================> */
+              /**
+               * <================ ★ 외부 api 요청 작성요령 ★ ================>
+               * 1. /safety-api 주소요청 시 => vite.config.js 파일 proxy 부분에 설정
+               * '/safety-api': {
+               *    target: 'https://www.safetydata.go.kr/V2/api',
+               *    changeOrigin: true,
+               *    rewrite: (path) => path.replace(/^\/safety-api/, ''),
+               *    secure: false,
+               *    configure: (proxy, options) => {
+               *      proxy.on('proxyReq', (proxyReq, req, res) => {
+               *        console.log('Proxy Request:', req.method, req.url);
+               *      });
+               *      proxy.on('proxyRes', (proxyRes, req, res) => {
+               *        console.log('Proxy Response:', proxyRes.statusCode, req.url);
+               *      });
+               *    }
+               *  }
+               * 2. api.external(URL, config) 메소드 호출
+               */
+            
+             // 수정 후
+              const shelterRequest = async (apiNum, areaCode) => { 
+                const response = await api.external(`/safety-api/DSSP-IF-${apiNum}`, {
+                  method: 'get',
+                  params: {
+                    serviceKey: shelterServiceKey,
+                    returnType: 'json',
+                    pageNo: 1,
+                    numOfRows: 10,
+                    sigunguCode: areaCode // areaCode도 인자로 받아 사용
+                  }
+                });
+                return response.data;
+              };
                     //
-                      /* 3. API 호출 함수 (apiNum과 areaCode를 '인자'로 받게 수정) */
-                      const fetchFacilities = async (areaCode, apiNum, keyType) => {
-                        // 여기서 apiNum이 정의됩니다! 함수 호출할 때 넘겨준 값이 이리로 들어와요.
-                        const baseUrl = '/safety-api';
-                        const currentKey = SERVICE_KEYS[keyType] || shelterServiceKey; // 키가 없으면 기본키 사용
-
-                        const urlProxy = `${baseUrl}/DSSP-IF-${apiNum}?serviceKey=${currentKey}&sigunguCode=${areaCode}&type=json`;
-
-                       
-                        try {
-                          console.log("요청 시작:", urlProxy);
-                          const response = await fetch(urlProxy);
-                          if (!response.ok) throw new Error(`HTTP 에러: ${response.status}`);
-                          
-                          const data = await response.json();
-                          
-                          // 공공데이터 특유의 데이터 계층 뚫기 (items가 없을 경우 대비)
-                          const items = data?.response?.body?.items?.item || [];
-                          
-                          if (items.length === 0) {
-                            alert("검색 결과가 없습니다.");
-                            setShelterResults([]);
-                            return;
-                          }
-
-                          // 받아온 데이터를 상태에 저장 (이게 바뀌어야 화면이 그려짐)
-                          setShelterResults(items); 
-                          
-                        } catch (error) {
-                          console.error("데이터 로딩 오류:", error);
-                          alert("데이터를 가져오지 못했습니다. 콘솔을 확인하세요.");
-                        }
-                      };
                   
                       let currentFacilities = []; // 현재 데이터 저장용
                       // let markers = [];           // 지도 마커 관리용
                       let map = null;             // 지도 객체 (초기화 시 할당)
+
+                     /* 3. API 호출 함수 (apiNum과 areaCode를 '인자'로 받게 수정) */
+                    const fetchFacilities = async (areaCode, apiNum, keyType) => {
+                      const baseUrl = '/safety-api';
+                      const currentKey = SERVICE_KEY[keyType] || shelterServiceKey;
+
+                      const urlProxy = `${baseUrl}/DSSP-IF-${apiNum}?serviceKey=${currentKey}&sigunguCode=${areaCode}&type=json`;
+
+                      try {
+                        console.log("요청 시작:", urlProxy);
+                        const response = await fetch(urlProxy);
+                        if (!response.ok) throw new Error(`HTTP 에러: ${response.status}`);
+                        
+                        const data = await response.json();
+                        
+                        const items = data?.response?.body?.items?.item || [];
+                        
+                        if (items.length === 0) {
+                          alert("검색 결과가 없습니다.");
+                          setShelterResults([]);
+                          return;
+                        }
+
+                        setShelterResults(items);
+                        console.log("데이터 저장 완료:", items);
+
+                      } catch (error) {
+                        // 🚨 아까 빠졌던 catch 부분입니다!
+                        console.error("데이터 로딩 오류:", error);
+                        alert("데이터를 가져오는 중 오류가 발생했습니다.");
+                      } // <--- try-catch 닫기
+                    }; // <--- fetchFacilities 함수 닫기 (이게 있어야 export 에러가 안 나요!)
+
+
+
+                      
 
                       // --- [3. 지도 업데이트 함수] ---
                       function updateMap(facilityData) {
@@ -489,15 +408,13 @@ const handleResultClick = (item) => {
                         for (const area of selectedAreaCodes) {
                             for (const type of selectedFacilityTypes) {
                                 // 이제 함수가 '문자열' 하나씩을 받아서 정상적인 URL을 만듭니다.
-                                await fetchFacilities(area, type); 
+                                await fetchFacilities(area, type, keyType); 
                             }
                           }
+                        }
                       //
               /* <================ ★ api 요청 시작 ★ ================> */
   
-
-
-
 
 
 
@@ -746,8 +663,8 @@ const handleResultClick = (item) => {
                 <button 
                 onClick={() => {
                   // 실제 구현 시: selectedShelter의 좌표와 이름을 넣습니다.
-                  const urlKakaoMap = `https://map.kakao.com/link/to/${name},${lat},${lng}`;
-                  window.open(url, '_blank');
+                  const urlNaverMap = `https://map.naver.com/v5/directions/-/127.1,35.8,전주역/-/walk`;
+                  window.open(urlNaverMap, '_blank');
                 }}
                 className="w-full bg-[#03C75A] text-white py-3 rounded-md font-bold hover:bg-[#02b351] 
                 transition-all flex items-center justify-center gap-2"
