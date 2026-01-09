@@ -42,8 +42,8 @@ const DetailPanel = ({ item, onClose }) => {
   const goNavi = () => {
     // dest: 도착지 이름,좌표
     // 도착지가 검색한 장소로 지정된 상태로 화면이 나옴
-    const url = `https://map.kakao.com/link/to/${name},${lat},${lng}`;
-    window.open(url, '_blank');
+    const urlKakaoMap = `https://map.kakao.com/link/to/${name},${lat},${lng}`;
+    window.open(urlKakaoMap, '_blank');
   };
 
   return (
@@ -162,14 +162,12 @@ const UserMap = () => {
     '군산시': { '기본': ['해신동', '월명동', '신풍동', '조촌동'] },
     '익산시': { '기본': ['중앙동', '인화동', '마동', '남중동'] }
   };
-  //
   const MBY_SELECTS = { '민방위대피소':[], '비상급수시설':[], '지진옥외대피장소':[], '이재민임시주거시설(지진겸용)':[], '이재민임시주거시설':[] };
   const TE_SELECTS = { '빗물펌프장':[], '빗물저류장':[], '대피소정보':[] };
   const MT_SELECTS = { '산사태대피소':[], '산불대피소':[] };
   const JB_REGIONS_FOR_SELECTS = { '전주시 완산구':[], '전주시 덕진구':[], 
     '군산시':[], '익산시':[], '정읍시':[], '남원시':[], '김제시':[], 
     '완주군':[], '고창군':[], '부안군':[], '순창군':[], '임실군':[], '무주군':[], '진안군':[], '장수군':[] };
-  //
 /* <====================== 데이터 정의 (동일) =======================> */
 
 
@@ -347,13 +345,13 @@ const handleResultClick = (item) => {
                           const currentKey = SERVICE_KEYS[keyType];
                           
                           // URL 생성 (proxy가 target 주소로 바꿔주므로 도메인은 뺍니다)
-                          const url = `${baseUrl}/DSSP-IF-${apiNum}?serviceKey=${SERVICE_KEY}&sigunguCode=${areaCode}&type=json`;
+                          const urlProxy = `${baseUrl}/DSSP-IF-${apiNum}?serviceKey=${SERVICE_KEY}&sigunguCode=${areaCode}&type=json`;
 
-                          console.log("최종 요청 주소:", url);
+                          console.log("최종 요청 주소:", urlProxy);
 
                           try {
-                              console.log("요청 시작:", url);
-                              const response = await fetch(url);
+                              console.log("요청 시작:", urlProxy);
+                              const response = await fetch(urlProxy);
                               
                               if (!response.ok) throw new Error(`HTTP 에러: ${response.status}`);
                               
@@ -608,7 +606,7 @@ const handleResultClick = (item) => {
       <aside 
         className={`
           /* 모바일에서는 absolute로 띄워서 지도를 밀지 않게 함 */
-          fixed md:relative top-0 left-0 z-[70] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out
+          fixed md:relative top-0 left-0 z-[70] md:z-[0] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out
           /* 너비 설정 */
           w-[85%] md:w-[380px] h-full
           /* 수정된 부분: selectedShelter가 있어도 모바일 메뉴가 열려있어야 함 */
@@ -673,7 +671,7 @@ const handleResultClick = (item) => {
                 <button 
                 onClick={() => {
                   // 실제 구현 시: selectedShelter의 좌표와 이름을 넣습니다.
-                  const url = `https://map.naver.com/v5/directions/-/127.1,35.8,전주역/-/walk`;
+                  const urlKakaoMap = `https://map.kakao.com/link/to/${name},${lat},${lng}`;
                   window.open(url, '_blank');
                 }}
                 className="w-full bg-[#03C75A] text-white py-3 rounded-md font-bold hover:bg-[#02b351] 
