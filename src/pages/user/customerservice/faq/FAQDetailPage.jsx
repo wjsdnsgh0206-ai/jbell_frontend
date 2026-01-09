@@ -77,18 +77,18 @@ const FAQDetailPage = () => {
           </div>
         </div>
 
-        {/* Buttons */}
-        <div className="flex justify-center border-t border-graygray-20 pt-10">
-          <Button 
-            onClick={() => navigate('/faq')}
-            variant="tertiary" // 목록으로 돌아가기는 보통 3차(흰색/회색테두리) 버튼 사용
-            size="default"
-            className="w-full sm:w-auto px-10 active:scale-95"
-          >
-            목록으로 돌아가기
-          </Button>
+        {/* 하단 목록 버튼 영역 */}
+        <div className="flex justify-center md:justify-end pt-10 border-t border-graygray-20">
+          <div className="flex justify-center md:justify-end">
+            <Button 
+              variant="tertiary"
+              onClick={() => navigate('/faq')}
+              className="px-8" 
+            >
+              목록으로
+            </Button>
+          </div>
         </div>
-
       </main>
     </div>
   );

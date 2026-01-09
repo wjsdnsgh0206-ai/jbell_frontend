@@ -34,7 +34,7 @@ const SearchBarTemplate = ({
       {/* 3. 공통 버튼 그룹 */}
       <div className="flex w-full lg:w-auto gap-2">
         <Button 
-          variant="primary"
+          variant="secondary"
           onClick={onSearch}
           size="flex"
           className="flex-1 lg:flex-none h-14 text-body-m px-5"

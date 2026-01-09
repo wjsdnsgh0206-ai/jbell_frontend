@@ -20,8 +20,8 @@ const FAQListPage = () => {
   // --- 상태 관리 ---
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [sortOrder, setSortOrder] = useState('latest'); // 'latest' | 'oldest' | 'mostAsked'
-  
+  const [sortOrder, setSortOrder] = useState('mostAsked'); // 'latest' | 'oldest' | 'mostAsked'
+
   // 검색 상태
   const [searchCategory, setSearchCategory] = useState('전체');
   const [searchTerm, setSearchTerm] = useState('');
@@ -37,15 +37,19 @@ const FAQListPage = () => {
       result = result.filter(item => {
         if (activeSearch.category === '제목') return item.question.includes(term);
         if (activeSearch.category === '내용') return item.answer.includes(term);
-        // 전체 검색: 질문 또는 답변에 포함
         return item.question.includes(term) || item.answer.includes(term);
       });
     }
 
-    // 2. 정렬 로직
+    // 2. 정렬 로직 (인기순/최신순/오래된순)
     result.sort((a, b) => {
-      if (sortOrder === 'mostAsked') return b.views - a.views; // 조회수 내림차순 (가상 필드 views가 있다고 가정하거나 data.js에 추가 필요)
-      
+      if (sortOrder === 'mostAsked') {
+        // views가 없을 경우 0으로 처리하여 정렬 오류 방지
+        const viewsA = a.views || 0;
+        const viewsB = b.views || 0;
+        return viewsB - viewsA;
+      }
+
       const dateA = new Date(a.date);
       const dateB = new Date(b.date);
       return sortOrder === 'latest' ? dateB - dateA : dateA - dateB;
@@ -62,7 +66,6 @@ const FAQListPage = () => {
     currentPage * itemsPerPage
   );
 
-  // --- 핸들러 ---
   const handleSearch = () => {
     setActiveSearch({ category: searchCategory, term: searchTerm });
     setCurrentPage(1);
@@ -85,7 +88,7 @@ const FAQListPage = () => {
   return (
     <div className="flex flex-col items-center w-full min-h-screen pb-20 px-4 lg:px-0">
       <main className="w-full max-w-[1000px] flex flex-col">
-        
+
         <PageBreadcrumb items={breadcrumbItems} />
         <h1 className="flex flex-col w-full pb-20 text-heading-xl text-graygray-90">FAQ</h1>
 
@@ -99,7 +102,7 @@ const FAQListPage = () => {
         >
           {/* 카테고리 필터 */}
           <div className="relative w-full col-span-2 lg:w-32">
-            <select 
+            <select
               value={searchCategory}
               onChange={(e) => setSearchCategory(e.target.value)}
               className="w-full lg:min-w-fit h-14 px-4 pr-10 bg-white border border-graygray-30 rounded-lg text-body-s text-graygray-90 outline-none focus:border-secondary-50 cursor-pointer appearance-none"
@@ -120,14 +123,14 @@ const FAQListPage = () => {
           <div className="text-body-m text-graygray-70 whitespace-nowrap">
             총 <span className="font-bold text-graygray-90">{totalItems}</span>건
           </div>
-          
+
           <div className="flex items-center gap-3 sm:gap-4 text-detail-m text-graygray-50">
              <div className="flex items-center gap-2 sm:gap-3">
               <button 
                 onClick={() => setSortOrder('mostAsked')}
                 className={`transition-colors ${sortOrder === 'mostAsked' ? "font-bold text-graygray-90" : "hover:text-graygray-90"}`}
               >
-                인기질문
+                인기순
               </button>
               <span className="w-[1px] h-3 bg-graygray-30"></span>
               <button 
@@ -159,7 +162,6 @@ const FAQListPage = () => {
                 <option value={20}>20개씩 보기</option>
                 <option value={30}>30개씩 보기</option>
               </select>
-              {/* 화살표 아이콘을 추가하여 선택 박스임을 직관적으로 표시 */}
               <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                 <ChevronDown size={14} className="text-graygray-40" />
               </div>
@@ -171,8 +173,8 @@ const FAQListPage = () => {
         <div className="flex flex-col gap-3 md:gap-5 pt-4">
           {currentItems.length > 0 ? (
             currentItems.map((item) => (
-              <div 
-                key={item.id} 
+              <div
+                key={item.id}
                 onClick={() => navigate(`/faq/${item.id}`)}
                 className="border border-graygray-10 rounded-xl p-5 md:p-6 hover:shadow-sm hover:border-graygray-30 transition-all cursor-pointer bg-white active:bg-graygray-5 flex flex-col gap-4"
               >
@@ -183,7 +185,7 @@ const FAQListPage = () => {
                     <span className="text-heading-m text-secondary-50 leading-none mt-0.5 shrink-0">Q</span>
                     <h3 className="text-title-l text-graygray-90 leading-snug">{item.question}</h3>
                   </div>
-                  
+
                   {/* 답변 미리보기 (A) */}
                   <div className="flex items-start gap-3 pl-1">
                     <span className="text-body-m-bold text-graygray-50 leading-none mt-1 shrink-0">A</span>
@@ -219,7 +221,7 @@ const FAQListPage = () => {
         {totalPages > 1 && (
           <div className="flex justify-center items-center gap-1.5 mt-12 select-none">
             {/* 이전 버튼 */}
-            <button 
+            <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
               className="w-8 h-8 flex items-center justify-center border border-graygray-20 rounded bg-white text-graygray-40 hover:bg-graygray-5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
@@ -234,8 +236,8 @@ const FAQListPage = () => {
                   key={number}
                   onClick={() => handlePageChange(number)}
                   className={`w-8 h-8 flex items-center justify-center rounded text-detail-m transition-all
-                    ${currentPage === number 
-                      ? 'bg-secondary-50 text-white font-bold shadow-sm' 
+                    ${currentPage === number
+                      ? 'bg-secondary-50 text-white font-bold shadow-sm'
                       : 'text-graygray-70 hover:bg-graygray-5'
                     }`}
                 >
@@ -245,7 +247,7 @@ const FAQListPage = () => {
             </div>
 
             {/* 다음 버튼 */}
-            <button 
+            <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
               className="w-8 h-8 flex items-center justify-center border border-graygray-20 rounded bg-white text-graygray-40 hover:bg-graygray-5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
