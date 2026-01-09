@@ -34,16 +34,16 @@ const jyUserRoutes = [
 
 const disasterModal = [
   {
-    path: "/disaster/",
+    path: "/disaster",
     element: <DisasterModalLayout />,   // 🔥 레이아웃만
     children: [
       { index: true, element: <AccidentNews /> },
-      { path: "accident", element: <AccidentNews /> },
-      { path: "earthquake", element: <Earthquake /> },
-      { path: "flood", element: <Flood /> },
-      { path: "heavyRain", element: <HeavyRain /> },
-      { path: "landSlide", element: <LandSlide /> },
-      { path: "typhoon", element: <Typhoon /> },
+      { path: "/accident", element: <AccidentNews /> },
+      { path: "/earthquake", element: <Earthquake /> },
+      { path: "/flood", element: <Flood /> },
+      { path: "/heavyRain", element: <HeavyRain /> },
+      { path: "/landSlide", element: <LandSlide /> },
+      { path: "/typhoon", element: <Typhoon /> },
       { path: "forestFire", element: <ForestFire /> },
     ],
   },
