@@ -2,8 +2,13 @@ import React, { useState } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
 import FacilityCheckGroup from "../modal/FacilityCheckGroup";
 import MapControlBtn from "@/components/user/modal/MapControlBtn";
+import CommonMap from "@/components/user/modal/CommonMap"; // 경로 확인!
 
 const Earthquake = () => {
+  const earthquakeData = [
+    { lat: 35.8, lng: 127.1, title: "지진 발생", content: "규모 3.0 진도 4" },
+  ];
+
   const [activeTab, setActiveTab] = useState("기상특보");
   const [facilities, setFacilities] = useState({
     shelter: true,
@@ -37,36 +42,28 @@ const Earthquake = () => {
             <h3 className="md:text-body-m-bold lg:text-title-m text-body-s-bold text-gray-900">
               실시간 지진정보
             </h3>
-            <span
-              className={`
-                  rounded-xl font-bold
-                  bg-[var(--graygray-10)] text-[var(--graygray-50)] text-center
-                  
-                  /* 모바일 (기존 유지) */
-                  text-[10px] px-2.5 py-1 
-                  
-                  /* 웹 (PC): 폰트 15px로 키우고 여백 넉넉하게 */
-                  md:text-detail-s md:px-4 md:py-1.5 md:w-[80px]
-              `}
-            >
+            <span className="rounded-xl font-bold bg-gray-100 text-gray-500 text-center text-[10px] px-2.5 py-1 md:text-detail-s md:px-4 md:py-1.5 md:w-[80px]">
               특보없음
             </span>
           </div>
           <p className="text-detail-xs md:text-detail-s text-gray-400">2026.01.09 기준</p>
         </div>
 
+        {/* === 지도 영역 === */}
         <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[400px] lg:min-h-0">
+          
+          {/* 공통 지도 컴포넌트 삽입 */}
+          <CommonMap markers={earthquakeData} />
+
+          {/* 지도 위 UI (탭 버튼들) */}
           <div className="absolute top-3 left-0 right-0 px-3 lg:px-0 lg:top-5 lg:left-5 lg:right-auto flex lg:flex-col gap-2 z-20 overflow-x-auto no-scrollbar">
             {mapTabs.map((tab) => (
-              <div
-                key={tab.id}
-                className="relative flex flex-col gap-2 flex-shrink-0 lg:flex-shrink"
-              >
+              <div key={tab.id} className="relative flex flex-col gap-2 flex-shrink-0 lg:flex-shrink">
                 <button
                   onClick={() => handleTabClick(tab.id)}
-                  className={`flex items-center justify-center px-3 py-2 lg:px-5 text-center lg:py-3 lg-px-3 rounded-2xl lg:rounded-xl text-detail-s-bold lg:text-body-m transition-all border ${
+                  className={`flex items-center justify-center px-3 py-2 lg:px-5 text-center lg:py-3 rounded-2xl lg:rounded-xl text-detail-s-bold lg:text-body-m transition-all border ${
                     activeTab === tab.id
-                      ? "bg-blue-600 text-white"
+                      ? "bg-blue-600 text-white shadow-lg"
                       : "bg-white/95 backdrop-blur-md text-gray-600 border-gray-100"
                   }`}
                 >
@@ -84,13 +81,19 @@ const Earthquake = () => {
               </div>
             ))}
           </div>
-          <MapControlBtn />
+
+          {/* 지도 컨트롤 버튼 */}
+          <div className="absolute bottom-5 right-5 z-20">
+             <MapControlBtn />
+          </div>
         </div>
       </div>
-<div className="block md:hidden xl:block bg-white rounded-2xl p-5 lg:p-6 border border-gray-100 flex-shrink-0">
-  <ActionTipBox type="지진" />
-</div>
+
+      <div className="block md:hidden xl:block bg-white rounded-2xl p-5 lg:p-6 border border-gray-100 flex-shrink-0">
+        <ActionTipBox type="지진" />
+      </div>
     </div>
   );
 };
+
 export default Earthquake;
