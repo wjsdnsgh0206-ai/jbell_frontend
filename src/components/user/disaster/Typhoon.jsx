@@ -1,20 +1,16 @@
 import React, { useState } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
-import WeatherBox from "../modal/WeatherBox";
-import DisasterMessageBox from "../modal/DisasterMessageBox";
 import FacilityCheckGroup from "../modal/FacilityCheckGroup";
-
-/*
-  Typhoon 컴포넌트
-  > 작성자 : 최지영 (수정: Gemini)
-  > 컴포넌트 설명 : 재난사고속보 모달 내부의 태풍 메뉴 컴포넌트.
-    '재난안전시설' 클릭 시 하위 체크박스 노출 및 토글 기능 추가.
-*/
+import MapControlBtn from "@/components/user/modal/MapControlBtn";
+import CommonMap from "@/components/user/modal/CommonMap"; // 공통 지도 엔진
 
 const Typhoon = () => {
-  const [activeTab, setActiveTab] = useState("태풍경로도");
+  // 태풍 관련 데이터 (예: 태풍 중심 위치, 예상 경로 지점들)
+  const typhoonData = [
+    { lat: 34.5000, lng: 126.5000, title: "제1호 태풍 네파탁", content: "현재 위치: 서귀포 남쪽 약 300km 부근" },
+  ];
 
-  // 체크박스 상태 관리
+  const [activeTab, setActiveTab] = useState("태풍경로도");
   const [facilities, setFacilities] = useState({
     shelter: true,
     hospital: false,
@@ -27,137 +23,99 @@ const Typhoon = () => {
     { id: "재난안전시설", label: "재난안전시설", hasArrow: true },
   ];
 
-  // 탭 토글 핸들러 (이미 활성화된 탭 클릭 시 닫힘)
-  const handleTabClick = (tabId) => {
-    setActiveTab((prev) => (prev === tabId ? null : tabId));
-  };
-
-  // 체크박스 핸들러
-  const handleCheck = (key) => {
-    setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  // 재난안전시설 탭 데이터
   const typhoonItems = [
-    { id: "shelter", label: "이재민임시시설" }, 
+    { id: "shelter", label: "이재민임시시설" },
     { id: "hospital", label: "병원" },
     { id: "pharmacy", label: "약국" },
   ];
 
+  const handleTabClick = (tabId) =>
+    setActiveTab((prev) => (prev === tabId ? null : tabId));
+  const handleCheck = (key) =>
+    setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
+
   return (
-    <div className="grid grid-cols-12 gap-5 lg:gap-6">
-      <div className="col-span-12 lg:col-span-8 flex flex-col gap-5 lg:gap-6">
-        <div className="bg-white rounded-xl p-5 sm:p-5 shadow-1 border border-graygray-10 h-[200px] min-h-[480px]">
-          {/* 헤더 섹션 */}
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
-            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-              <h3 className="text-body-l-bold sm:text-title-m font-black text-graygray-90 whitespace-nowrap">
-                실시간 태풍정보
-              </h3>
-              <span className="shrink-0 text-[10px] sm:text-detail-m px-3 py-1 bg-red-50 border border-red-100 rounded-full text-red-600 font-bold leading-none">
-                태풍 북상 중
-              </span>
-            </div>
-            <p className="text-[10px] sm:text-detail-m text-graygray-30 font-medium tabular-nums">
-              2026.01.02 기준
-            </p>
+    <div className="flex-1 flex flex-col min-h-0 gap-5 lg:gap-6">
+      <div className="bg-white rounded-2xl p-4 lg:p-5 border border-gray-100 flex-1 flex flex-col min-h-0">
+        {/* 헤더 섹션 */}
+        <div className="flex justify-between items-center mb-4 flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <h3 className="md:text-body-m-bold lg:text-title-m text-body-s-bold text-gray-900">
+              실시간 태풍정보
+            </h3>
+            <span className="rounded-xl font-bold bg-gray-100 text-gray-500 text-center text-[10px] px-2.5 py-1 md:text-detail-s md:px-4 md:py-1.5 md:w-[80px]">
+              특보없음
+            </span>
           </div>
-
-          <div className="relative h-[200px] sm:h-[384px] bg-secondary-5 rounded-xl border border-graygray-10 overflow-hidden shadow-inner">
-            {/* 배경 지도 영역 */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-title-s sm:text-title-l font-black text-graygray-20 uppercase tracking-[0.2em] opacity-50 px-4 text-center select-none">
-                Typhoon Path Map Area
-              </span>
-            </div>
-
-            {/* 좌측 사이드바 메뉴 */}
-            <div className="absolute top-3 left-3 sm:top-5 sm:left-5 w-36 sm:w-44 flex flex-col gap-1.5 sm:gap-2 z-10">
-              {mapTabs.map((tab) => (
-                <div key={tab.id} className="flex flex-col gap-1.5">
-                  <button
-                    onClick={() => handleTabClick(tab.id)}
-                    className={`flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl text-[12px] sm:text-body-m font-black transition-all border
-                      ${
-                        activeTab === tab.id
-                          ? "bg-blue-600 text-white border-blue-600 shadow-blue shadow-lg translate-x-1"
-                          : "bg-white/95 backdrop-blur-sm text-graygray-60 border-graygray-10 hover:bg-white hover:translate-x-1 shadow-sm"
-                      }`}
-                  >
-                    <span className="truncate">{tab.label}</span>
-                    {tab.hasArrow && (
-                      <span
-                        className={`transition-transform duration-300 ${
-                          activeTab === tab.id ? "rotate-90" : ""
-                        }`}
-                      >
-                        <span className="text-[8px] sm:text-[10px]">▶</span>
-                      </span>
-                    )}
-                  </button>
-
-                  {tab.id === "재난안전시설" &&
-                    activeTab === "재난안전시설" && (
-                      <FacilityCheckGroup
-                        items={typhoonItems} 
-                        facilities={facilities}
-                        onCheck={handleCheck}
-                      />
-                    )}
-                </div>
-              ))}
-            </div>
-
-            {/* 우측 정보 요약 창 */}
-            <div className="absolute top-3 right-3 sm:top-5 sm:right-5 bg-white/90 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-graygray-10 shadow-xl z-10 min-w-[180px] animate-in fade-in zoom-in-95">
-              <div className="space-y-3">
-                <p className="text-[9px] sm:text-[10px] font-black text-graygray-40 uppercase tracking-widest">
-                  Typhoon Summary
-                </p>
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2.5">
-                    <div className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                    </div>
-                    <span className="text-detail-l sm:text-body-m font-black text-graygray-80 tabular-nums uppercase">
-                      중심기압:{" "}
-                      <span className="text-red-600 font-black">965 hPa</span>
-                    </span>
-                  </div>
-                  <div className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-[11px] sm:text-detail-m font-black text-center border border-blue-100 shadow-sm">
-                    ⚠️ 제1호 태풍 네파탁 (강)
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 flex flex-col gap-1.5 z-10">
-              <button className="w-9 h-9 sm:w-10 sm:h-10 bg-white border border-graygray-10 rounded-xl shadow-1 flex items-center justify-center text-lg sm:text-xl font-bold text-graygray-60 hover:text-blue-600 transition-all active:scale-90">
-                +
-              </button>
-              <button className="w-9 h-9 sm:w-10 sm:h-10 bg-white border border-graygray-10 rounded-xl shadow-1 flex items-center justify-center text-lg sm:text-xl font-bold text-graygray-60 hover:text-blue-600 transition-all active:scale-90">
-                -
-              </button>
-            </div>
-          </div>
+          <p className="text-detail-xs md:text-detail-s text-gray-400">2026.01.09 기준</p>
         </div>
 
-                <div className="bg-white h-[250px] rounded-xl p-6 shadow-1 border border-graygray-10">
-          <ActionTipBox type="태풍" />
+        {/* 지도 영역 */}
+        <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[400px] lg:min-h-0">
+          
+          {/* 공통 지도 컴포넌트 삽입 */}
+          <CommonMap markers={typhoonData} />
+
+          {/* 상단 탭 메뉴 (모바일 가로스크롤 / PC 세로) */}
+          <div className="absolute top-3 left-0 right-0 px-3 lg:px-0 lg:top-5 lg:left-5 lg:right-auto flex lg:flex-col gap-2 z-20 overflow-x-auto no-scrollbar">
+            {mapTabs.map((tab) => (
+              <div key={tab.id} className="relative flex flex-col gap-2 flex-shrink-0 lg:flex-shrink">
+                <button
+                  onClick={() => handleTabClick(tab.id)}
+                  className={`
+                    flex items-center justify-center px-3 py-2 lg:px-5 text-center lg:py-3 rounded-2xl lg:rounded-xl text-detail-s-bold lg:text-body-m transition-all border
+                    ${activeTab === tab.id
+                        ? "bg-blue-600 text-white border-blue-600 shadow-md"
+                        : "bg-white/95 backdrop-blur-md border-gray-100 text-gray-600 hover:bg-white"
+                    }
+                  `}
+                >
+                  <span className="whitespace-nowrap">{tab.label}</span>
+                  {tab.hasArrow && (
+                    <span className={`hidden lg:block ml-2 transition-transform ${activeTab === tab.id ? "rotate-90" : ""}`}>
+                      <span className="text-[10px]">▶</span>
+                    </span>
+                  )}
+                </button>
+
+                {/* 재난안전시설 체크박스 그룹 */}
+                {tab.id === "재난안전시설" && activeTab === "재난안전시설" && (
+                  <div className="absolute top-12 left-0 lg:static lg:mt-1">
+                    <FacilityCheckGroup
+                      items={typhoonItems}
+                      facilities={facilities}
+                      onCheck={handleCheck}
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* 정보 요약창 (태풍 중심 기압 및 명칭) */}
+          <div className="absolute bottom-4 right-4 lg:top-5 lg:right-5 lg:bottom-auto bg-white/90 backdrop-blur-md p-4 rounded-2xl border border-gray-100 shadow-xl z-10 min-w-[160px]">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative h-2 w-2 rounded-full bg-red-500"></span>
+              </span>
+              <span className="text-detail-l lg:text-body-m font-bold text-gray-800">965 hPa</span>
+            </div>
+            <div className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-detail-s lg:text-body-s-bold text-center">
+              제1호 태풍 네파탁
+            </div>
+          </div>
+
+          {/* 지도 컨트롤 버튼 */}
+          <div className="absolute bottom-5 right-5 lg:bottom-20 z-20">
+            <MapControlBtn />
+          </div>
         </div>
       </div>
 
-       {/* === 오른쪽 패널 === */}
-      <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 lg:gap-6 items-center lg:items-start">
-        <div className="w-full lg:max-w-[370px] h-[200px] bg-gradient-to-br from-[#62A1E9] to-[#4A90E2] rounded-xl p-5 lg:p-6 shadow-1 border border-white/30">
-          <WeatherBox />
-        </div>
-
-        {/* 재난문자 높이도 왼쪽과 맞추고 싶다면 같이 h-[480px] 정도로 조절 가능 */}
-        <div className="w-full max-w-[370px] h-[530px] bg-white rounded-xl shadow-1 border border-graygray-10 overflow-hidden flex flex-col">
-          <DisasterMessageBox />
-        </div>
+      {/* 하단 행동요령 */}
+      <div className="bg-white rounded-2xl p-5 lg:p-6 border border-gray-100 flex-shrink-0">
+        <ActionTipBox type="태풍" />
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, Navigation, User, Layers, Home, RotateCcw, Menu, X } from 'lucide-react';
 import DaumPostcode from 'react-daum-postcode'; // 카카오 우편번호 서비스
 import { api, configUtils, authUtils } from '@/utils/axiosConfig';
+import { shelterService } from '@/services/api';
 
 /* <================ SelectBox 부품 (동일) ================> */
 const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
@@ -304,22 +305,48 @@ const handleSearch = async () => {
    *  }
    * 2. api.external(URL, config) 메소드 호출
    */
+
+
+  
+  // const shelterRequest = async () => {
+    
+  //   const response = await api.external('/safety-api/DSSP-IF-10941', {
+  //     // = https://www.safetydata.go.kr/V2/api/DSSP-IF-10941
+  //     method: 'get',
+  //     params: {
+  //       serviceKey : shelterServiceKey,
+  //       returnType : 'json',
+  //       pageNo : 1,
+  //       numOfRows : 10,
+  //       shlt_se_cd : 3
+  //     }
+  //   });
+  //   console.log(response);
+    
+  // } 
+  
+
   const shelterRequest = async () => {
-    
-    const response = await api.external('/safety-api/DSSP-IF-10941', {
-      // = https://www.safetydata.go.kr/V2/api/DSSP-IF-10941
-      method: 'get',
-      params: {
-        serviceKey : shelterServiceKey,
-        returnType : 'json',
-        pageNo : 1,
-        numOfRows : 10,
-        shlt_se_cd : 3
-      }
+  try {
+    // shelterService.getShelters 형식을 사용합니다.
+    const response = await shelterService.getShelters({
+      serviceKey: shelterServiceKey, // 변수로 선언되어 있어야 함
+      returnType: 'json',
+      pageNo: 1,
+      numOfRows: 10,
+      shlt_se_cd: 3,
     });
-    console.log(response);
-    
-  } 
+
+    console.log('대피소 데이터:', response);
+  } catch (error) {
+    console.error('대피소 데이터 요청 실패:', error);
+  }
+};
+
+
+
+
+
 
   /* <================ ★ 카카오맵 로직 시작 ★ ================> */
 

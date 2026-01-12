@@ -90,7 +90,7 @@ const MainDisaster = () => {
             {/* 뱃지 + 제목 영역 */}
             <div className="flex items-center gap-3 overflow-hidden w-full">
               <span
-                className={`shrink-0 w-12 text-center py-1 rounded-md text-detail-m font-bold border transition-colors
+                className={`shrink-0 w-12 text-center py-1 rounded-md text-detail-s md:text-detail-m font-bold border transition-colors
                 ${
                   item.type === "태풍"
                     ? "border-blue-200 text-blue-500 bg-blue-50"
@@ -105,7 +105,7 @@ const MainDisaster = () => {
               </span>
 
               {/* 제목 */}
-              <span className="text-body-m text-graygray-80 group-hover:text-secondary-50 transition-colors truncate flex-1">
+              <span className="text-body-s md:text-body-m text-graygray-80 group-hover:text-secondary-50 transition-colors truncate flex-1">
                 {item.title}
               </span>
             </div>

@@ -55,7 +55,7 @@ const BoardListSection = ({ items, currentPage, totalPages, onPageChange, onRowC
                       {notice.title}
                     </span>
                     {/* 모바일 전용 정보: sm:hidden을 통해 작은 화면에서만 작성자|날짜를 제목 아래 표시 */}
-                    <div className="flex gap-2 text-[11px] text-gray-400 mt-1 sm:hidden">
+                    <div className="flex gap-2 text-detail-xs md:text-detail-s text-gray-400 mt-1 sm:hidden">
                       <span>{notice.author}</span>
                       <span>|</span>
                       <span>{notice.date}</span>

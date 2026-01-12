@@ -1,118 +1,86 @@
 import React, { useState } from "react";
-import ActionTipBox from "../modal/ActionTipBox";
-import WeatherBox from "../modal/WeatherBox";
-import DisasterMessageBox from "../modal/DisasterMessageBox";
+import CommonMap from "@/components/user/modal/CommonMap";
 
 const AccidentNews = () => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("전체");
+  const [isListOpen, setIsListOpen] = useState(false);
+  const [mapCenter, setMapCenter] = useState({ lat: 35.8242, lng: 127.1480 });
 
-  const categories = ["전체", "화재사고", "차량사고", "도로공사"];
+  const accidentData = [
+    { id: 1, lat: 35.8242, lng: 127.1480, title: "전주시청 부근 화재", time: "16:10", status: "화재 진압중" },
+    { id: 2, lat: 35.8441, lng: 127.1298, title: "전북대 인근 교통사고", time: "15:45", status: "처리중" },
+    { id: 3, lat: 35.8175, lng: 127.1105, title: "서신동 사거리 통제", time: "15:20", status: "우회 필요" },
+  ];
+
+  const handleItemClick = (item) => {
+    setMapCenter({ lat: item.lat, lng: item.lng });
+    // 클릭 시 리스트 접기 (지도를 더 잘 보이게 함)
+    if (window.innerWidth < 1024) setIsListOpen(false);
+  };
 
   return (
-    <div className="grid grid-cols-12 gap-5 lg:gap-6">
-      {/* === 왼쪽 패널 === */}
-      <div className="col-span-12 lg:col-span-8 flex flex-col gap-5 lg:gap-6">
-        {/* 사고 목록 + 지도 통합 섹션: 높이를 lg:h-[480px]로 축소 */}
-        <div className="bg-white rounded-xl shadow-1 border border-graygray-10 flex flex-col lg:flex-row overflow-hidden h-auto lg:h-[480px]">
-          {/* 1. 리스트 영역 */}
-          <div className="w-full lg:w-[280px] border-b lg:border-b-0 lg:border-r border-graygray-10 p-5 flex flex-col gap-4 z-20 bg-white">
-            <div className="flex items-center justify-between">
-              <h4 className="text-body-l-bold text-graygray-90">
-                재난·사고 목록 <span className="text-red-500 ml-1">9</span>
-              </h4>
-            </div>
+    <div className="flex-1 flex flex-col min-h-0 gap-5 lg:gap-6 lg:h-full">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col lg:flex-row overflow-hidden flex-1 min-h-0">
+        
+        {/* 1. 지도 영역: 모바일에서 위로 가도록 order-first 유지, 높이값 명시 */}
+        {/* <div className="flex-1 min-h-[350px] md:min-h-[450px] lg:min-h-0 relative order-first lg:order-last border-b lg:border-b-0 lg:border-l border-gray-100">
+          <CommonMap markers={accidentData} center={mapCenter} />
+        </div> */}
 
-            {/* 드롭다운 */}
-            <div className="relative">
-              <label className="text-detail-s pb-1 font-bold text-graygray-40 ml-1 mb-1 block">
-                재난사고구분
-              </label>
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className={`w-full bg-white border ${
-                  isDropdownOpen
-                    ? "border-blue-600 ring-2 ring-blue-50"
-                    : "border-graygray-10"
-                } px-4 py-2.5 w-full rounded-lg flex justify-between items-center text-detail-m font-bold text-graygray-80 transition-all shadow-sm`}
+
+{/* 지도 영역: min-h를 반드시 주어야 모바일에서 보임 */}
+<div className="flex-1 min-h-[400px] lg:min-h-0 relative order-first lg:order-last border-b lg:border-b-0 lg:border-l border-gray-100">
+  <CommonMap markers={accidentData} center={mapCenter} />
+</div>
+
+
+        {/* 2. 리스트 영역 (아코디언 구조) */}
+        <div className="w-full lg:w-[320px] flex flex-col bg-slate-50 lg:h-full transition-all duration-300">
+          {/* 아코디언 헤더 (클릭 시 열고 닫기) */}
+          <div 
+            className="p-4 md:p-5 border-b border-gray-100 bg-white flex-shrink-0 cursor-pointer lg:cursor-default"
+            onClick={() => setIsListOpen(!isListOpen)}
+          >
+             <h4 className="text-body-m-bold md:text-body-l-bold text-gray-900 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                실시간 상황 
+                <span className="text-red-500 bg-red-50 px-2.5 py-0.5 text-detail-s rounded-full">{accidentData.length}건</span>
+              </div>
+              {/* 모바일용 화살표 아이콘 */}
+              <svg
+                className={`w-5 h-5 text-gray-400 lg:hidden transition-transform duration-300 ${isListOpen ? "rotate-180" : ""}`}
+                fill="none" stroke="currentColor" viewBox="0 0 24 24"
               >
-                {selectedCategory}
-                <span
-                  className={`text-detail-s transition-transform duration-300 ${
-                    isDropdownOpen ? "rotate-180" : ""
-                  }`}
-                >
-                  ▼
-                </span>
-              </button>
-
-              {isDropdownOpen && (
-                <div className="absolute top-[105%] left-0 w-full bg-white border border-graygray-10 shadow-xl rounded-lg py-2 z-[100]">
-                  {categories.map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => {
-                        setSelectedCategory(cat);
-                        setIsDropdownOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-2 text-detail-m text-graygray-60 hover:bg-secondary-5 hover:text-blue-600 transition-colors"
-                    >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* 사고 카드 리스트 (높이가 줄어든 만큼 내부 스크롤이 더 활발해짐) */}
-            <div className="flex-1 overflow-y-auto space-y-3 pr-1 custom-scrollbar max-h-[300px] lg:max-h-none">
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="bg-white border border-graygray-10 rounded-xl overflow-hidden shadow-sm hover:border-blue-300 transition-all group cursor-pointer"
-                >
-                  <div className="bg-secondary-5/50 px-3 py-1.5 border-b border-graygray-5">
-                    <span className="text-detail-xs font-bold text-graygray-40">
-                      2026.01.02 16:10
-                    </span>
-                  </div>
-                  <div className="p-3 flex flex-col items-center text-center">
-                    <h5 className="text-body-s-bold text-graygray-90 mb-2 leading-tight">
-                      ㅇㅇㅇ 아파트 앞
-                    </h5>
-                    <div className="inline-flex items-center gap-1.5 bg-white text-red-600 px-3 py-1 rounded-lg text-detail-s-bold border border-red-500">
-                      화재 진압중
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </h4>
           </div>
 
-          {/* 2. 지도 영역 */}
-          <div className="flex-1 min-h-[350px] lg:min-h-full bg-secondary-5 relative overflow-hidden flex items-center justify-center">
-            <span className="text-title-s font-black text-graygray-20 tracking-[0.2em] uppercase">
-              Map Area
-            </span>
+          {/* 아코디언 내용 영역 */}
+          <div className={`
+            flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar transition-all duration-300
+            ${isListOpen ? "max-h-[400px] opacity-100 visible" : "max-h-0 lg:max-h-none opacity-0 lg:opacity-100 invisible lg:visible"}
+          `}>
+            {accidentData.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => handleItemClick(item)}
+                className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm hover:border-blue-400 transition-all group cursor-pointer active:scale-[0.98]"
+              >
+                <div className="flex justify-between items-start mb-1.5">
+                  <span className="text-detail-s md:text-detail:m text-gray-400">2026.01.09 {item.time}</span>
+                </div>
+                <h5 className="text-body-s md:text-body-m-bold text-gray-900 group-hover:text-blue-600 font-bold">
+                  {item.title}
+                </h5>
+                <div className="mt-2.5 flex items-center text-detail-s md:text-detail-m-body  text-red-600">
+                  <span className="w-1.5 h-1.5 bg-red-600 rounded-full mr-1.5 animate-pulse" />
+                  {item.status}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* 행동요령 박스 */}
-        <div className="bg-white h-[250px] rounded-xl p-6 shadow-1 border border-graygray-10">
-          <ActionTipBox type="재난"/>
-        </div>
-      </div>
-
-      {/* === 오른쪽 패널 === */}
-      <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 lg:gap-6 items-center lg:items-start">
-        <div className="w-full lg:max-w-[370px] h-[200px] bg-gradient-to-br from-[#62A1E9] to-[#4A90E2] rounded-xl p-5 lg:p-6 shadow-1 border border-white/30">
-          <WeatherBox />
-        </div>
-
-        {/* 재난문자 높이도 왼쪽과 맞추고 싶다면 같이 h-[480px] 정도로 조절 가능 */}
-        <div className="w-full max-w-[370px] h-[530px] bg-white rounded-xl shadow-1 border border-graygray-10 overflow-hidden flex flex-col">
-          <DisasterMessageBox />
-        </div>
       </div>
     </div>
   );
