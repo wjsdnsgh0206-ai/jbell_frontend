@@ -1,28 +1,38 @@
 // src/pages/admin/CodeManagement/AdminCommonCodeList.jsx
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import BreadCrumb from '@/components/Admin/board/BreadCrumb';
-import AdminDataTable from '@/components/admin/shared/AdminDataTable';
-import AdminPagination from '@/components/admin/shared/AdminPagination';
-import { Search, RotateCcw, X } from 'lucide-react'; // 아이콘 추가
 import { AdminCommonCodeData } from './AdminCommonCodeData';
+import { Button } from '@/components/shared/Button';
+import { Search, RotateCcw, X, ChevronDown } from 'lucide-react';
 
 const AdminCommonCodeList = () => {
-  // =========================================================================
-  // 1. 상태 관리 (기존 로직 유지)
-  // =========================================================================
-  const [codes, setCodes] = useState(AdminCommonCodeData);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const navigate = useNavigate();
 
-  // 검색 상태
-  const [selectedGroup, setSelectedGroup] = useState("그룹코드 전체");
-  const [selectedDetail, setSelectedDetail] = useState("상세코드 전체");
+  // 1. 상태 관리
+  const [codes, setCodes] = useState(AdminCommonCodeData);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchInput, setSearchInput] = useState(""); 
   const [appliedSearch, setAppliedSearch] = useState(""); 
+  const [toast, setToast] = useState({ visible: false, message: "" });
+  const [selectedGroup, setSelectedGroup] = useState("그룹코드 전체");
+  const [selectedDetail, setSelectedDetail] = useState("상세코드 전체");
 
-  // =========================================================================
-  // 2. 데이터 처리 로직 (useMemo 활용)
-  // =========================================================================
+  const itemsPerPage = 10;
+
+  // 2. 데이터 처리
+  const groupOptions = useMemo(() => {
+    return Array.from(new Map(AdminCommonCodeData.map(c => [c.groupCode, c.groupName])));
+  }, []);
+
+  const detailOptions = useMemo(() => {
+    const filteredBase = selectedGroup === "그룹코드 전체" 
+      ? AdminCommonCodeData 
+      : AdminCommonCodeData.filter(c => c.groupCode === selectedGroup);
+    return Array.from(new Map(filteredBase.map(c => [c.detailCode, c.detailName])));
+  }, [selectedGroup]);
+
   const filteredData = useMemo(() => {
     return codes.filter(code => {
       const isGroupMatch = selectedGroup === "그룹코드 전체" || code.groupCode === selectedGroup;
@@ -32,221 +42,216 @@ const AdminCommonCodeList = () => {
         code.detailName.includes(appliedSearch) ||
         code.groupCode.includes(appliedSearch) ||
         (code.desc && code.desc.includes(appliedSearch));
-      
       return isGroupMatch && isDetailMatch && isSearchMatch;
     });
   }, [codes, appliedSearch, selectedGroup, selectedDetail]);
 
-  // 페이징 처리된 현재 페이지 데이터
   const currentData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     return filteredData.slice(startIndex, startIndex + itemsPerPage);
   }, [currentPage, filteredData]);
 
-  // =========================================================================
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
   // 3. 핸들러 함수
-  // =========================================================================
-  const handleSearch = () => { 
-    setAppliedSearch(searchInput); 
-    setCurrentPage(1); 
+  const showToast = (message) => {
+    setToast({ visible: true, message });
+    setTimeout(() => setToast({ visible: false, message: "" }), 3000);
   };
 
-  const handleReset = () => { 
-    setSearchInput(""); 
-    setAppliedSearch(""); 
-    setSelectedGroup("그룹코드 전체");
-    setSelectedDetail("상세코드 전체");
-    setCurrentPage(1); 
-  };
+  const handleSearch = () => { setAppliedSearch(searchInput); setCurrentPage(1); };
+  const handleClearSearch = () => { setSearchInput(""); setAppliedSearch(""); setCurrentPage(1); };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') handleSearch();
+  const handleDeleteSelected = () => {
+    if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
+    if (window.confirm(`선택한 ${selectedIds.length}개의 항목을 삭제하시겠습니까?`)) {
+      setCodes(prev => prev.filter(code => !selectedIds.includes(code.id)));
+      setSelectedIds([]);
+      showToast("삭제되었습니다.");
+    }
   };
 
   const handleToggleVisible = (id) => {
-    setCodes(prev => prev.map(code => 
-      code.id === id ? { ...code, visible: !code.visible } : code
-    ));
+    setCodes(prev => prev.map(code => code.id === id ? { ...code, visible: !code.visible } : code));
+    showToast("상태가 변경되었습니다.");
   };
 
-  const handleViewDetail = (row) => {
-    console.log(`${row.id}번 상세 페이지 이동`, row);
-  };
-
-  // =========================================================================
-  // 4. 테이블 컬럼 정의 (render 함수로 UI 커스터마이징)
-  // =========================================================================
-  const COLUMNS = [
-    { key: 'groupCode', header: '그룹코드', width: '10%', className: 'text-center font-mono text-xs text-gray-500' },
-    { key: 'groupName', header: '그룹코드명', width: '10%', className: 'text-center' },
-    { key: 'detailCode', header: '상세코드', width: '10%', className: 'text-center font-mono text-xs text-gray-500' },
-    { key: 'detailName', header: '상세코드명', width: '10%', className: 'text-center font-bold' },
-    { key: 'desc', header: '코드설명', width: '25%', render: (text) => (
-      <span className="block truncate max-w-[300px] text-gray-600" title={text}>{text}</span>
-    )},
-    { key: 'date', header: '등록일시', width: '12%', className: 'text-center text-xs text-gray-400' },
-    { key: 'order', header: '순서', width: '8%', className: 'text-center' },
-    { 
-      key: 'visible', 
-      header: '등록여부', 
-      width: '10%', 
-      className: 'text-center',
-      render: (visible, row) => (
-        <button 
-          onClick={(e) => { e.stopPropagation(); handleToggleVisible(row.id); }}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-            visible ? 'bg-admin-primary' : 'bg-gray-300'
-          }`}
-        >
-          <span 
-            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-              visible ? 'translate-x-6' : 'translate-x-1'
-            }`} 
-          />
-        </button>
-      )
-    },
-    { 
-      key: 'detail', 
-      header: '상세', 
-      width: '10%', 
-      className: 'text-center',
-      render: (_, row) => (
-        <button 
-          onClick={(e) => { e.stopPropagation(); handleViewDetail(row); }}
-          className="px-3 py-1 text-xs font-bold text-gray-600 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
-        >
-          보기
-        </button>
-      )
-    },
-  ];
-
-  // 옵션 리스트 생성 (중복 제거)
-  const groupOptions = Array.from(new Map(codes.map(c => [c.groupCode, c.groupName])));
-  const detailOptions = Array.from(new Map(codes.map(c => [c.detailCode, c.detailName])));
+  const CustomCheckbox = ({ checked, onChange }) => (
+    <label className="relative flex items-center justify-center cursor-pointer select-none">
+      <input type="checkbox" className="absolute opacity-0 w-0 h-0" checked={checked} onChange={onChange} />
+      <div className={`w-6 h-6 rounded border flex items-center justify-center transition-all ${checked ? 'bg-admin-primary border-admin-primary' : 'bg-white border-admin-border'}`}>
+        {checked && <svg className="w-4 h-4 text-white fill-current" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>}
+      </div>
+    </label>
+  );
 
   return (
-    <div className="p-6 md:p-10 max-w-[1600px] mx-auto space-y-6">
-      
-      {/* 1. BreadCrumb */}
-      <BreadCrumb />
+    <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
+      <main className="p-10">
+        <BreadCrumb />
+        <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight">공통코드관리</h2>
 
-      {/* 2. 검색 영역 (디자인 토큰 적용 + 3단 필터 유지) */}
-      <section className="bg-white p-6 rounded-lg border border-admin-border shadow-admin-card">
-        <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-center justify-between">
-          
-          {/* 검색 입력 그룹 */}
-          <div className="flex flex-col md:flex-row gap-3 w-full xl:w-auto flex-1">
-            
-            {/* 그룹코드 Select */}
-            <div className="relative min-w-[200px]">
+        <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8 flex items-center gap-4 mb-8">
+          <div className="flex flex-1 gap-4">
+            <div className="relative w-72">
               <select 
                 value={selectedGroup} 
-                onChange={(e) => { setSelectedGroup(e.target.value); setCurrentPage(1); }}
-                className="w-full h-10 pl-3 pr-8 text-sm border border-admin-border rounded bg-white text-admin-text-primary focus:outline-none focus:ring-2 focus:ring-admin-primary/20 focus:border-admin-primary transition-all cursor-pointer"
+                onChange={(e) => { setSelectedGroup(e.target.value); setSelectedDetail("상세코드 전체"); setCurrentPage(1); }}
+                className="w-full appearance-none border border-admin-border rounded-md px-5 h-14 text-body-m-bold outline-none focus:border-admin-primary bg-white text-admin-text-primary"
               >
                 <option value="그룹코드 전체">그룹코드 전체</option>
-                {groupOptions.map(([code, name]) => (
-                  <option key={code} value={code}>{`${code} (${name})`}</option>
-                ))}
+                {groupOptions.map(([code, name]) => <option key={code} value={code}>{`${code}(${name})`}</option>)}
               </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
             </div>
 
-            {/* 상세코드 Select */}
-            <div className="relative min-w-[200px]">
+            <div className="relative w-72">
               <select 
                 value={selectedDetail} 
                 onChange={(e) => { setSelectedDetail(e.target.value); setCurrentPage(1); }}
-                className="w-full h-10 pl-3 pr-8 text-sm border border-admin-border rounded bg-white text-admin-text-primary focus:outline-none focus:ring-2 focus:ring-admin-primary/20 focus:border-admin-primary transition-all cursor-pointer"
+                className="w-full appearance-none border border-admin-border rounded-md px-5 h-14 text-body-m-bold outline-none focus:border-admin-primary bg-white text-admin-text-primary"
               >
                 <option value="상세코드 전체">상세코드 전체</option>
-                {detailOptions.map(([code, name]) => (
-                  <option key={code} value={code}>{`${code} (${name})`}</option>
-                ))}
+                {detailOptions.map(([code, name]) => <option key={code} value={code}>{`${code}(${name})`}</option>)}
               </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
             </div>
 
-            {/* 검색어 Input */}
-            <div className="relative flex-1 min-w-[240px]">
-              <input
-                type="text"
-                value={searchInput}
+            <div className="flex-1 relative">
+              <input 
+                type="text" 
+                value={searchInput} 
                 onChange={(e) => setSearchInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="검색어를 입력해주세요"
-                className="w-full h-10 pl-4 pr-10 text-sm border border-admin-border rounded bg-white text-admin-text-primary placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-admin-primary/20 focus:border-admin-primary transition-all"
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                placeholder="검색어를 입력해주세요" 
+                className="w-full border border-admin-border rounded-md px-5 h-14 text-body-m outline-none font-medium focus:border-admin-primary bg-white text-admin-text-primary"
               />
               {searchInput && (
-                <button 
-                  onClick={() => setSearchInput("")} 
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500"
-                >
-                  <X className="w-4 h-4" />
+                <button onClick={handleClearSearch} className="absolute right-5 top-1/2 -translate-y-1/2 text-graygray-40 hover:text-graygray-60 transition-colors">
+                  <X size={20} strokeWidth={2.5} />
                 </button>
               )}
             </div>
           </div>
+          <button onClick={handleSearch} className="px-8 h-14 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 font-bold rounded-md transition-all active:scale-98 text-body-m-bold">검색</button>
+        </section>
 
-          {/* 버튼 그룹 */}
-          <div className="flex items-center gap-2 w-full xl:w-auto mt-2 xl:mt-0">
-            <button
-              onClick={handleSearch}
-              className="flex items-center justify-center gap-2 px-6 h-10 bg-admin-primary hover:bg-admin-primaryHover text-white text-sm font-medium rounded transition-colors shadow-sm active:scale-95 flex-1 xl:flex-none"
+        <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8">
+          <div className="flex justify-between items-end mb-6">
+            <div className="flex items-center gap-4">
+              <CustomCheckbox 
+                checked={currentData.length > 0 && currentData.every(i => selectedIds.includes(i.id))} 
+                onChange={(e) => {
+                  const pIds = currentData.map(i => i.id);
+                  if (e.target.checked) setSelectedIds(prev => Array.from(new Set([...prev, ...pIds])));
+                  else setSelectedIds(prev => prev.filter(id => !pIds.includes(id)));
+                }} 
+              />
+              <span className="text-body-m-bold text-admin-text-secondary">
+                {selectedIds.length > 0 ? `${selectedIds.length}개 선택됨` : `전체 ${filteredData.length}건`}
+              </span>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={handleDeleteSelected} className="px-8 h-14 bg-[#FF003E] text-white rounded-md font-bold hover:opacity-90 active:scale-98 transition-all text-body-m-bold">삭제</button>
+              <button onClick={() => navigate('/admin/system/groupCodeAdd')} className="px-8 h-14 bg-admin-primary text-white rounded-md font-bold hover:bg-admin-primaryHover active:scale-98 transition-all text-body-m-bold">신규 등록</button>
+            </div>
+          </div>
+
+          <div className="border border-admin-border rounded-lg overflow-hidden">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-graygray-10 border-b border-admin-border text-admin-text-primary text-body-m-bold">
+                  <th className="py-5 w-[80px] text-center">선택</th>
+                  <th className="py-5 px-2 text-center">그룹코드</th>
+                  <th className="py-5 px-2 text-center">그룹명</th>
+                  <th className="py-5 px-2 text-center">상세코드</th>
+                  <th className="py-5 px-2 text-center">상세명</th>
+                  <th className="py-5 px-6 text-center">코드설명</th>
+                  <th className="py-5 px-2 text-center">등록일시</th>
+                  <th className="py-5 px-4 text-center">등록여부</th>
+                  <th className="py-5 px-4 text-center">상세</th>
+                </tr>
+              </thead>
+              <tbody className="text-body-m text-graygray-60">
+                {currentData.map((code) => (
+                  <tr key={code.id} className="border-b border-graygray-5 last:border-0 hover:bg-graygray-5/50 transition-colors">
+                    <td className="py-5 text-center"><div className="flex justify-center"><CustomCheckbox checked={selectedIds.includes(code.id)} onChange={() => setSelectedIds(prev => prev.includes(code.id) ? prev.filter(i => i !== code.id) : [...prev, code.id])} /></div></td>
+                    <td className="py-5 text-center text-admin-text-secondary font-mono text-body-m">{code.groupCode}</td>
+                    <td className="py-5 text-center">{code.groupName}</td>
+                    <td className="py-5 text-center text-admin-text-secondary font-mono text-body-m">{code.detailCode}</td>
+                    <td className="py-5 text-center font-bold text-admin-text-primary">{code.detailName}</td>
+                    <td className="py-5 px-6 text-left truncate max-w-[200px]">{code.desc}</td>
+                    <td className="py-5 text-center text-graygray-50 text-body-m">{code.date}</td>
+                    <td className="py-5 text-center">
+                      <div className="flex justify-center">
+                        <button onClick={() => handleToggleVisible(code.id)} className={`w-12 h-6 flex items-center rounded-full p-1 transition-all ${code.visible ? 'bg-admin-primary' : 'bg-graygray-30'}`}>
+                          <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${code.visible ? 'translate-x-6' : 'translate-x-0'}`} />
+                        </button>
+                      </div>
+                    </td>
+                    <td className="py-5 text-center">
+                      <button onClick={() => navigate(`/admin/system/commonCodeDetail/${code.id}`)} className="border border-admin-border rounded px-4 py-1.5 text-body-m-bold text-admin-text-secondary hover:bg-graygray-10 transition-colors">보기</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* [개선된 페이지네이션 영역] */}
+          <div className="py-14 flex justify-center items-center gap-3">
+            {/* 이전 버튼 */}
+            <button 
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} 
+              disabled={currentPage === 1} 
+              className={`px-5 py-2 text-body-m-bold transition-all ${
+                currentPage === 1 
+                ? 'text-graygray-30 cursor-default' 
+                : 'text-graygray-50 hover:text-admin-primary'
+              }`}
             >
-              <Search className="w-4 h-4" />
-              <span>검색</span>
+              〈 이전
             </button>
-            <button
-              onClick={handleReset}
-              className="flex items-center justify-center gap-2 px-4 h-10 bg-white border border-admin-border text-admin-text-secondary hover:bg-gray-50 hover:text-admin-text-primary text-sm font-medium rounded transition-colors flex-1 xl:flex-none"
+
+            {/* 페이지 번호 */}
+            <div className="flex items-center gap-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(num => (
+                <button 
+                  key={num} 
+                  onClick={() => setCurrentPage(num)} 
+                  className={`w-10 h-10 rounded-lg text-body-m-bold transition-all ${
+                    num === currentPage 
+                    ? 'bg-secondary-50 text-white shadow-md' 
+                    : 'text-graygray-50 hover:bg-graygray-10'
+                  }`}
+                >
+                  {num}
+                </button>
+              ))}
+            </div>
+
+            {/* 다음 버튼 */}
+            <button 
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} 
+              disabled={currentPage === totalPages} 
+              className={`px-5 py-2 text-body-m-bold transition-all ${
+                currentPage === totalPages 
+                ? 'text-graygray-30 cursor-default' 
+                : 'text-graygray-50 hover:text-admin-primary'
+              }`}
             >
-              <RotateCcw className="w-4 h-4" />
-              <span className="xl:hidden">초기화</span>
+              다음 〉
             </button>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
-      {/* 3. 리스트 영역 */}
-      <section className="bg-white p-6 rounded-lg border border-admin-border shadow-admin-card min-h-[600px] flex flex-col">
-        
-        {/* 리스트 헤더 */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-4">
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold text-admin-text-primary">공통 코드 목록</h2>
-            <span className="text-sm text-gray-500 font-medium bg-gray-100 px-2 py-0.5 rounded">
-              총 {filteredData.length}건
-            </span>
-          </div>
-          <div className="flex gap-2 w-full sm:w-auto">
-            <button className="flex-1 sm:flex-none px-4 py-2 text-sm font-medium text-admin-text-secondary border border-admin-border rounded hover:bg-gray-50 transition-colors">
-              선택 삭제
-            </button>
-            <button className="flex-1 sm:flex-none px-4 py-2 text-sm font-medium text-white bg-admin-primary rounded hover:bg-admin-primaryHover shadow-sm transition-colors">
-              신규 등록
-            </button>
-          </div>
+      {toast.visible && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[9999] bg-graygray-90 text-white px-8 py-4 rounded-lg shadow-2xl flex items-center gap-3 border border-blue-500/30">
+          <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
+          <span className="text-body-m font-medium">{toast.message}</span>
         </div>
-
-        {/* 4. 데이터 테이블 컴포넌트 */}
-        <AdminDataTable 
-          columns={COLUMNS}
-          data={currentData}
-          onRowClick={handleViewDetail}
-        />
-        
-        {/* 5. 페이지네이션 컴포넌트 */}
-        <div className="mt-auto pt-6 border-t border-gray-100">
-          <AdminPagination 
-            totalItems={filteredData.length}
-            itemCountPerPage={itemsPerPage}
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
-          />
-        </div>
-      </section>
-
+      )}
     </div>
   );
 };

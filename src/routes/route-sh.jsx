@@ -1,3 +1,4 @@
+// src/routes/route-sh.jsx
 import { lazy } from "react";
 import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
@@ -6,6 +7,7 @@ const UserNoticeDetail = lazy(() => import("@/pages/user/openboards/UserNoticeDe
 const UserPressRelList = lazy(() => import("@/pages/user/openboards/UserPressRelList"));
 const UserPressRelDetail = lazy(() => import("@/pages/user/openboards/UserPressRelDetail"));
 const UserSafetyEducation = lazy(() => import("@/pages/user/openboards/UserSafetyEducation")); 
+const AdminCommonCodeList = lazy(() => import("@/pages/admin/CodeManagement/AdminCommonCodeList")); 
 
 // ------ 라우트 페이지 경로 입력 파일 ------ //
 // Routes.jsx에서 이 파일을 불러와서 Route를 생성함.
@@ -92,5 +94,4 @@ export const shUserRoutes = [
     sidebarData: SIDE_MENU_DATA.COMMUNITY,
     nowPage: "열린마당",
   },
-
 ];

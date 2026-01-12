@@ -1,13 +1,14 @@
 // src/components/admin/sideBar/AdminSideMenuData.js
 export const ADMIN_MENU_DATA = {
-  SYSTEM: [ // 시스템 관리 탭 클릭 시 보여줄 메뉴
+  system: [ // URL이 /admin/system/.. 일 때
     {
       title: "코드 관리",
       isAvailable: true,
       items: [
-        { name: "공통코드 관리", path: "/admin/adminCommonCodeList" },
-        { name: "그룹코드 등록", path: "/admin/adminGroupCodeAdd" },
-        { name: "상세코드 등록", path: "/admin/adminDetailCodeAdd" },
+        { name: "공통코드 목록(수정 전)", path: "/admin/system/commonCodeListCopy" },
+        { name: "공통코드 목록", path: "/admin/system/commonCodeList" },
+        { name: "그룹코드 등록", path: "/admin/system/groupCodeAdd" },
+        // { name: "상세코드 등록", path: "/admin/system/adminDetailCodeAdd" },
       ],
     },
     {
@@ -16,6 +17,5 @@ export const ADMIN_MENU_DATA = {
       items: [],
     },
   ],
-  USER: [ /* 회원 관리 메뉴들... */ ],
-  CONTENT: [ /* 콘텐츠 관리 메뉴들... */ ],
+  user: [ /* /admin/user/.. 일 때 */ ],
 };
