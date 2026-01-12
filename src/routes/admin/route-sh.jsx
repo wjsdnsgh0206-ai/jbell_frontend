@@ -1,7 +1,7 @@
-// route-sh.jsx
+// src/routes/admin/route-sh.jsx
 import { lazy } from 'react';
 
-// 1. 선언이 잘 되어 있는지 확인
+export const AdminCommonCodeListCopy = lazy(() => import("@/pages/admin/CodeManagement/AdminCommonCodeListCopy"));
 export const AdminCommonCodeList = lazy(() => import("@/pages/admin/CodeManagement/AdminCommonCodeList"));
 export const AdminGroupCodeAdd = lazy(() => import("@/pages/admin/CodeManagement/AdminGroupCodeAdd"));
 export const AdminSubCodeAdd = lazy(() => import("@/pages/admin/CodeManagement/AdminSubCodeAdd"));
@@ -12,52 +12,56 @@ export const AdminSubCodeEdit = lazy(() => import("@/pages/admin/CodeManagement/
 
 
 export const shAdminRoutes = [
-
-    // 공통코드관리 목록페이지 //
-    {
-        path: "/admin/adminCommonCodeList", 
-        element: <AdminCommonCodeList />,
-        nowPage: "공통코드관리",
+  // 공통코드관리 목록페이지 (시스템 관리 그룹)
+  // URL 계층화: /admin/대분류/소분류+행위
+  {
+    path: "/admin/system/commonCodeListCopy", 
+    element: <AdminCommonCodeListCopy />,
+    nowPage: "공통코드관리(수정 전)",
   },
-
-    // 그룹코드 등록 페이지 //
-    {
-        path: "/admin/adminGroupCodeAdd", 
-        element: <AdminGroupCodeAdd />,
-        nowPage: "그룹코드등록",
+  {
+    path: "/admin/system/commonCodeList", 
+    element: <AdminCommonCodeList />,
+    nowPage: "공통코드관리",
+  },
+  // 그룹코드 등록 페이지 (시스템 관리 그룹)
+  {
+    path: "/admin/system/groupCodeAdd", 
+    element: <AdminGroupCodeAdd />,
+    nowPage: "그룹코드등록",
   },
 
   // 상세코드 등록 페이지 //
     {
-        path: "/admin/adminSubCodeAdd", 
+        path: "/admin/system/subCodeAdd", 
         element: <AdminSubCodeAdd />,
         nowPage: "상세코드등록",
   },
 
   // 그룹코드 상세 페이지 //
     {
-        path: "/admin/adminGroupCodeDetail/:id", 
+        path: "/admin/system/groupCodeDetail/:id", 
         element: <AdminGroupCodeDetail />,
         nowPage: "그룹코드상세보기",
   },
   
   // 상세코드 상세 페이지 //
     {
-        path: "/admin/adminSubCodeDetail/:id", 
+        path: "/admin/system/subCodeDetail/:id", 
         element: <AdminSubCodeDetail />,
         nowPage: "상세코드상세보기",
   },
 
   // 그룹코드 수정 페이지 //
     {
-        path: "/admin/adminGroupCodeEdit/:id", 
+        path: "/admin/system/groupCodeEdit/:id", 
         element: <AdminGroupCodeEdit />,
         nowPage: "그룹코드수정",
   },
 
    // 상세코드 수정 페이지 //
     {
-        path: "/admin/adminSubCodeEdit/:id", 
+        path: "/admin/system/subCodeEdit/:id", 
         element: <AdminSubCodeEdit />,
         nowPage: "상세코드수정",
   },

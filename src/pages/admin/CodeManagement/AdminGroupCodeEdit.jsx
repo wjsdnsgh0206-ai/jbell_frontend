@@ -89,7 +89,7 @@ const AdminGroupCodeEdit = () => {
       };
     }
     setShowToast(true);
-    setTimeout(() => navigate('/admin/adminCommonCodeList'), 1500);
+    setTimeout(() => navigate('/admin/system/commonCodeList'), 1500);
   };
 
   return (

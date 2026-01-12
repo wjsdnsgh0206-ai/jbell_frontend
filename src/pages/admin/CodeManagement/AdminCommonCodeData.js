@@ -1,3 +1,4 @@
+// src/pages/admin/CodeManagement/AdminCommonCodeData.js
 export const AdminCommonCodeData = [
   // 그룹 코드만 등록된 데이터 (상세코드가 없는 상태)
   { id: 1, groupCode: 'CATEGORY_1', groupName: '카테고리1', subCode: '-', subName: '-', desc: '카테고리1 그룹 코드 자체 설명', date: '2025-05-20 06:00', order: 1, visible: true },

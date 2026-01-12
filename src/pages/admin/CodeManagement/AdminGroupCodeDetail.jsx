@@ -22,7 +22,7 @@ const AdminGroupCodeDetail = () => {
 
   const handleDelete = () => {
     setIsDeleteModalOpen(false);
-    navigate('/admin/adminCommonCodeList');
+    navigate('/admin/system/commonCodeList');
   };
 
   return (
@@ -36,7 +36,7 @@ const AdminGroupCodeDetail = () => {
         {/* 상단 버튼 영역 (제목 아래, 본문 위) */}
         <div className="flex justify-end gap-2 mb-6 max-w-[1000px]">
           <button 
-            onClick={() => navigate('/admin/adminCommonCodeList')}
+            onClick={() => navigate('/admin/system/commonCodeList')}
             className="px-6 py-2 border border-gray-300 bg-white text-[#333] rounded-md font-bold text-[15px] hover:bg-gray-50 shadow-sm transition-all"
           >
             목록
@@ -48,7 +48,7 @@ const AdminGroupCodeDetail = () => {
             삭제
           </button>
           <button 
-            onClick={() => navigate(`/admin/adminGroupCodeEdit/${id}`)}
+            onClick={() => navigate(`/admin/system/groupCodeEdit/${id}`)}
             className="px-6 py-2 bg-[#2563EB] text-white rounded-md font-bold text-[15px] hover:bg-blue-700 shadow-sm transition-all"
           >
             수정
