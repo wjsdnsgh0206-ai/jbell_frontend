@@ -1,5 +1,6 @@
 import { lazy } from "react";
 export const AdminBoardList = lazy(() => import("@/pages/admin/Board/AdminBoardList"));
+export const AdminLogList = lazy(() => import("@/pages/admin/Board/AdminLogList"));
 
 
 // ------ 라우트 페이지 경로 입력 파일 ------ //
@@ -24,11 +25,17 @@ export const AdminBoardList = lazy(() => import("@/pages/admin/Board/AdminBoardL
  *
  */
 const mjAdminRoutes = [
-    {
+      {
             path: "/admin/content/adminBoardList", 
             element: <AdminBoardList />,
             nowPage: "공지사항",
       },
+      {
+            path: "/admin/content/adminLogList", 
+            element: <AdminLogList />,
+            nowPage: "로그 관리",
+      },
+
 ];
 
 
