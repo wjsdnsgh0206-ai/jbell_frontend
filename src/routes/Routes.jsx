@@ -13,6 +13,7 @@ import { mjUserRoutes } from "@/routes/route-mj";
 import { bjUserRoutes } from "@/routes/route-bj";
 import { jhUserRoutes } from "@/routes/route-jh";
 import { shAdminRoutes } from "@/routes/admin/route-sh";
+import { bjAdminRoutes } from "@/routes/admin/route-bj";
 import { AdminCommonCodeList } from "./admin/route-sh";
 
 const AllRoutes = (props) => {
@@ -226,6 +227,16 @@ const AllRoutes = (props) => {
       {/* <Route element={<UserLayout nowPage="공통코드관리" {...props} />}></Route> */}
       <Route element={<AdminLayout />}>
         {shAdminRoutes.map((route, idx) => (
+          <Route
+            key={`community-${idx}`}
+            path={route.path}
+            element={route.element}
+          />
+        ))}
+      </Route>
+
+      <Route element={<AdminLayout />}>
+        {bjAdminRoutes.map((route, idx) => (
           <Route
             key={`community-${idx}`}
             path={route.path}
