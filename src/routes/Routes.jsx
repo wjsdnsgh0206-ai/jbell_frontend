@@ -13,7 +13,8 @@ import { mjUserRoutes } from "@/routes/route-mj";
 import { bjUserRoutes } from "@/routes/route-bj";
 import { jhUserRoutes } from "@/routes/route-jh";
 import { shAdminRoutes } from "@/routes/admin/route-sh";
-import { AdminCommonCodeList } from "./admin/route-sh";
+import { mjAdminRoutes } from "@/routes/admin/route-mj";
+
 
 const AllRoutes = (props) => {
   // 1. 모든 팀원의 라우트를 하나의 배열로 병합 (충돌 방지: 각자 파일만 수정하면 됨)
@@ -233,7 +234,24 @@ const AllRoutes = (props) => {
           />
         ))}
       </Route>
+
+
+      <Route element={<AdminLayout />}>
+        {mjAdminRoutes.map((route, idx) => (
+          <Route
+            key={`community-${idx}`}
+            path={route.path}
+            element={route.element}
+          />
+        ))}
+      </Route>
+
+
+
     </Routes>
+
+
+
   );
 };
 
