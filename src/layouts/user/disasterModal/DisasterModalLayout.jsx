@@ -184,11 +184,14 @@ const DisasterModalLayout = () => {
             />
             <nav className="absolute top-0 left-0 bottom-0 w-[280px] bg-[var(--graygray-90)] text-[var(--graygray-0)] p-6 shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
               <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-6">
+                <div className="flex  items-center">
                 <img
-                  className="w-[130px]"
+                  className="w-[40px]"
                   alt="로고"
-                  src="/src/assets/logo/jeonbuk_safety_nuri_watermark.svg"
+                  src="/src/assets/logo/jeonbuk_safety_nuri_watermark_noText.png"
                 />
+                <p className="text-body-m-bold">전북안전누리</p>
+                </div>
                 <button
                   onClick={() => setIsMenuOpen(false)}
                   className="text-white/60 hover:text-white text-xl"
