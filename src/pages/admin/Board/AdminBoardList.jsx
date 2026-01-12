@@ -1,7 +1,7 @@
 const AdminBoardList = () => {
     return (
         <div>
-<p>dddddd</p>
+            민주
         </div>
     )
 }
