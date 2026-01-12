@@ -5,6 +5,11 @@ import { lazy } from 'react';
 export const AdminCommonCodeList = lazy(() => import("@/pages/admin/CodeManagement/AdminCommonCodeList"));
 export const AdminGroupCodeAdd = lazy(() => import("@/pages/admin/CodeManagement/AdminGroupCodeAdd"));
 export const AdminSubCodeAdd = lazy(() => import("@/pages/admin/CodeManagement/AdminSubCodeAdd"));
+export const AdminGroupCodeDetail = lazy(() => import("@/pages/admin/CodeManagement/AdminGroupCodeDetail"));
+export const AdminSubCodeDetail = lazy(() => import("@/pages/admin/CodeManagement/AdminSubCodeDetail"));
+export const AdminGroupCodeEdit = lazy(() => import("@/pages/admin/CodeManagement/AdminGroupCodeEdit"));
+export const AdminSubCodeEdit = lazy(() => import("@/pages/admin/CodeManagement/AdminSubCodeEdit"));
+
 
 export const shAdminRoutes = [
 
@@ -29,6 +34,36 @@ export const shAdminRoutes = [
         nowPage: "상세코드등록",
   },
 
+  // 그룹코드 상세 페이지 //
+    {
+        path: "/admin/adminGroupCodeDetail/:id", 
+        element: <AdminGroupCodeDetail />,
+        nowPage: "그룹코드상세보기",
+  },
+  
+  // 상세코드 상세 페이지 //
+    {
+        path: "/admin/adminSubCodeDetail/:id", 
+        element: <AdminSubCodeDetail />,
+        nowPage: "상세코드상세보기",
+  },
+
+  // 그룹코드 수정 페이지 //
+    {
+        path: "/admin/adminGroupCodeEdit/:id", 
+        element: <AdminGroupCodeEdit />,
+        nowPage: "그룹코드수정",
+  },
+
+   // 상세코드 수정 페이지 //
+    {
+        path: "/admin/adminSubCodeEdit/:id", 
+        element: <AdminSubCodeEdit />,
+        nowPage: "상세코드수정",
+  },
 
 
 ];
+
+
+
