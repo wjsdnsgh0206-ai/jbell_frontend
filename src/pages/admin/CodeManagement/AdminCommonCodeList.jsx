@@ -89,7 +89,7 @@ const AdminCommonCodeList = () => {
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
       <main className="p-10">
         <BreadCrumb />
-        <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight">공통코드관리</h2>
+        <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight">공통코드 목록</h2>
 
         <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8 flex items-center gap-4 mb-8">
           <div className="flex flex-1 gap-4">
@@ -97,7 +97,7 @@ const AdminCommonCodeList = () => {
               <select 
                 value={selectedGroup} 
                 onChange={(e) => { setSelectedGroup(e.target.value); setSelectedDetail("상세코드 전체"); setCurrentPage(1); }}
-                className="w-full appearance-none border border-admin-border rounded-md px-5 h-14 text-body-m-bold outline-none focus:border-admin-primary bg-white text-admin-text-primary"
+                className="w-full appearance-none border border-admin-border rounded-md px-5 h-14 text-body-m outline-none focus:border-admin-primary bg-white text-admin-text-primary active: text-body-m-bold"
               >
                 <option value="그룹코드 전체">그룹코드 전체</option>
                 {groupOptions.map(([code, name]) => <option key={code} value={code}>{`${code}(${name})`}</option>)}
@@ -109,7 +109,7 @@ const AdminCommonCodeList = () => {
               <select 
                 value={selectedDetail} 
                 onChange={(e) => { setSelectedDetail(e.target.value); setCurrentPage(1); }}
-                className="w-full appearance-none border border-admin-border rounded-md px-5 h-14 text-body-m-bold outline-none focus:border-admin-primary bg-white text-admin-text-primary"
+                className="w-full appearance-none border border-admin-border rounded-md px-5 h-14 text-body-m outline-none focus:border-admin-primary bg-white text-admin-text-primary"
               >
                 <option value="상세코드 전체">상세코드 전체</option>
                 {detailOptions.map(([code, name]) => <option key={code} value={code}>{`${code}(${name})`}</option>)}

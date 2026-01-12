@@ -1,5 +1,7 @@
 // src/layouts/admin/AdminHeader.jsx
 import { useNavigate, useLocation } from 'react-router-dom';
+import { ChevronDown } from 'lucide-react';
+import { ADMIN_MENU_DATA } from '@/components/admin/sideBar/AdminSideMenuData';
 
 const AdminHeader = () => {
   const navigate = useNavigate();
@@ -19,34 +21,70 @@ const AdminHeader = () => {
   ];
 
   return (
-    <div className="flex items-center h-full w-full gap-1">
-      {navItems.map((item) => (
-        <span
-          key={item.key}
-          onClick={() => navigate(item.path)}
-          /* [리팩토링 포인트]
-             1. text-body-m-bold (17px) 적용
-             2. active 시 admin-primary (#1890ff) 및 가이드라인 폰트색 적용
-             3. 비활성 시 admin-text-secondary 적용
-          */
-          className={`cursor-pointer h-full flex items-center px-4 transition-all border-b-4 text-body-m-bold whitespace-nowrap ${
-            activeGnb === item.key
-              ? "text-admin-primary border-admin-primary bg-blue-50/50"
-              : "text-admin-text-secondary border-transparent hover:text-admin-primary hover:bg-gray-50"
-          }`}
-        >
-          {item.name}
-        </span>
-      ))}
+    <div className="flex items-center h-full w-full">
+      <nav className="flex items-center h-full">
+        {navItems.map((item) => {
+          const subMenuCategories = ADMIN_MENU_DATA[item.key] || [];
+          const hasSub = subMenuCategories.length > 0;
 
-      {/* 우측 유틸리티 영역 (사용자 페이지 이동) */}
-      <div className="ml-auto flex items-center pr-6">
+          return (
+            /* [중요] relative 속성을 부모 컨테이너에 줌으로써 드롭다운 너비의 기준점 설정 */
+            <div key={item.key} className="relative group h-full flex items-center">
+              {/* [대메뉴] 너비를 넓히기 위해 px-8 적용 및 min-w 설정 */}
+              <button
+                onClick={() => navigate(item.path)}
+                className={`h-full flex items-center justify-center gap-2 px-8 min-w-[180px] transition-all border-b-4 text-body-m-bold whitespace-nowrap relative z-20 ${
+                  activeGnb === item.key
+                    ? "text-admin-primary border-admin-primary bg-blue-50/50"
+                    : "text-admin-text-secondary border-transparent hover:text-admin-primary hover:bg-gray-50"
+                }`}
+                style={{ fontSize: '17px' }}
+              >
+                {item.name}
+                {hasSub && (
+                  <ChevronDown size={16} className="transition-transform duration-300 group-hover:rotate-180" />
+                )}
+              </button>
+
+              {/* [드롭다운] 너비를 부모(button)와 동일하게 맞춤 (w-full) */}
+              {hasSub && (
+                <div className="absolute top-full left-0 w-full min-w-full bg-white shadow-2xl border-x border-b border-admin-border rounded-b-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-0 z-50 py-2">
+                  {/* 상단 포인트 디자인 (Active 바와 연결되는 느낌) */}
+                  <div className="h-0.5 bg-admin-primary/10 w-full absolute top-0 left-0" />
+                  
+                  {subMenuCategories.map((cat, catIdx) => (
+                    <div key={catIdx} className="flex flex-col">
+                      {cat.items.map((subItem) => (
+                        <button
+                          key={subItem.path}
+                          onClick={() => navigate(subItem.path)}
+                          className={`w-full text-center px-4 py-4 text-body-m transition-colors ${
+                            pathname === subItem.path
+                              ? "bg-blue-50 text-admin-primary font-bold border-r-4 border-admin-primary"
+                              : "text-graygray-70 hover:bg-gray-50 hover:text-admin-primary"
+                          }`}
+                          style={{ fontSize: '17px' }}
+                        >
+                          {subItem.name}
+                        </button>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </nav>
+
+      {/* 우측 유틸리티 영역 */}
+      <div className="ml-auto flex items-center pr-10">
         <button 
           onClick={() => navigate("/")}
-          className="text-body-m-bold text-graygray-60 hover:text-secondary-50 transition-colors px-5 py-2 border-2 border-graygray-30 rounded-xl flex items-center gap-2"
+          className="text-body-m-bold text-graygray-60 hover:text-secondary-50 transition-all px-6 py-2.5 border-2 border-graygray-30 rounded-xl flex items-center gap-2 shadow-sm"
+          style={{ fontSize: '17px' }}
         >
           <span>사용자 페이지</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
         </button>
       </div>
     </div>
