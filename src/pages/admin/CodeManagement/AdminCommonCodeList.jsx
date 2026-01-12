@@ -1,7 +1,6 @@
 // src/pages/admin/CodeManagement/AdminCommonCodeList.jsx
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BreadCrumb from '@/components/Admin/board/BreadCrumb';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
 import { X, ChevronDown } from 'lucide-react';
 import AdminCodeConfirmModal from './AdminCodeConfirmModal';
@@ -137,7 +136,6 @@ const AdminCommonCodeList = () => {
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
       <main className="p-10">
-        <BreadCrumb />
         <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight">공통코드 목록</h2>
 
         {/* 1. 필터 영역 (디자인 및 포커스 색상 복구) */}
@@ -203,7 +201,7 @@ const AdminCommonCodeList = () => {
                   <th className="py-5 px-6 text-center">코드설명</th>
                   <th className="py-5 px-2 text-center">등록일시</th>
                   <th className="py-5 px-2 text-center">순서</th>
-                  <th className="py-5 px-4 text-center">등록여부</th>
+                  <th className="py-5 px-4 text-center">사용여부</th>
                   <th className="py-5 px-4 text-center">상세</th>
                 </tr>
               </thead>

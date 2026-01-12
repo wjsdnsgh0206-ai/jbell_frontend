@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import BreadCrumb from '@/components/Admin/board/BreadCrumb';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
 import AdminCodeConfirmModal from './AdminCodeConfirmModal';
 
@@ -28,7 +27,6 @@ const AdminGroupCodeDetail = () => {
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
       <main className="p-10 text-left">
-        <BreadCrumb />
         
         {/* 상단 제목 */}
         <h2 className="text-[32px] font-bold mt-2 mb-2 tracking-tight">공통코드관리</h2>
