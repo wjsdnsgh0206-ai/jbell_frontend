@@ -103,7 +103,7 @@ const AdminCommonCodeList = () => {
   const handleBatchStatus = (status) => {
     if (selectedIds.length === 0) { alert("항목을 먼저 선택해주세요."); return; }
     setModalConfig({
-      title: `일괄 ${status ? '사용' : '미사용'} 처리`,
+      title: `일괄 ${status ? '노출' : '미노출'} 처리`,
       message: `선택하신 ${selectedIds.length}개의 항목을 일괄 처리하시겠습니까?`,
       type: status ? 'confirm' : 'delete',
       onConfirm: () => {
@@ -181,14 +181,14 @@ const AdminCommonCodeList = () => {
                   <div className="w-5 h-5 rounded-full border-2 border-[#2563EB] flex items-center justify-center transition-all group-hover:bg-blue-50">
                     <div className="w-2.5 bg-[#2563EB] h-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <span className="text-[15px] font-bold text-[#111]">일괄 사용</span>
+                  <span className="text-[15px] font-bold text-[#111]">일괄 노출</span>
                 </button>
                 <div className="w-[1px] h-3 bg-gray-300" />
                 <button onClick={() => handleBatchStatus(false)} className="flex items-center gap-2 group">
                   <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center transition-all group-hover:bg-gray-100">
                     <div className="w-2.5 bg-gray-400 h-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <span className="text-[15px] font-bold text-[#666]">일괄 미사용</span>
+                  <span className="text-[15px] font-bold text-[#666]">일괄 미노출</span>
                 </button>
               </div>
             </div>
@@ -208,7 +208,7 @@ const AdminCommonCodeList = () => {
                   <th className="py-5 px-4 font-bold text-center">코드 설명</th>
                   <th className="py-5 px-2 font-bold text-center w-[110px]">등록 일시</th>
                   <th className="py-5 px-2 font-bold text-center w-[70px]">순서</th>
-                  <th className="py-5 px-4 font-bold text-center w-[100px]">사용 여부</th>
+                  <th className="py-5 px-4 font-bold text-center w-[100px]">노출 여부</th>
                   <th className="py-5 px-4 font-bold text-center w-[90px]">상세</th>
                 </tr>
               </thead>

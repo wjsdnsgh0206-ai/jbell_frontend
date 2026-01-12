@@ -184,9 +184,9 @@ const AdminSubCodeEdit = () => {
               <p className="text-[13px] text-gray-400 mt-3 font-medium">* 숫자가 낮을수록 상위에 위치합니다.</p>
             </div>
 
-            {/* 6. 등록 여부 */}
+            {/* 6. 사용 여부 */}
             <div className="mb-10 flex items-center gap-5 pt-2">
-              <label className="font-bold text-[16px] text-[#111]">등록 여부</label>
+              <label className="font-bold text-[16px] text-[#111]">노출 여부</label>
               <div className="flex items-center gap-3">
                 <button 
                   type="button" 
@@ -195,7 +195,7 @@ const AdminSubCodeEdit = () => {
                 >
                   <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${isRegistered ? 'translate-x-[26px]' : 'translate-x-0'}`} />
                 </button>
-                <span className={`text-[14px] font-bold ${isRegistered ? 'text-[#2563EB]' : 'text-gray-400'}`}>{isRegistered ? '등록' : '미등록'}</span>
+                <span className={`text-[14px] font-bold ${isRegistered ? 'text-[#2563EB]' : 'text-gray-400'}`}>{isRegistered ? '노출' : '미노출'}</span>
               </div>
             </div>
 

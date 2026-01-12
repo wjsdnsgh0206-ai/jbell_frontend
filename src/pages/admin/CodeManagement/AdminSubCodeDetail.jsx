@@ -113,16 +113,16 @@ const AdminSubCodeDetail = () => {
               <p className="text-[13px] text-gray-400 mt-3 font-medium">* 숫자가 낮을수록 상위에 위치합니다</p>
             </div>
 
-            {/* 등록 여부 (상세페이지용 - 가로 배치 및 명칭 수정) */}
+            {/* 사용 여부 (상세페이지용 - 가로 배치 및 명칭 수정) */}
             <div className="flex items-center gap-5 pt-2">
-            <label className="font-bold text-[16px] text-[#111]">등록 여부</label>
+            <label className="font-bold text-[16px] text-[#111]">노출 여부</label>
             <div className="flex items-center gap-3">
                 {/* 토글 버튼 영역 (Detail이므로 클릭 기능 제외, 애니메이션 유지) */}
                 <div className={`w-[54px] h-[28px] flex items-center rounded-full p-1 transition-colors duration-300 ${formData.visible ? 'bg-[#2563EB]' : 'bg-gray-300'}`}>
                 <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${formData.visible ? 'translate-x-[26px]' : 'translate-x-0'}`}></div>
                 </div>
                 <span className={`text-[14px] font-bold ${formData.visible ? 'text-[#2563EB]' : 'text-gray-400'}`}>
-                {formData.visible ? '등록' : '미등록'}
+                {formData.visible ? '노출' : '미노출'}
                 </span>
             </div>
             </div>

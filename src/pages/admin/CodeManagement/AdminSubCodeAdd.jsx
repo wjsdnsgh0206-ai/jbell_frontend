@@ -235,7 +235,7 @@ const AdminSubCodeAdd = () => {
 
             {/* 6. 등록 여부 */}
             <div className="flex items-center gap-5 pt-2">
-              <label className="font-bold text-[16px] text-[#111]">등록 여부</label>
+              <label className="font-bold text-[16px] text-[#111]">노출 여부</label>
               <div className="flex items-center gap-3">
                 <button 
                   type="button"
@@ -245,7 +245,7 @@ const AdminSubCodeAdd = () => {
                   <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${isVisible ? 'translate-x-[26px]' : 'translate-x-0'}`} />
                 </button>
                 <span className={`text-[14px] font-bold ${isVisible ? 'text-[#2563EB]' : 'text-gray-400'}`}>
-                  {isVisible ? '등록' : '미등록'}
+                  {isVisible ? '노출' : '미노출'}
                 </span>
               </div>
             </div>
