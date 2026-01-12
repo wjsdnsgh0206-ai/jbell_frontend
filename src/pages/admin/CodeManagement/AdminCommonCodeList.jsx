@@ -1,10 +1,11 @@
 // src/pages/admin/CodeManagement/AdminCommonCodeList.jsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BreadCrumb from '@/components/Admin/board/BreadCrumb';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
 import { Button } from '@/components/shared/Button';
 import { Search, RotateCcw, X, ChevronDown } from 'lucide-react';
+import AdminCodeConfirmModal from './AdminCodeConfirmModal';
 
 const AdminCommonCodeList = () => {
   const navigate = useNavigate();
@@ -17,34 +18,79 @@ const AdminCommonCodeList = () => {
   const [appliedSearch, setAppliedSearch] = useState(""); 
   const [toast, setToast] = useState({ visible: false, message: "" });
   const [selectedGroup, setSelectedGroup] = useState("그룹코드 전체");
-  const [selectedDetail, setSelectedDetail] = useState("상세코드 전체");
+  const [selectedSub, setSelectedSub] = useState("상세코드 전체");
+  // const [selectedDetail, setSelectedDetail] = useState("상세코드 전체");
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState({ title: '', message: '', type: 'delete', onConfirm: () => {} });
 
   const itemsPerPage = 10;
+  const pageGroupSize = 5; 
+
+  useEffect(() => {
+    setCodes([...AdminCommonCodeData]);
+  }, []);
+
+  useEffect(() => {
+    setSelectedSub("상세코드 전체");
+  }, [selectedGroup]);
+
+  // 검색/필터 적용 여부 체크
+  const isFiltered = useMemo(() => {
+    return appliedSearch !== "" || selectedGroup !== "그룹코드 전체" || selectedSub !== "상세코드 전체";
+  }, [appliedSearch, selectedGroup, selectedSub]);
+
+  // const subOptions = useMemo(() => {
+  //   let subData = codes.filter(c => c.subCode !== '-');
+  //   if (selectedGroup !== "그룹코드 전체") {
+  //     subData = subData.filter(c => c.groupCode === selectedGroup);
+  //   }
+  //   return Array.from(new Map(subData.map(c => [c.subCode, c.subName])));
+  // }, [codes, selectedGroup]);
 
   // 2. 데이터 처리
   const groupOptions = useMemo(() => {
     return Array.from(new Map(AdminCommonCodeData.map(c => [c.groupCode, c.groupName])));
   }, []);
 
-  const detailOptions = useMemo(() => {
+  const subOptions = useMemo(() => {
     const filteredBase = selectedGroup === "그룹코드 전체" 
-      ? AdminCommonCodeData 
-      : AdminCommonCodeData.filter(c => c.groupCode === selectedGroup);
-    return Array.from(new Map(filteredBase.map(c => [c.detailCode, c.detailName])));
-  }, [selectedGroup]);
+      ? codes 
+      : codes.filter(c => c.groupCode === selectedGroup);
+    
+    // subCode가 '-'인 마스터 항목은 제외하고 상세 코드만 추출
+    const actualSubCodes = filteredBase.filter(c => c.subCode !== '-');
+    
+    // 중복 제거 및 [코드, 명칭] 배열 반환
+    return Array.from(new Map(actualSubCodes.map(c => [c.subCode, c.subName])));
+  }, [selectedGroup, codes]);;
 
+  // 검색 필터 로직(공백 및 대소문자)  
   const filteredData = useMemo(() => {
+    const searchTerm = appliedSearch.replace(/\s+/g, "").toLowerCase();
+
     return codes.filter(code => {
       const isGroupMatch = selectedGroup === "그룹코드 전체" || code.groupCode === selectedGroup;
-      const isDetailMatch = selectedDetail === "상세코드 전체" || code.detailCode === selectedDetail;
-      const isSearchMatch = !appliedSearch || 
-        code.groupName.includes(appliedSearch) || 
-        code.detailName.includes(appliedSearch) ||
-        code.groupCode.includes(appliedSearch) ||
-        (code.desc && code.desc.includes(appliedSearch));
-      return isGroupMatch && isDetailMatch && isSearchMatch;
+      const isSubMatch = selectedSub === "상세코드 전체" || code.subCode === selectedSub;
+      
+      if (!searchTerm) return isGroupMatch && isSubMatch;
+
+      // 검색 대상 필드들을 합쳐서 확인
+      const targetString = [
+        code.groupName,
+        code.groupCode,
+        code.subName,
+        code.subCode,
+        code.desc
+      ].join("").replace(/\s+/g, "").toLowerCase();
+
+      return isGroupMatch && isSubMatch && targetString.includes(searchTerm);
+    }).sort((a, b) => {
+      // 정렬 로직은 유지
+      if (a.groupCode !== b.groupCode) return a.groupCode.localeCompare(b.groupCode);
+      return (Number(a.order) || 0) - (Number(b.order) || 0);
     });
-  }, [codes, appliedSearch, selectedGroup, selectedDetail]);
+  }, [codes, appliedSearch, selectedGroup, selectedSub]);
 
   const currentData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -52,6 +98,9 @@ const AdminCommonCodeList = () => {
   }, [currentPage, filteredData]);
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const startPage = Math.floor((currentPage - 1) / pageGroupSize) * pageGroupSize + 1;
+  const endPage = Math.min(startPage + pageGroupSize - 1, totalPages);
+  const pageNumbers = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
 
   // 3. 핸들러 함수
   const showToast = (message) => {
@@ -61,19 +110,48 @@ const AdminCommonCodeList = () => {
 
   const handleSearch = () => { setAppliedSearch(searchInput); setCurrentPage(1); };
   const handleClearSearch = () => { setSearchInput(""); setAppliedSearch(""); setCurrentPage(1); };
+  
+  const isAllSelectedOnPage = currentData.length > 0 && currentData.every(item => selectedIds.includes(item.id));
+  const handleSelectAllOnPage = (e) => {
+    const currentPageIds = currentData.map(item => item.id);
+    if (e.target.checked) setSelectedIds(prev => Array.from(new Set([...prev, ...currentPageIds])));
+    else setSelectedIds(prev => prev.filter(id => !currentPageIds.includes(id)));
+  };
+  const handleSelectOne = (id) => setSelectedIds(prev => prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]);
 
   const handleDeleteSelected = () => {
-    if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
-    if (window.confirm(`선택한 ${selectedIds.length}개의 항목을 삭제하시겠습니까?`)) {
-      setCodes(prev => prev.filter(code => !selectedIds.includes(code.id)));
-      setSelectedIds([]);
-      showToast("삭제되었습니다.");
-    }
+    if (selectedIds.length === 0) { alert("삭제할 항목을 선택해주세요."); return; }
+    setModalConfig({
+      title: '선택 항목 삭제',
+      message: `선택하신 ${selectedIds.length}개의 항목을 정말 삭제하시겠습니까?`,
+      type: 'delete',
+      onConfirm: () => {
+        setCodes(prev => prev.filter(code => !selectedIds.includes(code.id)));
+        setSelectedIds([]); setIsModalOpen(false);
+      }
+    });
+    setIsModalOpen(true);
   };
 
-  const handleToggleVisible = (id) => {
-    setCodes(prev => prev.map(code => code.id === id ? { ...code, visible: !code.visible } : code));
-    showToast("상태가 변경되었습니다.");
+  const handleBatchStatus = (status) => {
+    if (selectedIds.length === 0) { alert("항목을 먼저 선택해주세요."); return; }
+    setModalConfig({
+      title: `일괄 ${status ? '노출' : '미노출'} 처리`,
+      message: `선택하신 ${selectedIds.length}개의 항목을 일괄 처리하시겠습니까?`,
+      type: status ? 'confirm' : 'delete',
+      onConfirm: () => {
+        setCodes(prev => prev.map(code => selectedIds.includes(code.id) ? { ...code, visible: status } : code));
+        setSelectedIds([]); setIsModalOpen(false);
+      }
+    });
+    setIsModalOpen(true);
+  };
+
+  const handleToggleVisible = (id) => setCodes(prev => prev.map(code => code.id === id ? { ...code, visible: !code.visible } : code));
+  
+  const handleViewDetail = (code) => {
+    const path = code.subCode === '-' ? `/admin/system/groupCodeDetail/${code.id}` : `/admin/system/groupCodeDetail/${code.id}`;
+    navigate(path);
   };
 
   const CustomCheckbox = ({ checked, onChange }) => (
@@ -96,23 +174,29 @@ const AdminCommonCodeList = () => {
             <div className="relative w-72">
               <select 
                 value={selectedGroup} 
-                onChange={(e) => { setSelectedGroup(e.target.value); setSelectedDetail("상세코드 전체"); setCurrentPage(1); }}
+                onChange={(e) => { setSelectedGroup(e.target.value); setSelectedSub("상세코드 전체"); setCurrentPage(1); }}
                 className="w-full appearance-none border border-admin-border rounded-md px-5 h-14 text-body-m outline-none focus:border-admin-primary bg-white text-admin-text-primary active: text-body-m-bold"
               >
                 <option value="그룹코드 전체">그룹코드 전체</option>
-                {groupOptions.map(([code, name]) => <option key={code} value={code}>{`${code}(${name})`}</option>)}
+                {/* {groupOptions.map(([code, name]) => 
+                  <option key={code} value={code}>{`${code}(${name})`}</option>)} */}
+                {groupOptions.map(([code, name]) => (
+                  <option key={code} value={code}>{`${code}(${name})`}</option>
+                ))}
               </select>
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
             </div>
 
             <div className="relative w-72">
               <select 
-                value={selectedDetail} 
-                onChange={(e) => { setSelectedDetail(e.target.value); setCurrentPage(1); }}
+                value={selectedSub} 
+                onChange={(e) => { setSelectedSub(e.target.value); setCurrentPage(1); }}
                 className="w-full appearance-none border border-admin-border rounded-md px-5 h-14 text-body-m outline-none focus:border-admin-primary bg-white text-admin-text-primary"
               >
                 <option value="상세코드 전체">상세코드 전체</option>
-                {detailOptions.map(([code, name]) => <option key={code} value={code}>{`${code}(${name})`}</option>)}
+                  {subOptions.map(([code, name]) => (
+                    <option key={code} value={code}>{`${code}(${name})`}</option>
+                  ))}
               </select>
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
             </div>
@@ -134,6 +218,7 @@ const AdminCommonCodeList = () => {
             </div>
           </div>
           <button onClick={handleSearch} className="px-8 h-14 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 font-bold rounded-md transition-all active:scale-98 text-body-m-bold">검색</button>
+          {/* <Button variant="none" size="none" onClick={handleSearch} className="px-8 h-14 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 font-bold rounded-md transition-all">검색</Button> */}
         </section>
 
         <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8">
@@ -150,10 +235,24 @@ const AdminCommonCodeList = () => {
               <span className="text-body-m-bold text-admin-text-secondary">
                 {selectedIds.length > 0 ? `${selectedIds.length}개 선택됨` : `전체 ${filteredData.length}건`}
               </span>
+              <div className="flex items-center ml-4 gap-4">
+                <button onClick={() => handleBatchStatus(true)} className="flex items-center gap-2 group">
+                  <div className="w-5 h-5 rounded-full border-2 border-[#2563EB] flex items-center justify-center transition-all group-hover:bg-blue-50">
+                    <div className="w-2.5 bg-[#2563EB] h-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <span className="text-[15px] font-bold text-[#111]">일괄 노출</span>
+                </button>
+                <div className="w-[1px] h-3 bg-gray-300" />
+                <button onClick={() => handleBatchStatus(false)} className="flex items-center gap-2 group">
+                  <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center transition-all group-hover:bg-gray-100">
+                    <div className="w-2.5 bg-gray-400 h-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <span className="text-[15px] font-bold text-[#666]">일괄 미노출</span>
+                </button>
+              </div>
             </div>
             <div className="flex gap-3">
               <button onClick={handleDeleteSelected} className="px-8 h-14 bg-[#FF003E] text-white rounded-md font-bold hover:opacity-90 active:scale-98 transition-all text-body-m-bold">삭제</button>
-              <button onClick={() => navigate('/admin/system/groupCodeAdd')} className="px-8 h-14 bg-admin-primary text-white rounded-md font-bold hover:bg-admin-primaryHover active:scale-98 transition-all text-body-m-bold">신규 등록</button>
             </div>
           </div>
 
@@ -161,7 +260,7 @@ const AdminCommonCodeList = () => {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-graygray-10 border-b border-admin-border text-admin-text-primary text-body-m-bold">
-                  <th className="py-5 w-[80px] text-center">선택</th>
+                  <th className="py-5 w-[80px] text-center"><div className="flex justify-center"><CustomCheckbox checked={isAllSelectedOnPage} onChange={handleSelectAllOnPage} /></div></th>
                   <th className="py-5 px-2 text-center">그룹코드</th>
                   <th className="py-5 px-2 text-center">그룹명</th>
                   <th className="py-5 px-2 text-center">상세코드</th>
@@ -179,7 +278,7 @@ const AdminCommonCodeList = () => {
                     <td className="py-5 text-center"><div className="flex justify-center"><CustomCheckbox checked={selectedIds.includes(code.id)} onChange={() => setSelectedIds(prev => prev.includes(code.id) ? prev.filter(i => i !== code.id) : [...prev, code.id])} /></div></td>
                     <td className="py-5 text-center text-admin-text-secondary font-mono text-body-m">{code.groupCode}</td>
                     <td className="py-5 text-center">{code.groupName}</td>
-                    <td className="py-5 text-center text-admin-text-secondary font-mono text-body-m">{code.detailCode}</td>
+                    <td className="py-5 text-center text-admin-text-secondary font-mono text-body-m">{code.subCode}</td>
                     <td className="py-5 text-center font-bold text-admin-text-primary">{code.detailName}</td>
                     <td className="py-5 px-6 text-left truncate max-w-[200px]">{code.desc}</td>
                     <td className="py-5 text-center text-graygray-50 text-body-m">{code.date}</td>
@@ -192,13 +291,28 @@ const AdminCommonCodeList = () => {
                       </div>
                     </td>
                     <td className="py-5 text-center">
-                      <button onClick={() => navigate(`/admin/system/commonCodeDetail/${code.id}`)} className="border border-admin-border rounded px-4 py-1.5 text-body-m-bold text-admin-text-secondary hover:bg-graygray-10 transition-colors">보기</button>
+                      {/* <button onClick={() => navigate(`/admin/system/commonCodeDetail/${code.id}`)} className="border border-admin-border rounded px-4 py-1.5 text-body-m-bold text-admin-text-secondary 
+                      hover:bg-graygray-10 transition-colors">보기</button> */}
+                      <button onClick={() => handleViewDetail(code)} className="border border-gray-300 text-[#666] rounded px-4 py-1.5 text-[13px] font-bold bg-white 
+                      hover:bg-[#2563EB] hover:text-white hover:border-[#2563EB] transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95">보기</button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+
+          {/* [사용자 요청] 일관성을 지킨 하단 검색 초기화 버튼 */}
+          {isFiltered && currentData.length > 0 && (
+            <div className="flex justify-center mb-10">
+              <button 
+                onClick={handleClearSearch} 
+                className="px-10 py-3.5 bg-white border border-gray-300 rounded-md text-[16px] font-bold text-[#666] hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm active:scale-95"
+              >
+                검색 초기화
+              </button>
+            </div>
+          )}
 
           {/* [개선된 페이지네이션 영역] */}
           <div className="py-14 flex justify-center items-center gap-3">
@@ -254,6 +368,11 @@ const AdminCommonCodeList = () => {
           <span className="text-body-m font-medium">{toast.message}</span>
         </div>
       )}
+
+      <AdminCodeConfirmModal 
+        isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={modalConfig.onConfirm}
+        title={modalConfig.title} message={modalConfig.message} type={modalConfig.type}
+      />
     </div>
   );
 };

@@ -8,6 +8,7 @@ export const ADMIN_MENU_DATA = {
         { name: "공통코드 목록(수정 전)", path: "/admin/system/commonCodeListCopy" },
         { name: "공통코드 목록", path: "/admin/system/commonCodeList" },
         { name: "그룹코드 등록", path: "/admin/system/groupCodeAdd" },
+        { name: "상세코드 등록", path: "/admin/system/subCodeAdd" },
         // { name: "상세코드 등록", path: "/admin/system/adminDetailCodeAdd" },
       ],
     },
