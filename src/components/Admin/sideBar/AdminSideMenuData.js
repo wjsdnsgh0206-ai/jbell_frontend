@@ -12,6 +12,11 @@ export const ADMIN_MENU_DATA = {
       ],
     },
     {
+      title: "권한 관리",
+      isAvailable: false,
+      items: [],
+    },
+    {
       title: "로그 관리",
       isAvailable: false,
       items: [],

@@ -168,6 +168,7 @@ const AdminCommonCodeList = () => {
                   <th className="py-5 px-2 text-center">상세명</th>
                   <th className="py-5 px-6 text-center">코드설명</th>
                   <th className="py-5 px-2 text-center">등록일시</th>
+                  <th className="py-5 px-2 text-center">순서</th>
                   <th className="py-5 px-4 text-center">등록여부</th>
                   <th className="py-5 px-4 text-center">상세</th>
                 </tr>
@@ -182,6 +183,7 @@ const AdminCommonCodeList = () => {
                     <td className="py-5 text-center font-bold text-admin-text-primary">{code.detailName}</td>
                     <td className="py-5 px-6 text-left truncate max-w-[200px]">{code.desc}</td>
                     <td className="py-5 text-center text-graygray-50 text-body-m">{code.date}</td>
+                    <td className="py-5 text-center text-body-m">{code.order || '-'}</td>
                     <td className="py-5 text-center">
                       <div className="flex justify-center">
                         <button onClick={() => handleToggleVisible(code.id)} className={`w-12 h-6 flex items-center rounded-full p-1 transition-all ${code.visible ? 'bg-admin-primary' : 'bg-graygray-30'}`}>

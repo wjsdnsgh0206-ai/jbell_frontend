@@ -15,10 +15,8 @@ const AdminHeader = () => {
     { key: 'content', name: '콘텐츠 관리', path: '/admin/content/contentList' },
     { key: 'safetyMap', name: '안전정보지도 관리', path: '/admin/safetyMap/safetyMapList' },
     { key: 'user', name: '회원 관리', path: '/admin/user/userList' },
-    { key: 'menu', name: '메뉴 관리', path: '/admin/menu/menuList' },
-    { key: 'auth', name: '권한 관리', path: '/admin/author/authorList' },
-    { key: 'system', name: '공통코드 관리', path: '/admin/system/commonCodeList' },
-  ];
+    { key: 'system', name: '시스템 관리', path: '/admin/system/commonCodeList' },
+  ]; 
 
   return (
     <div className="flex items-center h-full w-full">
