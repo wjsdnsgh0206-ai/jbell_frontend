@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/utils/axiosConfig";
 
-// 날씨 코드별 예쁜 한글 매핑
+// 날씨 코드별 한글 매핑
 const weatherDescKo = {
   200: "번개를 동반한 비", 201: "번개를 동반한 가벼운 비", 202: "번개를 동반한 강한 비",
   230: "가벼운 번개", 231: "번개", 300: "가랑비", 301: "가랑비",

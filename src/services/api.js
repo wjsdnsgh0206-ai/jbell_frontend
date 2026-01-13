@@ -12,6 +12,7 @@ const api = axios.create({
 const safetyApi = axios.create({ baseURL: '/safety-api' });
 const weatherApi = axios.create({ baseURL: '/weather-api' });
 const messageApi = axios.create({ baseURL: '/message-api'});
+const earthquakeApi = axios.create({ baseURL: '/earthquake-api'});
 
 export const userService = {
   // 유저 정보 가져오기 (기존 8080 서버)
@@ -33,9 +34,17 @@ export const shelterService = {
 
 export const disasterModalService = {
   getDisasters: async (params) => {
-    // Vite 프록시 설정 덕분에 /safety-api/DSSP-IF-10941 로 요청하면 됩니다.
-    const response = await messageApi.get('/DSSP-IF-10748', { params });
+    const response = await messageApi.get('/DSSP-IF-00247', { params });
     return response.data;
   },
+  getEarthquake: async (params) => {
+    // DSSP-IF-00103 호출
+    const response = await earthquakeApi.get('/DSSP-IF-00706', { params });
+    return response.data;
+  },
+  getEarthquakeOutdoors: async (params) => {
+    // DSSP-IF-00706 호출
+    const response = await earthquakeApi.get('/DSSP-IF-00103', { params });
+    return response.data;
+  }
 };
-

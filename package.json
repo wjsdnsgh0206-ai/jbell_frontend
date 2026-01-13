@@ -12,6 +12,7 @@
   "dependencies": {
     "axios": "^1.13.2",
     "lucide-react": "^0.562.0",
+    "papaparse": "^5.5.3",
     "react": "^19.2.0",
     "react-daum-postcode": "^3.2.0",
     "react-dom": "^19.2.0",

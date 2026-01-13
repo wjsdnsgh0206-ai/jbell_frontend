@@ -66,7 +66,7 @@ export default defineConfig(({ mode }) => {
           }
         },
 
-        // 재난문자 (속보) api 추가
+        // 재난문자 (속보) api
         '/message-api': {
           target: 'https://www.safetydata.go.kr/V2/api',
           changeOrigin: true,
@@ -82,6 +82,24 @@ export default defineConfig(({ mode }) => {
           }
         },
       
+
+        // 지진 대피장소 api
+        '/earthquake-api': {
+          target: 'https://www.safetydata.go.kr/V2/api',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/earthquake-api/, ''),
+          secure: false,
+          configure: (proxy, options) => {
+            proxy.on('proxyReq', (proxyReq, req, res) => {
+              console.log('Proxy Request:', req.method, req.url);
+            });
+            proxy.on('proxyRes', (proxyRes, req, res) => {
+              console.log('Proxy Response:', proxyRes.statusCode, req.url);
+            });
+          }
+        },
+
+
       }
     }
   }

@@ -1,91 +1,78 @@
 import React, { useEffect, useRef, useState } from "react";
 
-const CommonMap = ({ markers = [], center = null }) => {
+const CommonMap = ({ markers = [] }) => {
   const mapContainer = useRef(null);
   const [map, setMap] = useState(null);
-  const markersRef = useRef([]); // 마커들을 관리할 Ref
+  const markersRef = useRef([]);
+  const overlayRef = useRef(null);
 
-  // 1. 지도 초기화
   useEffect(() => {
-    if (!window.kakao) {
-      console.error("카카오 지도 API가 로드되지 않았어.");
-      return;
-    }
-
+    if (!window.kakao) return;
     const initMap = () => {
       const options = {
-        center: new window.kakao.maps.LatLng(35.8242, 127.1480), // 기본 위치 (전주시청)
-        level: 4,
+        center: new window.kakao.maps.LatLng(35.8242, 127.1480), 
+        level: 7,
       };
       const kakaoMap = new window.kakao.maps.Map(mapContainer.current, options);
       setMap(kakaoMap);
     };
-
-    // 지도를 담을 컨테이너가 확실히 있을 때 실행
-    if (mapContainer.current) {
-      initMap();
-    }
+    if (mapContainer.current) initMap();
   }, []);
 
-  // 2. 마커 표시 및 업데이트
   useEffect(() => {
     if (!map || !markers) return;
 
-    // 기존 마커 제거
-    markersRef.current.forEach((marker) => marker.setMap(null));
+    markersRef.current.forEach((m) => m.setMap(null));
+    if (overlayRef.current) overlayRef.current.setMap(null);
     markersRef.current = [];
 
-    // 새 마커 생성
+    if (markers.length === 0) {
+      map.setCenter(new window.kakao.maps.LatLng(35.8242, 127.1480));
+      return;
+    }
+
+    const bounds = new window.kakao.maps.LatLngBounds();
+
     const newMarkers = markers.map((m) => {
       const position = new window.kakao.maps.LatLng(m.lat, m.lng);
-      const marker = new window.kakao.maps.Marker({
-        position: position,
-        title: m.title,
+      const marker = new window.kakao.maps.Marker({ position, map });
+      
+      bounds.extend(position);
+
+      window.kakao.maps.event.addListener(marker, 'click', () => {
+        if (overlayRef.current) overlayRef.current.setMap(null);
+
+        const content = `
+          <div style="padding:12px; background:white; border-radius:12px; border:1px solid #e5e7eb; box-shadow: 0 4px 12px rgba(0,0,0,0.15); min-width:180px; position:relative; bottom:55px; transform:translateX(-50%); z-index:100;">
+            <div style="font-weight:700; font-size:14px; color:#111827; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.title}</div>
+            <div style="font-size:11px; color:#6b7280; line-height:1.4; word-break:break-all;">${m.content}</div>
+            <div style="position:absolute; bottom:-8px; left:50%; margin-left:-8px; border-top:8px solid white; border-left:8px solid transparent; border-right:8px solid transparent;"></div>
+          </div>
+        `;
+
+        const overlay = new window.kakao.maps.CustomOverlay({
+          content: content,
+          position: position,
+          yAnchor: 1 
+        });
+
+        overlay.setMap(map);
+        overlayRef.current = overlay;
+        map.panTo(position); 
       });
-      marker.setMap(map);
+
       return marker;
     });
 
     markersRef.current = newMarkers;
+
+    if (markers.length > 0) {
+      map.setBounds(bounds);
+    }
+    
   }, [map, markers]);
 
-  // 3. 외부에서 center 좌표가 들어올 때 부드럽게 이동 (panTo)
-  useEffect(() => {
-    if (!map || !center) return;
-
-    const moveLatLon = new window.kakao.maps.LatLng(center.lat, center.lng);
-    map.panTo(moveLatLon);
-  }, [map, center]);
-
-  // 4. ★ 모바일에서 지도가 안 보이는 문제 해결 (relayout) ★
-  useEffect(() => {
-    if (!map) return;
-
-    // 창 크기가 변할 때 지도를 재정렬해줌
-    const handleResize = () => {
-      map.relayout();
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    // 컴포넌트가 마운트된 직후, 컨테이너 크기를 다시 계산하도록 딜레이를 줌
-    const timer = setTimeout(() => {
-      map.relayout();
-    }, 100);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      clearTimeout(timer);
-    };
-  }, [map]);
-
-  return (
-    <div 
-      ref={mapContainer} 
-      className="w-full h-full min-h-[inherit]" 
-      style={{ touchAction: "none" }} // 모바일 터치 간섭 방지
-    />
-  );
+  return <div ref={mapContainer} className="w-full h-full min-h-[inherit]" />;
 };
 
 export default CommonMap;
