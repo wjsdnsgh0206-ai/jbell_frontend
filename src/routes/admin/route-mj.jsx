@@ -33,12 +33,6 @@ const mjAdminRoutes = [
             nowPage: "공지사항",
       },
       {
-            path:"/admin/content/noticeListPage",
-            element:<NoticeListPage/>,
-            nowPage:"공지사항 관리",
-
-      },
-      {
             path: "/admin/adminLogList", 
             element: <AdminLogList />,
             nowPage: "로그 관리",
