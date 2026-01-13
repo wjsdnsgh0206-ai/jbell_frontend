@@ -21,7 +21,6 @@ const CommonMap = ({ markers = [] }) => {
 
   useEffect(() => {
     if (!map || !markers) return;
-
     markersRef.current.forEach((m) => m.setMap(null));
     if (overlayRef.current) overlayRef.current.setMap(null);
     markersRef.current = [];
