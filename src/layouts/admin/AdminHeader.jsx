@@ -1,7 +1,7 @@
 // src/layouts/admin/AdminHeader.jsx
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
-import { ADMIN_MENU_DATA } from '@/components/admin/sideBar/AdminSideMenuData';
+import { ADMIN_MENU_DATA } from '@/components/admin/AdminSideMenuData';
 
 const AdminHeader = () => {
   const navigate = useNavigate();

@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom";
 import AdminSideBar from './AdminSideBar';
 import AdminHeader from './AdminHeader';
 import AdminFooter from './AdminFooter';
-import BreadCrumb from '@/components/Admin/AdminBreadCrumb'
+import BreadCrumb from '@/components/admin/AdminBreadCrumb'
 
 const AdminLayout = () => {
   return (
