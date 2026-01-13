@@ -1,6 +1,8 @@
 import { lazy } from "react";
+import NoticeListPage from "c:/Users/SMART-05/Downloads/공지사항 관리(리스트)-[관리자]";
 export const AdminBoardList = lazy(() => import("@/pages/admin/Board/AdminBoardList"));
 export const AdminLogList = lazy(() => import("@/pages/admin/Board/AdminLogList"));
+export const AdminMemberList = lazy(() => import("@/pages/admin/Member/AdminMemberList"));
 
 
 // ------ 라우트 페이지 경로 입력 파일 ------ //
@@ -31,9 +33,20 @@ const mjAdminRoutes = [
             nowPage: "공지사항",
       },
       {
+            path:"/admin/content/noticeListPage",
+            element:<NoticeListPage/>,
+            nowPage:"공지사항 관리",
+
+      },
+      {
             path: "/admin/content/adminLogList", 
             element: <AdminLogList />,
             nowPage: "로그 관리",
+      },
+      {
+            path: "/admin/content/adminMemberList", 
+            element: <AdminMemberList />,
+            nowPage: "회원 조회",
       },
 
 ];
