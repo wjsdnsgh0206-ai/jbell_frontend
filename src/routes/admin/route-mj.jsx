@@ -39,12 +39,12 @@ const mjAdminRoutes = [
 
       },
       {
-            path: "/admin/content/adminLogList", 
+            path: "/admin/adminLogList", 
             element: <AdminLogList />,
             nowPage: "로그 관리",
       },
       {
-            path: "/admin/content/adminMemberList", 
+            path: "/admin/adminMemberList", 
             element: <AdminMemberList />,
             nowPage: "회원 조회",
       },

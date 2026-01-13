@@ -51,8 +51,8 @@ const AdminMemberList = () => {
                 </select>
             </div>
             <div className="flex items-end gap-2">
-                <button className="px-4 py-2 border rounded text-sm">초기화</button>
                 <button className="px-4 py-2 bg-blue-500 text-white rounded text-sm">검색</button>
+                <button className="px-4 py-2 border rounded text-sm">초기화</button>
             </div>
             </div>
 
@@ -61,8 +61,6 @@ const AdminMemberList = () => {
             <div className="flex gap-4">
                 <label><input type="checkbox" className="mr-1" /> 7개 선택됨</label>
                 <button className="text-blue-600">일괄 노출</button>
-                <button className="text-gray-500">목록 인쇄</button>
-                <button className="text-gray-500">목록 다운로드</button>
             </div>
             </div>
 
