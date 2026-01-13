@@ -8,7 +8,8 @@ const adminMap = {
   "system": "시스템 관리",
   "commonCodeList": "공통코드 목록",
   "groupCodeAdd": "그룹코드 등록",
-  "subCodeAdd": "상세코드 등록"
+  "subCodeAdd": "상세코드 등록",
+  "groupCodeEdit": "공통 코드 관리",
 };
 
 const AdminBreadcrumb = () => {

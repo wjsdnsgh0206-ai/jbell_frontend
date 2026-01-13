@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import BreadCrumb from '@/components/Admin/board/BreadCrumb';
+import BreadCrumb from '@/components/admin/AdminBreadCrumb';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
 import AdminCodeConfirmModal from './AdminCodeConfirmModal';
 
