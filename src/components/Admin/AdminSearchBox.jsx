@@ -1,4 +1,4 @@
-// src/components/admin/shared/AdminSearchBox.jsx
+// src/components/admin/AdminSearchBox.jsx
 // 조건(Select) + 검색어(Input) + 기간(Date - 추후 확장 대비) + 액션 버튼의 조합을 표준화
 import React, { useState } from 'react';
 import { Search, RotateCcw, Calendar } from 'lucide-react';

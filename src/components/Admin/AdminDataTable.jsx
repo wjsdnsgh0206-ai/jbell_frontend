@@ -1,4 +1,4 @@
-// src/components/admin/shared/AdminDataTable.jsx
+// src/components/admin/AdminDataTable.jsx
 import React, { useState, useEffect } from 'react';
 
 const AdminDataTable = ({ 

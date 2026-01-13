@@ -1,4 +1,4 @@
-// src/components/Admin/board/AdminBreadcrumb.jsx
+// src/components/admin/AdminBreadcrumb.jsx
 import { useLocation, Link } from "react-router-dom";
 import { ChevronRight } from 'lucide-react';
 import { GoHomeFill } from "react-icons/go";

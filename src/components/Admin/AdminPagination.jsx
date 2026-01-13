@@ -1,4 +1,4 @@
-// src/components/admin/shared/AdminPagination.jsx
+// src/components/admin/AdminPagination.jsx
 import React from 'react';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 

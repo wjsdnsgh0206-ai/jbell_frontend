@@ -1,4 +1,4 @@
-// src/components/admin/sideBar/AdminSideMenuData.js
+// src/components/admin/AdminSideMenuData.js
 export const ADMIN_MENU_DATA = {
   system: [ // URL이 /admin/system/.. 일 때
     {
