@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import BreadCrumb from '@/components/Admin/board/BreadCrumb';
+import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
 import AdminCodeConfirmModal from './AdminCodeConfirmModal';
 
@@ -13,6 +12,7 @@ const ErrorIcon = () => (
 
 const AdminGroupCodeEdit = () => {
   const { id } = useParams(); 
+  const { setBreadcrumbTitle } = useOutletContext();
   const navigate = useNavigate();
   
   const [showToast, setShowToast] = useState(false);
@@ -28,6 +28,17 @@ const AdminGroupCodeEdit = () => {
     regDate: '',
     modDate: ''
   });
+
+  useEffect(() => {
+    const found = AdminCommonCodeData.find(item => item.id === parseInt(id));
+    if (found) {
+      // 레이아웃의 breadcrumbTitle 상태를 업데이트 -> 브레드크럼이 즉시 바뀜
+      setBreadcrumbTitle(found.groupName); 
+    }
+    
+    // 페이지를 나갈 때는 초기화 (Clean-up)
+    return () => setBreadcrumbTitle("");
+  }, [id, setBreadcrumbTitle]);
 
   useEffect(() => {
     const detailData = AdminCommonCodeData.find(item => String(item.id) === String(id));
@@ -89,7 +100,7 @@ const AdminGroupCodeEdit = () => {
       };
     }
     setShowToast(true);
-    setTimeout(() => navigate('/admin/adminCommonCodeList'), 1500);
+    setTimeout(() => navigate('/admin/system/commonCodeList'), 1500);
   };
 
   return (
@@ -105,7 +116,6 @@ const AdminGroupCodeEdit = () => {
       )}
 
       <main className="p-10 text-left">
-        <BreadCrumb />
         <h2 className="text-[32px] font-bold mt-2 mb-10 tracking-tight text-left">공통 코드 관리</h2>
 
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-14 w-full max-w-[1000px]">
@@ -178,7 +188,7 @@ const AdminGroupCodeEdit = () => {
 
             {/* 5. 등록 여부 */}
             <div className="mb-10 flex items-center gap-5 pt-2">
-              <label className="font-bold text-[16px] text-[#111]">등록 여부</label>
+              <label className="font-bold text-[16px] text-[#111]">노출 여부</label>
               <div className="flex items-center gap-3">
                 <button 
                   type="button" 
@@ -188,7 +198,7 @@ const AdminGroupCodeEdit = () => {
                   <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${isRegistered ? 'translate-x-[26px]' : 'translate-x-0'}`} />
                 </button>
                 <span className={`text-[14px] font-bold ${isRegistered ? 'text-[#2563EB]' : 'text-gray-400'}`}>
-                  {isRegistered ? '등록' : '미등록'}
+                  {isRegistered ? '노출' : '미노출'}
                 </span>
               </div>
             </div>

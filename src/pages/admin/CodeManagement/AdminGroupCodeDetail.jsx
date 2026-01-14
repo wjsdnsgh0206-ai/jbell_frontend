@@ -1,14 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import BreadCrumb from '@/components/Admin/board/BreadCrumb';
+import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
 import AdminCodeConfirmModal from './AdminCodeConfirmModal';
 
 const AdminGroupCodeDetail = () => {
   const { id } = useParams();
+  const { setBreadcrumbTitle } = useOutletContext();
   const navigate = useNavigate();
   const [formData, setFormData] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  useEffect(() => {
+      const found = AdminCommonCodeData.find(item => item.id === parseInt(id));
+      if (found) {
+        // 레이아웃의 breadcrumbTitle 상태를 업데이트 -> 브레드크럼이 즉시 바뀜
+        setBreadcrumbTitle(found.groupName); 
+      }
+      
+      // 페이지를 나갈 때는 초기화 (Clean-up)
+      return () => setBreadcrumbTitle("");
+    }, [id, setBreadcrumbTitle]);
 
   useEffect(() => {
     // [2026-01-08 약속] 상세 정보 로드 로직 유지
@@ -22,13 +33,12 @@ const AdminGroupCodeDetail = () => {
 
   const handleDelete = () => {
     setIsDeleteModalOpen(false);
-    navigate('/admin/adminCommonCodeList');
+    navigate('/admin/system/commonCodeList');
   };
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
       <main className="p-10 text-left">
-        <BreadCrumb />
         
         {/* 상단 제목 */}
         <h2 className="text-[32px] font-bold mt-2 mb-2 tracking-tight">공통코드관리</h2>
@@ -36,7 +46,7 @@ const AdminGroupCodeDetail = () => {
         {/* 상단 버튼 영역 (제목 아래, 본문 위) */}
         <div className="flex justify-end gap-2 mb-6 max-w-[1000px]">
           <button 
-            onClick={() => navigate('/admin/adminCommonCodeList')}
+            onClick={() => navigate('/admin/system/commonCodeList')}
             className="px-6 py-2 border border-gray-300 bg-white text-[#333] rounded-md font-bold text-[15px] hover:bg-gray-50 shadow-sm transition-all"
           >
             목록
@@ -48,7 +58,7 @@ const AdminGroupCodeDetail = () => {
             삭제
           </button>
           <button 
-            onClick={() => navigate(`/admin/adminGroupCodeEdit/${id}`)}
+            onClick={() => navigate(`/admin/system/groupCodeEdit/${id}`)}
             className="px-6 py-2 bg-[#2563EB] text-white rounded-md font-bold text-[15px] hover:bg-blue-700 shadow-sm transition-all"
           >
             수정
@@ -106,13 +116,13 @@ const AdminGroupCodeDetail = () => {
 
             {/* 그룹코드 상세페이지 - 등록 여부 (가로 배치) */}
             <div className="flex items-center gap-5 pt-2">
-            <label className="font-bold text-[16px] text-[#111]">등록 여부</label>
+            <label className="font-bold text-[16px] text-[#111]">노출 여부</label>
             {/* 상세페이지이므로 button 대신 div 사용, transition-colors duration-300 추가 */}
             <div className={`w-[54px] h-[28px] flex items-center rounded-full p-1 transition-colors duration-300 ${formData.visible ? 'bg-[#2563EB]' : 'bg-gray-300'}`}>
                 <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${formData.visible ? 'translate-x-[26px]' : 'translate-x-0'}`}></div>
             </div>
             <span className={`text-[14px] font-bold ${formData.visible ? 'text-[#2563EB]' : 'text-gray-400'}`}>
-                {formData.visible ? '등록' : '미등록'}
+                {formData.visible ? '노출' : '미노출'}
             </span>
             </div>
             {/* 등록 일자 및 수정 일자 (구분선 후 수직 배치) */}
