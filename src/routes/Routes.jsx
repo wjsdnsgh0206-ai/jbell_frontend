@@ -16,10 +16,8 @@ import { jhUserRoutes } from "@/routes/route-jh";
 // 팀원별 라우트 파일 import (amdin)
 // import { jyUserRoutes } from "@/routes/admin/route-jy";
 import { shAdminRoutes } from "@/routes/admin/route-sh";
-// import { ehUserRoutes } from "@/routes/admin/route-eh";
-// import { mjUserRoutes } from "@/routes/admin/route-mj";
-// import { bjUserRoutes } from "@/routes/admin/route-bj";
 import { jhAdminRoutes } from "@/routes/admin/route-jh";
+import { bjAdminRoutes } from "@/routes/admin/route-bj";
 
 const AllRoutes = (props) => {
   // 1. 사용자 페이지 라우트 병합
