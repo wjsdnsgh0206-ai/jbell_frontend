@@ -100,8 +100,14 @@ const AdminLogList = () => {
                         <select 
                         value={searchLogReason}
                         className="w-full border p-2 rounded text-sm">
-                            <option>아이디 및 비밀번호 불일치</option>
-                            <option>추가 예정</option>
+                            <option value="자격 증명 오류">자격 증명 오류(ID, PW 불일치)</option>
+                            <option value="계정 상태 문제">계정 상태 문제(계정 잠금)</option>
+                            <option value="계정 만료">계정 만료(유효 기간 만료)</option>
+                            <option value="계정 비활성화">계정 비활성화(사용 정지)</option>
+                            <option value="인증 부족">인증 부족(추가 인증 실패)</option>
+                            <option value="시스템 오류">시스템 오류(서버/DB 연결 오류)</option>
+                            <option value="기타 접근 제한">기타 접근 제한(IP 접근 제한)</option>
+                            <option>세션 관련(만료된 세션)</option>
                         </select>
                     </div>
                     <div className="flex items-end gap-2">

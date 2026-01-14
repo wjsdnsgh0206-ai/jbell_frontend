@@ -174,6 +174,7 @@ const AdminMemberRegister = () => {
                 </div>
 
                 <div className="flex-1 text-right mt-8">
+                    <button onClick={() => navigate('/admin/adminMemberList')} className="bg-blue-600 mx-3 rounded-md text-white p-2 text-right">뒤로가기</button>
                     <button onClick={handleCreateUser} className="bg-blue-600 rounded-md text-white p-2 text-right">등록하기</button>
                  </div>
             </section>
