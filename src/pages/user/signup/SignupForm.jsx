@@ -32,30 +32,18 @@ const SignupForm = () => {
 
   // [기능 추가] 아이디 중복 확인 API 연동
   const handleIdCheck = async () => {
-    if (!userId || userId.length < 5) {
-      alert("아이디를 5자 이상 입력해주세요.");
-      return;
+  try {
+    const isAvailable = await userService.checkId(userId); // 백엔드에서 true가 옴
+    if (isAvailable === true) { 
+      alert("사용 가능한 아이디입니다.");
+      setIsIdChecked(true);
     }
-
-    try {
-      // 제시해주신 URL 형식으로 호출
-      // 만약 userService.checkId가 이미 구현되어 있다면 그것을 사용하세요.
-      const response = await axios.get(`http://localhost:8080/api/auth/checkid?userId=${userId}`);
-      
-      // 서버 응답 조건에 맞춰 수정하세요 (예: response.data가 true면 사용 가능)
-      if (response.data === true || response.data.available === true) {
-        alert("사용 가능한 아이디입니다.");
-        setIsIdChecked(true);
-      } else {
-        alert("이미 사용 중인 아이디입니다.");
-        setIsIdChecked(false);
-      }
-    } catch (error) {
-      console.error("ID Check Error:", error);
-      alert("중복 확인 중 오류가 발생했습니다.");
-      setIsIdChecked(false);
-    }
-  };
+  } catch (error) {
+    // 409 에러는 여기서 잡힘
+    alert(error.response?.data?.message || "이미 사용 중인 아이디입니다.");
+    setIsIdChecked(false);
+  }
+};
 
   const handleSendCode = () => {
     if (!email || errors.email) {
@@ -101,12 +89,18 @@ const SignupForm = () => {
         userGender: data.userGender
       };
 
-      await userService.signup(requestData);
-      alert("회원가입이 성공적으로 완료되었습니다!");
-      navigate('/signupSuccess');
+      const response = await userService.signup(requestData);
+      
+      // 서버 응답의 status가 SUCCESS인지 확인
+      if (response.status === "SUCCESS") {
+        alert("회원가입이 성공적으로 완료되었습니다!");
+        navigate('/signupSuccess');
+      } else {
+        alert(response.message || "회원가입에 실패했습니다.");
+      }
     } catch (error) {
       console.error("Signup Error:", error);
-      alert(error.response?.data?.message || "회원가입에 실패했습니다.");
+      alert(error.response?.data?.message || "회원가입 중 서버 오류가 발생했습니다.");
     }
   };
 
