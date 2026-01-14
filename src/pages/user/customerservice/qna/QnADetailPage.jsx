@@ -24,11 +24,11 @@ const QnADetailPage = () => {
   // --- 상태 스타일 ---
   const getStatusStyle = (status) => {
     switch (status) {
-      case 'progress': return 'bg-green-100 text-green-700 border-green-200';
-      case 'complete': return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'receipt': return 'bg-graygray-5 text-graygray-70 border-graygray-10';
-      case 'waiting': return 'bg-orange-50 text-orange-600 border-orange-200';
-      default: return 'bg-graygray-5 text-graygray-50 border-graygray-10';
+     case 'progress': return 'bg-orange-50 text-orange-600 border-orange-100'; 
+      case 'complete': return 'bg-blue-50 text-blue-600 border-blue-100';      
+      case 'receipt':  return 'bg-graygray-5 text-graygray-60 border-graygray-10'; 
+      case 'waiting':  return 'bg-green-50 text-green-600 border-green-100';   
+      default: return 'bg-graygray-5 text-graygray-40 border-graygray-10';
     }
   };
 
