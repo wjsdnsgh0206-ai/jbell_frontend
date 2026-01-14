@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
-import AdminCodeConfirmModal from './AdminCodeConfirmModal';
+import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
 // 아이콘까지 모두 포함 (따로 선언해두어야 나중에 아이콘만 바꾸기 편함)
 const SuccessIcon = ({ fill = "#2563EB" }) => (
@@ -270,7 +270,7 @@ const AdminSubCodeAdd = () => {
       </main>
 
       {/* 확인 모달 */}
-      <AdminCodeConfirmModal 
+      <AdminConfirmModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onConfirm={handleConfirmSave} 
