@@ -95,7 +95,7 @@ const Flood = () => {
       </div>
 
       <div className="bg-white rounded-2xl p-5 lg:p-6 border border-gray-100 flex-shrink-0 mb-10 lg:mb-0">
-        <ActionTipBox type="홍수" />
+        <ActionTipBox type="호우·홍수" />
       </div>
     </div>
   );

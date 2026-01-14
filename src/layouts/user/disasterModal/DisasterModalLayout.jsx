@@ -25,8 +25,8 @@ const DisasterModalLayout = () => {
   const menuList = [
     { label: "사고속보", path: "/disaster/accident" },
     { label: "지진", path: "/disaster/earthquake" },
-    { label: "홍수", path: "/disaster/flood" },
-    { label: "호우", path: "/disaster/heavyRain" },
+    { label: "호우·홍수", path: "/disaster/flood" },
+    // { label: "호우", path: "/disaster/heavyRain" },
     { label: "산사태", path: "/disaster/landSlide" },
     { label: "태풍", path: "/disaster/typhoon" },
     { label: "산불", path: "/disaster/forestFire" },

@@ -30,11 +30,11 @@ const MainDisaster = () => {
     },
     {
       id: 3,
-      type: "호우",
+      type: "산불",
       title:
-        "내일 새벽까지 전북 전역 최대 120mm 집중호우 예상, 하천변 접근 금지",
+        "건조주의보 발령 중, 입산 시 화기 소지 금지 및 산불 예방 수칙 준수",
       date: "2025.12.03",
-      path: "/disaster/heavyRain",
+      path: "/disaster/forestFire",
     },
     {
       id: 4,
