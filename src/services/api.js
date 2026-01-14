@@ -10,9 +10,12 @@ const api = axios.create({
 
 // 2. 외부 API 인스턴스 (반드시 함수 사용 전 선언되어야 함)
 const safetyApi = axios.create({ baseURL: '/safety-api' });
-const weatherApi = axios.create({ baseURL: '/weather-api' });
-const messageApi = axios.create({ baseURL: '/message-api'});
-const earthquakeApi = axios.create({ baseURL: '/earthquake-api'});
+const weatherApi = axios.create({ baseURL: '/weather-api' }); // 날씨 api 
+const messageApi = axios.create({ baseURL: '/message-api'}); // 재난문자 api
+const earthquakeApi = axios.create({ baseURL: '/earthquake-api'}); // 지진 특보 api
+const earthquakeLevelApi = axios.create({ baseURL: '/earthquakeLevel-api'}); // 지진 진도 정보 api 
+
+
 // 기상청 지진·지진특보용
 const kmaApi = axios.create({ baseURL: '/kma-api/api',});
 
@@ -67,7 +70,7 @@ export const disasterModalService = {
   },
 
   /* -----------------------------
-     ⭐ 지진 특보 (기상청)
+      지진 특보 (기상청)
      https://apihub.kma.go.kr
   ----------------------------- */
   getEarthquakeWarning: async (params) => {
@@ -83,4 +86,19 @@ export const disasterModalService = {
     );
     return response.data;
   },
+
+/* -----------------------------
+      지진 진도 정보 조회 (전국)
+  ----------------------------- */
+  getEarthquakeLevel: async (params) => {
+    const response = await earthquakeLevelApi.get('/DSSP-IF-00109', {
+      params: {
+        serviceKey: import.meta.env.VITE_API_DISATER_EARTHQUAKE_HISTORY_KEY,
+        pageNo: 1,
+        numOfRows: 100, // 전국 데이터를 위해 넉넉히 설정
+        ...params,
+      },
+    });
+    return response.data;
+  }
 };

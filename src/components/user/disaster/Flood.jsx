@@ -24,7 +24,7 @@ const Flood = () => {
   ];
 
   const floodItems = [
-    { id: "shelter", label: "이재민임시시설" },
+    { id: "shelter", label: "대피소" },
     { id: "hospital", label: "병원" },
     { id: "pharmacy", label: "약국" },
   ];
