@@ -37,11 +37,12 @@ const AdminLayout = () => {
 
           {/* 실제 페이지 콘텐츠가 들어가는 영역 (Y축 스크롤 처리됨) */}
           <main className="flex-1 overflow-y-auto custom-scrollbar">
-            <div className="p-10">
+            <div className="py-10">
               {/* [공통] 브레드크럼 컴포넌트 */}
-              {/* customTitle props로 현재 state 값을 전달하여 화면에 표시 */}
-              <AdminBreadCrumb customTitle={breadcrumbTitle} />
-              
+              <div className="pl-10">
+                {/* customTitle props로 현재 state 값을 전달하여 화면에 표시 */}
+                <AdminBreadCrumb customTitle={breadcrumbTitle} />
+              </div>
               {/* [핵심] Outlet (하위 페이지 렌더링 위치) */}
               {/* context prop을 통해 setBreadcrumbTitle 함수를 하위 페이지로 전달합니다. */}
               {/* ★사용법: 하위 페이지에서 const { setBreadcrumbTitle } = useOutletContext(); 로 꺼내서 사용 */}

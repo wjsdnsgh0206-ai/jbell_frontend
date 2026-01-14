@@ -35,11 +35,11 @@ export const ADMIN_MENU_DATA = {
   contents: [ 
     {
       title: "행동요령 관리",     // 소분류 그룹 제목
-      path: "/admin/content/behavioralGuideList", // 대표 경로 추가
+      path: "/admin/contents/behavioralGuideList", // 대표 경로 추가
       isAvailable: true,     // 메뉴 활성화 여부 (준비 중일 경우 false)
       items: [
-        { name: "행동요령 목록", path: "/admin/content/behavioralGuideList" },
-        { name: "행동요령 등록", path: "/admin/content/behavioralGuideAdd" },
+        { name: "행동요령 목록", path: "/admin/contents/behavioralGuideList" },
+        { name: "행동요령 등록", path: "/admin/contents/behavioralGuideAdd" },
       ],
     },
     {
@@ -47,27 +47,27 @@ export const ADMIN_MENU_DATA = {
       path: "/admin/content/citySafetyMasterPlan",
       isAvailable: false,
       items: [
-        { name: "도시안전기본계획 관리", path: "/admin/content/citySafetyMasterPlan" },
-        { name: "재난별 안전정책 관리", path: "/admin/content/disasterSafetyPolicy" },
-        { name: "시민 안전보험 관리", path: "/admin/content/citySafetyMasterPlan" },
-        { name: "풍수해 안전보험 관리", path: "/admin/content/stormAndFloodInsurance" },
+        { name: "도시안전기본계획 관리", path: "/admin/contents/citySafetyMasterPlan" },
+        { name: "재난별 안전정책 관리", path: "/admin/contents/disasterSafetyPolicy" },
+        { name: "시민 안전보험 관리", path: "/admin/contents/citySafetyMasterPlan" },
+        { name: "풍수해 안전보험 관리", path: "/admin/contents/stormAndFloodInsurance" },
       ],
     },
     {
       title: "열린마당 관리",
-      path: "/admin/content/logList",
+      path: "/admin/contents/logList",
       isAvailable: false,
       items: [],
     },
     {
       title: "고객센터",
-      path: "/admin/content/logList",
+      path: "/admin/contents/logList",
       isAvailable: false,
       items: [],
     },
     {
       title: "열린마단 관리",
-      path: "/admin/content/logList",
+      path: "/admin/contents/logList",
       isAvailable: false,
       items: [],
     },
