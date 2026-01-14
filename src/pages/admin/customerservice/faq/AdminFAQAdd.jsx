@@ -203,13 +203,6 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
             </button>
             
             <button
-                type="button"
-                className="h-11 px-8 border border-gray-300 bg-white text-gray-600 text-sm font-medium rounded-sm hover:bg-gray-50 flex items-center gap-2"
-            >
-                <RotateCcw className="w-4 h-4" /> 임시저장
-            </button>
-
-            <button
                 type="submit"
                 className="h-11 px-10 bg-[#1e3a8a] text-white text-sm font-medium rounded-sm hover:bg-[#1e293b] flex items-center gap-2 shadow-sm"
             >

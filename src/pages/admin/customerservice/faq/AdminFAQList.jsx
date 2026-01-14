@@ -1,17 +1,7 @@
 //src/pages/admin/customerservice/faq/AdminFAQList.jsx
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { 
-  Search, 
-  Trash2, 
-  ChevronLeft, 
-  ChevronRight, 
-  X,
-  Edit2, 
-  CheckCircle, 
-  XCircle, 
-  HelpCircle 
-} from 'lucide-react';
+import { Search, Trash2, ChevronLeft, ChevronRight, X, Edit2, CheckCircle, XCircle, HelpCircle } from 'lucide-react';
 import AdminFAQAdd from './AdminFAQAdd';
 import AdminFAQDetail from './AdminFAQDetail';
 
@@ -42,8 +32,7 @@ const FaqListPage = () => {
   
   // 필터 상태 (입력값)
   const [searchQuery, setSearchQuery] = useState('');
-  // [수정] 실제 필터링에 적용될 검색어 상태
-  const [appliedSearchQuery, setAppliedSearchQuery] = useState('');
+  const [appliedSearchQuery, setAppliedSearchQuery] = useState(''); // 실제 필터링에 적용될 검색어 상태
   
   const [filterCategory, setFilterCategory] = useState('All');
   const [filterStatus, setFilterStatus] = useState('All');
@@ -108,7 +97,7 @@ const FaqListPage = () => {
   // --- 2. 로직: 필터링 및 정렬 ---
   const filteredData = useMemo(() => {
     const filtered = faqs.filter((item) => {
-      // [수정] searchQuery 대신 appliedSearchQuery 사용 (검색 버튼 눌렀을 때만 반영)
+      // appliedSearchQuery 사용 (검색 버튼 눌렀을 때만 반영)
       const matchesSearch = 
         item.title.toLowerCase().includes(appliedSearchQuery.toLowerCase()) ||
         item.author.toLowerCase().includes(appliedSearchQuery.toLowerCase());
@@ -275,7 +264,7 @@ const FaqListPage = () => {
           )}
         </div>
 
-        {/* [수정] 검색 버튼에 handleSearch 연결 */}
+        {/* 검색 버튼에 handleSearch 연결 */}
         <button 
           onClick={handleSearch}
           className="h-10 px-6 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-sm flex items-center gap-1 transition-colors"
@@ -344,7 +333,7 @@ const FaqListPage = () => {
         <table className="w-full text-sm text-left border-b border-gray-300">
           <thead className="text-xs text-gray-700 uppercase bg-[#f8f9fa] border-b border-gray-300">
             <tr>
-              {/* [수정] 테이블 헤더에 전체 선택 체크박스 추가 */}
+              {/* 테이블 헤더에 전체 선택 체크박스 추가 */}
               <th scope="col" className="px-4 py-3 text-center w-[50px]">
                 <input 
                   type="checkbox" 
@@ -379,7 +368,7 @@ const FaqListPage = () => {
 
                 return (
                   <tr key={item.id} className="hover:bg-blue-50/30 transition-colors group">
-                    {/* [수정] 개별 행 체크박스 */}
+                    {/* 개별 행 체크박스 */}
                     <td className="px-4 py-3 text-center">
                       <input 
                         type="checkbox" 

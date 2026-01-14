@@ -4,13 +4,16 @@ export const AdminFAQList = lazy(() => import("@/pages/admin/customerservice/faq
 export const AdminFAQAdd = lazy(() => import("@/pages/admin/customerservice/faq/AdminFAQAdd"));
 export const AdminFAQDetail = lazy(() => import("@/pages/admin/customerservice/faq/AdminFAQDetail"));
 
+export const AdminQnAList = lazy(() => import("@/pages/admin/customerservice/qna/AdminQnAList"));
+export const AdminQnADetail = lazy(() => import("@/pages/admin/customerservice/qna/AdminQnADetail"));
+
 export const bjAdminRoutes = [
 
     // 고객센터관리 - FAQ관리(리스트)
     {
         path: "/admin/service/FAQList",
         element: <AdminFAQList />,
-        nowPage: "FAQ관리리스트",
+        nowPage: "FAQ관리목록",
     },
 
     // 고객센터관리 - FAQ관리(등록)
@@ -25,7 +28,22 @@ export const bjAdminRoutes = [
     {
         path: "/admin/service/FAQDetail",
         element: <AdminFAQDetail/>,
-        nowpage: "FAQ관리상세",
+        nowPage: "FAQ관리상세",
 
     },
+
+    //고객센터관리 - QnA관리(리스트)
+    {
+        path: "/admin/service/QnAList",
+        element: <AdminQnAList />,
+        nowPage: "QnA관리목록",
+
+    },
+
+    //고객센터관리 - QnA관리(상세)
+    {
+        path: "/admin/service/QnADetail/:id",
+        element: <AdminQnADetail />,
+        nowPage: "QnA관리상세",
+    }
 ];

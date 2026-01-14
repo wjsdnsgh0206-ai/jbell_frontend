@@ -1,13 +1,14 @@
 // src/pages/user/customerservice/qna/QnAFormPage.jsx
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Lock, Unlock } from 'lucide-react';
+import { Check, Lock, Unlock, X } from 'lucide-react';
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 import { Button } from '@/components/shared/Button';
 import { categoryMap, createInquiryObject } from './data';
 
 const QnAFormPage = () => {
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
   const breadcrumbItems = [
     { label: "홈", path: "/", hasIcon: true },
@@ -33,6 +34,14 @@ const QnAFormPage = () => {
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setFormData(prev => ({ ...prev, file: e.target.files[0].name }));
+    }
+  };
+
+  // 파일 삭제 핸들러
+  const handleFileDelete = () => {
+    setFormData(prev => ({ ...prev, file: null }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -80,10 +89,10 @@ const QnAFormPage = () => {
                   className="w-full h-14 px-4 border border-graygray-30 rounded-lg focus:outline-none focus:border-secondary-50 text-body-m text-graygray-90 bg-white cursor-pointer appearance-none transition-colors"
                 >
                   <option value="" disabled>유형을 선택해주세요</option>
-                  <option value="service">서비스 이용 문의</option>
-                  <option value="account">회원정보/계정</option>
-                  <option value="payment">결제/환불</option>
-                  <option value="error">시스템 오류</option>
+                  <option value="account">계정 및 회원정보</option>
+                  <option value="system">시스템 및 장애</option>
+                  <option value="payment_service">결제 및 서비스 이용</option>
+                  <option value="proposal">기능 제안 및 개선</option>
                   <option value="etc">기타</option>
                 </select>
               </div>
@@ -169,11 +178,27 @@ const QnAFormPage = () => {
                     type="file" 
                     className="hidden" 
                     onChange={handleFileChange}
+                    ref={fileInputRef}
                   />
                 </label>
-                <span className="text-body-s text-graygray-50">
-                  {formData.file ? formData.file : '선택된 파일 없음 (최대 10MB)'}
-                </span>
+               {/* 파일 존재 여부에 따른 조건부 렌더링 */}
+                {formData.file ? (
+                  <div className="flex items-center gap-2 bg-graygray-5 px-3 py-1.5 rounded border border-graygray-10">
+                    <span className="text-body-s text-graygray-90">{formData.file}</span>
+                    <button 
+                      type="button" 
+                      onClick={handleFileDelete}
+                      className="text-graygray-50 hover:text-red-500 transition-colors"
+                      aria-label="파일 삭제"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <span className="text-body-s text-graygray-50">
+                    선택된 파일 없음 (최대 10MB)
+                  </span>
+                )}
               </div>
             </div>
           </div>

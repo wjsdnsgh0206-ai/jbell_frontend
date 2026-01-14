@@ -1,21 +1,7 @@
 // src/pages/admin/customerservice/faq/AdminFAQDetail.jsx
 
 import React, { useState, useEffect } from 'react';
-import { 
-  ChevronRight, 
-  Edit2, 
-  Trash2, 
-  List, 
-  Eye, 
-  EyeOff, 
-  Clock, 
-  User, 
-  Calendar,
-  CheckCircle,
-  AlertCircle,
-  Save,
-  X
-} from 'lucide-react';
+import { ChevronRight, Edit2, Trash2, List, Eye, EyeOff, Clock, User, Calendar,CheckCircle, AlertCircle, Save, X } from 'lucide-react';
 
 // 유틸리티: 클래스 병합
 const cn = (...classes) => classes.filter(Boolean).join(' ');
