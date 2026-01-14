@@ -18,13 +18,12 @@ const Typhoon = () => {
   });
 
   const mapTabs = [
-    { id: "기상특보", label: "기상특보" },
     { id: "태풍경로도", label: "태풍경로도" },
     { id: "재난안전시설", label: "재난안전시설", hasArrow: true },
   ];
 
   const typhoonItems = [
-    { id: "shelter", label: "이재민임시시설" },
+    { id: "shelter", label: "대피소" },
     { id: "hospital", label: "병원" },
     { id: "pharmacy", label: "약국" },
   ];
