@@ -62,6 +62,23 @@
   --green-200: #bbf7d0;
   --green-700: #15803d;
 
+  /* =========================================
+      4. Admin Dedicated Tokens (관리자 전용)
+     ========================================= */
+  --admin-bg: #f4f7f9;
+  --admin-surface: #ffffff;
+  --admin-border: #e2e8f0;
+  --admin-primary: #1890ff;
+  --admin-primary-hover: #096dd9;
+  --admin-text-primary: #1f2937;
+  --admin-text-secondary: #6b7280;
+
+  /* Admin Sidebar 전용 (Ant Design 스타일 네이비) */
+  --admin-sidebar-bg: #001529;
+  --admin-sidebar-sub: #000c17;
+  --admin-sidebar-hover: #1e2d3d;
+  --admin-sidebar-active: #1890ff;
+
   /* Secondary (기존값 유지 혹은 Blue 스케일로 통합 권장) */
   /* 필요하다면 기존 --secondary-* 값들도 남겨둘 수 있습니다 */
   --secondary-5: #edf1f5;

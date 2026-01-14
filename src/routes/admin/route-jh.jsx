@@ -1,16 +1,10 @@
 // src/routes/admin/route-sh.jsx
 import { lazy } from 'react';
 
-export const AdminCommonCodeList = lazy(() => import("@/pages/admin/CodeManagement/AdminCommonCodeList"));
-export const AdminGroupCodeAdd = lazy(() => import("@/pages/admin/CodeManagement/AdminGroupCodeAdd"));
-export const AdminSubCodeAdd = lazy(() => import("@/pages/admin/CodeManagement/AdminSubCodeAdd"));
-export const AdminGroupCodeDetail = lazy(() => import("@/pages/admin/CodeManagement/AdminGroupCodeDetail"));
-export const AdminSubCodeDetail = lazy(() => import("@/pages/admin/CodeManagement/AdminSubCodeDetail"));
-export const AdminGroupCodeEdit = lazy(() => import("@/pages/admin/CodeManagement/AdminGroupCodeEdit"));
-export const AdminSubCodeEdit = lazy(() => import("@/pages/admin/CodeManagement/AdminSubCodeEdit"));
+// export const AdminCommonCodeList = lazy(() => import("@/pages/admin/CodeManagement/AdminCommonCodeList"));
 
 
-export const shAdminRoutes = [
+export const jhAdminRoutes = [
   // 공통코드관리 목록페이지 (시스템 관리 그룹)
   // URL 계층화: /admin/대분류/소분류+행위
   {
