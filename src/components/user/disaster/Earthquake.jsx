@@ -6,11 +6,19 @@ import CommonMap from "@/components/user/modal/CommonMap";
 import useEarthquake from "@/hooks/user/useEarthquake";
 
 const Earthquake = () => {
-  const JEONJU_CITY_HALL = { lat: 35.8242238, lng: 127.1479532 };
+  const { 
+    eqMarkers, 
+    levelMarkers, 
+    fetchEarthquakeData, 
+    fetchEarthquakeLevel, 
+    clearMarkers, 
+    isLoading,
+    getMapCenter,    // 훅에서 가져온 중심점 계산 함수
+    selectedMarker 
+  } = useEarthquake();
+
   const [activeTab, setActiveTab] = useState("지진특보");
   const [facilities, setFacilities] = useState({ shelter: false, hospital: false, pharmacy: false });
-
-  const { eqMarkers, levelMarkers, fetchEarthquakeData, fetchEarthquakeLevel, clearMarkers, isLoading } = useEarthquake();
 
   useEffect(() => {
     if (activeTab === "지진특보") fetchEarthquakeData();
@@ -25,10 +33,8 @@ const Earthquake = () => {
   }, [activeTab, eqMarkers, levelMarkers]);
 
   return (
-    // 1. 최상위 컨테이너: h-full 대신 min-h-full을 사용하고 overflow를 열어줌
     <div className="flex-1 flex flex-col gap-6 w-full h-full lg:min-h-0">
       
-      {/* 지도 카드 영역: flex-shrink-0을 제거하여 유동적으로 변하게 함 */}
       <div className="bg-white rounded-2xl p-4 lg:p-5 border border-gray-100 flex flex-col lg:flex-1 min-h-0">
         <div className="flex justify-between items-center mb-3 flex-shrink-0">
           <h3 className="font-bold text-gray-900 text-[16px] md:text-[20px]">실시간 지진정보</h3>
@@ -37,13 +43,21 @@ const Earthquake = () => {
           </span>
         </div>
 
-        {/* 2. 지도 높이 수정: 모바일에서 너무 길지 않게 h-[280px]~[300px]로 조정 */}
+
+        
+
         <div className="relative w-full h-[280px] md:h-[350px] lg:h-full lg:flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden">
-          <CommonMap markers={displayMarkers} center={JEONJU_CITY_HALL} level={8} />
+          
+          <CommonMap 
+            markers={displayMarkers} 
+            center={getMapCenter(activeTab)} 
+            level={8}
+            selectedMarker={activeTab === "지진특보" ? selectedMarker : null} 
+          />
           
           {!isLoading && displayMarkers.length === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-              <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-gray-200 shadow-lg mx-4">
+            <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none pl-[120px] lg:pl-[180px]">
+              <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-gray-200 shadow-lg mx-4 pointer-events-auto">
                 <p className="text-gray-600 text-[11px] md:text-sm font-semibold text-center">
                   최근 전북 지역의 {activeTab} 데이터가 없습니다.
                 </p>
@@ -51,29 +65,30 @@ const Earthquake = () => {
             </div>
           )}
 
-          <div className="absolute top-3 left-0 right-0 px-3 flex gap-2 z-20 overflow-x-auto no-scrollbar">
+          {/* ✅ 좌측 사이드 탭 버튼: 스타일 가이드 적용 */}
+          <div className="absolute top-5 left-3 lg:left-5 flex flex-col gap-3 z-20">
             {["지진특보", "진도정보조회", "재난안전시설"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-xl border text-[11px] font-medium transition-all ${
-                  activeTab === tab ? "bg-blue-600 text-white shadow-md" : "bg-white text-gray-600 shadow-sm"
+                className={`flex items-center justify-center px-3 py-2 lg:px-5 text-center lg:py-3 rounded-2xl lg:rounded-xl text-detail-s-bold lg:text-body-m transition-all border
+                    bg-blue-600 border-blue-600 shadow-md ${
+                  activeTab === tab 
+                    ? "bg-blue-600 text-white border-blue-600 translate-x-1" 
+                    : "bg-white/95 backdrop-blur-md text-gray-600 border-gray-100 hover:bg-gray-50"
                 }`}
               >
                 {tab}
               </button>
             ))}
           </div>
+
           <div className="absolute bottom-4 right-4 z-20 scale-90 md:scale-100">
             <MapControlBtn />
           </div>
         </div>
       </div>
 
-      {/* 3. 행동요령 박스: 
-         - flex-shrink-0을 추가해 절대 높이가 줄어들지 않게 함
-         - mb-20을 주어 모바일 하단 여백을 충분히 확보 (짤림 방지)
-      */}
       <div className="bg-white rounded-2xl p-5 border border-gray-100 flex-shrink-0 mb-0 lg:mb-0 shadow-sm">
         <ActionTipBox type="지진" />
       </div>

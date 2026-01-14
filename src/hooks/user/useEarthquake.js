@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { XMLParser } from "fast-xml-parser";
 import { disasterModalService } from "@/services/api";
 import dayjs from 'dayjs';
@@ -7,6 +7,23 @@ const useEarthquake = () => {
   const [eqMarkers, setEqMarkers] = useState([]);
   const [levelMarkers, setLevelMarkers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // 기본 위치 설정: 전주시청
+  const JEONJU_CITY_HALL = { lat: 35.8242238, lng: 127.1479532 };
+
+  // ✅ 가장 최신 발생 날짜의 특보 데이터를 찾음
+  const latestEq = useMemo(() => {
+    if (eqMarkers.length === 0) return null;
+    return [...eqMarkers].sort((a, b) => Number(b.time) - Number(a.time))[0];
+  }, [eqMarkers]);
+
+  // ✅ [수정] 현재 탭(mode)을 인자로 받아 중심점을 결정하는 함수
+  const getMapCenter = useCallback((mode) => {
+    if (mode === "지진특보" && latestEq) {
+      return { lat: latestEq.lat, lng: latestEq.lng };
+    }
+    return JEONJU_CITY_HALL;
+  }, [latestEq]);
 
   // 테스트를 위해 기간을 1년(12개월)으로 설정
   const oneYearAgo = dayjs().subtract(1, 'year').format('YYYYMMDD');
@@ -97,11 +114,22 @@ const useEarthquake = () => {
     setLevelMarkers([]);
   }, []);
 
-  return { eqMarkers, levelMarkers, fetchEarthquakeData, fetchEarthquakeLevel, clearMarkers, isLoading };
+  return { 
+    eqMarkers, 
+    levelMarkers, 
+    fetchEarthquakeData, 
+    fetchEarthquakeLevel, 
+    clearMarkers, 
+    isLoading, 
+    getMapCenter, // 함수로 전달
+    selectedMarker: latestEq 
+  };
 };
 
 export default useEarthquake;
 
+// ====== 아래 코드는 한달 기준 전북 지진 데이터 가져오는 함수 =====
+// (주석 생략 - 기존 주석 그대로 유지하면 돼)
 
 
 // ====== 아래 코드는 한달 기준 전북 지진 데이터 가져오는 함수 =====

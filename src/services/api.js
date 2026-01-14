@@ -14,6 +14,7 @@ const messageApi = axios.create({ baseURL: "/message-api" }); // 재난문자 ap
 const earthquakeApi = axios.create({ baseURL: "/earthquake-api" }); // 지진 특보 api
 const earthquakeLevelApi = axios.create({ baseURL: "/earthquakeLevel-api" }); // 지진 진도 정보 api
 const floodTraceApi = axios.create({ baseURL: "/floodTrace-api" }); // 호우홍수 침수흔적도 api
+const sluiceApi = axios.create({ baseURL: "/sluice-api"});
 
 // 기상청 지진·지진특보용
 const kmaApi = axios.create({ baseURL: "/kma-api/api" });
@@ -109,4 +110,23 @@ export const disasterModalService = {
     });
     return response.data;
   },
+/* -----------------------------
+   수문 api - 호우홍수탭에서 사용할 api
+----------------------------- */
+getSluice: async (params) => {
+  // axios 인스턴스(sluiceApi)의 baseURL이 "/sluice-api"여야 해!
+  const response = await sluiceApi.get("/B500001/dam/sluicePresentCondition/mntlist", {
+    params: {
+      // 훅에서 넘겨받은 serviceKey를 우선 사용하고, 없으면 env 사용
+      serviceKey: params.serviceKey || import.meta.env.VITE_API_DISATER_SLUICE_KEY,
+      pageNo: params.pageNo || 1,
+      numOfRows: params.numOfRows || 10,
+      damcode: params.damcode, // 필수
+      stdt: params.stdt,       // 필수 (YYYY-MM-DD)
+      eddt: params.eddt,       // 필수 (YYYY-MM-DD)
+      _type: 'json',           // 필수
+    },
+  });
+  return response.data;
+},
 };
