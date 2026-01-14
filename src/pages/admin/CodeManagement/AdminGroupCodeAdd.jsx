@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
-import AdminCodeConfirmModal from './AdminCodeConfirmModal';
+import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
+
 
 const SuccessIcon = ({ fill = "#2563EB" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -235,7 +236,7 @@ const AdminGroupCodeAdd = () => {
         </div>
       </main>
 
-      <AdminCodeConfirmModal 
+      <AdminConfirmModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onConfirm={handleConfirmSave} 

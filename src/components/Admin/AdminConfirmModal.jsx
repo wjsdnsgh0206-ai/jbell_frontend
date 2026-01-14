@@ -1,6 +1,6 @@
 import React from 'react';
 
-const AdminCodeConfirmModal = ({ 
+const AdminConfirmModal = ({ 
   isOpen, 
   onClose, 
   onConfirm, 
@@ -67,4 +67,4 @@ const AdminCodeConfirmModal = ({
   );
 };
 
-export default AdminCodeConfirmModal;
+export default AdminConfirmModal;
