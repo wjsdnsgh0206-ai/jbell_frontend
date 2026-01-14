@@ -1,13 +1,49 @@
+import React, { useState } from 'react';
 import BreadCrumb from '@/components/Admin/board/BreadCrumb';
+import { useNavigate } from 'react-router-dom';
 
 const AdminMemberList = () => {
-     const memberData = Array(10).fill({
-            id: 'kimgoogle12345',
-            name: '김국을',
-            telNum: '010-xxxx-xxxx',
-            region: '전주시 완산구',
+    
+    const navigate = useNavigate();
+    
+    const memberData = Array(10).fill({
+            memberId: 'kimgoogle12345',
+            memberName: '김국을',
+            memberTelNum: '010-xxxx-xxxx',
+            memberRegion: '전주시 완산구',
             display: true
         });
+
+
+        const [memberForm, setMemberForm] = useState({
+            memberId: '',
+            memberPW: '',
+            memberName: '',
+            memberTelNum: '',
+            memberRegion: '',
+            memberRole: 'USER', // or ADMIN
+            });
+
+
+
+            const handleCreateUser = async () => {
+                try {
+                    await fetch('/api/admin/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(form),
+                    });
+
+                    alert('회원 등록 완료');
+                } catch (err) {
+                    alert('등록 실패');
+                }
+             };
+
+
+
     
     return (
          <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
@@ -82,10 +118,10 @@ const AdminMemberList = () => {
                 {memberData.map((item, index) => (
                     <tr key={index} className="border-b hover:bg-gray-50">
                     <td className="p-3 text-center"><input type="checkbox" defaultChecked /></td>
-                    <td className="p-3 text-blue-600">{item.id}</td>
-                    <td className="p-3">{item.name}</td>
-                    <td className="p-3 truncate max-w-xs">{item.telNum}</td>
-                    <td className="p-3">{item.region}</td>
+                    <td className="p-3 text-blue-600">{item.memberId}</td>
+                    <td className="p-3">{item.memberName}</td>
+                    <td className="p-3 truncate max-w-xs">{item.memberTelNum}</td>
+                    <td className="p-3">{item.memberRegion}</td>
                     <td className="p-3">
                         <div className="w-10 h-5 bg-blue-500 rounded-full relative">
                         <div className="absolute right-1 top-1 w-3 h-3 bg-white rounded-full"></div>
@@ -100,14 +136,31 @@ const AdminMemberList = () => {
             </table>
             </div>
 
-            {/* 페이지네이션 */}
-            <div className="flex justify-center mt-6 gap-2 text-sm">
-            <button className="p-2 text-gray-400">이전</button>
-            <button className="p-2 bg-blue-900 text-white rounded w-8">1</button>
-            {[2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-                <button key={num} className="p-2 text-gray-600 w-8">{num}</button>
-            ))}
-            <button className="p-2 text-gray-600">다음</button>
+            {/* 페이지네이션 및 등록 버튼 컨테이너 */}
+            <div className="flex items-center mt-10 w-full relative">
+            
+            {/* 1. 왼쪽 빈 공간: 오른쪽 버튼과 대칭을 맞춰서 페이지네이션을 정중앙에 배치 */}
+            <div className="flex-1"></div>
+
+            {/* 2. 중앙 페이지네이션 영역 */}
+            <div className="flex justify-center items-center gap-1 text-sm">
+                <button className="p-2 text-gray-400">이전</button>
+                <button className="w-8 h-8 flex items-center justify-center bg-blue-900 text-white rounded font-medium shadow-sm">1</button>
+                {[2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                <button key={num} className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded transition">{num}</button>
+                ))}
+                <button className="p-2 text-gray-600">다음</button>
+            </div>
+
+                {/* 3. 오른쪽 버튼 영역: flex-1과 text-right로 부모 div 안쪽 우측 끝에 고정 */}
+                <div className="flex-1 text-right">
+                    <button 
+                    onClick={() => navigate('/admin/adminmMemberRegister')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-sm shadow-sm transition-colors"
+                    >
+                    신규 회원 등록
+                    </button>
+                </div>
             </div>
         </div>
 
