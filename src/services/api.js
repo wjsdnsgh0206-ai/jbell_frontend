@@ -19,6 +19,20 @@ export const userService = {
     const response = await api.get('/users', { params });
     return response.data;
   },
+
+  // 회원가입
+  signup: async (userData) => {
+    // Vite 프록시 설정에 의해 /api/auth/signup -> http://localhost:8080/api/auth/signup으로 전달됩니다.
+    const response = await api.post('/auth/signup', userData);
+    return response.data;
+  },
+
+  checkId: async (userId) => {
+    // try-catch를 여기서 하지 않고 호출하는 곳(Component)에서 처리하도록 내보냅니다.
+    const response = await api.get('/auth/checkid', { params: { userId } });
+    // 정상 응답(200)일 때 서버 응답의 data 필드(false)를 반환
+    return response.data.data; 
+  },
 };
 
 
