@@ -14,7 +14,6 @@ import { bjUserRoutes } from "@/routes/route-bj";
 import { jhUserRoutes } from "@/routes/route-jh";
 import { shAdminRoutes } from "@/routes/admin/route-sh";
 import { bjAdminRoutes } from "@/routes/admin/route-bj";
-import { AdminCommonCodeList } from "./admin/route-sh";
 
 const AllRoutes = (props) => {
   // 1. 모든 팀원의 라우트를 하나의 배열로 병합 (충돌 방지: 각자 파일만 수정하면 됨)
@@ -30,6 +29,7 @@ const AllRoutes = (props) => {
   // 2. 관리자 라우트 병합 (팀원이 늘어나면 여기에 추가)
   const allAdminRoutes = [
     ...shAdminRoutes,
+    ...bjAdminRoutes,
     // ...다른 팀원 관리자 라우트
   ];
 

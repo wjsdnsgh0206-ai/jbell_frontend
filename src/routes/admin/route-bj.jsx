@@ -11,14 +11,14 @@ export const bjAdminRoutes = [
 
     // 고객센터관리 - FAQ관리(리스트)
     {
-        path: "/admin/service/FAQList",
+        path: "/admin/customer/FAQList",
         element: <AdminFAQList />,
         nowPage: "FAQ관리목록",
     },
 
     // 고객센터관리 - FAQ관리(등록)
     {
-        path: "/admin/service/FAQAdd",
+        path: "/admin/customer/FAQAdd",
         element: <AdminFAQAdd />,
         nowPage: "FAQ관리등록",
 
@@ -26,7 +26,7 @@ export const bjAdminRoutes = [
 
     //고객센터관리 - FAQ관리(상세)
     {
-        path: "/admin/service/FAQDetail",
+        path: "/admin/customer/FAQDetail/:id",
         element: <AdminFAQDetail/>,
         nowPage: "FAQ관리상세",
 
@@ -34,7 +34,7 @@ export const bjAdminRoutes = [
 
     //고객센터관리 - QnA관리(리스트)
     {
-        path: "/admin/service/QnAList",
+        path: "/admin/customer/QnAList",
         element: <AdminQnAList />,
         nowPage: "QnA관리목록",
 
@@ -42,7 +42,7 @@ export const bjAdminRoutes = [
 
     //고객센터관리 - QnA관리(상세)
     {
-        path: "/admin/service/QnADetail/:id",
+        path: "/admin/customer/QnADetail/:id",
         element: <AdminQnADetail />,
         nowPage: "QnA관리상세",
     }

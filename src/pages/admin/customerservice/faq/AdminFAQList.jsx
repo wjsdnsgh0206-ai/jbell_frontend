@@ -1,483 +1,349 @@
-//src/pages/admin/customerservice/faq/AdminFAQList.jsx
+// src/pages/admin/customerservice/faq/AdminFAQList.jsx
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, Trash2, ChevronLeft, ChevronRight, X, Edit2, CheckCircle, XCircle, HelpCircle } from 'lucide-react';
-import AdminFAQAdd from './AdminFAQAdd';
-import AdminFAQDetail from './AdminFAQDetail';
+import { useNavigate } from 'react-router-dom';
+import { ChevronDown } from 'lucide-react';
 
-// 유틸리티: 클래스 병합
-const cn = (...classes) => classes.filter(Boolean).join(' ');
+// [데이터]
+import { AdminFAQData } from './AdminFAQData';
 
-// 샘플 데이터
-const initialFaqs = [
-  { id: 1, category: '회원/계정', title: '비밀번호를 분실했습니다. 어떻게 찾나요?', author: '관리자', date: '2025-01-08', views: 120, status: true, order: 1 },
-  { id: 2, category: '결제/환불', title: '카드 결제 영수증은 어디서 출력하나요?', author: '운영팀', date: '2025-01-07', views: 85, status: true, order: 2 },
-  { id: 3, category: '이용문의', title: '서비스 이용 시간은 어떻게 되나요?', author: 'CS팀', date: '2025-01-05', views: 340, status: true, order: 3 },
-  { id: 4, category: '회원/계정', title: '회원 탈퇴는 어디서 하나요?', author: '관리자', date: '2025-01-04', views: 55, status: false, order: 10 },
-  { id: 5, category: '시스템', title: '사이트 접속이 원활하지 않습니다.', author: '개발팀', date: '2025-01-02', views: 12, status: true, order: 5 },
-  { id: 6, category: '결제/환불', title: '환불 규정이 궁금합니다.', author: '운영팀', date: '2024-12-30', views: 210, status: true, order: 4 },
-  { id: 7, category: '기타', title: '제휴 문의는 어떻게 하나요?', author: '마케팅', date: '2024-12-28', views: 40, status: false, order: 99 },
-  { id: 8, category: '이용문의', title: '모바일 앱 설치가 안됩니다.', author: 'CS팀', date: '2024-12-25', views: 90, status: true, order: 6 },
-  { id: 9, category: '회원/계정', title: '개명으로 인한 이름 변경 요청', author: '관리자', date: '2024-12-20', views: 33, status: true, order: 7 },
-  { id: 10, category: '시스템', title: '화면이 깨져서 보입니다.', author: '개발팀', date: '2024-12-15', views: 18, status: true, order: 8 },
-  { id: 11, category: '기타', title: '페이지네이션 테스트용 데이터 1', author: '테스터', date: '2024-12-10', views: 5, status: true, order: 9 },
-  { id: 12, category: '기타', title: '페이지네이션 테스트용 데이터 2', author: '테스터', date: '2024-12-10', views: 3, status: true, order: 11 },
-];
+// [공통 컴포넌트]
+import AdminDataTable from '@/components/admin/AdminDataTable';
+import AdminPagination from '@/components/admin/AdminPagination';
+import AdminSearchBox from '@/components/admin/AdminSearchBox';
 
-const FaqListPage = () => {
-  const [faqs, setFaqs] = useState(initialFaqs);
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [view, setView] = useState('list');
-  const [selectedId, setSelectedId] = useState(null);
-  
-  // 필터 상태 (입력값)
-  const [searchQuery, setSearchQuery] = useState('');
-  const [appliedSearchQuery, setAppliedSearchQuery] = useState(''); // 실제 필터링에 적용될 검색어 상태
-  
-  const [filterCategory, setFilterCategory] = useState('All');
-  const [filterStatus, setFilterStatus] = useState('All');
+/**
+ * [관리자] FAQ 목록 페이지
+ * - AdminCommonCodeList.jsx의 구조와 디자인 시스템을 계승
+ * - AdminFAQData.js 데이터를 기반으로 렌더링
+ */
+const AdminFAQList = () => {
+  const navigate = useNavigate();
 
-  // --- 페이지네이션 상태 ---
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); 
+  // ==================================================================================
+  // 1. 상태 관리 (State Management)
+  // ==================================================================================
+  const [faqs, setFaqs] = useState(AdminFAQData);     // 전체 데이터
+  const [selectedIds, setSelectedIds] = useState([]); // 선택된 행 ID
+  const [currentPage, setCurrentPage] = useState(1);  // 현재 페이지
+  const itemsPerPage = 10;                            // 페이지당 항목 수
 
-  // --- 1. 로직: 핸들러 함수들 정의 ---
+  // [필터 상태]
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
 
-  // 검색 실행 핸들러 (버튼 클릭 or 엔터)
-  const handleSearch = () => {
-    setAppliedSearchQuery(searchQuery);
-    setCurrentPage(1); // 검색 시 1페이지로 이동
-  };
+  // [검색 상태]
+  const [searchParams, setSearchParams] = useState({ keyword: '' });
+  const [appliedKeyword, setAppliedKeyword] = useState('');
 
-  // 엔터키 입력 핸들러
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
+  // ==================================================================================
+  // 2. 필터링 로직 (Filtering Logic)
+  // ==================================================================================
 
-  // 데이터 추가
-  const handleAddFaq = (newData) => {
-    const newId = faqs.length > 0 ? Math.max(...faqs.map(f => f.id)) + 1 : 1;
-    const kstDate = new Date(new Date().getTime() + 9 * 60 * 60 * 1000);
-    const today = kstDate.toISOString().split('T')[0];
+  // [옵션 생성] 데이터에서 중복되지 않는 '카테고리' 목록 추출
+  const categoryOptions = useMemo(() => {
+    const categories = faqs.map(f => f.category);
+    const uniqueCategories = [...new Set(categories)];
+    return [{ value: "all", label: "전체 카테고리" }, ...uniqueCategories.map(c => ({ value: c, label: c }))];
+  }, [faqs]);
 
-    const newFaq = {
-      id: newId,
-      category: newData.category,
-      title: newData.title,
-      content: newData.content,
-      author: '관리자', 
-      date: today,
-      views: 0,
-      status: newData.status,
-      order: Number(newData.order) || 1, 
-    };
-
-    setFaqs([newFaq, ...faqs]);
-    setView('list');
-  };
-
-  const handleOpenDetail = (id) => {
-    setSelectedId(id);
-    setView('detail');
-  };
-
-  const handleUpdateFaq = (updatedItem) => {
-    setFaqs((prev) => prev.map(item => 
-      item.id === updatedItem.id ? { ...item, ...updatedItem } : item
-    ));
-  };
-
-  const handleDeleteFaq = (targetId) => {
-    setFaqs((prev) => prev.filter(item => item.id !== targetId));
-    setView('list'); 
-  };
-
-  // --- 2. 로직: 필터링 및 정렬 ---
+  // [데이터 필터링 & 정렬]
   const filteredData = useMemo(() => {
-    const filtered = faqs.filter((item) => {
-      // appliedSearchQuery 사용 (검색 버튼 눌렀을 때만 반영)
-      const matchesSearch = 
-        item.title.toLowerCase().includes(appliedSearchQuery.toLowerCase()) ||
-        item.author.toLowerCase().includes(appliedSearchQuery.toLowerCase());
-      
-      const matchesCategory = filterCategory === 'All' || item.category === filterCategory;
-      const matchesStatus = 
-        filterStatus === 'All' ? true :
-        filterStatus === 'Y' ? item.status === true :
-        item.status === false;
-      return matchesSearch && matchesCategory && matchesStatus;
-    });
+    const searchTerm = appliedKeyword.replace(/\s+/g, "").toLowerCase();
 
-    return filtered.sort((a, b) => {
-      const orderDiff = (a.order || 999) - (b.order || 999);
-      if (orderDiff !== 0) return orderDiff;
+    return faqs.filter(item => {
+      // 1. 카테고리 필터
+      const isCategoryMatch = selectedCategory === "all" || item.category === selectedCategory;
+
+      // 2. 상태 필터 (all, Y, N)
+      const isStatusMatch = 
+        selectedStatus === "all" ? true :
+        selectedStatus === "Y" ? item.status === true :
+        item.status === false;
+
+      if (!searchTerm) return isCategoryMatch && isStatusMatch;
+
+      // 3. 검색어 필터 (제목, 내용, 작성자 통합 검색)
+      // HTML 태그 제거 후 텍스트만 검색하기 위해 정규식 사용 가능하지만, 여기선 raw string 검색
+      const targetString = [item.title, item.content, item.author]
+        .join("")
+        .replace(/\s+/g, "")
+        .toLowerCase();
+
+      return isCategoryMatch && isStatusMatch && targetString.includes(searchTerm);
+    }).sort((a, b) => {
+      // 4. 정렬 (Order 오름차순 -> ID 내림차순)
+      if (a.order !== b.order) return (a.order || 999) - (b.order || 999);
       return b.id - a.id;
     });
-  }, [faqs, appliedSearchQuery, filterCategory, filterStatus]); // 의존성 배열 변경
+  }, [faqs, appliedKeyword, selectedCategory, selectedStatus]);
 
-  // --- 로직: 필터 변경 시 페이지 리셋 ---
-  useEffect(() => {
+  // [페이지네이션] 현재 페이지 데이터 슬라이싱
+  const currentData = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredData.slice(startIndex, startIndex + itemsPerPage);
+  }, [currentPage, filteredData, itemsPerPage]);
+
+  // ==================================================================================
+  // 3. 테이블 컬럼 정의 (Table Columns)
+  // ==================================================================================
+  const columns = useMemo(() => [
+    { 
+      key: 'id', // 실제로는 계산된 번호를 보여주기 위해 render 사용 권장
+      header: '번호', 
+      width: '60px', 
+      className: 'text-center text-gray-500',
+      render: (_, row) => {
+        // 전체 데이터 기준 역순 번호 or 현재 페이지 기준 순번 등 선택 가능
+        // 여기서는 데이터의 고유 ID 혹은 리스트 인덱스 사용
+        return row.id; 
+      }
+    },
+    { 
+      key: 'category', 
+      header: '분류', 
+      width: '100px', 
+      className: 'text-center',
+      render: (cat) => (
+        <span className="inline-block px-2 py-1 text-xs font-medium text-slate-600 bg-slate-100 rounded border border-slate-200">
+          {cat}
+        </span>
+      )
+    },
+    { 
+      key: 'title', 
+      header: '질문(Q)', 
+      render: (title, row) => (
+        <div className="flex items-center cursor-pointer hover:text-blue-600" onClick={() => navigate(`/admin/customer/FAQDetail/${row.id}`)}>
+          <span className="font-bold text-blue-600 mr-2">Q.</span>
+          <span className="font-medium text-gray-900 truncate max-w-[400px]">{title}</span>
+        </div>
+      )
+    },
+    { key: 'author', header: '작성자', width: '100px', className: 'text-center text-gray-600' },
+    { key: 'date', header: '수정일', width: '120px', className: 'text-center text-gray-500' },
+    { 
+      key: 'status', 
+      header: '사용여부', 
+      width: '100px',
+      className: 'text-center',
+      render: (status, row) => (
+        // AdminCommonCodeList 스타일의 토글 스위치 적용
+        <div 
+          className="flex justify-center cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleToggleStatus(row.id);
+          }}
+        >
+          <div className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-200 ${status ? 'bg-blue-600' : 'bg-gray-300'}`}>
+             <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ${status ? 'translate-x-6' : 'translate-x-0'}`} />
+          </div>
+        </div>
+      )
+    },
+    { 
+      key: 'views', 
+      header: '조회수', 
+      width: '80px', 
+      className: 'text-center text-gray-600',
+      render: (views) => views.toLocaleString()
+    },
+    {
+      key: 'actions',
+      header: '관리',
+      width: '80px',
+      className: 'text-center',
+      render: (_, row) => (
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/admin/customer/FAQDetail/${row.id}`); // 상세/수정 페이지 이동
+          }}
+          className="border border-gray-300 text-[#666] rounded px-3 py-1 text-[12px] font-bold bg-white hover:bg-gray-50 hover:text-blue-600 hover:border-blue-300 transition-all"
+        >
+          수정
+        </button>
+      )
+    }
+  ], [navigate]);
+
+  // ==================================================================================
+  // 4. 이벤트 핸들러 (Event Handlers)
+  // ==================================================================================
+  
+  // 검색
+  const handleSearch = () => {
+    setAppliedKeyword(searchParams.keyword);
     setCurrentPage(1);
-  }, [appliedSearchQuery, filterCategory, filterStatus, itemsPerPage]);
-
-  // --- 로직: 페이지네이션 계산 ---
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentItems = filteredData.slice(startIndex, startIndex + itemsPerPage);
-
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
   };
 
-  const handleItemsPerPageChange = (e) => {
-    setItemsPerPage(Number(e.target.value));
+  // 초기화
+  const handleReset = () => {
+    setSearchParams({ keyword: '' });
+    setAppliedKeyword('');
+    setSelectedCategory("all");
+    setSelectedStatus("all");
+    setCurrentPage(1);
   };
 
-  // --- 로직: 선택 및 일괄 처리 ---
-  const handleSelectAll = (e) => {
-    if (e.target.checked) {
-      setSelectedIds(filteredData.map((n) => n.id));
-    } else {
-      setSelectedIds([]);
-    }
-  };
-
-  const handleSelectRow = (id) => {
-    setSelectedIds((prev) => 
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  const handleDeleteSelected = () => {
-    if (selectedIds.length === 0) {
-      alert('삭제할 항목을 선택해주세요.');
-      return;
-    }
-    if (confirm(`선택한 ${selectedIds.length}개의 FAQ를 삭제하시겠습니까?`)) {
-      setFaqs((prev) => prev.filter((n) => !selectedIds.includes(n.id)));
-      setSelectedIds([]);
-    }
-  };
-
-  const handleBatchStatus = (newStatus) => {
-    if (selectedIds.length === 0) {
-      alert('상태를 변경할 항목을 선택해주세요.');
-      return;
-    }
-    const actionName = newStatus ? '공개(사용)' : '비공개(미사용)';
-    if (confirm(`선택한 ${selectedIds.length}개의 항목을 [${actionName}] 상태로 변경하시겠습니까?`)) {
-        setFaqs((prev) => prev.map((item) => 
-            selectedIds.includes(item.id) ? { ...item, status: newStatus } : item
-        ));
-        setSelectedIds([]);
-    }
-  };
-
+  // 개별 상태 토글
   const handleToggleStatus = (id) => {
-    setFaqs((prev) => prev.map((n) => 
-      n.id === id ? { ...n, status: !n.status } : n
+    setFaqs(prev => prev.map(item => 
+      item.id === id ? { ...item, status: !item.status } : item
     ));
   };
 
-  // --- 3. 렌더링 분기 ---
-  if (view === 'add') {
-    return <AdminFAQAdd onCancel={() => setView('list')} onSave={handleAddFaq} />;
-  }
+  // 일괄 상태 변경
+  const handleBatchStatus = (newStatus) => {
+    if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
+    
+    if (confirm(`선택한 ${selectedIds.length}개 항목을 일괄 ${newStatus ? '공개' : '비공개'} 처리하시겠습니까?`)) {
+      setFaqs(prev => prev.map(item => 
+        selectedIds.includes(item.id) ? { ...item, status: newStatus } : item
+      ));
+      setSelectedIds([]);
+    }
+  };
 
-  if (view === 'detail') {
-    const selectedItem = faqs.find(f => f.id === selectedId);
-    return (
-      <AdminFAQDetail 
-        id={selectedId}
-        initialData={selectedItem}
-        onBack={() => setView('list')}
-        onUpdate={handleUpdateFaq}
-        onDelete={handleDeleteFaq}
-      />
-    );
-  }
+  // 일괄 삭제
+  const handleDeleteSelected = () => {
+    if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
 
-  // 전체 선택 상태 계산
-  const isAllSelected = filteredData.length > 0 && selectedIds.length === filteredData.length;
+    if (confirm(`선택한 ${selectedIds.length}개 항목을 정말 삭제하시겠습니까?\n(삭제된 데이터는 복구할 수 없습니다.)`)) {
+      setFaqs(prev => prev.filter(item => !selectedIds.includes(item.id)));
+      setSelectedIds([]);
+    }
+  };
 
+  // ==================================================================================
+  // 5. UI 렌더링
+  // ==================================================================================
   return (
-    <div className="w-full bg-white p-6 font-sans text-slate-800">
-      
-      {/* 1. Header */}
-      <div className="mb-6">
-        <div className="flex items-center text-xs text-gray-500 mb-2 font-medium">
-          <span>고객지원 관리</span>
-          <ChevronRight className="h-3 w-3 mx-1" />
-          <span className="text-gray-900 font-bold">FAQ(자주 묻는 질문) 관리</span>
-        </div>
-        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">FAQ 관리</h2>
-      </div>
-
-      {/* 2. Filter Bar */}
-      <div className="flex flex-wrap items-center gap-2 mb-8 w-full">
-        <select 
-          className="h-10 border border-gray-300 rounded-sm px-3 text-sm min-w-[130px] focus:border-blue-500 focus:outline-none bg-white text-gray-600"
-          value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
-        >
-          <option value="All">전체 카테고리</option>
-          <option value="회원/계정">회원/계정</option>
-          <option value="결제/환불">결제/환불</option>
-          <option value="이용문의">이용문의</option>
-          <option value="시스템">시스템</option>
-          <option value="기타">기타</option>
-        </select>
-
-        <select 
-          className="h-10 border border-gray-300 rounded-sm px-3 text-sm min-w-[135px] focus:border-blue-500 focus:outline-none bg-white text-gray-600"
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-        >
-          <option value="All">상태(전체)</option>
-          <option value="Y">사용(공개)</option>
-          <option value="N">미사용(비공개)</option>
-        </select>
-
-        <select className="h-10 border border-gray-300 rounded-sm px-3 text-sm min-w-[110px] focus:border-blue-500 focus:outline-none bg-white text-gray-600">
-          <option>제목+내용</option>
-          <option>제목</option>
-        </select>
-
-        <div className="relative flex-1 min-w-[200px]">
-          <input 
-            type="text"
-            className="h-10 w-full border border-gray-300 rounded-sm px-3 text-sm focus:border-blue-500 focus:outline-none placeholder-gray-400"
-            placeholder="검색어를 입력해주세요"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={handleKeyDown} // 엔터키 이벤트 추가
-          />
-          {searchQuery && (
-            <button 
-              onClick={() => setSearchQuery('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
+    <div className="flex-1 flex flex-col min-h-screen bg-[#F5F7FB] font-sans antialiased text-gray-900">
+      <main className="p-10">
+        
+        {/* Title */}
+        <div className="mb-10">
+            <h2 className="text-3xl font-bold text-gray-900 tracking-tight">FAQ 목록</h2>
         </div>
 
-        {/* 검색 버튼에 handleSearch 연결 */}
-        <button 
-          onClick={handleSearch}
-          className="h-10 px-6 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-sm flex items-center gap-1 transition-colors"
-        >
-          <Search className="w-4 h-4" /> 검색
-        </button>
-      </div>
-
-      {/* 3. Action Bar */}
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-4">
-            {/* 상단 일괄 제어용 체크박스 */}
-            <div className="flex items-center gap-2">
-                <input 
-                  type="checkbox" 
-                  className="w-4 h-4 border-gray-300 text-blue-600 rounded focus:ring-blue-500"
-                  onChange={handleSelectAll}
-                  checked={isAllSelected}
-                  id="selectAllTop"
-                />
-                <label htmlFor="selectAllTop" className="text-sm text-gray-600 cursor-pointer select-none">
-                {selectedIds.length > 0 ? (
-                    <span className="font-bold text-blue-600">{selectedIds.length}개 선택됨</span>
-                ) : (
-                    `총 ${filteredData.length}건`
-                )}
-                </label>
-            </div>
-            
-            {selectedIds.length > 0 && (
-                <div className="flex items-center gap-3 pl-4 border-l border-gray-300">
-                    <button onClick={() => handleBatchStatus(true)} className="text-xs flex items-center gap-1 text-gray-600 hover:text-blue-600 font-medium">
-                        <CheckCircle className="w-3 h-3" /> 공개 처리
-                    </button>
-                    <button onClick={() => handleBatchStatus(false)} className="text-xs flex items-center gap-1 text-gray-600 hover:text-gray-900 font-medium">
-                        <XCircle className="w-3 h-3" /> 비공개 처리
-                    </button>
-                    <button onClick={handleDeleteSelected} className="text-xs flex items-center gap-1 text-red-500 hover:text-red-700 font-medium">
-                        <Trash2 className="w-3 h-3" /> 삭제
-                    </button>
-                </div>
-            )}
-        </div>
-
-        <div className="flex gap-2">
-           <select 
-             className="h-8 border border-gray-300 rounded-sm px-2 text-xs bg-white text-gray-600 focus:border-blue-500 focus:outline-none"
-             value={itemsPerPage}
-             onChange={handleItemsPerPageChange}
-           >
-             <option value={10}>10개씩 보기</option>
-             <option value={20}>20개씩 보기</option>
-             <option value={50}>50개씩 보기</option>
-           </select>
-          <button 
-            onClick={() => setView('add')}
-            className="h-8 px-4 bg-slate-800 hover:bg-slate-700 text-white text-xs font-medium rounded-sm flex items-center gap-1 transition-colors shadow-sm"
+        {/* [A] 검색 영역 (White Card) */}
+        <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-8 mb-8">
+          <AdminSearchBox 
+            searchParams={searchParams}
+            setSearchParams={setSearchParams}
+            onSearch={handleSearch}
+            onReset={handleReset}
           >
-            <Edit2 className="w-3 h-3" /> 신규 등록
-          </button>
-        </div>
-      </div>
-
-      {/* 4. Table Area */}
-      <div className="w-full overflow-x-auto border-t border-gray-800 min-h-[300px]">
-        <table className="w-full text-sm text-left border-b border-gray-300">
-          <thead className="text-xs text-gray-700 uppercase bg-[#f8f9fa] border-b border-gray-300">
-            <tr>
-              {/* 테이블 헤더에 전체 선택 체크박스 추가 */}
-              <th scope="col" className="px-4 py-3 text-center w-[50px]">
-                <input 
-                  type="checkbox" 
-                  className="w-4 h-4 border-gray-300 text-blue-600 rounded focus:ring-blue-500"
-                  onChange={handleSelectAll}
-                  checked={isAllSelected}
-                />
-              </th>
-              <th scope="col" className="px-4 py-3 text-center w-[60px] font-semibold text-gray-600">번호</th>
-              <th scope="col" className="px-4 py-3 text-center w-[120px] font-semibold text-gray-600">분류</th>
-              <th scope="col" className="px-4 py-3 font-semibold text-gray-600 min-w-[300px]">질문(Q)</th>
-              <th scope="col" className="px-4 py-3 text-center font-semibold text-gray-600">작성자</th>
-              <th scope="col" className="px-4 py-3 text-center font-semibold text-gray-600">수정일</th>
-              <th scope="col" className="px-4 py-3 text-center font-semibold text-gray-600">사용여부</th>
-              <th scope="col" className="px-4 py-3 text-center font-semibold text-gray-600">조회수</th>
-              <th scope="col" className="px-4 py-3 text-center font-semibold text-gray-600">관리</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
-            {filteredData.length === 0 ? (
-              <tr>
-                <td colSpan="9" className="px-6 py-10 text-center text-gray-500">
-                  <div className="flex flex-col items-center justify-center">
-                    <HelpCircle className="w-10 h-10 text-gray-300 mb-2" />
-                    <p>등록된 FAQ 데이터가 없습니다.</p>
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              currentItems.map((item, index) => {
-                const displayOrder = (currentPage - 1) * itemsPerPage + index + 1;
-
-                return (
-                  <tr key={item.id} className="hover:bg-blue-50/30 transition-colors group">
-                    {/* 개별 행 체크박스 */}
-                    <td className="px-4 py-3 text-center">
-                      <input 
-                        type="checkbox" 
-                        className="w-4 h-4 border-gray-300 text-blue-600 rounded focus:ring-blue-500"
-                        checked={selectedIds.includes(item.id)}
-                        onChange={() => handleSelectRow(item.id)}
-                      />
-                    </td>
-                    <td className="px-4 py-3 text-center text-gray-500">{displayOrder}</td>
-                    
-                    <td className="px-4 py-3 text-center">
-                      <span className="inline-block px-2 py-1 text-xs font-medium text-slate-600 bg-slate-100 rounded border border-slate-200">
-                          {item.category}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-gray-900">
-                      <div className="flex items-center">
-                          <span className="font-bold text-blue-600 mr-2">Q.</span>
-                          <span 
-                            onClick={() => handleOpenDetail(item.id)}
-                            className="cursor-pointer hover:text-blue-600 hover:underline"
-                          >
-                          {item.title}
-                          </span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-center text-gray-600">{item.author}</td>
-                    <td className="px-4 py-3 text-center text-gray-500 text-xs">{item.date}</td>
-                    <td className="px-4 py-3 text-center">
-                      <div 
-                        onClick={() => handleToggleStatus(item.id)}
-                        className={cn(
-                          "relative w-10 h-5 rounded-full cursor-pointer transition-colors duration-200 ease-in-out mx-auto",
-                          item.status ? "bg-blue-600" : "bg-gray-300"
-                        )}
-                      >
-                        <div 
-                          className={cn(
-                            "absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform duration-200 ease-in-out",
-                            item.status ? "translate-x-5" : "translate-x-0"
-                          )} 
-                        />
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-center text-gray-600">{item.views.toLocaleString()}</td>
-                    <td className="px-4 py-3 text-center">
-                     <button 
-                        onClick={() => handleOpenDetail(item.id)} 
-                        className="px-3 py-1 border border-gray-300 bg-white text-xs text-gray-600 rounded-sm hover:bg-gray-50 hover:text-blue-600 transition-colors"
-                      >
-                        상세
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* 5. Pagination */}
-      {filteredData.length > 0 && (
-        <div className="flex items-center justify-center mt-6 select-none">
-          <nav className="inline-flex -space-x-px" aria-label="Pagination">
-            
-            <button 
-              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-              className="flex items-center justify-center w-8 h-8 text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span className="sr-only">Previous</span>
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-              <button
-                key={pageNum}
-                onClick={() => handlePageChange(pageNum)}
-                className={cn(
-                  "flex items-center justify-center w-8 h-8 text-sm font-medium border z-10",
-                  currentPage === pageNum
-                    ? "text-white bg-blue-900 border-blue-900" 
-                    : "text-gray-600 bg-white border-gray-300 hover:bg-gray-50"
-                )}
+            {/* 1. 카테고리 필터 */}
+            <div className="relative w-full md:w-60">
+              <select 
+                value={selectedCategory} 
+                onChange={(e) => { setSelectedCategory(e.target.value); setCurrentPage(1); }}
+                className="w-full appearance-none h-14 pl-5 pr-8 text-sm border border-gray-300 rounded-md bg-white text-gray-700 focus:border-blue-500 outline-none transition-all cursor-pointer"
               >
-                {pageNum}
-              </button>
-            ))}
-            
-            <button 
-              onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage === totalPages}
-              className="flex items-center justify-center w-8 h-8 text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span className="sr-only">Next</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </nav>
-        </div>
-      )}
-      
-      {/* Footer */}
-      <div className="mt-8 text-center text-xs text-gray-400">
-        © The Government of the Republic of Korea. All rights reserved.
-      </div>
+                {categoryOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
+            </div>
 
+            {/* 2. 상태 필터 */}
+            <div className="relative w-full md:w-40">
+              <select 
+                value={selectedStatus} 
+                onChange={(e) => { setSelectedStatus(e.target.value); setCurrentPage(1); }}
+                className="w-full appearance-none h-14 pl-5 pr-8 text-sm border border-gray-300 rounded-md bg-white text-gray-700 focus:border-blue-500 outline-none transition-all cursor-pointer"
+              >
+                <option value="all">상태(전체)</option>
+                <option value="Y">사용(공개)</option>
+                <option value="N">미사용(비공개)</option>
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
+            </div>
+          </AdminSearchBox>
+        </section>
+
+        {/* [B] 리스트 영역 (White Card) */}
+        <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
+          
+          {/* Action Bar */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            
+            {/* 좌측: 카운트 & 일괄 처리 */}
+            <div className="flex items-center gap-6">
+              <span className="text-sm font-bold text-gray-700">
+                {selectedIds.length > 0 ? (
+                  <span className="text-blue-600">{selectedIds.length}개 선택됨</span>
+                ) : (
+                  `전체 ${filteredData.length}건`
+                )}
+              </span>
+
+              {/* 일괄 처리 버튼 그룹 */}
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => handleBatchStatus(true)} 
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-blue-50 transition-colors group"
+                >
+                  <div className="w-4 h-4 rounded-full border border-blue-500 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <span className="text-xs font-bold text-gray-700 group-hover:text-blue-600">일괄 사용</span>
+                </button>
+
+                <div className="w-[1px] h-3 bg-gray-300" />
+
+                <button 
+                  onClick={() => handleBatchStatus(false)} 
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors group"
+                >
+                  <div className="w-4 h-4 rounded-full border border-gray-400 flex items-center justify-center">
+                     <div className="w-2 h-2 bg-gray-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <span className="text-xs font-bold text-gray-600">일괄 미사용</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 우측: CRUD 버튼 */}
+            <div className="flex gap-2">
+               <button 
+                onClick={handleDeleteSelected} 
+                className="px-6 h-12 bg-[#FF3B30] text-white rounded-md font-bold text-sm hover:bg-[#D63025] transition-all shadow-sm"
+              >
+                삭제
+              </button>
+              <button 
+                onClick={() => navigate('/admin/customer/FAQAdd')}
+                className="px-6 h-12 bg-blue-600 text-white rounded-md font-bold text-sm hover:bg-blue-700 transition-all shadow-sm flex items-center gap-2"
+              >
+                등록
+              </button>
+            </div>
+          </div>
+
+          {/* Table */}
+          <AdminDataTable 
+            columns={columns}
+            data={currentData}
+            selectedIds={selectedIds}
+            onSelectionChange={setSelectedIds}
+          />
+
+          {/* Pagination */}
+          <div className="mt-8">
+            <AdminPagination 
+                totalItems={filteredData.length}
+                itemCountPerPage={itemsPerPage}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+            />
+          </div>
+        </section>
+      </main>
     </div>
   );
 };
 
-export default FaqListPage;
+export default AdminFAQList;
