@@ -155,8 +155,8 @@ const AdminMemberList = () => {
                 {/* 3. 오른쪽 버튼 영역: flex-1과 text-right로 부모 div 안쪽 우측 끝에 고정 */}
                 <div className="flex-1 text-right">
                     <button 
-                    onClick={() => navigate('/admin/adminmMemberRegister')}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-sm shadow-sm transition-colors"
+                    onClick={() => navigate('/admin/adminMemberRegister')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md shadow-sm transition-colors"
                     >
                     신규 회원 등록
                     </button>
