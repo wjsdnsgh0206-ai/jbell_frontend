@@ -113,6 +113,22 @@ export default defineConfig(({ mode }) => {
           },
         },
 
+        // 호우홍수에서 활용되는 침수 흔적도 api
+        "/floodTrace-api": {
+          target: "https://www.safetydata.go.kr/V2/api",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/floodTrace-api/, ""),
+          secure: false,
+          configure: (proxy, options) => {
+            proxy.on("proxyReq", (proxyReq, req, res) => {
+              console.log("Proxy Request:", req.method, req.url);
+            });
+            proxy.on("proxyRes", (proxyRes, req, res) => {
+              console.log("Proxy Response:", proxyRes.statusCode, req.url);
+            });
+          },
+        },
+
         // 🔹 기상청 지진 특보
         "/kma-api": {
           target: "https://apihub.kma.go.kr",

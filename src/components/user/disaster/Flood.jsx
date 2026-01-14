@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
 import FacilityCheckGroup from "../modal/FacilityCheckGroup";
 import MapControlBtn from "@/components/user/modal/MapControlBtn";
-import CommonMap from "@/components/user/modal/CommonMap"; // 공통 지도 컴포넌트 임포트
+import CommonMap from "@/components/user/modal/CommonMap"; 
+import FloodGeometryMap from "@/components/user/modal/FloodGeometryMap"; // 새로 만든 지오메트리 지도
 
 const Flood = () => {
-  // 홍수 관련 마커 데이터 (예시: 침수 위험 지역이나 수위 관측소 등)
+  // 일반 마커 데이터
   const floodData = [
     { lat: 35.8400, lng: 127.1200, title: "침수 위험 지역", content: "최근 집중호우 시 침수 발생 구역" },
   ];
@@ -29,12 +30,13 @@ const Flood = () => {
     { id: "pharmacy", label: "약국" },
   ];
 
-  const handleTabClick = (tabId) => setActiveTab(prev => (prev === tabId ? null : tabId));
+  const handleTabClick = (tabId) => setActiveTab(tabId);
   const handleCheck = (key) => setFacilities(prev => ({ ...prev, [key]: !prev[key] }));
 
   return (
     <div className="flex-1 flex flex-col min-h-0 gap-5 lg:gap-6">
       <div className="bg-white rounded-2xl p-4 lg:p-5 border border-gray-100 flex-1 flex flex-col min-h-0">
+        
         {/* 헤더 영역 */}
         <div className="flex justify-between items-center mb-4 flex-shrink-0">
           <div className="flex items-center gap-2">
@@ -51,8 +53,12 @@ const Flood = () => {
         {/* 지도 컨테이너 영역 */}
         <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[400px] lg:min-h-0">
           
-          {/* 공통 지도 컴포넌트: markers에 홍수 데이터를 넘겨줌 */}
-          <CommonMap markers={floodData} />
+          {/* === [수정] 탭 상태에 따라 지도 교체 === */}
+          {activeTab === "침수흔적도" ? (
+            <FloodGeometryMap /> // API 호출 및 지오메트리 렌더링 전용
+          ) : (
+            <CommonMap markers={floodData} /> // 일반 마커용
+          )}
 
           {/* 지도 위 오버레이 UI (탭) */}
           <div className="absolute top-3 left-0 right-0 px-3 lg:px-0 lg:top-5 lg:left-5 lg:right-auto flex lg:flex-col gap-2 z-20 overflow-x-auto no-scrollbar">
@@ -63,13 +69,12 @@ const Flood = () => {
                   className={`flex items-center justify-center px-3 py-2 lg:px-5 text-center lg:py-3 rounded-2xl lg:rounded-xl text-detail-s-bold lg:text-body-m transition-all border ${
                     activeTab === tab.id 
                     ? "bg-blue-600 text-white shadow-md" 
-                    : "bg-white/95 backdrop-blur-md text-gray-600 border-gray-100"
+                    : "bg-white/95 backdrop-blur-md text-gray-600 border-gray-100 shadow-sm"
                   }`}
                 >
                   <span className="whitespace-nowrap">{tab.label}</span>
                 </button>
                 
-                {/* 재난안전시설 드롭다운 (시설 체크박스 그룹) */}
                 {tab.id === "재난안전시설" && activeTab === "재난안전시설" && (
                   <div className="absolute top-12 left-0 lg:static lg:mt-1">
                     <FacilityCheckGroup 
@@ -83,15 +88,13 @@ const Flood = () => {
             ))}
           </div>
 
-          {/* 지도 컨트롤 버튼 (우측 하단) */}
           <div className="absolute bottom-5 right-5 z-20">
             <MapControlBtn />
           </div>
         </div>
       </div>
 
-      {/* 하단 행동요령 박스 */}
-      <div className="bg-white rounded-2xl p-5 lg:p-6 border border-gray-100 flex-shrink-0">
+      <div className="bg-white rounded-2xl p-5 lg:p-6 border border-gray-100 flex-shrink-0 mb-10 lg:mb-0">
         <ActionTipBox type="홍수" />
       </div>
     </div>
