@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import BreadCrumb from '@/components/Admin/board/BreadCrumb';
+import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
 import AdminCodeConfirmModal from './AdminCodeConfirmModal';
 
@@ -22,7 +21,7 @@ const ErrorIcon = () => (
 const AdminSubCodeEdit = () => {
   const { id } = useParams(); 
   const navigate = useNavigate();
-  
+  const { setBreadcrumbTitle } = useOutletContext();
   const [showToast, setShowToast] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRegistered, setIsRegistered] = useState(true);
@@ -37,6 +36,17 @@ const AdminSubCodeEdit = () => {
     regDate: '',
     modDate: ''
   });
+
+  useEffect(() => {
+    const found = AdminCommonCodeData.find(item => item.id === parseInt(id));
+    if (found) {
+      // 레이아웃의 breadcrumbTitle 상태를 업데이트 -> 브레드크럼이 즉시 바뀜
+      setBreadcrumbTitle(found.subName); 
+    }
+    
+    // 페이지를 나갈 때는 초기화 (Clean-up)
+    return () => setBreadcrumbTitle("");
+  }, [id, setBreadcrumbTitle]);
 
   useEffect(() => {
     // 1. 현재 ID에 해당하는 상세 데이터 찾기
@@ -111,7 +121,6 @@ const AdminSubCodeEdit = () => {
       )}
 
       <main className="p-10 text-left">
-        <BreadCrumb />
         <h2 className="text-[32px] font-bold mt-2 mb-10 tracking-tight text-left">공통 코드 관리</h2>
 
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-14 w-full max-w-[1000px]">

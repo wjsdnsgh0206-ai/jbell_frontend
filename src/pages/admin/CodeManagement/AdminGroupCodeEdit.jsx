@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import BreadCrumb from '@/components/admin/AdminBreadCrumb';
+import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
 import AdminCodeConfirmModal from './AdminCodeConfirmModal';
 
@@ -13,6 +12,7 @@ const ErrorIcon = () => (
 
 const AdminGroupCodeEdit = () => {
   const { id } = useParams(); 
+  const { setBreadcrumbTitle } = useOutletContext();
   const navigate = useNavigate();
   
   const [showToast, setShowToast] = useState(false);
@@ -28,6 +28,17 @@ const AdminGroupCodeEdit = () => {
     regDate: '',
     modDate: ''
   });
+
+  useEffect(() => {
+    const found = AdminCommonCodeData.find(item => item.id === parseInt(id));
+    if (found) {
+      // 레이아웃의 breadcrumbTitle 상태를 업데이트 -> 브레드크럼이 즉시 바뀜
+      setBreadcrumbTitle(found.groupName); 
+    }
+    
+    // 페이지를 나갈 때는 초기화 (Clean-up)
+    return () => setBreadcrumbTitle("");
+  }, [id, setBreadcrumbTitle]);
 
   useEffect(() => {
     const detailData = AdminCommonCodeData.find(item => String(item.id) === String(id));
@@ -105,7 +116,6 @@ const AdminGroupCodeEdit = () => {
       )}
 
       <main className="p-10 text-left">
-        <BreadCrumb />
         <h2 className="text-[32px] font-bold mt-2 mb-10 tracking-tight text-left">공통 코드 관리</h2>
 
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-14 w-full max-w-[1000px]">

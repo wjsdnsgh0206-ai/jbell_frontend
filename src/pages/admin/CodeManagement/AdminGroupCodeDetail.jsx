@@ -1,13 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
 import AdminCodeConfirmModal from './AdminCodeConfirmModal';
 
 const AdminGroupCodeDetail = () => {
   const { id } = useParams();
+  const { setBreadcrumbTitle } = useOutletContext();
   const navigate = useNavigate();
   const [formData, setFormData] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  useEffect(() => {
+      const found = AdminCommonCodeData.find(item => item.id === parseInt(id));
+      if (found) {
+        // 레이아웃의 breadcrumbTitle 상태를 업데이트 -> 브레드크럼이 즉시 바뀜
+        setBreadcrumbTitle(found.groupName); 
+      }
+      
+      // 페이지를 나갈 때는 초기화 (Clean-up)
+      return () => setBreadcrumbTitle("");
+    }, [id, setBreadcrumbTitle]);
 
   useEffect(() => {
     // [2026-01-08 약속] 상세 정보 로드 로직 유지
