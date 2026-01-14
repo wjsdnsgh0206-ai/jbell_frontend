@@ -43,9 +43,11 @@ const Earthquake = () => {
           </span>
         </div>
 
+
+        
+
         <div className="relative w-full h-[280px] md:h-[350px] lg:h-full lg:flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden">
           
-          {/* ✅ 지도 영역: 현재 activeTab을 인자로 넣어 탭별 중심점 적용 */}
           <CommonMap 
             markers={displayMarkers} 
             center={getMapCenter(activeTab)} 
@@ -63,16 +65,17 @@ const Earthquake = () => {
             </div>
           )}
 
-          {/* 좌측 사이드 탭 버튼 */}
+          {/* ✅ 좌측 사이드 탭 버튼: 스타일 가이드 적용 */}
           <div className="absolute top-5 left-3 lg:left-5 flex flex-col gap-3 z-20">
             {["지진특보", "진도정보조회", "재난안전시설"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`w-[100px] lg:w-[140px] px-2 py-3 lg:py-4 rounded-xl border text-[11px] lg:text-sm font-bold transition-all shadow-lg ${
+                className={`flex items-center justify-center px-3 py-2 lg:px-5 text-center lg:py-3 rounded-2xl lg:rounded-xl text-detail-s-bold lg:text-body-m transition-all border
+                    bg-blue-600 border-blue-600 shadow-md ${
                   activeTab === tab 
-                    ? "bg-blue-600 text-white border-blue-700 translate-x-1" 
-                    : "bg-white/95 backdrop-blur-md text-gray-600 border-gray-100"
+                    ? "bg-blue-600 text-white border-blue-600 translate-x-1" 
+                    : "bg-white/95 backdrop-blur-md text-gray-600 border-gray-100 hover:bg-gray-50"
                 }`}
               >
                 {tab}

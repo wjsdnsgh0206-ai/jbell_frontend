@@ -31,7 +31,6 @@ const Flood = () => {
   const handleTabClick = (tabId) => {
     setActiveTab(tabId);
     if (tabId === "수방시설물") {
-      console.log("📍 수방시설물 탭 클릭! 데이터 호출 시작...");
       fetchDamData();
     }
   };
@@ -66,9 +65,8 @@ const Flood = () => {
         </div>
 
         {/* 지도 및 오버레이 영역 */}
-        <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[400px] lg:min-h-0">
+        <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[300px] md:min-h-[400px] lg:min-h-0">
           
-          {/* 1. 배경 지도 */}
           <div className="absolute inset-0 z-0">
             {activeTab === "침수흔적도" ? (
               <FloodGeometryMap />
@@ -77,7 +75,6 @@ const Flood = () => {
             )}
           </div>
 
-          {/* 2. 수방시설물 카드 오버레이 (탭과 겹치지 않게 여백 조정) */}
           {activeTab === "수방시설물" && (
             <div className="absolute inset-0 z-10 bg-black/10 backdrop-blur-[2px] p-4 pl-[120px] lg:pl-[180px] overflow-y-auto no-scrollbar">
               <div className="flex flex-col gap-4 max-w-4xl">
@@ -92,7 +89,7 @@ const Flood = () => {
                     <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-2"></div>
                     <p className="text-gray-500 font-medium text-detail-s">데이터 로딩 중...</p>
                   </div>
-                ) : damData.length > 0 ? (
+                ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {damData.map((dam, index) => (
                       <div 
@@ -130,16 +127,11 @@ const Flood = () => {
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <div className="h-[200px] flex items-center justify-center bg-white/80 rounded-2xl border border-dashed border-gray-300">
-                    <p className="text-gray-400 text-detail-s">조회된 수문 데이터가 없습니다.</p>
-                  </div>
                 )}
               </div>
             </div>
           )}
 
-          {/* 3. 재난안전시설 체크박스 (탭 우측으로 배치) */}
           {activeTab === "재난안전시설" && (
             <div className="absolute top-5 left-[120px] lg:left-[180px] z-20">
               <FacilityCheckGroup 
@@ -150,15 +142,16 @@ const Flood = () => {
             </div>
           )}
 
-          {/* 4. 좌측 사이드 탭 버튼 */}
+          {/* 좌측 사이드 탭 버튼 */}
           <div className="absolute top-5 left-3 lg:left-5 flex flex-col gap-3 z-30">
             {mapTabs.map((tab, idx) => (
               <button 
                 key={`tab-${tab.id}-${idx}`}
                 onClick={() => handleTabClick(tab.id)} 
-                className={`w-[100px] lg:w-[140px] px-2 py-3 lg:py-4 rounded-xl text-detail-s-bold lg:text-body-m-bold transition-all border shadow-lg ${
+                className={`flex items-center justify-center px-3 py-2 lg:px-5 text-center lg:py-3 rounded-2xl lg:rounded-xl text-detail-s-bold lg:text-body-m transition-all border
+ border-gray-100 text-gray-600 ${
                   activeTab === tab.id 
-                  ? "bg-blue-600 text-white border-blue-700 translate-x-1" 
+                  ? "bg-blue-600 text-white border-blue-600 translate-x-1" 
                   : "bg-white/95 backdrop-blur-md text-gray-600 border-gray-100 hover:bg-gray-50"
                 }`}
               >
@@ -167,15 +160,14 @@ const Flood = () => {
             ))}
           </div>
 
-          {/* 5. 우측 하단 줌 컨트롤 */}
           <div className="absolute bottom-5 right-5 z-20">
             <MapControlBtn />
           </div>
         </div>
       </div>
 
-      {/* 하단 행동요령 */}
-      <div className="bg-white rounded-2xl p-5 border border-gray-100 flex-shrink-0 mb-10 lg:mb-0">
+      {/* ✅ 수정 포인트: mb-10을 mb-0으로 변경하여 지진 탭과 동일하게 맞춤 */}
+      <div className="bg-white rounded-2xl p-5 border border-gray-100 flex-shrink-0 mb-0 lg:mb-0 shadow-sm">
         <ActionTipBox type="호우·홍수" />
       </div>
     </div>
