@@ -98,7 +98,7 @@ const AdminDataTable = ({
                 <tr 
                   key={row.id} 
                   // 선택된 행인 경우 배경색(blue-50) 변경
-                  className={`hover:bg-graygray-5 transition-colors group ${selectedIds.includes(row.id) ? 'bg-blue-50' : ''}`}
+                  className={`hover:bg-blue-50 transition-colors group ${selectedIds.includes(row.id) ? 'bg-blue-100' : ''}`}
                   onClick={() => onRowClick && onRowClick(row)}
                 >
                   {/* 행별 개별 체크박스 */}
