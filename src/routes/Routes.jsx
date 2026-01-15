@@ -5,18 +5,22 @@ import AdminLayout from "@/layouts/admin/AdminLayout";
 import DisasterModalLayout from "@/layouts/user/disasterModal/DisasterModalLayout";
 import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
-// 팀원별 라우트 파일 import
+// 팀원별 라우트 파일 import (user)
 import { jyUserRoutes, disasterModal } from "@/routes/route-jy";
 import { shUserRoutes } from "@/routes/route-sh";
 import { ehUserRoutes } from "@/routes/route-eh";
 import { mjUserRoutes } from "@/routes/route-mj";
 import { bjUserRoutes } from "@/routes/route-bj";
 import { jhUserRoutes } from "@/routes/route-jh";
+
+// 팀원별 라우트 파일 import (amdin)
+// import { jyUserRoutes } from "@/routes/admin/route-jy";
 import { shAdminRoutes } from "@/routes/admin/route-sh";
-import { AdminCommonCodeList } from "./admin/route-sh";
+import { jhAdminRoutes } from "@/routes/admin/route-jh";
+import { bjAdminRoutes } from "@/routes/admin/route-bj";
 
 const AllRoutes = (props) => {
-  // 1. 모든 팀원의 라우트를 하나의 배열로 병합 (충돌 방지: 각자 파일만 수정하면 됨)
+  // 1. 사용자 페이지 라우트 병합
   const allUserRoutes = [
     ...jyUserRoutes,
     ...shUserRoutes,
@@ -25,51 +29,72 @@ const AllRoutes = (props) => {
     ...bjUserRoutes,
     ...jhUserRoutes,
   ];
+  
+  // 2. 관리자 페이지 라우트 병합
+  const allAdminRoutes = [
+    // ...jyUserRoutes,
+    ...shAdminRoutes,
+    // ...ehUserRoutes,
+    // ...mjUserRoutes,
+    // ...bjUserRoutes,
+    ...jhAdminRoutes,
+  ];
 
-  // const allAdminRoutes = [...shAdminRoutes];
-
-  // 2. 사이드바 종류별로 라우트 필터링.
-  // 본인 라우터(route-jh.jsx) 등에서 nowPage를 맞춰주세요.
-  // (참조 비교가 정확하지 않을 수 있으므로 nowPage 텍스트나 별도 키값으로 비교하는 것이 안전합니다)
-  // [A] 사이드바 그룹 (마이페이지, 행동요령, 대피소 소개, 고객센터, 열린마당)
-  // const behavioralRoutes = allUserRoutes.filter(route => route.nowPage === "행동요령");
-  // [B] 사이드바 없는 그룹 (메인페이지, 로그인)
-  const noSidebarRoutes = allUserRoutes.filter((route) => !route.sidebarData);
-  // [C] 기타 사이드바 그룹 (예: 민주처럼 안전정보지도 등 별도 사이드바가 있다면 추가 필터링)
-  // const facilityRoutes = allUserRoutes.filter(route => route.nowPage === "대피소안내");
-
-  // [A] 행동요령 사이드바 그룹
-  const behavioralRoutes = allUserRoutes.filter(
-    (route) => route.nowPage === "행동요령"
+  /* 2. 사이드바 종류별로 라우트 필터링.
+  본인 라우터(route-jh.jsx) 등에서 nowPage를 맞춰주세요.
+  (참조 비교가 정확하지 않을 수 있으므로 nowPage 텍스트나 별도 키값으로 비교하는 것이 안전합니다)
+  [A] 사이드바 그룹 (마이페이지, 행동요령, 대피소 소개, 고객센터, 열린마당)
+  const behavioralRoutes = allUserRoutes.filter(route => route.nowPage === "행동요령");
+  [C] 기타 사이드바 그룹 (예: 민주처럼 안전정보지도 등 별도 사이드바가 있다면 추가 필터링)
+  const facilityRoutes = allUserRoutes.filter(route => route.nowPage === "대피소안내");
+  */
+ 
+ // [A] 행동요령 사이드바 그룹
+ const behavioralRoutes = allUserRoutes.filter(
+   (route) => route.nowPage === "행동요령"
   );
-
+  
   // [A] 대피소 소개 사이드바 그룹
   const facilityRoutes = allUserRoutes.filter(
     (route) => route.nowPage === "대피소 소개"
   );
-
+  
   // [A] 고객센터 사이드바 그룹
   const customerServiceRoutes = allUserRoutes.filter(
     (route) => route.nowPage === "고객센터"
   );
-
+  
   // [A] 열린마당 사이드바 그룹
   const communityRoutes = allUserRoutes.filter(
     (route) => route.nowPage === "열린마당"
   );
-
+  
   // [A] 마이페이지 사이드바 그룹
   const myPageRoutes = allUserRoutes.filter(
     (route) => route.nowPage === "마이페이지"
   );
-
+  
   // [A] 주요 안전정책 사이드바 그룹
   const mainSafetyPoliciesPageRoutes = allUserRoutes.filter(
     (route) => route.nowPage === "주요 안전정책"
   );
+  // [B] 사이드바 없는 그룹 (메인페이지, 로그인)
+  const noSidebarRoutes = allUserRoutes.filter((route) => !route.sidebarData);
 
   return (
     <Routes>
+      {/* --------------------------------------------------------- */}
+      {/* 관리자 레이아웃 그룹 (URL 기반 연동) */}
+      {/* --------------------------------------------------------- */}
+      <Route element={<AdminLayout />}>
+        {allAdminRoutes.map((route, idx) => (
+          <Route
+            key={`admin-route-${idx}`}
+            path={route.path} // 예: /admin/system/commonCodeList
+            element={route.element}
+          />
+        ))}
+      </Route>
       {/* --------------------------------------------------------- */}
       {/* 1. 행동요령 레이아웃 그룹 (UserLayout이 한 번만 마운트됨) */}
       {/* --------------------------------------------------------- */}
@@ -218,21 +243,6 @@ const AllRoutes = (props) => {
           ))}
         </Route>
       ))}
-      {/* ==== test ==== */}
-      {/* <Route path="/admin/adminCommonCodeList" element={<AdminCommonCodeList />} /> */}
-      {/* --------------------------------------------------------- */}
-      {/* 관리자 - 공통코드 페이지
-      {/* --------------------------------------------------------- */}
-      {/* <Route element={<UserLayout nowPage="공통코드관리" {...props} />}></Route> */}
-      <Route element={<AdminLayout />}>
-        {shAdminRoutes.map((route, idx) => (
-          <Route
-            key={`community-${idx}`}
-            path={route.path}
-            element={route.element}
-          />
-        ))}
-      </Route>
     </Routes>
   );
 };

@@ -1,8 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BreadCrumb from '@/components/Admin/board/BreadCrumb';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
-import AdminCodeConfirmModal from './AdminCodeConfirmModal';
+import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
 // 아이콘까지 모두 포함 (따로 선언해두어야 나중에 아이콘만 바꾸기 편함)
 const SuccessIcon = ({ fill = "#2563EB" }) => (
@@ -112,7 +111,7 @@ const AdminSubCodeAdd = () => {
 
     AdminCommonCodeData.unshift(newEntry);
     setShowToast(true);
-    setTimeout(() => navigate('/admin/adminCommonCodeList'), 1500);
+    setTimeout(() => navigate('/admin/system/commonCodeList'), 1500);
   };
 
   return (
@@ -128,7 +127,6 @@ const AdminSubCodeAdd = () => {
       )}
 
       <main className="p-10 text-left">
-        <BreadCrumb />
         <h2 className="text-[32px] font-bold mt-2 mb-10 tracking-tight text-left">상세 코드 등록</h2>
 
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-14 w-full max-w-[1000px]">
@@ -235,7 +233,7 @@ const AdminSubCodeAdd = () => {
 
             {/* 6. 등록 여부 */}
             <div className="flex items-center gap-5 pt-2">
-              <label className="font-bold text-[16px] text-[#111]">등록 여부</label>
+              <label className="font-bold text-[16px] text-[#111]">노출 여부</label>
               <div className="flex items-center gap-3">
                 <button 
                   type="button"
@@ -245,7 +243,7 @@ const AdminSubCodeAdd = () => {
                   <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${isVisible ? 'translate-x-[26px]' : 'translate-x-0'}`} />
                 </button>
                 <span className={`text-[14px] font-bold ${isVisible ? 'text-[#2563EB]' : 'text-gray-400'}`}>
-                  {isVisible ? '등록' : '미등록'}
+                  {isVisible ? '노출' : '미노출'}
                 </span>
               </div>
             </div>
@@ -272,7 +270,7 @@ const AdminSubCodeAdd = () => {
       </main>
 
       {/* 확인 모달 */}
-      <AdminCodeConfirmModal 
+      <AdminConfirmModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onConfirm={handleConfirmSave} 

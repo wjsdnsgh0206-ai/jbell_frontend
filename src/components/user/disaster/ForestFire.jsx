@@ -18,13 +18,12 @@ const ForestFire = () => {
   });
 
   const mapTabs = [
-    { id: "산불위험지수", label: "산불위험지수" },
     { id: "발생위치", label: "산불발생위치" },
-    { id: "소방시설", label: "주변 소방시설", hasArrow: true },
+    { id: "재난안전시설", label: "재난안전시설", hasArrow: true },
   ];
 
   const WildfireItems = [
-    { id: "shelter", label: "이재민임시시설" },
+    { id: "shelter", label: "대피소" },
     { id: "hospital", label: "병원" },
     { id: "pharmacy", label: "약국" },
   ];
@@ -69,7 +68,7 @@ const ForestFire = () => {
                   <span className="whitespace-nowrap">{tab.label}</span>
                 </button>
                 
-                {tab.id === "소방시설" && activeTab === "소방시설" && (
+                {tab.id === "재난안전시설" && activeTab === "재난안전시설" && (
                   <div className="absolute top-12 left-0 lg:static lg:mt-1">
                     <FacilityCheckGroup 
                       items={WildfireItems} 

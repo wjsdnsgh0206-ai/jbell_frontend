@@ -1,6 +1,6 @@
 // src/components/shared/SearchBarTemplate.jsx
 import React from 'react';
-import { Search, RefreshCw, X } from 'lucide-react'; // X 아이콘 추가
+import { Search, RefreshCw } from 'lucide-react'; 
 import { Button } from '@/components/shared/Button';
 
 const SearchBarTemplate = ({ 
@@ -20,23 +20,23 @@ const SearchBarTemplate = ({
       </div>
 
       {/* 2. 공통 검색어 입력 영역 (삭제 버튼 포함) */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative w-full">
         <input 
           type="text" 
           value={keyword}
           onChange={onKeywordChange}
           onKeyDown={(e) => e.key === 'Enter' && onSearch()} 
           placeholder={placeholder}
-          className="w-full border border-gray-300 focus:border-[#2563EB] rounded-md px-5 py-3.5 text-[16px] outline-none font-medium transition-all"
+          className="w-full bg-graygray-0 border border-graygray-30 focus:border-blue-600 rounded-md px-5 py-3.5 text-body-m outline-none transition-all placeholder:text-graygray-40 text-graygray-90"
         />
         {/* 삭제 버튼 추가: keyword가 있을 때만 노출 */}
         {keyword && (
           <button 
             type="button" 
-            onClick={onReset} // 초기화 핸들러 호출
-            className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 text-xl font-light"
+            onClick={() => onKeywordChange({ target: { value: '' } })} 
+            className="absolute right-5 top-1/2 -translate-y-1/2 text-graygray-40 hover:text-graygray-60 transition-colors"
           >
-            ✕
+            <span className="text-[20px] leading-none">✕</span>
           </button>
         )}
       </div>
@@ -47,9 +47,9 @@ const SearchBarTemplate = ({
           variant="secondary"
           onClick={onSearch}
           size="flex"
-          className="flex-1 lg:flex-none h-14 text-body-m px-5"
+          className="flex-1 lg:flex-none h-[54px] text-body-m-bold px-6"
         >
-          <Search className="w-5 h-5" />
+          <Search className="w-5 h-5 mr-1" />
           검색
         </Button>
 
@@ -57,10 +57,10 @@ const SearchBarTemplate = ({
           variant="tertiary"
           onClick={onReset}
           size="none"
-          className="h-14 px-5"
+          className="h-[54px] px-5 border border-graygray-60 text-graygray-90"
           title="초기화"
         >
-          <RefreshCw />
+          <RefreshCw className="w-5 h-5" />
         </Button>
       </div>
     </div>

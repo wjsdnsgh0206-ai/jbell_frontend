@@ -1,3 +1,4 @@
+// src/layouts/admin/AdminFooter.jsx
 const AdminFooter = () => {
 
     return (

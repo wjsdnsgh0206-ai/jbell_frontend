@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import BreadCrumb from '@/components/Admin/board/BreadCrumb';
+import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
-import AdminCodeConfirmModal from './AdminCodeConfirmModal';
+import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
 // 아이콘 컴포넌트 (생략 없이 포함)
 const SuccessIcon = ({ fill = "#2563EB" }) => (
@@ -22,7 +21,7 @@ const ErrorIcon = () => (
 const AdminSubCodeEdit = () => {
   const { id } = useParams(); 
   const navigate = useNavigate();
-  
+  const { setBreadcrumbTitle } = useOutletContext();
   const [showToast, setShowToast] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRegistered, setIsRegistered] = useState(true);
@@ -37,6 +36,17 @@ const AdminSubCodeEdit = () => {
     regDate: '',
     modDate: ''
   });
+
+  useEffect(() => {
+    const found = AdminCommonCodeData.find(item => item.id === parseInt(id));
+    if (found) {
+      // 레이아웃의 breadcrumbTitle 상태를 업데이트 -> 브레드크럼이 즉시 바뀜
+      setBreadcrumbTitle(found.subName); 
+    }
+    
+    // 페이지를 나갈 때는 초기화 (Clean-up)
+    return () => setBreadcrumbTitle("");
+  }, [id, setBreadcrumbTitle]);
 
   useEffect(() => {
     // 1. 현재 ID에 해당하는 상세 데이터 찾기
@@ -111,7 +121,6 @@ const AdminSubCodeEdit = () => {
       )}
 
       <main className="p-10 text-left">
-        <BreadCrumb />
         <h2 className="text-[32px] font-bold mt-2 mb-10 tracking-tight text-left">공통 코드 관리</h2>
 
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-14 w-full max-w-[1000px]">
@@ -184,9 +193,9 @@ const AdminSubCodeEdit = () => {
               <p className="text-[13px] text-gray-400 mt-3 font-medium">* 숫자가 낮을수록 상위에 위치합니다.</p>
             </div>
 
-            {/* 6. 등록 여부 */}
+            {/* 6. 사용 여부 */}
             <div className="mb-10 flex items-center gap-5 pt-2">
-              <label className="font-bold text-[16px] text-[#111]">등록 여부</label>
+              <label className="font-bold text-[16px] text-[#111]">노출 여부</label>
               <div className="flex items-center gap-3">
                 <button 
                   type="button" 
@@ -195,7 +204,7 @@ const AdminSubCodeEdit = () => {
                 >
                   <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${isRegistered ? 'translate-x-[26px]' : 'translate-x-0'}`} />
                 </button>
-                <span className={`text-[14px] font-bold ${isRegistered ? 'text-[#2563EB]' : 'text-gray-400'}`}>{isRegistered ? '등록' : '미등록'}</span>
+                <span className={`text-[14px] font-bold ${isRegistered ? 'text-[#2563EB]' : 'text-gray-400'}`}>{isRegistered ? '노출' : '미노출'}</span>
               </div>
             </div>
 
@@ -235,7 +244,7 @@ const AdminSubCodeEdit = () => {
       </main>
 
       {/* 확인 모달 */}
-      <AdminCodeConfirmModal 
+      <AdminConfirmModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onConfirm={handleConfirmSave} 

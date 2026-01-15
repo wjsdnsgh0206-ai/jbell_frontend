@@ -1,6 +1,6 @@
 import React from 'react';
 
-const AdminCodeConfirmModal = ({ 
+const AdminConfirmModal = ({ 
   isOpen, 
   onClose, 
   onConfirm, 
@@ -43,9 +43,9 @@ const AdminCodeConfirmModal = ({
           <h3 className="text-[22px] font-bold text-[#111] mb-3 tracking-tight">
             {title}
           </h3>
-          <p className="text-[#666] text-[15px] leading-relaxed mb-8 whitespace-pre-wrap">
+          <div className="text-[#666] text-[15px] leading-relaxed mb-8 whitespace-pre-wrap">
             {message}
-          </p>
+          </div>
 
           <div className="flex gap-3 mt-4">
             <button
@@ -67,4 +67,4 @@ const AdminCodeConfirmModal = ({
   );
 };
 
-export default AdminCodeConfirmModal;
+export default AdminConfirmModal;
