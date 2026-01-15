@@ -150,7 +150,7 @@ const AdminCommonCodeList = () => {
               : `/admin/system/subCodeDetail/${row.id}`;
             navigate(path);
           }}
-          className="border border-gray-300 text-[#666] rounded px-4 py-1.5 text-[13px] font-bold bg-white hover:bg-[#2563EB] hover:text-white hover:border-[#2563EB] transition-all whitespace-nowrap"
+          className="border border-gray-300 text-[#666] rounded px-4 py-1.5 text-[13px] font-bold bg-white hover:bg-[#2563EB] hover:text-white hover:border-[#2563EB] transition-all"
         >
           보기
         </button>

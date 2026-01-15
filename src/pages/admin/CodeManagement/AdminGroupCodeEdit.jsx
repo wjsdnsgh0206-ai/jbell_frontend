@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
-import AdminCodeConfirmModal from './AdminCodeConfirmModal';
+import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
 const ErrorIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -247,7 +247,7 @@ const AdminGroupCodeEdit = () => {
         </div>
       </main>
 
-      <AdminCodeConfirmModal 
+      <AdminConfirmModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onConfirm={handleConfirmSave} 
