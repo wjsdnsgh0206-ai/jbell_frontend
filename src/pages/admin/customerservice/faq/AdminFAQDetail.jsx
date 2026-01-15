@@ -2,17 +2,19 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronRight, Edit2, Trash2, List, Eye, EyeOff, Clock, User, Calendar, CheckCircle, AlertCircle, Save, X, Home } from 'lucide-react';
+import { 
+  Edit2, Trash2, List, Eye, EyeOff, Clock, 
+  User, Calendar, CheckCircle, AlertCircle, Save, X 
+} from 'lucide-react';
 import { AdminFAQData, FAQ_CATEGORIES } from './AdminFAQData';
 
-// 유틸리티: 클래스 병합
 const cn = (...classes) => classes.filter(Boolean).join(' ');
 
 const AdminFAQDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   
-  // 1. 데이터 초기화 함수
+  // 데이터 초기화: content를 빈 배열로 설정
   const normalizeData = (item) => {
     if (!item) return {
       id: 0,
@@ -43,7 +45,6 @@ const AdminFAQDetail = () => {
     }
   }, [id]);
 
-  // 핸들러들
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setData((prev) => ({ ...prev, [name]: value }));
@@ -154,11 +155,8 @@ const AdminFAQDetail = () => {
     <div className="flex-1 flex flex-col min-h-screen bg-[#F5F7FB] font-sans antialiased text-gray-900">
       <main className="p-10">
         
-        {/* ==================================================================================
-            [헤더 영역] 타이틀 & 상태 뱃지 (나란히 배치)
-           ================================================================================== */}
+        {/* 헤더 영역 */}
         <div className="mb-8">
-            {/* 타이틀과 상태 뱃지 */}
             <div className="flex items-center gap-4">
                 <h2 className="text-3xl font-bold text-gray-900 tracking-tight">
                     {isEditing ? 'FAQ 수정' : 'FAQ 상세 정보'}
@@ -177,16 +175,13 @@ const AdminFAQDetail = () => {
         </div>
 
         <div className="flex flex-col xl:flex-row gap-8">
-            {/* ==================================================================================
-                [메인 콘텐츠] 카드 스타일 (하나의 흰 바탕)
-               ================================================================================== */}
             <div className="flex-1">
                 <div className={cn(
                     "bg-white border rounded-xl shadow-sm p-10 transition-all min-h-[600px]", 
                     isEditing ? "border-blue-300 ring-4 ring-blue-50/50" : "border-gray-200"
                 )}>
                     
-                    {/* 1. 카테고리 (좌측 상단 뱃지 형태) */}
+                    {/* 카테고리 */}
                     <div className="mb-4">
                         {isEditing ? (
                             <select
@@ -204,7 +199,7 @@ const AdminFAQDetail = () => {
                         )}
                     </div>
 
-                    {/* 2. 질문 (Q. 제목) */}
+                    {/* 질문 (Q) */}
                     <div className="flex items-start gap-3 mb-8 border-b border-gray-100 pb-8">
                         <span className="text-blue-600 font-extrabold text-2xl mt-[-2px] shrink-0">Q.</span>
                         <div className="flex-1">
@@ -225,23 +220,21 @@ const AdminFAQDetail = () => {
                         </div>
                     </div>
 
-                    {/* 3. 답변 (A. 내용) */}
+                    {/* 답변 (A) - JSON Renderer 사용 */}
                     <div className="flex items-start gap-3">
                         <span className="text-red-500 font-extrabold text-2xl mt-[-2px] shrink-0">A.</span>
                         <div className="flex-1 min-h-[300px]">
                             {isEditing ? (
                                 <textarea
-                                    name="content"
-                                    value={data.content}
-                                    onChange={handleInputChange}
+                                    value={getEditableContentString()}
+                                    onChange={handleContentChange}
                                     className="w-full h-[400px] p-4 text-base border border-gray-300 rounded focus:border-blue-500 outline-none resize-none bg-gray-50 leading-relaxed"
-                                    placeholder="답변 내용을 입력해주세요."
+                                    placeholder="내용을 입력해주세요. (수정 시 텍스트 블록으로 변환됩니다)"
                                 />
                             ) : (
-                                <div 
-                                    className="prose prose-slate max-w-none text-gray-700 leading-loose text-base" 
-                                    dangerouslySetInnerHTML={{ __html: data.content }} 
-                                />
+                                <div className="text-gray-700 leading-loose text-base">
+                                    {renderContent(data.content)}
+                                </div>
                             )}
                         </div>
                     </div>
@@ -292,7 +285,7 @@ const AdminFAQDetail = () => {
                 </div>
             </div>
 
-            {/* Sidebar Info (우측: 메타데이터 & 빠른 액션) */}
+            {/* Sidebar (변경 없음) */}
             <div className="w-full xl:w-80 shrink-0 space-y-6">
                 <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
                     <h4 className="font-bold text-gray-900 mb-5 pb-3 border-b border-gray-100 flex items-center gap-2">
