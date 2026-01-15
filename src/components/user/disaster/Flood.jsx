@@ -6,6 +6,8 @@ import CommonMap from "@/components/user/modal/CommonMap";
 import FloodGeometryMap from "@/components/user/modal/FloodGeometryMap";
 import { useSluiceData } from "@/hooks/user/useSluiceData";
 
+
+
 const Flood = () => {
   const [activeTab, setActiveTab] = useState("침수흔적도");
   const [facilities, setFacilities] = useState({ 
@@ -18,7 +20,7 @@ const Flood = () => {
 
   const mapTabs = [
     { id: "침수흔적도", label: "침수흔적도" },
-    { id: "수방시설물", label: "수방시설물" },
+    { id: "댐수문", label: "댐수문" },
     { id: "재난안전시설", label: "재난안전시설" },
   ];
 
@@ -30,7 +32,7 @@ const Flood = () => {
 
   const handleTabClick = (tabId) => {
     setActiveTab(tabId);
-    if (tabId === "수방시설물") {
+    if (tabId === "댐수문") {
       fetchDamData();
     }
   };
@@ -75,7 +77,7 @@ const Flood = () => {
             )}
           </div>
 
-          {activeTab === "수방시설물" && (
+          {activeTab === "댐수문" && (
             <div className="absolute inset-0 z-10 bg-black/10 backdrop-blur-[2px] p-4 pl-[120px] lg:pl-[180px] overflow-y-auto no-scrollbar">
               <div className="flex flex-col gap-4 max-w-4xl">
                 <div className="bg-white/95 p-3 rounded-xl shadow-md border border-blue-200 self-start backdrop-blur-md">
