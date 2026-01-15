@@ -17,7 +17,6 @@ import { jhUserRoutes } from "@/routes/route-jh";
 // import { jyUserRoutes } from "@/routes/admin/route-jy";
 import { shAdminRoutes } from "@/routes/admin/route-sh";
 import { mjAdminRoutes } from "@/routes/admin/route-mj";
-
 import { jhAdminRoutes } from "@/routes/admin/route-jh";
 import { bjAdminRoutes } from "@/routes/admin/route-bj";
 
@@ -34,11 +33,11 @@ const AllRoutes = (props) => {
   
   // 2. 관리자 페이지 라우트 병합
   const allAdminRoutes = [
-    // ...jyUserRoutes,
+    // ...jyAdminRoutes,
     ...shAdminRoutes,
-    // ...ehUserRoutes,
-    // ...mjUserRoutes,
-    // ...bjUserRoutes,
+    // ...ehAdminRoutes,
+    ...mjAdminRoutes,
+    ...bjAdminRoutes,
     ...jhAdminRoutes,
   ];
 
@@ -323,3 +322,4 @@ export default AllRoutes;
 // };
 
 // export default AllRoutes;
+ 

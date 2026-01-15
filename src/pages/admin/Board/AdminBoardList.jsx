@@ -1,9 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BreadCrumb from '@/components/Admin/board/BreadCrumb';
+import BreadCrumb from '@/components/admin/AdminBreadCrumb';
 import { noticeData } from '@/pages/user/openboards/BoardData'; // 공지사항 데이터 임포트
 import { X, ChevronDown, RotateCcw, Paperclip } from 'lucide-react';
-import AdminCodeConfirmModal from '../CodeManagement/AdminCodeConfirmModal'; // 기존 모달 재활용
+import AdminCodeConfirmModal from '@/components/admin/AdminConfirmModal'; // 기존 모달 재활용
 
 const AdminBoardList = () => {
   const navigate = useNavigate();
@@ -98,7 +98,6 @@ const AdminBoardList = () => {
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
       <main className="p-10">
-        <BreadCrumb />
         <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight">공지사항 관리</h2>
 
         {/* 상단 검색 영역 */}

@@ -28,22 +28,22 @@ export const AdminMemberRegister = lazy(() => import("@/pages/admin/Member/Admin
  */
 const mjAdminRoutes = [
       {
-            path: "/admin/content/adminBoardList", 
+            path: "/admin/contents/adminBoardList", 
             element: <AdminBoardList />,
             nowPage: "공지사항",
       },
       {
-            path: "/admin/adminLogList", 
+            path: "/admin/system/adminLogList", 
             element: <AdminLogList />,
             nowPage: "로그 관리",
       },
       {
-            path: "/admin/adminMemberList", 
+            path: "/admin/member/adminMemberList", 
             element: <AdminMemberList />,
             nowPage: "회원 조회",
       },
       {
-            path: "/admin/adminMemberRegister", 
+            path: "/admin/member/adminMemberRegister", 
             element: <AdminMemberRegister />,
             nowPage: "회원 등록",
       },
