@@ -1,34 +1,64 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { userService } from '../../../services/api'; // userService 임포트 추가
 
 const AdminMemberRegister = () => {
     const navigate = useNavigate();
     
-    // 초기 상태 설정
     const [memberForm, setMemberForm] = useState({
         memberId: '', 
         memberPw: '', 
         memberName: '', 
         memberTelNum: '', 
         memberRegion: '', 
-        memberRole: '사용자' // 기본값 설정
+        memberRole: '사용자'
     });
 
-    // 에러 메시지 상태 관리
     const [errors, setErrors] = useState({});
+    const [isIdVerified, setIsIdVerified] = useState(false);
 
-    // 입력 핸들러 (통합 관리)
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setMemberForm(prev => ({ ...prev, [name]: value }));
+        let newValue = value;
+
+        if (name === 'memberTelNum') {
+            newValue = value
+                .replace(/[^0-9]/g, '')
+                .replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, `$1-$2-$3`);
+        }
+
+        setMemberForm(prev => ({ ...prev, [name]: newValue }));
         
-        // 입력 시 해당 필드의 에러 메시지 초기화
+        if (name === 'memberId') {
+            setIsIdVerified(false);
+        }
+
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: '' }));
         }
     };
 
-    // 유효성 검사 로직
+    // 아이디 중복 확인 API 연동
+    const checkIdDuplication = async () => {
+        const idRegex = /^[a-zA-Z0-9]{8,12}$/;
+        if (!idRegex.test(memberForm.memberId)) {
+            setErrors(prev => ({ ...prev, memberId: "영어와 숫자 조합 8~12자리로 입력해주세요." }));
+            return;
+        }
+        
+        try {
+            const isAvailable = await userService.checkId(memberForm.memberId);
+            if (isAvailable) {
+                alert("사용 가능한 아이디입니다.");
+                setIsIdVerified(true);
+                setErrors(prev => ({ ...prev, memberId: "" }));
+            }
+        } catch (error) {
+            alert(error.response?.data?.message || "이미 사용 중인 아이디입니다.");
+            setIsIdVerified(false);
+        }
+    };
+
     const validateForm = () => {
         const newErrors = {};
         const idRegex = /^[a-zA-Z0-9]{8,12}$/;
@@ -38,6 +68,8 @@ const AdminMemberRegister = () => {
         
         if (!idRegex.test(memberForm.memberId)) {
             newErrors.memberId = "영어와 숫자 조합 8~12자리로 입력해주세요.";
+        } else if (!isIdVerified) {
+            newErrors.memberId = "아이디 중복 확인이 필요합니다.";
         }
         
         if (memberForm.memberPw.length < 8 || memberForm.memberPw.length > 12) {
@@ -45,29 +77,42 @@ const AdminMemberRegister = () => {
         }
 
         if (memberForm.memberTelNum && !telRegex.test(memberForm.memberTelNum)) {
-            newErrors.memberTelNum = "010-XXXX-XXXX 형식으로 입력해주세요.";
+            newErrors.memberTelNum = "전화번호 형식을 확인해주세요. (010-XXXX-XXXX)";
+        }
+
+        if (!memberForm.memberRegion) {
+            newErrors.memberRegion = "지역을 선택해주세요.";
         }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
-    /* <================================ 핸들러 함수들 ================================> */
+    // 회원 등록 API 연동
     const handleCreateUser = async () => {
         if (!validateForm()) return;
 
         try {
-            // API 호출 시뮬레이션
-            console.log("등록 데이터:", memberForm);
-            alert('회원 등록에 성공했습니다!');
-            navigate('/admin/adminMemberList');
-        } catch (err) {
-            alert('회원 등록에 실패했습니다.');
+            // userService.signup 호출
+            const response = await userService.signup({
+                userId: memberForm.memberId,
+                userPw: memberForm.memberPw,
+                userName: memberForm.memberName,
+                userTelNum: memberForm.memberTelNum,
+                userRegion: memberForm.memberRegion,
+                userRole: memberForm.memberRole
+            });
+
+            if (response.status === "SUCCESS" || response) {
+                alert('회원 등록에 성공했습니다!');
+                navigate('/admin/adminMemberList');
+            }
+        } catch (error) {
+            console.error("Signup Error:", error);
+            alert(error.response?.data?.message || '회원 등록 중 서버 오류가 발생했습니다.');
         }
     };
-    /* <================================ 핸들러 함수들 ================================> */
 
-    // 에러 메시지 컴포넌트
     const ErrorText = ({ msg }) => (
         msg ? <p className="text-red-500 text-xs mt-[-18px] mb-4">{msg}</p> : null
     );
@@ -78,7 +123,6 @@ const AdminMemberRegister = () => {
 
             <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-14 w-full max-w-[1000px]">
                 <div className="form-box">
-                    {/* 회원 이름 */}
                     <label className="block font-bold text-[16px] mb-3 text-[#111]">회원 이름 (필수)</label>
                     <input
                         type="text"
@@ -90,22 +134,29 @@ const AdminMemberRegister = () => {
                     />
                     <ErrorText msg={errors.memberName} />
 
-                    {/* 회원 ID */}
                     <label className="block font-bold text-[16px] mb-3 text-[#111]">회원 ID (필수)</label>
-                    <input
-                        type="text"
-                        name="memberId"
-                        placeholder="영어와 숫자만을 사용하여, 8~12자리로 입력해주세요."
-                        value={memberForm.memberId}
-                        onChange={handleChange}
-                        className="w-full h-[44px] px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
-                    />
+                    <div className="flex gap-2 mb-6">
+                        <input
+                            type="text"
+                            name="memberId"
+                            placeholder="영어와 숫자 조합 8~12자리"
+                            value={memberForm.memberId}
+                            onChange={handleChange}
+                            className="flex-1 h-[44px] px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <button 
+                            type="button"
+                            onClick={checkIdDuplication}
+                            className="bg-gray-800 text-white px-4 rounded-md text-sm hover:bg-black transition-colors"
+                        >
+                            중복확인
+                        </button>
+                    </div>
                     <ErrorText msg={errors.memberId} />
 
-                    {/* 회원 비밀번호 */}
                     <label className="block font-bold text-[16px] mb-3 text-[#111]">회원 비밀번호 (필수)</label>
                     <input
-                        type="password" // 보안을 위해 password 타입으로 변경
+                        type="password"
                         name="memberPw"
                         placeholder="8~12자리로 입력해주세요."
                         value={memberForm.memberPw}
@@ -114,19 +165,18 @@ const AdminMemberRegister = () => {
                     />
                     <ErrorText msg={errors.memberPw} />
 
-                    {/* 회원 전화번호 */}
                     <label className="block font-bold text-[16px] mb-3 text-[#111]">회원 전화번호</label>
                     <input
                         type="text"
                         name="memberTelNum"
                         placeholder="010-xxxx-xxxx"
+                        maxLength={13}
                         value={memberForm.memberTelNum}
                         onChange={handleChange}
                         className="w-full h-[44px] px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
                     />
                     <ErrorText msg={errors.memberTelNum} />
 
-                    {/* 회원 주소지역 */}
                     <label className="block font-bold text-[16px] mb-3 text-[#111]">회원 주소지역</label>
                     <select
                         name="memberRegion"
@@ -150,8 +200,8 @@ const AdminMemberRegister = () => {
                         <option value="진안군">진안군</option>
                         <option value="장수군">장수군</option>
                     </select>
+                    <ErrorText msg={errors.memberRegion} />
 
-                    {/* 회원 등급 */}
                     <label className="block font-bold text-[16px] mb-3 text-[#111]">회원 등급</label>
                     <select
                         name="memberRole"
