@@ -1,3 +1,4 @@
+// src/routes/route-sh.jsx
 import { lazy } from "react";
 import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
@@ -92,5 +93,4 @@ export const shUserRoutes = [
     sidebarData: SIDE_MENU_DATA.COMMUNITY,
     nowPage: "열린마당",
   },
-
 ];

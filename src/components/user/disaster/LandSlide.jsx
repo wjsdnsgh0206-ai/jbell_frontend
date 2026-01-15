@@ -26,11 +26,11 @@ const LandSlide = () => {
   const mapTabs = [
     { id: "위험등급", label: "산사태 위험등급" },
     { id: "예보현황", label: "주의보/경보 현황" },
-    { id: "대피장소", label: "산사태 대피소", hasArrow: true },
+    { id: "재난안전시설", label: "재난안전시설", hasArrow: true },
   ];
 
   const LandSlideItems = [
-    { id: "shelter", label: "산사태대피소" }, 
+    { id: "shelter", label: "대피소" }, 
     { id: "hospital", label: "병원" },
     { id: "pharmacy", label: "약국" },
   ];
@@ -92,7 +92,7 @@ const LandSlide = () => {
                 </button>
 
                 {/* 대피장소 체크박스 그룹 */}
-                {tab.id === "대피장소" && activeTab === "대피장소" && (
+                {tab.id === "재난안전시설" && activeTab === "재난안전시설" && (
                   <div className="absolute top-12 left-0 lg:static lg:mt-1">
                     <FacilityCheckGroup
                       items={LandSlideItems}

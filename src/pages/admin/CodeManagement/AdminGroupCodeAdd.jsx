@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BreadCrumb from '@/components/Admin/board/BreadCrumb';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
-import AdminCodeConfirmModal from './AdminCodeConfirmModal';
+import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
+
 
 const SuccessIcon = ({ fill = "#2563EB" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -109,7 +109,7 @@ const AdminGroupCodeAdd = () => {
 
     AdminCommonCodeData.unshift(newEntry);
     setShowToast(true);
-    setTimeout(() => navigate('/admin/adminCommonCodeList'), 1500);
+    setTimeout(() => navigate('/admin/system/commonCodeList'), 1500);
   };
 
   return (
@@ -122,7 +122,6 @@ const AdminGroupCodeAdd = () => {
       )}
 
       <main className="p-10 text-left">
-        <BreadCrumb />
         <h2 className="text-[32px] font-bold mt-2 mb-10 tracking-tight">그룹 코드 등록</h2>
 
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-14 w-full max-w-[1000px]">
@@ -212,9 +211,9 @@ const AdminGroupCodeAdd = () => {
               <p className="text-[13px] text-gray-400 mt-3 font-medium">* 숫자가 낮을수록 리스트 상단에 노출됩니다.</p>
             </div>
 
-            {/* 등록 여부 (가로 배치) */}
+            {/* 사용 여부 (가로 배치) */}
             <div className="flex items-center gap-5 pt-2">
-              <label className="font-bold text-[16px] text-[#111]">등록 여부</label>
+              <label className="font-bold text-[16px] text-[#111]">노출 여부</label>
               <div className="flex items-center gap-3">
                 <button 
                   type="button"
@@ -224,7 +223,7 @@ const AdminGroupCodeAdd = () => {
                   <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${isRegistered ? 'translate-x-[26px]' : 'translate-x-0'}`} />
                 </button>
                 <span className={`text-[14px] font-bold ${isRegistered ? 'text-[#2563EB]' : 'text-gray-400'}`}>
-                  {isRegistered ? '등록' : '미등록'}
+                  {isRegistered ? '노출' : '미노출'}
                 </span>
               </div>
             </div>
@@ -237,7 +236,7 @@ const AdminGroupCodeAdd = () => {
         </div>
       </main>
 
-      <AdminCodeConfirmModal 
+      <AdminConfirmModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onConfirm={handleConfirmSave} 
