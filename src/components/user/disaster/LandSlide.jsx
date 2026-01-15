@@ -8,125 +8,151 @@ import useLandSlide from "@/hooks/user/useLandSlide";
 const LandSlide = () => {
   const { lsMarkers, isLoading, fetchLandSlideData } = useLandSlide();
   const [activeTab, setActiveTab] = useState("위험예보");
-  const [selectedInfo, setSelectedInfo] = useState(null); 
   const [facilities, setFacilities] = useState({
-    shelter: true,
-    hospital: false,
-    pharmacy: false,
+    shelter: true, hospital: false, pharmacy: false,
+  });
+
+  const todayStr = new Date().toLocaleDateString('ko-KR', {
+    year: 'numeric', month: '2-digit', day: '2-digit'
   });
 
   useEffect(() => {
-    if (activeTab === "위험예보") {
-      fetchLandSlideData();
-    }
+    if (activeTab === "위험예보") fetchLandSlideData();
   }, [activeTab, fetchLandSlideData]);
 
-  const handleTabClick = (tabId) => {
-    setActiveTab(prev => (prev === tabId ? null : tabId));
-    setSelectedInfo(null); 
-  };
+  const hasActiveNotice = lsMarkers.some(marker => marker.isActiveWarning);
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 gap-5 lg:gap-6">
-      <div className="bg-white rounded-2xl p-4 lg:p-5 border border-gray-100 flex-1 flex flex-col min-h-0 shadow-sm">
+    // 전체 컨테이너: h-full과 min-h-0을 통해 내부 스크롤이 가능하도록 구조화
+    <div className="flex-1 flex flex-col min-h-0 gap-5 lg:gap-6 overflow-hidden">
+      
+      {/* 메인 상단 박스 */}
+      <div className="bg-white rounded-2xl p-4 lg:p-5 border border-gray-100 flex-1 flex flex-col min-h-0 shadow-sm overflow-hidden">
         
-        {/* 헤더 */}
+        {/* 헤더 섹션: 고정 높이 */}
         <div className="flex justify-between items-center mb-4 flex-shrink-0">
           <div className="flex items-center gap-2 lg:gap-3">
             <h3 className="md:text-body-m-bold lg:text-title-m text-body-s-bold text-gray-900">
               실시간 산사태정보
             </h3>
             <span className={`rounded-xl font-bold text-[10px] px-2.5 py-1 md:text-detail-s md:px-4 md:py-1.5 transition-colors ${
-              lsMarkers.length > 0 ? "bg-orange-100 text-orange-600" : "bg-gray-100 text-gray-500"
+              hasActiveNotice ? "bg-orange-100 text-orange-600" : "bg-gray-100 text-gray-500"
             }`}>
-              {lsMarkers.length > 0 ? "특보발생" : "특보없음"}
+              {isLoading ? "조회중..." : hasActiveNotice ? "특보발생" : "특보없음"}
             </span>
           </div>
-          <p className="text-detail-xs md:text-detail-s text-gray-400 font-medium">2026.01.14 기준</p>
+          <p className="text-detail-xs md:text-detail-s text-gray-400 font-medium">{todayStr} 기준</p>
         </div>
 
-        {/* 지도 영역 */}
-        <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[450px]">
+        {/* 지도 영역: flex-1과 relative를 사용하여 부모 박스 크기를 벗어나지 않게 함 */}
+        <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[300px] md:min-h-[400px] lg:min-h-0">
           
-          <CommonMap 
-            markers={activeTab === "위험예보" ? lsMarkers : []} 
-            onMarkerClick={(marker) => setSelectedInfo(marker.info)}
-          />
+          {/* 실제 지도: 부모 높이를 100% 채움 */}
+          <div className="absolute inset-0 z-0">
+            <CommonMap markers={[]} /> 
+          </div>
 
-          {/* [마커 클릭 상세 정보 카드] */}
-          {selectedInfo && (
-            <div className="absolute top-4 right-4 z-40 w-72 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-blue-100 p-5 animate-in fade-in slide-in-from-right-4">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <span className="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-md">
-                    위험예보: {selectedInfo.grade}
-                  </span>
-                  <h4 className="text-gray-900 font-bold text-lg mt-1">{selectedInfo.name}</h4>
-                </div>
-                <button onClick={() => setSelectedInfo(null)} className="text-gray-400 hover:text-gray-600">✕</button>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-start gap-2">
-                  <span className="text-gray-400 text-xs mt-0.5">📍</span>
-                  <p className="text-gray-600 text-xs leading-relaxed">{selectedInfo.address}</p>
+          {/* 위험예보 리스트 오버레이 */}
+          {activeTab === "위험예보" && (
+            <div className="absolute inset-0 z-10 bg-black/5 backdrop-blur-[1.5px] p-4 pl-[110px] md:pl-[140px] lg:pl-[180px] overflow-y-auto no-scrollbar">
+              <div className="flex flex-col gap-4 max-w-2xl">
+                
+                <div className={`bg-white/95 p-3 rounded-xl shadow-md border self-start backdrop-blur-md ${
+                  hasActiveNotice ? "border-orange-200" : "border-gray-200"
+                }`}>
+                  <p className={`text-detail-s-bold flex items-center gap-2 ${
+                    hasActiveNotice ? "text-orange-700" : "text-gray-500"
+                  }`}>
+                    {hasActiveNotice ? "⚠️ 전북 지역 산사태 발령 현황" : "✅ 현재 유효한 산사태 특보가 없습니다."}
+                  </p>
                 </div>
 
-                <div className="bg-blue-50/50 rounded-xl p-3 border border-blue-100 space-y-2">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-gray-500 font-medium">지정 대피소</span>
-                    <span className="text-gray-900 font-bold">{selectedInfo.shelter}</span>
+                {isLoading ? (
+                  <div className="h-[200px] flex flex-col items-center justify-center bg-white/50 rounded-2xl backdrop-blur-sm">
+                    <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                    <p className="text-gray-500 font-medium text-detail-s">데이터 로드 중...</p>
                   </div>
-                  <div className="flex justify-between items-center text-xs border-t border-blue-100 pt-2">
-                    <span className="text-gray-500 font-medium">비상 연락처</span>
-                    <span className="text-blue-600 font-bold">{selectedInfo.tel}</span>
+                ) : (
+                  <div className="grid grid-cols-1 gap-3">
+                    {lsMarkers.length > 0 ? (
+                      lsMarkers.map((item) => (
+                        <div key={item.id} className={`bg-white p-4 rounded-2xl shadow-lg border-l-4 transition-all ${
+                          item.isActiveWarning ? "border-orange-500" : "border-gray-300 opacity-80"
+                        }`}>
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                                item.isActiveWarning ? "bg-orange-100 text-orange-600" : "bg-gray-100 text-gray-500"
+                              }`}>
+                                {item.info.grade}
+                              </span>
+                              <h4 className="text-gray-900 font-bold text-base mt-1">{item.info.name}</h4>
+                            </div>
+                            <span className="text-[10px] text-gray-400 font-medium">{item.info.date}</span>
+                          </div>
+                          <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-50">
+                            <span className="text-detail-s text-gray-500">
+                              📞 연락처: <span className="text-gray-800 font-semibold">{item.info.tel}</span>
+                            </span>
+                            <span className={`text-detail-s font-extrabold ${
+                              item.isActiveWarning ? 'text-red-600 animate-pulse' : 'text-blue-500'
+                            }`}>
+                              {item.info.status}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="bg-white/80 p-10 rounded-2xl text-center border border-dashed border-gray-300">
+                        <p className="text-gray-400 text-detail-s">조회된 데이터가 없습니다.</p>
+                      </div>
+                    )}
                   </div>
-                </div>
-
-                <div className="text-[11px] text-gray-400 flex justify-between">
-                  <span>발생일: {selectedInfo.date}</span>
-                  <span>코드: {selectedInfo.gradeCode}</span>
-                </div>
-
-                <button 
-                  className="w-full py-3 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all"
-                  onClick={() => alert(selectedInfo.desc)}
-                >
-                  상세 행동요령 확인
-                </button>
+                )}
               </div>
             </div>
           )}
 
-          {/* 데이터 없음 안내 */}
-          {!isLoading && activeTab === "위험예보" && lsMarkers.length === 0 && (
-            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-30 flex justify-center">
-              <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl border border-gray-200 shadow-lg mx-4">
-                <p className="text-gray-600 text-sm font-semibold text-center">
-                  최근 7일간 전북 지역의 산사태 위험 데이터가 없습니다.
-                </p>
-              </div>
+          {/* 재난안전시설 탭 오버레이 */}
+          {activeTab === "재난안전시설" && (
+            <div className="absolute top-5 left-[110px] md:left-[140px] lg:left-[180px] z-20">
+              <FacilityCheckGroup 
+                items={[
+                  {id: 'shelter', label: '대피소'},
+                  {id: 'hospital', label: '병원'},
+                  {id: 'pharmacy', label: '약국'}
+                ]} 
+                facilities={facilities} 
+                onCheck={(key) => setFacilities(prev => ({...prev, [key]: !prev[key]}))} 
+              />
             </div>
           )}
 
-          {/* 탭 메뉴 */}
-          <div className="absolute top-5 left-5 z-20 flex flex-col gap-2">
-            {["위험예보", "주의보/경보 현황", "재난안전시설"].map((label) => (
+          {/* 좌측 사이드 탭 메뉴 */}
+          <div className="absolute top-5 left-3 lg:left-5 flex flex-col gap-3 z-30">
+            {["위험예보", "재난안전시설"].map((label) => (
               <button
                 key={label}
-                onClick={() => handleTabClick(label)}
-                className={`px-5 py-3 rounded-xl text-body-m-bold border transition-all ${
-                  activeTab === label ? "bg-blue-600 text-white border-blue-600 shadow-md" : "bg-white/95 text-gray-600 border-gray-100"
+                onClick={() => setActiveTab(label)}
+                className={`flex items-center justify-center px-3 py-2 lg:px-5 lg:py-3 rounded-2xl text-detail-s-bold lg:text-body-m-bold transition-all border shadow-sm ${
+                  activeTab === label 
+                    ? "bg-blue-600 text-white border-blue-600 translate-x-1" 
+                    : "bg-white/95 backdrop-blur-md text-gray-600 border-gray-100 hover:bg-gray-50"
                 }`}
               >
                 {label}
               </button>
             ))}
           </div>
+
+          {/* <div className="absolute bottom-5 right-5 z-20 scale-90 md:scale-100">
+            <MapControlBtn />
+          </div> */}
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl p-6 border border-gray-100">
+      {/* 하단 행동요령: flex-shrink-0으로 지도 영역에 밀리지 않게 함 */}
+      <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex-shrink-0 mb-0">
         <ActionTipBox type="산사태" />
       </div>
     </div>

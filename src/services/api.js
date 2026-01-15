@@ -16,8 +16,9 @@ const earthquakeLevelApi = axios.create({ baseURL: "/earthquakeLevel-api" }); //
 const floodTraceApi = axios.create({ baseURL: "/floodTrace-api" }); // 호우홍수 침수흔적도 api
 const kmaApi = axios.create({ baseURL: "/kma-api/api" }); // 기상청 지진·지진특보용
 const sluiceApi = axios.create({ baseURL: "/sluice-api" }); // 댐수문 api
-const landSlideWarningApi = axios.create({ baseURL: "/landslideWarning-api"}); 
-const weatherWarningApi = axios.create({ baseURL: "/weatherWarning-api"}); // 기상특보 api
+const landSlideWarningApi = axios.create({ baseURL: "/landSlideWarning-api" });
+const weatherWarningApi = axios.create({ baseURL: "/weatherWarning-api" }); // 기상특보 api
+const forestFireWarningApi = axios.create({ baseURL: "/forestFireWarning-api"}); // 산불위험예보정보 api
 
 
 export const userService = {
@@ -123,10 +124,10 @@ export const disasterModalService = {
             params.serviceKey || import.meta.env.VITE_API_DISATER_SLUICE_KEY,
           pageNo: params.pageNo || 1,
           numOfRows: params.numOfRows || 10,
-          damcode: params.damcode, 
+          damcode: params.damcode,
           stdt: params.stdt,
-          eddt: params.eddt, 
-          _type: "json", 
+          eddt: params.eddt,
+          _type: "json",
         },
       }
     );
@@ -137,27 +138,47 @@ export const disasterModalService = {
    기상특보 api 
 ----------------------------- */
   getWeatherWarning: async (params) => {
-    const response = await  weatherWarningApi.get('/DSSP-IF-00045', {
+    const response = await weatherWarningApi.get("/DSSP-IF-00045", {
       params: {
         serviceKey: import.meta.env.VITE_API_SPECIAL_NOTICE_KEY,
         ...params,
       },
-    }
-  );
-    return response.data;
+    });
+    return response.data; 
   },
 
-getLandSlideWarning: async (params) => {
-  const response = await landSlideWarningApi.get("/DSSP-IF-10076", {
-    params: {
-      serviceKey: import.meta.env.VITE_API_DISATER_LANDSLIDE_WARNING_KEY,
-      pageNo: 1,
-      numOfRows: 100,
-      returnType: "json", // 이 파라미터가 있어야 JSON으로 확실히 올 거야!
-      ...params,
-    },
-  });
+  /* -----------------------------
+    산불위험예보정보  api
+----------------------------- */
+// 시도별 산불위험지수 조회
+  getForestFireWarning: async (params) => {
+    const response = await forestFireWarningApi.get('/forestPointListSidoSearch', {
+      params: {
+        serviceKey: import.meta.env.VITE_FOREST_SERVICE_KEY,
+        numOfRows: 20, // 전국 시도 데이터 포함을 위해 20건
+        pageNo: 1,
+        _type: 'json', // JSON으로 요청
+        excludeForecast: 0,
+        ...params
+      }
+    });
+    return response.data;
+  },
+  
+  /* -----------------------------
+    산사태 예보발령 api
+----------------------------- */
 
-  return response.data?.body || []; 
-},
+getLandSlideWarning: async (params) => {
+      const response = await landSlideWarningApi.get('/forecastIssueList', {
+        params: {
+          serviceKey: '2e572cb46f96a219ef27c211707e7875f4791d19b01a025e64cab130ec2cfcc1',
+          pageNo: params.pageNo || 1,
+          numOfRows: params.numOfRows || 10,
+          _type: 'json', // JSON으로 받기 위해 설정
+          ...params
+        }
+      });
+      return response.data;
+  },
 };
