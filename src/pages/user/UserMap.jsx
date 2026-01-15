@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, Navigation, User, Layers, Home, RotateCcw, Menu, X } from 'lucide-react';
 import DaumPostcode from 'react-daum-postcode'; // 카카오 우편번호 서비스
 import { api, configUtils, authUtils } from '@/utils/axiosConfig';
-import { shelterService } from '@/services/api';
 
 /* <================ SelectBox 부품 (동일) ================> */
 const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
@@ -43,13 +42,13 @@ const DetailPanel = ({ item, onClose }) => {
   const goNavi = () => {
     // dest: 도착지 이름,좌표
     // 도착지가 검색한 장소로 지정된 상태로 화면이 나옴
-    const url = `https://map.kakao.com/link/to/${name},${lat},${lng}`;
-    window.open(url, '_blank');
+    const urlKakaoMap = `https://map.kakao.com/link/to/${name},${lat},${lng}`;
+    window.open(urlKakaoMap, '_blank');
   };
 
   return (
    /* 중요: absolute top-0 left-0으로 설정해서 부모 aside를 완전히 덮어버립니다. */
-    <div className="absolute inset-0 z-[110] w-full h-full bg-white flex flex-col animate-in fade-in slide-in-from-right-5 duration-300">
+    <div className="absolute inset-0 z-[70] w-full h-full bg-white flex flex-col animate-in fade-in slide-in-from-right-5 duration-300">
       {/* 상단 이미지 영역 */}
       <div className="relative h-48 bg-blue-50 shrink-0">
         <button 
@@ -104,6 +103,17 @@ const DetailPanel = ({ item, onClose }) => {
 
 
 const UserMap = () => {
+
+  // --- [1. 전역 변수: 관제 센터] ---
+                      const SERVICE_KEY = {
+                          TEMPORARY_HOUSING: import.meta.env.VITE_API_SHELTER_TEMPORARY_HOUSING_KEY,
+                          EARTHQUAKE: import.meta.env.VITE_API_SHELTER_EARTHQUAKE_KEY,
+                        }; 
+                        /** 여기에 실제 키를 입력 
+                         * 1. 이재민 임시 거주 시설
+                         * 2. 지진 대피소
+                         * **/
+
 /* <========================== 상태 관리(앱의 기억력) ==========================> */
   // ui 상태
 
@@ -163,14 +173,12 @@ const UserMap = () => {
     '군산시': { '기본': ['해신동', '월명동', '신풍동', '조촌동'] },
     '익산시': { '기본': ['중앙동', '인화동', '마동', '남중동'] }
   };
-  //
   const MBY_SELECTS = { '민방위대피소':[], '비상급수시설':[], '지진옥외대피장소':[], '이재민임시주거시설(지진겸용)':[], '이재민임시주거시설':[] };
   const TE_SELECTS = { '빗물펌프장':[], '빗물저류장':[], '대피소정보':[] };
   const MT_SELECTS = { '산사태대피소':[], '산불대피소':[] };
   const JB_REGIONS_FOR_SELECTS = { '전주시 완산구':[], '전주시 덕진구':[], 
     '군산시':[], '익산시':[], '정읍시':[], '남원시':[], '김제시':[], 
     '완주군':[], '고창군':[], '부안군':[], '순창군':[], '임실군':[], '무주군':[], '진안군':[], '장수군':[] };
-  //
 /* <====================== 데이터 정의 (동일) =======================> */
 
 
@@ -210,20 +218,10 @@ const UserMap = () => {
 const handleCivilChange = async (value) => {
     setCivilSelect(value);
     
-    // 1. 메뉴 명칭에 따라 API 번호를 매칭합니다.
-    let targetApiNum = '';
-    
     if (value === '이재민임시주거시설') {
-        await fetchFacilities('52110', '10945', 'TEMPORARY_HOUSING');
+        await fetchFacilities('10945', '52110', 'TEMPORARY_HOUSING');
     } else if (value === '지진옥외대피장소') {
-        await fetchFacilities('52110', '00706', 'EARTHQUAKE');
-    }
-    
-    // 2. 번호가 결정됐다면 API 호출!
-    if (targetApiNum && selectedSigun) {
-        // 지역명(전주시)을 코드('52111')로 바꾸는 로직이 있으면 더 좋습니다.
-        const data = await shelterRequest(targetApiNum, '52111'); 
-        setShelterResults(data);
+        await fetchFacilities('00706', '52110', 'EARTHQUAKE');
     }
 };
 
@@ -264,8 +262,7 @@ const handleResultClick = (item) => {
 //
 //
 //
-// handleComplete
- {/* 카카오 우편번호 서비스(daum.postcode) */}
+// handleComplete - 카카오 우편번호 서비스(daum.postcode)
     const handleComplete = (data) => {
     // 상세 주소(건물번호 등)를 제외한 기본 주소만 추출
     // 예: "전북특별자치도 전주시 완산구 효자동3가 123-4" -> "전주시 완산구 효자동3가"
@@ -284,66 +281,133 @@ const handleResultClick = (item) => {
 /* <================================ 핸들러 함수들 ================================> */
 
 
-  /* <================ ★ api 요청 시작 ★ ================> */
-  /**
-   * <================ ★ 외부 api 요청 작성요령 ★ ================>
-   * 1. /safety-api 주소요청 시 => vite.config.js 파일 proxy 부분에 설정
-   * '/safety-api': {
-   *    target: 'https://www.safetydata.go.kr/V2/api',
-   *    changeOrigin: true,
-   *    rewrite: (path) => path.replace(/^\/safety-api/, ''),
-   *    secure: false,
-   *    configure: (proxy, options) => {
-   *      proxy.on('proxyReq', (proxyReq, req, res) => {
-   *        console.log('Proxy Request:', req.method, req.url);
-   *      });
-   *      proxy.on('proxyRes', (proxyRes, req, res) => {
-   *        console.log('Proxy Response:', proxyRes.statusCode, req.url);
-   *      });
-   *    }
-   *  }
-   * 2. api.external(URL, config) 메소드 호출
-   */
+              /* <================ ★ api 요청 시작 ★ ================> */
+              /**
+               * <================ ★ 외부 api 요청 작성요령 ★ ================>
+               * 1. /safety-api 주소요청 시 => vite.config.js 파일 proxy 부분에 설정
+               * '/safety-api': {
+               *    target: 'https://www.safetydata.go.kr/V2/api',
+               *    changeOrigin: true,
+               *    rewrite: (path) => path.replace(/^\/safety-api/, ''),
+               *    secure: false,
+               *    configure: (proxy, options) => {
+               *      proxy.on('proxyReq', (proxyReq, req, res) => {
+               *        console.log('Proxy Request:', req.method, req.url);
+               *      });
+               *      proxy.on('proxyRes', (proxyRes, req, res) => {
+               *        console.log('Proxy Response:', proxyRes.statusCode, req.url);
+               *      });
+               *    }
+               *  }
+               * 2. api.external(URL, config) 메소드 호출
+               */
+            
+              const shelterRequest = async (apiNum, areaCode) => { 
+                const response = await api.external(`/safety-api/DSSP-IF-${apiNum}`, {
+                  method: 'get',
+                  params: {
+                    serviceKey: shelterServiceKey,
+                    returnType: 'json',
+                    pageNo: 1,
+                    numOfRows: 10,
+                    sigunguCode: areaCode // areaCode도 인자로 받아 사용
+                  }
+                });
+                return response.data;
+              };
+                    //
+                  
+                      let currentFacilities = []; // 현재 데이터 저장용
+                      // let markers = [];           // 지도 마커 관리용
+                      let map = null;             // 지도 객체 (초기화 시 할당)
+
+                     /* 3. API 호출 함수 (apiNum과 areaCode를 '인자'로 받게 수정) */
+                    const fetchFacilities = async (areaCode, apiNum, keyType) => {
+                      const baseUrl = '/safety-api';
+                      const currentKey = SERVICE_KEY[keyType] || shelterServiceKey;
+
+                      const urlProxy = `${baseUrl}/DSSP-IF-${apiNum}?serviceKey=${currentKey}&sigunguCode=${areaCode}&type=json`;
+
+                      try {
+                        console.log("요청 시작:", urlProxy);
+                        const response = await fetch(urlProxy);
+                        if (!response.ok) throw new Error(`HTTP 에러: ${response.status}`);
+                        
+                        const data = await response.json();
+                        
+                        const items = data?.response?.body?.items?.item || [];
+                        
+                        if (items.length === 0) {
+                          alert("검색 결과가 없습니다.");
+                          setShelterResults([]);
+                          return;
+                        }
+
+                        setShelterResults(items);
+                        console.log("데이터 저장 완료:", items);
+
+                      } catch (error) {
+                        // 🚨 아까 빠졌던 catch 부분입니다!
+                        console.error("데이터 로딩 오류:", error);
+                        alert("데이터를 가져오는 중 오류가 발생했습니다.");
+                      } // <--- try-catch 닫기
+
+                    }; // <--- fetchFacilities 함수 닫기 (이게 있어야 export 에러가 안 남)
 
 
+
+                      
+
+                      // --- [3. 지도 업데이트 함수] ---
+                      function updateMap(facilityData) {
+                          if (!facilityData || !Array.isArray(facilityData)) return;
+
+                          // 1. 기존 마커 지우기
+                          markers.forEach(marker => marker.setMap(null));
+                          markers = [];
+
+                          // 2. 새로운 마커 찍기
+                          facilityData.forEach(item => {
+                              // [주의] item.latitude, item.lon 등 API 응답 필드명을 확인하세요!
+                              console.log("마커 생성 위치:", item.xPos, item.yPos); 
+                              
+                              /* 지도 라이브러리 예시 (네이버/카카오 등)
+                              const marker = new google.maps.Marker({
+                                  position: { lat: Number(item.yPos), lng: Number(item.xPos) },
+                                  map: map
+                              });
+                              markers.push(marker);
+                              */
+                          });
+
+                          console.log(`총 ${facilityData.length}개의 마커가 표시되었습니다.`);
+                      }
+
+                      // --- [4. 이벤트 핸들러: 사용자가 지역 선택 시] ---
+                      async function handleUserSelection() {
+                      // 1. 지역 코드 배열
+                        const selectedAreaCodes = [
+                            '52790', '52130'
+                        ];
+
+                        const selectedApiNum = ['00706', '10945'];
+                        
+                        // 3. 시설 타입(또는 API 번호) 배열
+                        const selectedFacilityTypes = [
+                          'VITE_API_SHELTER_TEMPORARY_HOUSING_KEY',
+                          'VITE_API_SHELTER_EARTHQUAKE'];
+
+                        // 4. 하나씩 꺼내서 호출하기 (핵심!)
+                        for (const area of selectedAreaCodes) {
+                            for (const type of selectedFacilityTypes) {
+                                // 이제 함수가 '문자열' 하나씩을 받아서 정상적인 URL을 만듭니다.
+                                await fetchFacilities(area, type, keyType); 
+                            }
+                          }
+                        }
+                      //
+              /* <================ ★ api 요청 시작 ★ ================> */
   
-  // const shelterRequest = async () => {
-    
-  //   const response = await api.external('/safety-api/DSSP-IF-10941', {
-  //     // = https://www.safetydata.go.kr/V2/api/DSSP-IF-10941
-  //     method: 'get',
-  //     params: {
-  //       serviceKey : shelterServiceKey,
-  //       returnType : 'json',
-  //       pageNo : 1,
-  //       numOfRows : 10,
-  //       shlt_se_cd : 3
-  //     }
-  //   });
-  //   console.log(response);
-    
-  // } 
-  
-
-  const shelterRequest = async () => {
-  try {
-    // shelterService.getShelters 형식을 사용합니다.
-    const response = await shelterService.getShelters({
-      serviceKey: shelterServiceKey, // 변수로 선언되어 있어야 함
-      returnType: 'json',
-      pageNo: 1,
-      numOfRows: 10,
-      shlt_se_cd: 3,
-    });
-
-    console.log('대피소 데이터:', response);
-  } catch (error) {
-    console.error('대피소 데이터 요청 실패:', error);
-  }
-};
-
-
-
 
 
 
@@ -528,7 +592,7 @@ const handleResultClick = (item) => {
       <aside 
         className={`
           /* 모바일에서는 absolute로 띄워서 지도를 밀지 않게 함 */
-          fixed md:relative top-0 left-0 z-[70] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out
+          fixed md:relative top-0 left-0 z-[70] md:z-[0] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-in-out
           /* 너비 설정 */
           w-[85%] md:w-[380px] h-full
           /* 수정된 부분: selectedShelter가 있어도 모바일 메뉴가 열려있어야 함 */
@@ -593,8 +657,8 @@ const handleResultClick = (item) => {
                 <button 
                 onClick={() => {
                   // 실제 구현 시: selectedShelter의 좌표와 이름을 넣습니다.
-                  const url = `https://map.naver.com/v5/directions/-/127.1,35.8,전주역/-/walk`;
-                  window.open(url, '_blank');
+                  const urlNaverMap = `https://map.naver.com/v5/directions/-/127.1,35.8,전주역/-/walk`;
+                  window.open(urlNaverMap, '_blank');
                 }}
                 className="w-full bg-[#03C75A] text-white py-3 rounded-md font-bold hover:bg-[#02b351] 
                 transition-all flex items-center justify-center gap-2"
