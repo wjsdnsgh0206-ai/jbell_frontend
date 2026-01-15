@@ -251,7 +251,7 @@ const AdminMemberList = () => {
                         <td className="p-3">{item.memberRegion}</td>
                         <td className="p-3">
                             <button 
-                            onClick={() => navigate('/admin/adminMemberEdit', { state: item })}
+                            onClick={() => navigate('/admin/member/adminMemberEdit', { state: item })}
                             className="border px-2 py-1 rounded text-xs"
                             >수정
                             </button>

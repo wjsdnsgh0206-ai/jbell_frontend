@@ -47,6 +47,11 @@ const mjAdminRoutes = [
             element: <AdminMemberRegister />,
             nowPage: "회원 등록",
       },
+      {
+            path: "/admin/member/adminMemberEdit", 
+            element: <AdminMemberRegister />,
+            nowPage: "회원 수정",
+      },
 
 ];
 
