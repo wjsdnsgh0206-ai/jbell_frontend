@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import BreadCrumb from '@/components/Admin/board/BreadCrumb';
+// import BreadCrumb from '@/components/Admin/board/BreadCrumb';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -134,7 +134,7 @@ const AdminMemberList = () => {
     return (
          <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
             <div className="p-6 bg-gray-50 min-h-screen">
-            <BreadCrumb />
+           
             {/* 페이지 제목 */}
             <h1 className="text-2xl font-bold mb-6">회원 조회</h1>
 
@@ -220,7 +220,7 @@ const AdminMemberList = () => {
                 {/* 3. 오른쪽 버튼 영역: flex-1과 text-right로 부모 div 안쪽 우측 끝에 고정 */}
                 <div className="flex-1 text-right">
                     <button 
-                    onClick={() => navigate('/admin/adminMemberRegister')}
+                    onClick={() => navigate('/admin/member/adminMemberRegister')}
                     className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md shadow-sm transition-colors"
                     >
                     신규 회원 등록

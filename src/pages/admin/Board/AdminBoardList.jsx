@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BreadCrumb from '@/components/admin/AdminBreadCrumb';
+// import BreadCrumb from '@/components/admin/AdminBreadCrumb';
 import { noticeData } from '@/pages/user/openboards/BoardData'; // 공지사항 데이터 임포트
 import { X, ChevronDown, RotateCcw, Paperclip } from 'lucide-react';
 import AdminCodeConfirmModal from '@/components/admin/AdminConfirmModal'; // 기존 모달 재활용

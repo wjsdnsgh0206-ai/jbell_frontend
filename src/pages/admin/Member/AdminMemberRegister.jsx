@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BreadCrumb from '@/components/Admin/board/BreadCrumb';
+// import BreadCrumb from '@/components/Admin/AdminBreadCrumb';
 
 
 const AdminMemberRegister = () => {
@@ -32,7 +32,7 @@ const AdminMemberRegister = () => {
 
     return (
         <div className="p-6 bg-white">
-            <BreadCrumb />
+            
             <h1 className="text-2xl font-bold mb-6">신규 회원 등록</h1>
 
             <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-14 w-full max-w-[1000px]">
@@ -174,7 +174,7 @@ const AdminMemberRegister = () => {
                 </div>
 
                 <div className="flex-1 text-right mt-8">
-                    <button onClick={() => navigate('/admin/adminMemberList')} className="bg-blue-600 mx-3 rounded-md text-white p-2 text-right">뒤로가기</button>
+                    <button onClick={() => navigate('/admin/member/adminMemberList')} className="bg-blue-600 mx-3 rounded-md text-white p-2 text-right">뒤로가기</button>
                     <button onClick={handleCreateUser} className="bg-blue-600 rounded-md text-white p-2 text-right">등록하기</button>
                  </div>
             </section>
