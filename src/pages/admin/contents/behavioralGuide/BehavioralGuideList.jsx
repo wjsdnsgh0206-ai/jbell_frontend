@@ -166,7 +166,7 @@ const BehavioralGuideList = () => {
         width: '80px',
         className: 'text-center',
         render: (_, row) => (
-        <button onClick={() => goDetail(row.id)} className="border border-gray-300 rounded px-3 py-1 text-sm hover:bg-blue-200 whitespace-nowrap">
+        <button onClick={() => goDetail(row.id)} className="bg-graygary-0 border border-gray-300 rounded px-3 py-1 text-sm hover:bg-blue-200 whitespace-nowrap">
             보기
         </button>
         )

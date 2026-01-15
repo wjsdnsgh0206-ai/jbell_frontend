@@ -3,6 +3,7 @@ import { lazy } from 'react';
 
 export const BehavioralGuideList = lazy(() => import("@/pages/admin/contents/behavioralGuide/BehavioralGuideList"));
 export const BehavioralGuideDetail = lazy(() => import("@/pages/admin/contents/behavioralGuide/BehavioralGuideDetail"));
+export const BehavioralGuideAdd = lazy(() => import("@/pages/admin/contents/behavioralGuide/BehavioralGuideAdd"));
 
 export const jhAdminRoutes = [
   // URL 계층화: /admin/대분류/소분류+행위
@@ -19,6 +20,11 @@ export const jhAdminRoutes = [
     path: "/admin/contents/behavioralGuideDetail/:id", 
     element: <BehavioralGuideDetail />,
     nowPage: "행동요령 상세",
+  },
+  {
+    path: "/admin/contents/behavioralGuideAdd", 
+    element: <BehavioralGuideAdd />,
+    nowPage: "행동요령 등록",
   },
 ];
 
