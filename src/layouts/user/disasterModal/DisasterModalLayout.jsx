@@ -2,6 +2,7 @@ import React, { Suspense, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import WeatherBox from "@/components/user/modal/WeatherBox";
 import DisasterMessageBox from "@/components/user/modal/DisasterMessageBox";
+import WeatherWarningBox from '@/components/user/modal/WeatherWarningBox';
 
 const DisasterModalLayout = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const DisasterModalLayout = () => {
     forestFire: "산불",
   };
 
+  // 현재 URL 경로의 마지막 부분 추출 (예: accident, earthquake 등)
   const currentPath = location.pathname.split("/").pop();
   const currentTitle = titleMap[currentPath] || "재난정보";
 
@@ -26,7 +28,6 @@ const DisasterModalLayout = () => {
     { label: "사고속보", path: "/disaster/accident" },
     { label: "지진", path: "/disaster/earthquake" },
     { label: "호우·홍수", path: "/disaster/flood" },
-    // { label: "호우", path: "/disaster/heavyRain" },
     { label: "산사태", path: "/disaster/landSlide" },
     { label: "태풍", path: "/disaster/typhoon" },
     { label: "산불", path: "/disaster/forestFire" },
@@ -89,14 +90,13 @@ const DisasterModalLayout = () => {
           <div className="flex-1 overflow-y-auto lg:overflow-hidden p-4 md:p-8 flex flex-col min-h-0">
             <div className="flex flex-col lg:flex-row gap-6 h-full min-h-0">
               
-              {/* [수정] 네 레이아웃 그대로! 모바일에서 지도 공간 확보를 위해 min-h-[450px]만 추가 */}
               <main className="w-full lg:flex-[1.6] flex flex-col min-h-[600px] lg:min-h-0 order-1">
                 <Suspense fallback={<div className="p-10 text-gray-400">로딩 중...</div>}>
                   <Outlet />
                 </Suspense>
               </main>
 
-              {/* 우측 사이드바 레이아웃 유지 */}
+              {/* 우측 사이드바 */}
               <aside className="w-full lg:max-w-[380px] flex flex-col gap-6 order-2 pb-10 lg:pb-0">
                 <div className="bg-gradient-to-br from-[#70a8e9] to-[#426cb9] rounded-2xl text-white overflow-hidden">
                   <button
@@ -114,15 +114,25 @@ const DisasterModalLayout = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* 하단 박스 영역: 분기 처리 로직 수정 */}
                 <div className="flex-1 min-h-[400px] lg:min-h-0 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
-                  <DisasterMessageBox />
+                  {/* currentPath를 사용하여 분기 처리 (사고속보 경로인 accident일 때) */}
+                  {currentPath === 'accident' ? (
+                    <DisasterMessageBox />
+                  ) : (
+                    <div className="p-4 h-full overflow-hidden flex flex-col">
+                      {/* WeatherWarningBox에 현재 경로(재난타입)를 넘겨줌 */}
+                      <WeatherWarningBox disasterType={currentPath} />
+                    </div>
+                  )}
                 </div>
               </aside>
             </div>
           </div>
         </div>
 
-        {/* 모바일 햄버거 메뉴 Drawer (그대로 유지) */}
+        {/* 모바일 Drawer 메뉴 */}
         {isMenuOpen && (
           <div className="fixed inset-0 z-[110] lg:hidden">
             <div className="absolute inset-0 bg-black/60" onClick={() => setIsMenuOpen(false)} />
