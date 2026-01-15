@@ -8,6 +8,8 @@ export const AdminGroupCodeDetail = lazy(() => import("@/pages/admin/CodeManagem
 export const AdminSubCodeDetail = lazy(() => import("@/pages/admin/CodeManagement/AdminSubCodeDetail"));
 export const AdminGroupCodeEdit = lazy(() => import("@/pages/admin/CodeManagement/AdminGroupCodeEdit"));
 export const AdminSubCodeEdit = lazy(() => import("@/pages/admin/CodeManagement/AdminSubCodeEdit"));
+export const AdminPressRelList = lazy(() => import("@/pages/admin/pressManagement/AdminPressRelList"));
+export const AdminPressRelAdd = lazy(() => import("@/pages/admin/pressManagement/AdminPressRelAdd"));
 
 
 export const shAdminRoutes = [
@@ -59,6 +61,22 @@ export const shAdminRoutes = [
         path: "/admin/system/subCodeEdit/:id", 
         element: <AdminSubCodeEdit />,
         nowPage: "상세코드수정",
+  },
+
+
+  // 보도자료관리 목록페이지 (콘텐츠관리 그룹- 홍보/자료 관리)
+
+   {
+    path: "/admin/content/pressRelList", 
+    element: <AdminPressRelList />,
+    nowPage: "보도자료관리",
+  },
+
+  // 보도자료관리 등록페이지 (콘텐츠관리 그룹- 홍보/자료 관리)
+   {
+    path: "/admin/content/pressRelAdd", 
+    element: <AdminPressRelAdd />,
+    nowPage: "보도자료등록",
   },
 
 

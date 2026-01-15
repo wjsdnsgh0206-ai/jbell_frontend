@@ -6,6 +6,7 @@ import { AdminCommonCodeData } from './AdminCommonCodeData';
 import { X, ChevronDown, RotateCcw } from 'lucide-react';
 import AdminCodeConfirmModal from './AdminCodeConfirmModal';
 
+// 공통코드관리 목록페이지 //
 const AdminCommonCodeList = () => {
   const navigate = useNavigate();
 
@@ -194,10 +195,10 @@ const AdminCommonCodeList = () => {
               <thead>
                 <tr className="bg-graygray-10 border-b border-admin-border text-admin-text-primary text-body-m-bold">
                   <th className="py-5 w-[80px] text-center"><div className="flex justify-center"><CustomCheckbox checked={isAllSelectedOnPage} onChange={handleSelectAllOnPage} /></div></th>
-                  <th className="py-5 px-2 text-center">그룹코드</th>
-                  <th className="py-5 px-2 text-center">그룹명</th>
-                  <th className="py-5 px-2 text-center">상세코드</th>
-                  <th className="py-5 px-2 text-center">상세명</th>
+                  <th className="py-5 px-2 text-center">그룹코드 ID</th>
+                  <th className="py-5 px-2 text-center">그룹코드명</th>
+                  <th className="py-5 px-2 text-center">상세코드 ID</th>
+                  <th className="py-5 px-2 text-center">상세코드명</th>
                   <th className="py-5 px-6 text-center">코드설명</th>
                   <th className="py-5 px-2 text-center">등록일시</th>
                   <th className="py-5 px-2 text-center">순서</th>
@@ -220,12 +221,18 @@ const AdminCommonCodeList = () => {
                         <td className="py-5 text-center text-graygray-50">{code.date}</td>
                         <td className="py-5 text-center text-graygray-50">{code.order}</td>
                         <td className="py-5 text-center">
-                          <div className="flex justify-center">
-                            <div className={`w-12 h-6 flex items-center rounded-full p-1 shadow-inner cursor-default pointer-events-none transition-all ${code.visible ? 'bg-admin-primary' : 'bg-graygray-30'}`}>
-                              <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${code.visible ? 'translate-x-6' : 'translate-x-0'}`} />
-                            </div>
-                          </div>
-                        </td>
+  <div className="flex justify-center">
+    {code.visible ? (
+      <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-blue-50 text-blue-600 text-[12px] font-bold border border-blue-200">
+        사용
+      </span>
+    ) : (
+      <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-50 text-gray-400 text-[12px] font-bold border border-gray-200">
+        미사용
+      </span>
+    )}
+  </div>
+</td>
                         <td className="py-5 text-center"><button onClick={() => handleViewDetail(code)} className="border border-gray-300 text-[#666] rounded px-4 py-1.5 text-[13px] font-bold bg-white hover:bg-[#2563EB] hover:text-white hover:border-[#2563EB] transition-all">보기</button></td>
                       </tr>
                     );

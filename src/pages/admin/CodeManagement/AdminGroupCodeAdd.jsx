@@ -214,7 +214,7 @@ const AdminGroupCodeAdd = () => {
 
             {/* 사용 여부 (가로 배치) */}
             <div className="flex items-center gap-5 pt-2">
-              <label className="font-bold text-[16px] text-[#111]">노출 여부</label>
+              <label className="font-bold text-[16px] text-[#111]">사용 여부</label>
               <div className="flex items-center gap-3">
                 <button 
                   type="button"
@@ -224,7 +224,7 @@ const AdminGroupCodeAdd = () => {
                   <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${isRegistered ? 'translate-x-[26px]' : 'translate-x-0'}`} />
                 </button>
                 <span className={`text-[14px] font-bold ${isRegistered ? 'text-[#2563EB]' : 'text-gray-400'}`}>
-                  {isRegistered ? '노출' : '미노출'}
+                  {isRegistered ? '사용' : '미사용'}
                 </span>
               </div>
             </div>
