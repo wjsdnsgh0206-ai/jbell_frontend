@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { userService } from '../../../services/api'; // userService 임포트 추가
+import { userService } from '../../../services/api'; 
 
 const AdminMemberRegister = () => {
     const navigate = useNavigate();
@@ -29,6 +29,7 @@ const AdminMemberRegister = () => {
 
         setMemberForm(prev => ({ ...prev, [name]: newValue }));
         
+        // 아이디가 변경되면 다시 중복 확인을 해야 함
         if (name === 'memberId') {
             setIsIdVerified(false);
         }
@@ -38,26 +39,45 @@ const AdminMemberRegister = () => {
         }
     };
 
-    // 아이디 중복 확인 API 연동
+    // [기능 수정] 아이디 중복 확인 API 연동 (SignupForm 로직 이식)
     const checkIdDuplication = async () => {
-        const idRegex = /^[a-zA-Z0-9]{8,12}$/;
-        if (!idRegex.test(memberForm.memberId)) {
-            setErrors(prev => ({ ...prev, memberId: "영어와 숫자 조합 8~12자리로 입력해주세요." }));
-            return;
-        }
+    const idRegex = /^[a-zA-Z0-9]{8,12}$/;
+    
+    if (!memberForm.memberId) {
+        alert("아이디를 입력해주세요.");
+        return;
+    }
+
+    if (!idRegex.test(memberForm.memberId)) {
+        setErrors(prev => ({ ...prev, memberId: "영어와 숫자 조합 8~12자리로 입력해주세요." }));
+        return;
+    }
+    
+    try {
+        // 현재 백엔드: 중복이 아니면 success(false)를 보냄
+        const result = await userService.checkId(memberForm.memberId);
         
-        try {
-            const isAvailable = await userService.checkId(memberForm.memberId);
-            if (isAvailable) {
-                alert("사용 가능한 아이디입니다.");
-                setIsIdVerified(true);
-                setErrors(prev => ({ ...prev, memberId: "" }));
-            }
-        } catch (error) {
-            alert(error.response?.data?.message || "이미 사용 중인 아이디입니다.");
+        // 백엔드 응답이 false일 때가 "중복 아님(사용 가능)"인 상태임
+        if (result === false) {
+            alert("사용 가능한 아이디입니다.");
+            setIsIdVerified(true);
+            setErrors(prev => ({ ...prev, memberId: "" }));
+        } else {
+            // 혹시나 true가 오면 중복으로 처리
+            alert("이미 사용 중인 아이디입니다.");
             setIsIdVerified(false);
         }
-    };
+    } catch (error) {
+        // 백엔드에서 409 에러를 던지면 catch로 들어옴
+        if (error.response && error.response.status === 409) {
+            alert(error.response.data?.message || "이미 사용 중인 아이디입니다.");
+        } else {
+            alert("중복 확인 중 오류가 발생했습니다.");
+        }
+        setIsIdVerified(false);
+        console.error("ID Check Error:", error);
+    }
+};
 
     const validateForm = () => {
         const newErrors = {};
@@ -88,30 +108,43 @@ const AdminMemberRegister = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    // 회원 등록 API 연동
-    const handleCreateUser = async () => {
-        if (!validateForm()) return;
+    // [기능 수정] 회원 등록 API 연동 (SignupForm 로직 이식)
+   const handleCreateUser = async () => {
+    if (!validateForm()) return;
 
-        try {
-            // userService.signup 호출
-            const response = await userService.signup({
-                userId: memberForm.memberId,
-                userPw: memberForm.memberPw,
-                userName: memberForm.memberName,
-                userTelNum: memberForm.memberTelNum,
-                userRegion: memberForm.memberRegion,
-                userRole: memberForm.memberRole
-            });
+    try {
+        // 백엔드 SignupRequest DTO 필드명과 형식을 완벽하게 일치시킴
+        const requestData = {
+            userId: memberForm.memberId,
+            userPw: memberForm.memberPw,
+            name: memberForm.memberName,
+            // birthDate는 @NotNull이며 LocalDate 형식이므로 'YYYY-MM-DD' 문자열로 전달
+            birthDate: "2000-01-01", 
+            // email은 @NotBlank이므로 필수 전달
+            email: memberForm.memberId + "@jbell.com",
+            residenceArea: memberForm.memberRegion,
+            userGender: "M", // DTO에 정의된 필드 (기본값 설정)
+            // [주의] userTelNum은 DTO에 없으므로 제외해야 에러가 나지 않습니다.
+        };
 
-            if (response.status === "SUCCESS" || response) {
-                alert('회원 등록에 성공했습니다!');
-                navigate('/admin/adminMemberList');
-            }
-        } catch (error) {
-            console.error("Signup Error:", error);
-            alert(error.response?.data?.message || '회원 등록 중 서버 오류가 발생했습니다.');
+        console.log("백엔드로 전송할 데이터:", requestData);
+
+        const response = await userService.signup(requestData);
+
+        // ApiResponse.success 구조 대응
+        if (response && (response.status === "SUCCESS" || response.data)) {
+            alert('회원 등록에 성공했습니다!');
+            navigate('/admin/member/adminMemberList');
+        } else {
+            alert(response.message || "회원 등록에 실패했습니다.");
         }
-    };
+    } catch (error) {
+        console.error("Signup Error 상세:", error.response?.data);
+        // Jackson 매핑 에러 발생 시 구체적인 원인을 alert으로 보여줌
+        const errorMsg = error.response?.data?.message || '회원 등록 중 서버 오류가 발생했습니다.';
+        alert(errorMsg);
+    }
+};
 
     const ErrorText = ({ msg }) => (
         msg ? <p className="text-red-500 text-xs mt-[-18px] mb-4">{msg}</p> : null
@@ -142,14 +175,18 @@ const AdminMemberRegister = () => {
                             placeholder="영어와 숫자 조합 8~12자리"
                             value={memberForm.memberId}
                             onChange={handleChange}
-                            className="flex-1 h-[44px] px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className={`flex-1 h-[44px] px-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                                isIdVerified ? 'border-green-500 bg-green-50' : 'border-gray-300'
+                            }`}
                         />
                         <button 
                             type="button"
                             onClick={checkIdDuplication}
-                            className="bg-gray-800 text-white px-4 rounded-md text-sm hover:bg-black transition-colors"
+                            className={`${
+                                isIdVerified ? 'bg-green-600' : 'bg-gray-800'
+                            } text-white px-4 rounded-md text-sm hover:opacity-90 transition-colors`}
                         >
-                            중복확인
+                            {isIdVerified ? '확인완료' : '중복확인'}
                         </button>
                     </div>
                     <ErrorText msg={errors.memberId} />
