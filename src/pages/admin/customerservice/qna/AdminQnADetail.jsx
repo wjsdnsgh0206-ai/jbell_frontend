@@ -114,21 +114,19 @@ const AdminQnADetail = () => {
   }
 
   return (
-    // AdminFAQAdd와 동일한 전체 레이아웃 (배경색, 폰트)
+    // 전체 레이아웃 (배경색, 폰트)
     <div className="flex-1 flex flex-col min-h-screen bg-[#F5F7FB] font-sans antialiased text-gray-900">
       <main className="p-10">
         
-        {/* 1. Header Area (AdminFAQAdd 스타일) */}
+        {/* 1. Header Area */}
         <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-900 tracking-tight">
                 1:1 문의 상세 정보
             </h2>
         </div>
 
-        {/* 2. Content Area (White Card - AdminFAQAdd 스타일) */}
+        {/* 2. Content Area */}
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
-            
-            {/* --- 기존 Detail Content 시작 --- */}
             
             {/* A. Inquiry Content Area (질문 영역) */}
             <div className="border-t-2 border-gray-800 mb-8">

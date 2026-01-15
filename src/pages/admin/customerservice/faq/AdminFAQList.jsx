@@ -63,9 +63,23 @@ const AdminFAQList = () => {
 
       if (!searchTerm) return isCategoryMatch && isStatusMatch;
 
-      // 3. 검색어 필터 (제목, 내용, 작성자 통합 검색)
-      // HTML 태그 제거 후 텍스트만 검색하기 위해 정규식 사용 가능하지만, 여기선 raw string 검색
-      const targetString = [item.title, item.content, item.author]
+      // 3. 검색어 필터 (JSON Content 내부 텍스트 추출)
+      let contentText = "";
+      if (Array.isArray(item.content)) {
+        contentText = item.content.map(block => {
+            if (block.type === 'text' || block.type === 'note') return block.value;
+            if (block.type === 'list') return block.items.join(" ");
+            if (block.type === 'table') {
+                const headers = block.headers.join(" ");
+                const rows = block.rows.map(row => row.join(" ")).join(" ");
+                return headers + " " + rows;
+            }
+            return "";
+        }).join(" ");
+      }
+
+      // 제목, 내용(추출된 텍스트), 작성자 통합 검색
+      const targetString = [item.title, contentText, item.author]
         .join("")
         .replace(/\s+/g, "")
         .toLowerCase();

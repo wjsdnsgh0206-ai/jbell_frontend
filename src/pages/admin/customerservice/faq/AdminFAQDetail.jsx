@@ -2,10 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  ChevronRight, Edit2, Trash2, List, Eye, EyeOff, Clock, 
-  User, Calendar, CheckCircle, AlertCircle, Save, X, Home 
-} from 'lucide-react';
+import { ChevronRight, Edit2, Trash2, List, Eye, EyeOff, Clock, User, Calendar, CheckCircle, AlertCircle, Save, X, Home } from 'lucide-react';
 import { AdminFAQData, FAQ_CATEGORIES } from './AdminFAQData';
 
 // 유틸리티: 클래스 병합
@@ -21,7 +18,7 @@ const AdminFAQDetail = () => {
       id: 0,
       category: '기타',
       title: '',
-      content: '',
+      content: [], // JSON 배열 초기화
       author: '관리자',
       date: new Date().toISOString().substring(0, 10), 
       views: 0,
@@ -52,6 +49,27 @@ const AdminFAQDetail = () => {
     setData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // 수정 모드에서 JSON Content를 텍스트로 단순 변환해서 편집 (임시 처리)
+  // 실제로는 Block Editor가 필요하지만, 여기서는 첫 번째 텍스트 블록만 수정하거나 
+  // 전체를 JSON 문자열로 보여주는 방식 중 간단히 텍스트 입력만 받는 형태로 예외 처리
+  const handleContentChange = (e) => {
+    // 수정 시에는 모든 내용을 하나의 텍스트 블록으로 덮어씀 (간소화)
+    const newContent = [{ type: 'text', value: e.target.value }];
+    setData(prev => ({ ...prev, content: newContent }));
+  };
+
+  // 편집 모드일 때 보여줄 텍스트 추출 함수
+  const getEditableContentString = () => {
+    if (Array.isArray(data.content)) {
+      return data.content.map(block => {
+        if (block.type === 'text' || block.type === 'note') return block.value;
+        if (block.type === 'list') return block.items.join('\n');
+        return '';
+      }).join('\n\n');
+    }
+    return '';
+  };
+
   const handleToggleStatus = () => {
     const newStatus = !data.status;
     const action = newStatus ? '공개' : '비공개';
@@ -80,6 +98,56 @@ const AdminFAQDetail = () => {
 
   const handleBack = () => {
     navigate('/admin/customer/FAQList');
+  };
+
+  // [핵심] JSON Content 렌더러
+  const renderContent = (contentData) => {
+    if (!Array.isArray(contentData)) return <p>내용이 없습니다.</p>;
+
+    return contentData.map((block, index) => {
+      switch (block.type) {
+        case 'text':
+          return (
+            <p key={index} className={cn("mb-4", block.isBold && "font-bold")}>
+              {block.value}
+            </p>
+          );
+        case 'list':
+          const ListTag = block.style === 'ordered' ? 'ol' : 'ul';
+          return (
+            <ListTag key={index} className={cn("mb-4 ml-5 space-y-1", block.style === 'ordered' ? 'list-decimal' : 'list-disc')}>
+              {block.items.map((item, idx) => <li key={idx}>{item}</li>)}
+            </ListTag>
+          );
+        case 'table':
+          return (
+            <div key={index} className="overflow-x-auto mb-6 border border-gray-200 rounded-lg">
+              <table className="w-full text-sm text-left">
+                <thead className="bg-gray-50 text-gray-700 font-bold border-b">
+                  <tr>
+                    {block.headers.map((h, i) => <th key={i} className="px-4 py-3">{h}</th>)}
+                  </tr>
+                </thead>
+                <tbody>
+                  {block.rows.map((row, rIdx) => (
+                    <tr key={rIdx} className="border-b last:border-0">
+                      {row.map((cell, cIdx) => <td key={cIdx} className="px-4 py-3">{cell}</td>)}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
+        case 'note':
+          return (
+            <p key={index} className="mb-4 text-sm text-gray-500 bg-gray-50 p-3 rounded border border-gray-200">
+              {block.value}
+            </p>
+          );
+        default:
+          return null;
+      }
+    });
   };
 
   return (

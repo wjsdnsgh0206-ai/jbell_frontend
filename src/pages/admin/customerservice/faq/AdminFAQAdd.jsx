@@ -1,18 +1,7 @@
 //src/pages/admin/customerservice/faq/AdminFAQAdd.jsx
 
 import React, { useState } from 'react';
-import { 
-  Save, 
-  X, 
-  RotateCcw, 
-  ChevronRight, 
-  Bold,
-  Italic,
-  Underline,
-  List,
-  Link as LinkIcon,
-  Image as ImageIcon,
-} from 'lucide-react';
+import { Save, X, RotateCcw, ChevronRight, Bold,Italic, Underline, List, Link as LinkIcon, Image as ImageIcon, } from 'lucide-react';
 
 /**
  * FAQ 신규 등록 전용 컴포넌트
@@ -46,6 +35,15 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
     e.preventDefault();
     if (!formData.title.trim()) return alert('제목을 입력해주세요.');
     if (!formData.content.trim()) return alert('내용을 입력해주세요.');
+
+    // [데이터 구조 변환] String -> JSON Block Array
+    // 실제로는 에디터가 필요하지만, 여기선 전체 텍스트를 하나의 'text' 블록으로 저장
+    const finalData = {
+        ...formData,
+        content: [
+            { type: 'text', value: formData.content }
+        ]
+    };
 
     // 저장 로직 호출
     if (onSave) onSave(formData);
@@ -179,7 +177,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
                                 value={formData.content}
                                 onChange={handleChange}
                                 className="w-full h-64 p-4 text-sm focus:outline-none resize-y placeholder-gray-400"
-                                placeholder="답변 내용을 입력해주세요."
+                                placeholder="답변 내용을 입력해주세요. (저장 시 텍스트 블록으로 자동 변환됩니다)"
                             />
                         </div>
                         </td>
