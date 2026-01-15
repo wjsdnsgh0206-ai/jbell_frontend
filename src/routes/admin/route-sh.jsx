@@ -15,7 +15,6 @@ export const AdminPressRelAdd = lazy(() => import("@/pages/admin/pressManagement
 export const shAdminRoutes = [
   // 공통코드관리 목록페이지 (시스템 관리 그룹)
   // URL 계층화: /admin/대분류/소분류+행위
- 
   {
     path: "/admin/system/commonCodeList", 
     element: <AdminCommonCodeList />,

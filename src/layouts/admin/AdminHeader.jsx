@@ -1,7 +1,7 @@
 // src/layouts/admin/AdminHeader.jsx
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
-import { ADMIN_MENU_DATA } from '@/components/admin/sideBar/AdminSideMenuData';
+import { ADMIN_MENU_DATA } from '@/components/admin/AdminSideMenuData';
 
 const AdminHeader = () => {
   const navigate = useNavigate();
@@ -12,13 +12,11 @@ const AdminHeader = () => {
 
   const navItems = [
     { key: 'realtime', name: '실시간 정보 관리', path: '/admin/realtime/realtimeDashboard' },
-    { key: 'content', name: '콘텐츠 관리', path: '/admin/content/contentList' },
+    { key: 'contents', name: '콘텐츠 관리', path: '/admin/contents/behavioralGuideList' },
     { key: 'safetyMap', name: '안전정보지도 관리', path: '/admin/safetyMap/safetyMapList' },
     { key: 'user', name: '회원 관리', path: '/admin/user/userList' },
-    { key: 'menu', name: '메뉴 관리', path: '/admin/menu/menuList' },
-    { key: 'auth', name: '권한 관리', path: '/admin/author/authorList' },
-    { key: 'system', name: '공통코드 관리', path: '/admin/system/commonCodeList' },
-  ];
+    { key: 'system', name: '시스템 관리', path: '/admin/system/commonCodeList' },
+  ]; 
 
   return (
     <div className="flex items-center h-full w-full">
@@ -49,27 +47,33 @@ const AdminHeader = () => {
               {/* [드롭다운] 너비를 부모(button)와 동일하게 맞춤 (w-full) */}
               {hasSub && (
                 <div className="absolute top-full left-0 w-full min-w-full bg-white shadow-2xl border-x border-b border-admin-border rounded-b-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-0 z-50 py-2">
-                  {/* 상단 포인트 디자인 (Active 바와 연결되는 느낌) */}
                   <div className="h-0.5 bg-admin-primary/10 w-full absolute top-0 left-0" />
                   
-                  {subMenuCategories.map((cat, catIdx) => (
-                    <div key={catIdx} className="flex flex-col">
-                      {cat.items.map((subItem) => (
+                  <div className="flex flex-col">
+                    {/* 이제 items가 아닌 subMenuCategories(title 그룹)를 직접 나열합니다 */}
+                    {subMenuCategories.map((cat) => {
+                      // 현재 페이지가 이 카테고리에 속하는지 확인 (상세 메뉴 경로 포함 여부)
+                      const isCurrentCategory = cat.items.some(sub => sub.path === pathname) || pathname === cat.path;
+
+                      return (
                         <button
-                          key={subItem.path}
-                          onClick={() => navigate(subItem.path)}
+                          key={cat.title}
+                          disabled={!cat.isAvailable}
+                          onClick={() => navigate(cat.path)}
                           className={`w-full text-center px-4 py-4 text-body-m transition-colors ${
-                            pathname === subItem.path
+                            isCurrentCategory
                               ? "bg-blue-50 text-admin-primary font-bold border-r-4 border-admin-primary"
-                              : "text-graygray-70 hover:bg-gray-50 hover:text-admin-primary"
+                              : cat.isAvailable 
+                                ? "text-graygray-70 hover:bg-gray-50 hover:text-admin-primary"
+                                : "text-gray-300 cursor-not-allowed" // 비활성화 상태
                           }`}
                           style={{ fontSize: '17px' }}
                         >
-                          {subItem.name}
+                          {cat.title}
                         </button>
-                      ))}
-                    </div>
-                  ))}
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>

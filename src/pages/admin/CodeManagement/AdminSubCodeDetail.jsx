@@ -1,14 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import BreadCrumb from '@/components/Admin/board/BreadCrumb';
+import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData'; 
-import AdminCodeConfirmModal from './AdminCodeConfirmModal';
+import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
 const AdminSubCodeDetail = () => {
   const { id } = useParams();
+  const { setBreadcrumbTitle } = useOutletContext();
   const navigate = useNavigate();
   const [formData, setFormData] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  useEffect(() => {
+    const found = AdminCommonCodeData.find(item => item.id === parseInt(id));
+    if (found) {
+      // 레이아웃의 breadcrumbTitle 상태를 업데이트 -> 브레드크럼이 즉시 바뀜
+      setBreadcrumbTitle(found.subName); 
+    }
+    
+    // 페이지를 나갈 때는 초기화 (Clean-up)
+    return () => setBreadcrumbTitle("");
+  }, [id, setBreadcrumbTitle]);
 
   useEffect(() => {
     // [수정된 부분] AdminCommonCodeData의 id와 URL의 id를 매칭
@@ -28,8 +39,6 @@ const AdminSubCodeDetail = () => {
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
       <main className="p-10 text-left">
-        <BreadCrumb />
-        
         <h2 className="text-[32px] font-bold mt-2 mb-2 tracking-tight">공통 코드 관리</h2>
         
         {/* 상단 버튼 영역 */}
@@ -150,7 +159,7 @@ const AdminSubCodeDetail = () => {
         </section>
       </main>
 
-      <AdminCodeConfirmModal 
+      <AdminConfirmModal 
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}

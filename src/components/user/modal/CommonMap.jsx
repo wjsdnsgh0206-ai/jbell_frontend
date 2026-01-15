@@ -1,90 +1,79 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Map, MapMarker, CustomOverlayMap } from "react-kakao-maps-sdk";
 
-const CommonMap = ({ markers = [], center = null }) => {
-  const mapContainer = useRef(null);
-  const [map, setMap] = useState(null);
-  const markersRef = useRef([]); // 마커들을 관리할 Ref
+const CommonMap = ({ markers = [], center, level, selectedMarker }) => {
+  // 현재 열려있는 마커의 고유 ID 저장
+  const [openMarkerId, setOpenMarkerId] = useState(null);
 
-  // 1. 지도 초기화
+  // 리스트에서 항목 선택 시 해당 마커만 열리도록 설정
   useEffect(() => {
-    if (!window.kakao) {
-      console.error("카카오 지도 API가 로드되지 않았어.");
-      return;
+    if (selectedMarker) {
+      // 위도, 경도, 시간을 조합해서 아주 유니크한 ID 생성
+      const markerId = `marker-${selectedMarker.lat}-${selectedMarker.lng}-${selectedMarker.time}`;
+      setOpenMarkerId(markerId);
     }
-
-    const initMap = () => {
-      const options = {
-        center: new window.kakao.maps.LatLng(35.8242, 127.1480), // 기본 위치 (전주시청)
-        level: 4,
-      };
-      const kakaoMap = new window.kakao.maps.Map(mapContainer.current, options);
-      setMap(kakaoMap);
-    };
-
-    // 지도를 담을 컨테이너가 확실히 있을 때 실행
-    if (mapContainer.current) {
-      initMap();
-    }
-  }, []);
-
-  // 2. 마커 표시 및 업데이트
-  useEffect(() => {
-    if (!map || !markers) return;
-
-    // 기존 마커 제거
-    markersRef.current.forEach((marker) => marker.setMap(null));
-    markersRef.current = [];
-
-    // 새 마커 생성
-    const newMarkers = markers.map((m) => {
-      const position = new window.kakao.maps.LatLng(m.lat, m.lng);
-      const marker = new window.kakao.maps.Marker({
-        position: position,
-        title: m.title,
-      });
-      marker.setMap(map);
-      return marker;
-    });
-
-    markersRef.current = newMarkers;
-  }, [map, markers]);
-
-  // 3. 외부에서 center 좌표가 들어올 때 부드럽게 이동 (panTo)
-  useEffect(() => {
-    if (!map || !center) return;
-
-    const moveLatLon = new window.kakao.maps.LatLng(center.lat, center.lng);
-    map.panTo(moveLatLon);
-  }, [map, center]);
-
-  // 4. ★ 모바일에서 지도가 안 보이는 문제 해결 (relayout) ★
-  useEffect(() => {
-    if (!map) return;
-
-    // 창 크기가 변할 때 지도를 재정렬해줌
-    const handleResize = () => {
-      map.relayout();
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    // 컴포넌트가 마운트된 직후, 컨테이너 크기를 다시 계산하도록 딜레이를 줌
-    const timer = setTimeout(() => {
-      map.relayout();
-    }, 100);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      clearTimeout(timer);
-    };
-  }, [map]);
+  }, [selectedMarker]);
 
   return (
-    <div 
-      ref={mapContainer} 
-      className="w-full h-full min-h-[inherit]" 
-      style={{ touchAction: "none" }} // 모바일 터치 간섭 방지
-    />
+    <Map
+      center={center || { lat: 35.8242, lng: 127.1480 }}
+      level={level || 8}
+      style={{ width: "100%", height: "100%" }}
+    >
+      {markers.map((m, index) => {
+        // 각 마커만의 고유 ID
+        const markerId = `marker-${m.lat}-${m.lng}-${m.time}`;
+        const isOpened = openMarkerId === markerId;
+
+        return (
+          <React.Fragment key={markerId}>
+            <MapMarker
+              position={{ lat: m.lat, lng: m.lng }}
+              // 마커 클릭 시 해당 ID만 상태에 저장
+              onClick={() => setOpenMarkerId(markerId)}
+            />
+
+            {/* 해당 마커의 ID와 openMarkerId가 일치할 때만 띄움 */}
+            {isOpened && (
+              <CustomOverlayMap 
+                position={{ lat: m.lat, lng: m.lng }} 
+                // [수정] yAnchor를 1.3 정도로 높여서 마커보다 위로 띄움 (1이 마커 하단 기준)
+                yAnchor={1.3} 
+                xAnchor={0.5}
+              >
+                <div className="relative z-50 transition-all duration-200">
+                  <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-2xl min-w-[200px]">
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-bold text-sm text-blue-600 truncate pr-2">
+                        {m.title}
+                      </h4>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation(); 
+                          setOpenMarkerId(null); // 닫기 버튼 클릭 시 초기화
+                        }}
+                        className="text-gray-400 hover:text-gray-600 p-1"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                    <div 
+                      className="text-[12px] text-gray-600 leading-relaxed font-medium"
+                      dangerouslySetInnerHTML={{ __html: m.content }}
+                    />
+                    
+                    {/* 말풍선 꼬리 */}
+                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-white" />
+                  </div>
+                </div>
+              </CustomOverlayMap>
+            )}
+          </React.Fragment>
+        );
+      })}
+    </Map>
   );
 };
 

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ADMIN_MENU_DATA } from '@/components/admin/sideBar/AdminSideMenuData';
+import { ADMIN_MENU_DATA } from '@/components/admin/AdminSideMenuData';
 
 const AdminSideBar = () => {
   const navigate = useNavigate();
