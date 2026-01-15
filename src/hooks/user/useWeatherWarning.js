@@ -8,46 +8,66 @@ export const useWeatherWarning = (disasterType) => {
   const fetchWarnings = useCallback(async () => {
     setIsLoading(true);
     try {
-      const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
-      const res = await disasterModalService.getWeatherWarning({ inqDt: today });
+      // 1. 날짜 설정
+      const now = new Date();
+      now.setDate(now.getDate() - 1);
+      const inqDt = now.toISOString().split('T')[0].replace(/-/g, '');
       
-      if (res.data && res.data.body) {
-        const allData = res.data.body;
+      const res = await disasterModalService.getWeatherWarning({ inqDt });
+      
+      // 2. 응답 구조에 따른 데이터 추출 (보여준 페이로드 구조 반영)
+      // Axios 응답이라면 res.data 안에, 일반 fetch라면 res 안에 데이터가 있음
+      const result = res.data || res; 
+      const rawData = result.body || []; // payload에서 body: [...] 확인됨
 
-        // 재난별 키워드 매칭 로직
-        const filtered = allData.filter((item) => {
+      console.log(`📡 [API 응답] 전체 데이터 개수: ${result.totalCount || rawData.length}`);
+
+      if (Array.isArray(rawData) && rawData.length > 0) {
+        const filtered = rawData.filter((item) => {
           const title = item.TTL || "";
           const content = item.SPNE_FRMNT_PRCON_CN || "";
-          const targetText = title + content;
+          const zone = item.RLVT_ZONE || "";
+          const targetText = (title + content + zone).replace(/\s/g, "");
 
+          // 3. 재난별 필터링
           switch (disasterType) {
-            case 'earthquake': // 지진
-              return targetText.includes('지진') || targetText.includes('해일');
-            case 'flood': // 호우홍수
-              return targetText.includes('호우') || targetText.includes('홍수') || targetText.includes('강수');
-            case 'typhoon': // 태풍
-              return targetText.includes('태풍') || targetText.includes('강풍') || targetText.includes('풍랑');
-            case 'fire': // 산불
-              return targetText.includes('건조') || targetText.includes('산불');
-            case 'landslide': // 산사태
-              return targetText.includes('산사태') || targetText.includes('호우') || targetText.includes('대설');
+            case 'earthquake':
+              return /지진|해일/.test(targetText);
+            case 'flood':
+              return /호우|홍수|강수|비/.test(targetText);
+            case 'landSlide':
+              return /산사태|대설|한파|눈/.test(targetText);
+            case 'typhoon':
+              return /태풍|강풍|풍랑|바람/.test(targetText);
+            case 'forestFire':
+              return /건조|산불|화재/.test(targetText);
             default:
               return false;
           }
         });
 
-        setWarnings(filtered);
+        console.log(`🎯 [${disasterType}] 필터링 결과: ${filtered.length}건`);
+        
+        // 4. 최신순 정렬 (PRSNTN_SN 기준)
+        const sorted = filtered.sort((a, b) => Number(b.PRSNTN_SN) - Number(a.PRSNTN_SN));
+        setWarnings(sorted);
+      } else {
+        console.warn("⚠️ 원본 데이터(body)가 배열이 아니거나 비어있어.");
+        setWarnings([]);
       }
     } catch (error) {
-      console.error("기상특보 로드 실패:", error);
+      console.error("🚨 기상특보 API 연결 에러:", error);
+      setWarnings([]);
     } finally {
       setIsLoading(false);
     }
   }, [disasterType]);
 
   useEffect(() => {
-    fetchWarnings();
-  }, [fetchWarnings]);
+    if (disasterType && disasterType !== 'accident') {
+      fetchWarnings();
+    }
+  }, [fetchWarnings, disasterType]);
 
   return { warnings, isLoading, refetch: fetchWarnings };
 };

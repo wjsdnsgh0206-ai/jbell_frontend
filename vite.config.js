@@ -163,7 +163,7 @@ export default defineConfig(({ mode }) => {
 
         // 기상특보 api
         "/weatherWarning-api": {
-          target: "https://www.safetydata.go.kr",
+          target: "https://www.safetydata.go.kr/V2/api",
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/weatherWarning-api/, ""),
         },
