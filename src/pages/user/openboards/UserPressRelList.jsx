@@ -4,21 +4,24 @@ import { ChevronDown } from 'lucide-react';
 
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 import BoardListSection from '@/components/shared/BoardListSection';
-import SearchBarTemplate from '@/components/shared/SearchBarTemplate'; // 공용 템플릿 추가
+import SearchBarTemplate from '@/components/shared/SearchBarTemplate';
 import { pressData } from './BoardData';
+
+// 보도자료 목록 페이지 //
 
 const UserPressRelList = () => {
   const navigate = useNavigate();
 
   // --- 상태 관리 ---
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 10; // 한 페이지당 보여줄 게시글 수
 
   const [searchCategory, setSearchCategory] = useState('선택');
   const [searchTerm, setSearchTerm] = useState('');
   const [activeSearch, setActiveSearch] = useState({ category: '선택', term: '' });
 
-  // --- 데이터 전처리 ---
+  // --- 데이터 전처리 (Data Memoization) --- //
+  // 1. 중복 제거: 제목이 중복된 데이터가 있을 경우 하나만 남기고 필터링
   const cleanData = useMemo(() => {
     const seenTitles = new Set();
     return pressData.filter(item => {
@@ -28,13 +31,17 @@ const UserPressRelList = () => {
     });
   }, []);
 
+  // 2. 검색 필터링: activeSearch 상태에 따라 데이터를 필터링
   const filteredData = useMemo(() => {
-    let result = [...cleanData];
+    //  비공개(isPublic: false)인 보도자료는 사용자 페이지 목록에서 제외합니다.
+    let result = cleanData.filter(item => item.isPublic !== false);
+
     const { category, term } = activeSearch;
     const trimmedTerm = term.trim();
 
     if (trimmedTerm !== '') {
       result = result.filter(item => {
+        // '선택' 카테고리일 경우 제목, 내용, 등록자(writer/author) 전체에서 검색
         if (category === '선택') {
           return (
             item.title?.includes(trimmedTerm) ||
@@ -42,6 +49,7 @@ const UserPressRelList = () => {
             (item.writer || item.author)?.includes(trimmedTerm)
           );
         }
+        // 특정 카테고리가 선택된 경우 해당 필드에서만 검색
         if (category === '제목') return item.title?.includes(trimmedTerm);
         if (category === '내용') return item.content?.includes(trimmedTerm);
         if (category === '등록인') return (item.writer || item.author)?.includes(trimmedTerm);
@@ -51,12 +59,17 @@ const UserPressRelList = () => {
     return result;
   }, [cleanData, activeSearch]);
 
+  // 3. 정렬 및 페이지네이션 로직
   const { currentItems, totalPages } = useMemo(() => {
+    // - 최신 등록일 순으로 정렬
     const sorted = [...filteredData].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // - 페이지네이션 계산
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const paged = sorted.slice(indexOfFirstItem, indexOfLastItem);
 
+    // - 번호 표시 로직: 현재 페이지와 인덱스를 계산하여 순차적인 번호(displayNo) 부여
     const finalItems = paged.map((item, index) => ({
       ...item,
       displayNo: indexOfFirstItem + index + 1
@@ -68,12 +81,15 @@ const UserPressRelList = () => {
     };
   }, [filteredData, currentPage]);
 
-  // --- 핸들러 ---
+  // --- 이벤트 핸들러 (Event Handlers) --- //
+
+  // 검색 버튼 클릭 시 호출: 현재 입력된 값들을 activeSearch에 저장하고 1페이지로 이동
   const handleSearch = () => {
     setActiveSearch({ category: searchCategory, term: searchTerm });
     setCurrentPage(1);
   };
 
+  // 초기화 핸들러: 모든 검색 조건과 페이지를 초기 상태로 리셋
   const handleReset = () => {
     setSearchCategory('선택');
     setSearchTerm('');
@@ -81,6 +97,7 @@ const UserPressRelList = () => {
     setCurrentPage(1);
   };
 
+  // 브레드크럼(경로 표시) 데이터
   const breadcrumbItems = [
     { label: "홈", path: "/", hasIcon: true },
     { label: "열린마당", path: "/userPressRelList", hasIcon: false },
@@ -90,10 +107,11 @@ const UserPressRelList = () => {
   return (
     <div className="w-full px-5 md:px-0">
       <main className="w-full">
+        {/* 페이지 상단 경로 안내 */}
         <PageBreadcrumb items={breadcrumbItems} />
         <h1 className="text-heading-xl text-graygray-90 pb-20">보도자료</h1>
         
-        {/* --- 검색바 영역 (다른 페이지와 통일) --- */}
+        {/* --- 검색바 영역 --- */}
         <SearchBarTemplate
           keyword={searchTerm}
           onKeywordChange={(e) => setSearchTerm(e.target.value)}
@@ -101,7 +119,7 @@ const UserPressRelList = () => {
           onReset={handleReset}
           placeholder="검색어를 입력해주세요."
         >
-          {/* 카테고리 필터: 모바일 col-span-2 적용 */}
+          {/* 보도자료 전용 필터: 카테고리 선택 */}
           <div className="relative w-full col-span-2 lg:col-span-1 lg:w-32">
             <select 
               value={searchCategory} 
@@ -119,13 +137,14 @@ const UserPressRelList = () => {
           </div>
         </SearchBarTemplate>
 
-        {/* --- 리스트 출력 영역 --- */}
-        <div className="mt-2"> {/* 검색바와의 적절한 간격 확보 */}
+        {/* --- 리스트 테이블 및 페이지네이션 컴포넌트 --- */}
+        <div className="mt-2">
           <BoardListSection 
             items={currentItems}
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={setCurrentPage}
+            // 행 클릭 시 상세 페이지로 이동
             onRowClick={(id) => navigate(`/userPressRelDetail/${id}`)}
           />
         </div>

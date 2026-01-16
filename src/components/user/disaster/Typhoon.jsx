@@ -104,11 +104,6 @@ const Typhoon = () => {
               제1호 태풍 네파탁
             </div>
           </div>
-
-          {/* 지도 컨트롤 버튼 */}
-          <div className="absolute bottom-5 right-5 lg:bottom-20 z-20">
-            <MapControlBtn />
-          </div>
         </div>
       </div>
 
