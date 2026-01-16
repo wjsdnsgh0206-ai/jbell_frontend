@@ -15,22 +15,17 @@ const AdminMemberList = () => {
 
         const [memberForm, setMemberForm] = useState({
             memberId: '',
-            memberPW: '',
+            memberPw: '',
             memberName: '',
             memberTelNum: '',
             memberRegion: '',
             memberRole: 'USER', // or ADMIN
         });
 
-        // const [keyword, setKeyword] = useState('');
-        // const [memberRegion, setMemberRegion] = useState('');
-
        
-
-
         // 1. 상태 관리
         const [originalMemberList, setOriginalMemberList] = useState([]); // 필터링 전 전체 데이터 보관용
-        const [searchMemberID, setSearchMemberID] = useState(''); // 아이디 검색어
+        const [searchMemberId, setSearchMemberId] = useState(''); // 아이디 검색어
         const [searchMemberName, setSearchMemberName] = useState(''); // 이름 검색어
         const [searchMemberTelNum, setSearchMemberTelNum] = useState(''); // 전화번호 검색어
         const [selectedMemberRegion, setSelectedMemberRegion] = useState(''); // 선택된 지역
@@ -69,7 +64,7 @@ const AdminMemberList = () => {
                 }
 
                 // 키워드(아이디) 검색
-                if (searchMemberID) {
+                if (searchMemberId) {
                     filtered = filtered.filter(item => item.memberId.includes(searchMemberID));
                 }
 
@@ -97,7 +92,9 @@ const AdminMemberList = () => {
 
             // 초기화 기능
             const handleReset = () => {
+                setSearchMemberId('');
                 setSearchMemberName('');
+                setSearchMemberTelNum('');
                 setSelectedMemberRegion('');
                 setMemberList(originalMemberList);
             };
@@ -144,8 +141,8 @@ const AdminMemberList = () => {
                 <label className="block text-sm mb-1">로그인 ID</label>
                   <input
                     type="text"
-                    value={searchMemberID}
-                    onChange={(e) => setSearchMemberID(e.target.value)}
+                    value={searchMemberId}
+                    onChange={(e) => setSearchMemberId(e.target.value)}
                     placeholder="ID를 입력해주세요."
                     className="w-full border p-2 rounded text-sm"
                 />
@@ -251,7 +248,7 @@ const AdminMemberList = () => {
                         <td className="p-3">{item.memberRegion}</td>
                         <td className="p-3">
                             <button 
-                            onClick={() => navigate('/admin/member/adminMemberEdit', { state: item })}
+                            onClick={() => navigate(`/admin/member/adminMemberEdit/${item.memberId}`, { state: item })}
                             className="border px-2 py-1 rounded text-xs"
                             >수정
                             </button>

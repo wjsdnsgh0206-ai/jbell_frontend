@@ -1,8 +1,10 @@
 import { lazy } from "react";
-export const AdminBoardList = lazy(() => import("@/pages/admin/Board/AdminBoardList"));
-export const AdminLogList = lazy(() => import("@/pages/admin/Board/AdminLogList"));
-export const AdminMemberList = lazy(() => import("@/pages/admin/Member/AdminMemberList"));
-export const AdminMemberRegister = lazy(() => import("@/pages/admin/Member/AdminMemberRegister"));
+import AdminMemberEdit from "../../pages/admin/member/AdminMemberEdit";
+export const AdminBoardList = lazy(() => import("@/pages/admin/board/AdminBoardList"));
+export const AdminBoardRegister = lazy(() => import("@/pages/admin/board/AdminBoardRegister"));
+export const AdminLogList = lazy(() => import("@/pages/admin/board/AdminLogList"));
+export const AdminMemberList = lazy(() => import("@/pages/admin/member/AdminMemberList"));
+export const AdminMemberRegister = lazy(() => import("@/pages/admin/member/AdminMemberRegister"));
 
 
 // ------ 라우트 페이지 경로 입력 파일 ------ //
@@ -33,6 +35,11 @@ const mjAdminRoutes = [
             nowPage: "공지사항",
       },
       {
+            path: "/admin/contents/adminBoardRegister", 
+            element: <AdminBoardRegister />,
+            nowPage: "공지사항 작성",
+      },
+      {
             path: "/admin/system/adminLogList", 
             element: <AdminLogList />,
             nowPage: "로그 관리",
@@ -48,8 +55,8 @@ const mjAdminRoutes = [
             nowPage: "회원 등록",
       },
       {
-            path: "/admin/member/adminMemberEdit", 
-            element: <AdminMemberRegister />,
+            path: "/admin/member/adminMemberEdit/:memberId", 
+            element: <AdminMemberEdit />,
             nowPage: "회원 수정",
       },
 

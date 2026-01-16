@@ -128,22 +128,14 @@ const AdminBoardList = () => {
               <CustomCheckbox checked={isAllSelectedOnPage} onChange={handleSelectAllOnPage} />
               <span className="text-body-m-bold text-admin-text-secondary">{selectedIds.length > 0 ? `${selectedIds.length}개 선택됨` : `전체 ${filteredData.length}건`}</span>
               <div className="flex items-center ml-4 gap-4">
-                <button onClick={() => handleBatchStatus(true)} className="flex items-center gap-2 group">
-                  <div className="w-5 h-5 rounded-full border-2 border-[#2563EB] flex items-center justify-center group-hover:bg-blue-50 transition-all"><div className="w-2.5 bg-[#2563EB] h-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" /></div>
-                  <span className="text-[15px] font-bold text-[#111]">일괄 사용</span>
-                </button>
-                <div className="w-[1px] h-3 bg-gray-300" />
-                <button onClick={() => handleBatchStatus(false)} className="flex items-center gap-2 group">
-                  <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center group-hover:bg-gray-100 transition-all"><div className="w-2.5 bg-gray-400 h-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" /></div>
-                  <span className="text-[15px] font-bold text-[#666]">일괄 미사용</span>
-                </button>
+                <button onClick={() => setSortOrder("desc")} className={`px-4 py-2 text-[13px] font-bold rounded-md transition-all ${sortOrder === "desc" ? 'bg-white text-admin-primary shadow-sm' : 'text-gray-500'}`}>최신순</button>
+                <button onClick={() => setSortOrder("asc")} className={`px-4 py-2 text-[13px] font-bold rounded-md transition-all ${sortOrder === "asc" ? 'bg-white text-admin-primary shadow-sm' : 'text-gray-500'}`}>오래된순</button>
               </div>
             </div>
             
             <div className="flex gap-3">
               <div className="flex bg-gray-100 p-1 rounded-lg mr-2">
-                <button onClick={() => setSortOrder("desc")} className={`px-4 py-2 text-[13px] font-bold rounded-md transition-all ${sortOrder === "desc" ? 'bg-white text-admin-primary shadow-sm' : 'text-gray-500'}`}>최신순</button>
-                <button onClick={() => setSortOrder("asc")} className={`px-4 py-2 text-[13px] font-bold rounded-md transition-all ${sortOrder === "asc" ? 'bg-white text-admin-primary shadow-sm' : 'text-gray-500'}`}>오래된순</button>
+               
               </div>
               <button onClick={handleDeleteSelected} className="px-8 h-12 bg-[#FF003E] text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm">삭제</button>
             </div>
