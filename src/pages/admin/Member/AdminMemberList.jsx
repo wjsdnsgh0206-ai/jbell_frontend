@@ -242,7 +242,14 @@ const AdminMemberList = () => {
                 {memberList.map((item, index) => (
                     <tr key={index} className="border-b hover:bg-gray-50">
                         <td className="p-3 text-center"><input type="checkbox" defaultChecked /></td>
-                        <td className="p-3 text-blue-600">{item.memberId}</td>
+                        <td className="p-3">
+                            <button 
+                                onClick={() => navigate(`/admin/member/adminMemberDetail/${item.memberId}`, { state: item })}
+                                className="text-blue-600 hover:underline cursor-pointer"
+                            >
+                                {item.memberId}
+                            </button>
+                        </td>
                         <td className="p-3">{item.memberName}</td>
                         <td className="p-3 truncate max-w-xs">{item.memberTelNum}</td>
                         <td className="p-3">{item.memberRegion}</td>

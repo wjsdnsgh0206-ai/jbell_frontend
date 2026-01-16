@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import AdminMemberEdit from "../../pages/admin/member/AdminMemberEdit";
+import AdminMemberDetail from "../../pages/admin/member/AdminMemberDetail";
 export const AdminBoardList = lazy(() => import("@/pages/admin/board/AdminBoardList"));
 export const AdminBoardRegister = lazy(() => import("@/pages/admin/board/AdminBoardRegister"));
 export const AdminLogList = lazy(() => import("@/pages/admin/board/AdminLogList"));
@@ -37,7 +38,7 @@ const mjAdminRoutes = [
       {
             path: "/admin/contents/adminBoardRegister", 
             element: <AdminBoardRegister />,
-            nowPage: "공지사항 작성",
+            nowPage: "공지사항 등록",
       },
       {
             path: "/admin/system/adminLogList", 
@@ -48,6 +49,11 @@ const mjAdminRoutes = [
             path: "/admin/member/adminMemberList", 
             element: <AdminMemberList />,
             nowPage: "회원 조회",
+      },
+       {
+            path: "/admin/contents/adminMemberDetail/:memberId", 
+            element: <AdminMemberDetail />,
+            nowPage: "회원 상세 정보 조회",
       },
       {
             path: "/admin/member/adminMemberRegister", 

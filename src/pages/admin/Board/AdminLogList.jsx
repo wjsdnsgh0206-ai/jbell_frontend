@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import BreadCrumb from '@/components/Admin/board/BreadCrumb';
+// import BreadCrumb from '@/components/Admin/board/BreadCrumb';
 
 const AdminLogList = () => {
     /* <================ 데이터 및 상태 관리 ================> */
@@ -49,7 +49,7 @@ const AdminLogList = () => {
     return (
         <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
             <div className="p-6 bg-gray-50 min-h-screen">
-                <BreadCrumb />
+                
                 <h1 className="text-2xl font-bold mb-6">로그 관리</h1>
 
                 {/* 검색 바 영역 */}
@@ -100,6 +100,7 @@ const AdminLogList = () => {
                         <select 
                         value={searchLogReason}
                         className="w-full border p-2 rounded text-sm">
+                            <option value="전체">전체</option>
                             <option value="자격 증명 오류">자격 증명 오류(ID, PW 불일치)</option>
                             <option value="계정 상태 문제">계정 상태 문제(계정 잠금)</option>
                             <option value="계정 만료">계정 만료(유효 기간 만료)</option>

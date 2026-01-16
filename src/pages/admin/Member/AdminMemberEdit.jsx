@@ -20,6 +20,7 @@ const AdminMemberEdit = () => {
     const [isIdVerified, setIsIdVerified] = useState(true);
     const { memberId } = useParams();
     const navigate = useNavigate();
+    const [isOpen, setIsOpen] = useState(false);  // ← 토글 상태 추가
 
     /** <================================================ 상태 관리 ================================================> **/
     /** <================================================ useEffect ================================================> **/
@@ -28,16 +29,16 @@ const AdminMemberEdit = () => {
             const fetchMemberDetail = async () => {
             const res = await userService.getMemberDetail(memberId);
             setMemberForm({
-                memberId: res.memberId,
-                memberPw: '',
-                memberName: res.memberName,
-                memberTelNum: res.memberTelNum,
-                memberRegion: res.memberRegion,
-                memberRole: res.memberRole,
+                memberId: res.memberId || '',
+                memberPw: '', // 비번은 보통 보안상 비워둡니다.
+                memberName: res.memberName || '', 
+                memberTelNum: res.memberTelNum || '',
+                memberRegion: res.memberRegion || '',
+                memberRole: res.memberRole || 'USER',
             });
     };
                 
-        fetchMemberDetail(memberId);
+        if (memberId) fetchMemberDetail(); // memberId가 있을 때만 실행하도록 방어 코드 추가
     }, [memberId]);
 
     /** <================================================ useEffect ================================================> **/
@@ -53,6 +54,9 @@ const AdminMemberEdit = () => {
     const handleUpdateMember = async () => {
         await api.put(`/member/${memberId}`, memberForm);
         navigate('/admin/member/adminMemberList');
+    };
+    const handleToggle = () => {
+        setIsOpen(!isOpen);  // true ↔ false 전환
     };
 
     /** <================================================ handle 모음 ================================================> **/
@@ -176,6 +180,34 @@ const AdminMemberEdit = () => {
                         <option value="사용자">사용자</option>
                         <option value="관리자">관리자</option>
                     </select>
+
+                    <label className="block font-bold text-[16px] mb-3 text-[#111]">휴면 계정 변환 여부</label>
+                        <div className="flex items-center gap-3 mb-6">
+                        {/* 토글 배경 */}
+                        <button
+                            type="button"
+                            onClick={() => {
+                            // 클릭 시 USER <-> ADMIN 전환
+                            const nextRole = memberForm.memberRole === 'USER' ? 'ADMIN' : 'USER';
+                            setMemberForm(prev => ({ ...prev, memberRole: nextRole }));
+                            }}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                            memberForm.memberRole === 'ADMIN' ? 'bg-blue-600' : 'bg-gray-300'
+                            }`}
+                        >
+                            {/* 토글 동그라미(스위치) */}
+                            <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                memberForm.memberRole === 'ADMIN' ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                            />
+                        </button>
+                        
+                        {/* 현재 상태 텍스트 표시 */}
+                        <span className="text-sm font-medium text-gray-700">
+                            {memberForm.memberRole === 'ADMIN' ? '활성화' : '비활성화'}
+                        </span>
+                        </div>
                 </div>
 
                 <div className="flex-1 text-right mt-8">

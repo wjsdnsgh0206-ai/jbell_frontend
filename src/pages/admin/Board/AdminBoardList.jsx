@@ -134,9 +134,12 @@ const AdminBoardList = () => {
             </div>
             
             <div className="flex gap-3">
-              <div className="flex bg-gray-100 p-1 rounded-lg mr-2">
-               
-              </div>
+               <button 
+                    onClick={() => navigate('/admin/contents/adminBoardRegister')}
+                    className="px-8 h-12 bg-[#1890FF] text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm"
+                    >
+                    등록
+                    </button>
               <button onClick={handleDeleteSelected} className="px-8 h-12 bg-[#FF003E] text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm">삭제</button>
             </div>
           </div>
@@ -168,7 +171,12 @@ const AdminBoardList = () => {
                         <td className="py-5 px-6 text-left max-w-[300px]">
                           <div className="flex items-center gap-2">
                             {post.isPin && <span className="px-2 py-0.5 bg-red-50 text-red-500 text-[11px] font-bold rounded border border-red-100 flex-shrink-0">공지</span>}
-                            <span className="truncate font-medium text-admin-text-primary">{post.title}</span>
+                            <button 
+                              onClick={() => navigate(`/admin/contents/adminBoardDetail/${post.id}`, { state: post })}
+                              className="truncate font-medium text-admin-text-primary hover:text-admin-primary hover:underline text-left"
+                            >
+                              {post.title}
+                            </button>
                           </div>
                         </td>
                         <td className="py-5 text-center">{post.author}</td>
