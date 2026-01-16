@@ -135,12 +135,15 @@ const AdminBoardList = () => {
             
             <div className="flex gap-3">
                <button 
-                    onClick={() => navigate('/admin/contents/adminBoardRegister')}
-                    className="px-8 h-12 bg-[#1890FF] text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm"
-                    >
-                    등록
-                    </button>
-              <button onClick={handleDeleteSelected} className="px-8 h-12 bg-[#FF003E] text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm">삭제</button>
+                onClick={() => navigate('/admin/contents/adminBoardRegister')}
+                className="px-8 h-12 bg-[#1890FF] text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm"
+                >
+                등록
+              </button>
+              <button 
+              onClick={handleDeleteSelected} 
+              className="px-8 h-12 bg-[#FF003E] text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm"
+              >삭제</button>
             </div>
           </div>
 
