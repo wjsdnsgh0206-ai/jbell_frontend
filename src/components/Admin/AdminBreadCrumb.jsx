@@ -21,6 +21,8 @@ const adminMap = {
   "disasterSafetyPolicy": "재난별 안전정책 관리",
   "citizenSafetyInsurance": "시민 안전보험 관리",
   "stormAndFloodInsurance": "풍수해 안전보험 관리",
+  "pressRelList": "보도자료 목록",
+  "pressRelAdd": "보도자료 등록",
 };
 
 /**

@@ -55,9 +55,11 @@ export const ADMIN_MENU_DATA = {
     },
     {
       title: "열린마당 관리",
-      path: "/admin/contents/logList",
-      isAvailable: false,
-      items: [],
+      path: "/admin/contents/pressRelList",
+      isAvailable: true,
+      items: [
+        { name: "보도자료 관리", path: "/admin/contents/pressRelList" },
+      ],
     },
     {
       title: "고객센터",

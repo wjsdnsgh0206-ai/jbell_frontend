@@ -1,4 +1,4 @@
-// src/pages/admin/CodeManagement/AdminCommonCodeData.js
+// src/pages/admin/codeManagement/AdminCommonCodeData.js
 
 /**
  * [관리자] 공통코드 관리 더미 데이터
@@ -20,7 +20,7 @@ export const AdminCommonCodeData = [
     subCode: '-', 
     subName: '-', 
     desc: '카테고리1 그룹 코드 자체 설명', 
-    date: '2025-05-20 06:00', 
+    date: '2025-05-20 06:00:00', 
     order: 1, 
     visible: true 
   },
@@ -31,7 +31,7 @@ export const AdminCommonCodeData = [
     subCode: 'ABCD_1', 
     subName: '행정구역', 
     desc: '대한민국 행정 구역 코드번호', 
-    date: '2025-05-20 06:00', 
+    date: '2025-05-20 06:00:00', 
     order: 2, 
     visible: true 
   },
@@ -44,7 +44,7 @@ export const AdminCommonCodeData = [
     subCode: '-', 
     subName: '-', 
     desc: '카테고리2 그룹 코드 자체 설명', 
-    date: '2025-05-20 06:00', 
+    date: '2025-05-20 06:00:00', 
     order: 1, 
     visible: true 
   },
@@ -55,7 +55,7 @@ export const AdminCommonCodeData = [
     subCode: 'ABCD_2', 
     subName: '재난유형', 
     desc: '대한민국 재난 유형 코드번호', 
-    date: '2025-05-20 06:00', 
+    date: '2025-05-20 06:00:00', 
     order: 2, 
     visible: true 
   },
@@ -68,7 +68,7 @@ export const AdminCommonCodeData = [
     subCode: '-', 
     subName: '-', 
     desc: '카테고리3 그룹 코드 자체 설명', 
-    date: '2025-05-20 06:00', 
+    date: '2025-05-20 06:00:00', 
     order: 1, 
     visible: true 
   },
@@ -79,7 +79,7 @@ export const AdminCommonCodeData = [
     subCode: 'ABCD_3', 
     subName: '대피소분류', 
     desc: '지역별 행정구역 대피소 분류 코드번호', 
-    date: '2025-05-20 06:00', 
+    date: '2025-05-20 06:00:00', 
     order: 2, 
     visible: true 
   },
@@ -90,7 +90,7 @@ export const AdminCommonCodeData = [
     subCode: 'ABCD_3_2', 
     subName: '대피소 분류2', 
     desc: '지역별 행정구역 대피소 분류 코드번호2', 
-    date: '2025-05-20 06:00', 
+    date: '2025-05-20 06:00:00', 
     order: 3, 
     visible: false // 미사용 예시
   },
@@ -103,7 +103,7 @@ export const AdminCommonCodeData = [
     subCode: 'ABCD_4_1', 
     subName: '행동요령', 
     desc: '재난별 재난대비 행동요령 코드번호', 
-    date: '2025-05-20 06:00', 
+    date: '2025-05-20 06:00:00', 
     order: 1, 
     visible: true 
   },
@@ -114,7 +114,7 @@ export const AdminCommonCodeData = [
     subCode: 'ABCD_4_2', 
     subName: '공지사항', 
     desc: '공지사항 고유 코드번호', 
-    date: '2025-05-20 06:00', 
+    date: '2025-05-20 06:00:00', 
     order: 2, 
     visible: true 
   },
@@ -125,7 +125,7 @@ export const AdminCommonCodeData = [
     subCode: 'ABCD_4_3', 
     subName: '고객센터', 
     desc: '고객센터 고유 코드번호', 
-    date: '2025-05-20 06:00', 
+    date: '2025-05-20 06:00:00', 
     order: 3, 
     visible: true 
   },
@@ -136,7 +136,7 @@ export const AdminCommonCodeData = [
     subCode: 'ABCD_4_4', 
     subName: '안전정보지도', 
     desc: '안전정보지도 고유 코드번호', 
-    date: '2025-05-20 06:00', 
+    date: '2025-05-20 06:00:00', 
     order: 4, 
     visible: true 
   },

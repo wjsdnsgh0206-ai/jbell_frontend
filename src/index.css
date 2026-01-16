@@ -322,4 +322,79 @@
     color: inherit !important;
     padding: 0 !important;
   }
+  /* [관리자] Quill 에디터 에러 상태 스타일 최종 수정 */
+
+  /* 1. 에러 발생 시 전체 박스에 다른 입력창과 동일한 빨간색 테두리 부여 */
+  .error-border .ql-toolbar.ql-snow,
+  .error-border .ql-container.ql-snow {
+    border-color: #E15141 !important; /* 선명한 빨간색 */
+    border-width: 1.5px !important;   /* 다른 박스와 두께 맞춤 */
+  }
+
+  /* 2. 에러 상태 배경색 및 높이 고정 */
+  .error-border .ql-toolbar.ql-snow {
+    background-color: #FFFFFF !important; /* 배경은 무조건 흰색 */
+    border-bottom: 1px solid #F3F4F6 !important; /* 툴바 아래 구분선 */
+  }
+
+  .error-border .ql-container.ql-snow {
+    min-height: 400px !important; /* 👈 여기서 높이가 줄어들지 않게 강제 고정 */
+    border-top: none !important;
+    background-color: #FFFFFF !important;
+  }
+
+  /* 3. 에러 시 미세한 외곽 광택 (다른 박스의 ring 효과와 일치) */
+  .error-border {
+    box-shadow: 0 0 0 1px rgba(225, 81, 65, 0.05); 
+  }
+
+  /* ============================================================
+    [관리자] 리스트 페이지 날짜 입력창(Date Input) 커스텀 @@
+    ============================================================ */
+
+  /* 1. 날짜 입력창 부모 컨테이너 */
+  .custom-date-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 140px; /* 아이콘과 텍스트가 넉넉히 들어가는 크기 */
+  }
+
+  /* 2. 실제 날짜 텍스트 스타일 */
+  .custom-date-input {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    width: 100% !important;
+    font-family: 'Pretendard_GOV', sans-serif;
+    font-size: 14px;
+    color: #58616a;
+    padding: 0 !important;
+    cursor: default; /* 텍스트 위에서는 기본 커서 */
+  }
+
+  /* 3. 브라우저 기본 달력 아이콘 숨기기 및 아이콘 영역만 클릭 가능하게 설정 */
+  .custom-date-input::-webkit-calendar-picker-indicator {
+    position: absolute;
+    right: 0;           /* Lucide Calendar 아이콘이 위치할 오른쪽 끝 */
+    top: 0;
+    width: 24px;        /* 클릭 가능한 영역을 아이콘 크기 정도로 제한 */
+    height: 100%;
+    background: transparent;
+    color: transparent;
+    cursor: pointer;    /* 아이콘 위에만 손가락 커서 */
+    z-index: 10;
+  }
+
+  /* 4. 호버 효과 (아이콘에 마우스 올렸을 때만 파란색 강조를 원하시면 아래 유지) */
+  .custom-date-container:hover .custom-date-icon {
+    color: #2563EB !important;
+    transition: all 0.2s;
+  }
+
+  .custom-date-container:hover .custom-date-input {
+    color: #111111 !important;
+  }
+
 }
