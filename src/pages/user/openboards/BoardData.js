@@ -340,16 +340,23 @@ export const pressData = [
   { 
     id: 1, 
     mgmtId: "W-2025-001",
+<<<<<<< HEAD
     regType: "직접등록", // 등록방식 : 직접등록 및 API
     source: "전북안전대책본부", // 출처 (부서 대신 기관명)
     sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=4016&cmd=view", // 원문 링크 (상세페이지용)
+=======
+>>>>>>> develop
     title: "전북특별자치도 지진방재 국제세미나 개최", 
     author: "관리자", 
     date: "2025-11-11",
     createdAt: "2025-11-11 06:00:00",
     updatedAt: "2025-11-11 06:00:00",
     isPublic: true,
+<<<<<<< HEAD
     views: 68,
+=======
+    views: 520,
+>>>>>>> develop
     isPin: false,
     files: [
       { name: "전북특별자치도_지진방재국제세미나계획.hwp", url: "/files/press_01.hwp" }
@@ -367,17 +374,25 @@ export const pressData = [
   }, 
   { 
     id: 2, 
+<<<<<<< HEAD
     mgmtId: "W-2025-002",    
     regType: "직접등록",
     source: "전북안전대책본부",
     sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=4015&cmd=view",
+=======
+    mgmtId: "W-2025-002",
+>>>>>>> develop
     title: "전북특별자치도, 2026년 재해예방사업 국비 1,054억 확보", 
     author: "관리자", 
     date: "2025-11-11",
     createdAt: "2025-11-11 10:00:00",
     updatedAt: "2025-11-11 10:00:00",
     isPublic: true,
+<<<<<<< HEAD
     views: 76,
+=======
+    views: 1105,
+>>>>>>> develop
     isPin: false,
     files: [
       { name: "2026년_재해예방사업_국비확보내역.hwp", url: "/files/press_02.hwp" }
@@ -392,16 +407,23 @@ export const pressData = [
   { 
     id: 3, 
     mgmtId: "W-2025-003",
+<<<<<<< HEAD
     regType: "직접등록",
     source: "전북안전대책본부",
     sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=4014&cmd=view",
+=======
+>>>>>>> develop
     title: "전북특별자치도 여름철 자연재난 인명피해 '0명'", 
     author: "관리자", 
     date: "2025-11-11",
     createdAt: "2025-11-11 09:30:00",
     updatedAt: "2025-11-11 09:30:00",
     isPublic: true,
+<<<<<<< HEAD
     views: 55,
+=======
+    views: 780,
+>>>>>>> develop
     isPin: false,
     files: [{ name: "여름철_자연재난_대응실적보고.hwp", url: "/files/press_03.hwp" }],
     content: `전북특별자치도는 올 여름철 자연재난 대책 기간 동안 철저한 상황 관리와 
@@ -414,16 +436,23 @@ export const pressData = [
   { 
     id: 4, 
     mgmtId: "W-2025-004",
+<<<<<<< HEAD
     regType: "직접등록",
     source: "전북안전대책본부",
     sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3992&cmd=view",
+=======
+>>>>>>> develop
     title: "한가위 연휴기간 축제 전북도 민관합동점검 안전관리 총력!", 
     author: "관리자", 
     date: "2025-10-24",
     createdAt: "2025-10-24 11:15:00",
     updatedAt: "2025-10-24 11:15:00",
     isPublic: true,
+<<<<<<< HEAD
     views: 70,
+=======
+    views: 340,
+>>>>>>> develop
     isPin: false,
     files: [{ name: "251001한가위연휴기간 축제 전북도 민관합동점검 안전관리 총력.hwpx", url: "/files/press_04.hwp" }],
     content: `전북특별자치도는 다가오는 추석 명절을 맞아 귀성객과 관광객이 대거 방문할 것으로
@@ -438,16 +467,23 @@ export const pressData = [
   { 
     id: 5, 
     mgmtId: "W-2025-005",
+<<<<<<< HEAD
     regType: "직접등록",
     source: "전북안전대책본부",
     sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3957&cmd=view",
+=======
+>>>>>>> develop
     title: "전북자치도, 안전점검의 날 교통안전 캠페인 전개", 
     author: "관리자", 
     date: "2025-09-25",
     createdAt: "2025-09-25 09:00:00",
     updatedAt: "2025-09-25 09:00:00",
     isPublic: true,
+<<<<<<< HEAD
     views: 88,
+=======
+    views: 620,
+>>>>>>> develop
     isPin: false,
     files: [{ name: "250904 민관 합동 안전문화 캠페인 실시(9월 안전점검의 날) 보도자료.hwp", url: "/files/press_05.hwp" }],
     content: `전북특별자치도가 4일 완주 봉동초등학교 일원에서 안전한 학교 환경 조성을 위한 민관 합동 교통안전 캠페인을 실시했다. 
@@ -460,16 +496,23 @@ export const pressData = [
   { 
     id: 6, 
     mgmtId: "W-2025-006",
+<<<<<<< HEAD
     regType: "직접등록",
     source: "전북안전대책본부",
     sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3956&cmd=view",
+=======
+>>>>>>> develop
     title: "전북도, 상반기 안전신문고 우수 신고자 선정 포상", 
     author: "관리자", 
     date: "2025-09-24",
     createdAt: "2025-09-24 13:00:00",
     updatedAt: "2025-09-24 13:00:00",
     isPublic: true,
+<<<<<<< HEAD
     views: 81,
+=======
+    views: 480,
+>>>>>>> develop
     isPin: false,
     files: [{ name: "250827 보도자료-전북도, 상반기 안전신문고 우수 신고자 선정 포상.hwpx", url: "/files/press_06.hwpx" }],
     content: `2025년 상반기 안전신문고 우수 신고자 포상 관련 보도자료입니다.
@@ -479,16 +522,23 @@ export const pressData = [
   { 
     id: 7, 
     mgmtId: "W-2025-007",
+<<<<<<< HEAD
     regType: "직접등록",
     source: "전북안전대책본부",
     sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3954&cmd=view",
+=======
+>>>>>>> develop
     title: "전북자치도, 가을축제 안전관리 우리가 간다!", 
     author: "관리자", 
     date: "2025-09-24",
     createdAt: "2025-09-24 14:00:00",
     updatedAt: "2025-09-24 14:00:00",
     isPublic: true,
+<<<<<<< HEAD
     views: 85,
+=======
+    views: 590,
+>>>>>>> develop
     isPin: false,
     files: [{ name: "250908 보도자료_전북자치도, 가을축제 안전관리 우리가 간다!(수정).hwp", url: "/files/press_06_1.hwp" }],
     content: `가을축제 안전관리 점검관련 보도자료 입니다.
@@ -498,20 +548,28 @@ export const pressData = [
   { 
     id: 8, 
     mgmtId: "W-2025-008",
+<<<<<<< HEAD
     regType: "직접등록",
     source: "전북안전대책본부",
     sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3953&cmd=view",
+=======
+>>>>>>> develop
     title: "전북자치도, ‘찾아가는 중대재해 예방 컨설팅’으로", 
     author: "관리자", 
     date: "2025-09-24",
     createdAt: "2025-09-24 10:00:00",
     updatedAt: "2025-09-24 10:00:00",
     isPublic: true,
+<<<<<<< HEAD
     views: 107,
+=======
+    views: 410,
+>>>>>>> develop
     isPin: false,
     files: [{ name: "전북자치도, ‘찾아가는 중대재해 예방 컨설팅’으로.hwpx", url: "/files/press_07.hwp" }],
     content: `중대재해예방 컨설팅 관련 보도자료 입니다.\n\n출처 : 전북안전대책본부 (https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3953&cmd=view)` 
   },
+<<<<<<< HEAD
   
   { 
     id: 9, 
@@ -519,13 +577,23 @@ export const pressData = [
     regType: "직접등록",
     source: "전북안전대책본부",
     sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3952&cmd=view",
+=======
+  // --- 누락되었던 9번 데이터 복구 및 필드 보강 ---
+  { 
+    id: 9, 
+    mgmtId: "W-2025-009",
+>>>>>>> develop
     title: "전북도, 물놀이 안전 현장점검·응급처치 교육병행 등을 통한 도민 안심 여름 조성", 
     author: "관리자", 
     date: "2025-09-24",
     createdAt: "2025-09-24 11:30:00",
     updatedAt: "2025-09-24 11:30:00",
     isPublic: true,
+<<<<<<< HEAD
     views: 80,
+=======
+    views: 380,
+>>>>>>> develop
     isPin: false,
     files: [{ name: "250704 보도자료-전북도, 물놀이 안전 사전점검·응급처치 교육 병행… 도민 안심 여름 조성.hwp", url: "/files/press_08.hwp" }],
     content: `물놀이 안전 현장점검·응급처치 교육병행 등을 통한 도민 안심 여름 조성관련 보도자료 입니다.\n\n출처 : 전북안전대책본부 (https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3952&cmd=view)` 
@@ -533,16 +601,23 @@ export const pressData = [
   { 
     id: 10, 
     mgmtId: "W-2025-010",
+<<<<<<< HEAD
     regType: "직접등록",
     source: "전북안전대책본부",
     sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3951&cmd=view",
+=======
+>>>>>>> develop
     title: "전북자치도, 2025년 국민안전교육 '최우수 기관' 선정", 
     author: "관리자", 
     date: "2025-09-24",
     createdAt: "2025-09-24 15:40:00",
     updatedAt: "2025-09-25 11:20:00",
     isPublic: true,
+<<<<<<< HEAD
     views: 73,
+=======
+    views: 1200,
+>>>>>>> develop
     isPin: false,
     files: [{ name: "250730 보도자료-전북자치도, 2025년 국민안전교육 최우수 기관 선정.hwp", url: "/files/press_10.hwp" }],
     content: `2025년 국민안전교육 최우수 기관 전북자치도 선정관련 보도자료 입니다.
@@ -552,20 +627,28 @@ export const pressData = [
   { 
     id: 11, 
     mgmtId: "W-2025-011",
+<<<<<<< HEAD
     regType: "직접등록",
     source: "전북안전대책본부",
     sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=2&key=&val=&CAT_ID=0&BID=3950&cmd=view",
+=======
+>>>>>>> develop
     title: "전북자치도, 가정의 달 지역축제 등 안전관리 강화", 
     author: "관리자", 
     date: "2025-09-24",
     createdAt: "2025-09-24 17:00:00",
     updatedAt: "2025-09-24 17:00:00",
     isPublic: true,
+<<<<<<< HEAD
     views: 70,
+=======
+    views: 450,
+>>>>>>> develop
     isPin: false,
     files: [{ name: "250501 전북특별자치도, 가정의 달 지역축제 등 안전관리 강화.hwp", url: "/files/press_11.hwp" }],
     content: `가정의 달 지역축제 등 안전관리 강화 관련 보도자료 입니다.
     
+<<<<<<< HEAD
 출처 : 전북안전대책본부 (https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=2&key=&val=&CAT_ID=0&BID=3950&cmd=view) ` 
   },
 
@@ -639,4 +722,8 @@ export const pressData = [
 
 
 
+=======
+출처 : 전북안전대책본부 (https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=2&key=&val=&CAT_ID=0&BID=3950&cmd=view)    ` 
+  }
+>>>>>>> develop
 ];

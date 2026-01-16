@@ -9,7 +9,6 @@ const dirname = path.dirname(filename);
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
-  console.log(env); // 터미널에 선언한 환경변수들이 보인다.
   return {
     plugins: [
       react(),
@@ -129,21 +128,58 @@ export default defineConfig(({ mode }) => {
           },
         },
 
-// vite.config.js
-"/sluice-api": {
-  target: "https://apis.data.go.kr",
-  changeOrigin: true,
-  rewrite: (path) => path.replace(/^\/sluice-api/, ""),
-  secure: false,
-  configure: (proxy, options) => {
-    proxy.on("proxyReq", (proxyReq, req, res) => {
-      console.log("Proxy Request:", req.method, req.url);
-    });
-    proxy.on("proxyRes", (proxyRes, req, res) => {
-      console.log("Proxy Response:", proxyRes.statusCode, req.url);
-    });
-  },
-},
+        // 호우홍수에서 활용되는 수문 api
+        "/sluice-api": {
+          target: "https://apis.data.go.kr/",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/sluice-api/, ""),
+          secure: false,
+          configure: (proxy, options) => {
+            proxy.on("proxyReq", (proxyReq, req, res) => {
+              console.log("Proxy Request:", req.method, req.url);
+            });
+            proxy.on("proxyRes", (proxyRes, req, res) => {
+              console.log("Proxy Response:", proxyRes.statusCode, req.url);
+            });
+          },
+        },
+
+        // 산사태에서 활용되는 산사태 위험 api
+        // "/landslideWarning-api": {
+        //   target: "https://www.safetydata.go.kr/V2/api",
+        //   changeOrigin: true,
+        //   rewrite: (path) => path.replace(/^\/landslideWarning-api/, ""),
+        //   secure: false,
+        //   configure: (proxy, options) => {
+        //     proxy.on("proxyReq", (proxyReq, req, res) => {
+        //       console.log("Proxy Request:", req.method, req.url);
+        //     });
+        //     proxy.on("proxyRes", (proxyRes, req, res) => {
+        //       console.log("Proxy Response:", proxyRes.statusCode, req.url);
+        //     });
+        //   },
+        // },
+
+        // 기상특보 api
+        "/weatherWarning-api": {
+          target: "https://www.safetydata.go.kr/V2/api",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/weatherWarning-api/, ""),
+        },
+
+        // 산불위험예보정보  api
+        "/forestFireWarning-api": {
+          target: "http://apis.data.go.kr/1400377/forestPoint",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/forestFireWarning-api/, ""),
+        },
+
+        // 산사태 예보발령 api
+        "/landSlideWarning-api": {
+          target: "https://apis.data.go.kr/1400000/forecastIssueService",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/landSlideWarning-api/, ""),
+        },
 
         // 🔹 기상청 지진 특보
         "/kma-api": {

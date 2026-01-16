@@ -22,7 +22,7 @@ const MyProfile = () => {
   // 2. DB 통신 및 데이터 매핑
   useEffect(() => {
     // 예시: 현재 로그인한 사용자의 아이디 등으로 검색하거나 전체 조회
-    const searchOptions = { name: "김철수" }; // 테스트용 조건
+    const searchOptions = { user_id: "admin" }; // 테스트용 조건
 
     userService.getUsers(searchOptions)
       .then(data => {

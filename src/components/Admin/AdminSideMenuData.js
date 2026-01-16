@@ -55,10 +55,18 @@ export const ADMIN_MENU_DATA = {
     },
     {
       title: "열린마당 관리",
+<<<<<<< HEAD
       path: "/admin/contents/pressRelList",
       isAvailable: true,
       items: [
         { name: "보도자료 관리", path: "/admin/contents/pressRelList" },
+=======
+      path: "/admin/contents/adminBoardList",
+      isAvailable: true,
+      items: [
+        { name: "공지사항", path: "/admin/contents/adminBoardList" },
+        { name: "보도자료", path: "/admin/contents/adminPressRelList" },
+>>>>>>> develop
       ],
     },
     {
@@ -70,7 +78,7 @@ export const ADMIN_MENU_DATA = {
   ],
 
   // [회원 관리] 그룹: URL이 /admin/user/... 일 때 활성화 (팀원 추가 영역)
-  user: [ 
+  member: [ 
     /* 예시:
       {
         title: "사용자 정보 관리",
