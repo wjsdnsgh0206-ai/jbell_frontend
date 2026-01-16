@@ -1,43 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import { X, Paperclip, Save, ArrowLeft } from 'lucide-react';
-import { noticeData } from '@/pages/user/openboards/BoardData';
+import { noticeData } from '@/pages/user/openboards/BoardData'; // 공지사항 데이터 임포트
+import { X, ChevronDown, RotateCcw, Paperclip, ArrowLeft, Save } from 'lucide-react';
+import AdminCodeConfirmModal from '@/components/admin/AdminConfirmModal'; // 기존 모달 재활용
 
-const AdminBoardForm = () => {
+const AdminBoardManagement = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { id } = useParams(); // URL에서 id 받기
+  const { boardId } = useParams();
   
-  // 수정 모드인지 확인 (id가 있으면 수정, 없으면 등록)
-  const isEditMode = !!id;
-  
-  // location.state로 넘어온 데이터 또는 id로 찾기
-  const existingData = location.state || noticeData.find(post => post.id === parseInt(id));
+  const isEditMode = !!boardId;
+
+  // ✅ id로 찾기
+  const existingData = location.state || noticeData.find(post => post.boardId === parseInt(boardId));
 
   const nextId = noticeData.length > 0 
-    ? Math.max(...noticeData.map(post => post.id)) + 1 
+    ? Math.max(...noticeData.map(post => post.boardId)) + 1 // ✅ id로 변경
     : 1;
 
+// 상태 관리
   const [formData, setFormData] = useState({
-    boardTitle: '',
-    boardContent: '',
-    isPublic: true,
+    title: '',
+    content: '',
+    isPublic: true, // 라디오 버튼 상태
     files: []
   });
 
-  // 수정 모드일 때 기존 데이터 채우기
-  useEffect(() => {
-    if (isEditMode && existingData) {
-      setFormData({
-        boardTitle: existingData.boardTitle || '',
-        boardContent: existingData.boardContent || '',
-        isPublic: existingData.isPublic ?? true,
-        files: existingData.files || []
-      });
-    }
-  }, [isEditMode, existingData]);
 
-  const handleInputChange = (e) => {
+   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -58,6 +48,7 @@ const AdminBoardForm = () => {
     }));
   };
 
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.boardTitle.trim() || !formData.boardContent.trim()) {
@@ -66,13 +57,11 @@ const AdminBoardForm = () => {
     }
 
     if (isEditMode) {
-      // 수정 로직
-      console.log("수정 데이터:", { id: existingData.id, ...formData });
+      console.log("수정 데이터:", { boardId: existingData.boardId, ...formData }); // ✅ id 사용
       alert("공지사항이 수정되었습니다.");
     } else {
-      // 등록 로직
       const newPost = {
-        id: nextId,
+        boardId: nextId,
         ...formData,
         author: "관리자",
         createdAt: new Date().toISOString().split('T')[0],
@@ -95,8 +84,9 @@ const AdminBoardForm = () => {
           >
             <ArrowLeft size={20} className="mr-1" /> 목록으로 돌아가기
           </button>
+          {/* ✅ 제목이 자동으로 바뀜! */}
           <h2 className="text-heading-l text-admin-text-primary tracking-tight">
-            공지사항 {isEditMode ? '수정' : '작성'}
+            공지사항 {isEditMode ? '수정' : '등록'}
           </h2>
         </div>
       </div>
@@ -108,7 +98,7 @@ const AdminBoardForm = () => {
               <label className="block text-body-m-bold text-admin-text-primary mb-3">공지 번호</label>
               <input 
                 type="text" 
-                value={isEditMode ? existingData?.id : nextId} 
+                value={isEditMode ? existingData?.boardId : nextId} // ✅ id로 표시
                 disabled 
                 className="w-full h-12 px-4 bg-graygray-5 border border-admin-border rounded-md text-graygray-40 font-mono"
               />
@@ -225,4 +215,4 @@ const AdminBoardForm = () => {
   );
 };
 
-export default AdminBoardForm;
+export default AdminBoardManagement;

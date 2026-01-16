@@ -1,8 +1,9 @@
 import { lazy } from "react";
 import AdminMemberEdit from "../../pages/admin/member/AdminMemberEdit";
 import AdminMemberDetail from "../../pages/admin/member/AdminMemberDetail";
+import AdminBoardManagement from "../../pages/admin/board/AdminBoardManagement";
 export const AdminBoardList = lazy(() => import("@/pages/admin/board/AdminBoardList"));
-export const AdminBoardRegister = lazy(() => import("@/pages/admin/board/AdminBoardRegister"));
+// export const AdminBoardManagement = lazy(() => import("@/pages/admin/board/AdminBoardManagement"));
 export const AdminBoardDetail = lazy(() => import("@/pages/admin/board/AdminBoardDetail"));
 export const AdminLogList = lazy(() => import("@/pages/admin/board/AdminLogList"));
 export const AdminMemberList = lazy(() => import("@/pages/admin/member/AdminMemberList"));
@@ -35,15 +36,20 @@ const mjAdminRoutes = [
             element: <AdminBoardList />,
             nowPage: "공지사항",
       },
-       {
+      {
             path: "/admin/contents/adminBoardDetail/:boardTitle", 
             element: <AdminBoardDetail />,
-            nowPage: "공지사항 조회",
+            nowPage: "공지사항 상세보기",
       },
       {
             path: "/admin/contents/adminBoardRegister", 
-            element: <AdminBoardRegister />,
+            element: <AdminBoardManagement />,
             nowPage: "공지사항 등록",
+      },
+      {
+            path: "/admin/contents/adminBoardEdit/:boardTitle", 
+            element: <AdminBoardManagement />,
+            nowPage: "공지사항 수정",
       },
       {
             path: "/admin/system/adminLogList", 
