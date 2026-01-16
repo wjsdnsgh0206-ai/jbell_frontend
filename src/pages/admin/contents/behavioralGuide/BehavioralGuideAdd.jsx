@@ -1,44 +1,89 @@
-import React, { useState, useEffect } from 'react';
+// src/pages/admin/behavioralGuide/BehavioralGuideAdd.jsx
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useOutletContext } from "react-router-dom";
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
+
 // import axios from 'axios'; // Spring Boot 연동 시 사용
 
-const BehavioralGuideAdd = () => {
+const BehavioralFormDataAdd = () => {
+  
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
-
-  // 1. 초기 상태 관리 (빈 값으로 시작)
-  const [guide, setGuide] = useState({
-    categoryName: '',
-    category: '', // 실제 DB에 저장될 코드 (예: NATURAL)
-    typeName: '',
-    type: '',     // 실제 DB에 저장될 코드 (예: EQK)
-    title: '',
-    actRmks: '',
-    visible: true,
+  
+  // ==================================================================================
+  // 상태 관리
+  // ==================================================================================
+  const [formData, setFormData] = useState({
+    contentType: '', // 재난유형 (예: EQK)
+    title: '',        // 제목
+    body: '',         // 본문 (Quill 에디터 내용)
+    visibleYn: 'Y',  // 노출여부 (Y/N)
+    contentLink: '', // 출처/링크
+    ordering: 0       // 순서
   });
 
+  // ==================================================================================
+  // 데이터 가공 
+  // ==================================================================================
+  
+  // 에디터 설정 (이미지 핸들러 자리 확보)
+  const modules = useMemo(() => ({
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+        ['link', 'image'],
+        ['clean']
+      ],
+      // ★ 중요: 나중에 이미지 서버 업로드 기능 넣을 때 여기에 핸들러 추가
+      // handlers: { image: imageHandler } 
+    }
+  }), []);
+  
+  // 브레드크럼 설정
   useEffect(() => {
     // 페이지 진입 시 브레드크럼 설정
     setBreadcrumbTitle("행동요령 등록");
     return () => setBreadcrumbTitle("");
   }, [setBreadcrumbTitle]);
+  
+  // ==================================================================================
+  // 이벤트 핸들러
+  // ==================================================================================
 
-  // 2. 입력 핸들러
+  // 2. 입력 핸들러 (Quill 도입 전 기본 input 기준)
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setGuide(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // 3. 저장 핸들러 (POST 요청)
-  const handleSave = async () => {
-    // 필수값 체크 (ISTP 스타일: 핵심만 체크)
-    if (!guide.title || !guide.actRmks) {
-      return alert("제목과 내용은 필수 입력 사항입니다.");
-    }
+  // 4. 에디터 전용 핸들러 (팀원 방식 적용)
+  // Quill은 이벤트 객체(e)가 아니라 내용(content)을 바로 줍니다.
+  const handleEditorChange = (content) => {
+    setFormData(prev => ({ ...prev, body: content }));
+  };
 
+  // 3. 토글 핸들러 (Boolean <-> Y/N 변환 핵심!)
+  const handleToggle = () => {
+    setFormData(prev => ({
+      ...prev,
+      visibleYn: prev.visibleYn === 'Y' ? 'N' : 'Y' // 토글 로직 변경
+    }));
+  };
+
+  // 5. 저장 핸들러 (POST 요청)
+  const handleSave = async () => {
+    // 유효성 검사
+    if (!formData.title || !formData.body) {
+      return alert("제목과 내용은 필수입니다.");
+    }
+    
+    // TODO: 서버 전송 로직 (axios.post)
     try {
-      // Spring Boot 연동 시: await axios.post('/api/admin/behavioral-guide', guide);
-      console.log("DB에 저장될 신규 데이터:", guide);
+      // Spring Boot 연동 시: await axios.post('/api/admin/behavioral-formData', formData);
+      console.log("DB 전송 데이터:", formData);
       alert("새 행동요령이 등록되었습니다.");
       navigate("/admin/contents/behavioralGuideList"); // 등록 후 목록으로 이동
     } catch (error) {
@@ -75,74 +120,91 @@ const BehavioralGuideAdd = () => {
         <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard overflow-hidden">
           <div className="p-10 space-y-8">
             
-            {/* 1열: 카테고리 & 유형 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="flex flex-col gap-3">
-                <label className="text-body-m-bold text-admin-text-secondary ml-1">재난 구분 (코드/명칭)</label>
+            {/* 1열: 유형 & 제목 (1:3 비율 설정) */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              {/* 첫 번째 섹션: 4칸 중 1칸 차지 */}
+              <div className="flex flex-col gap-3 md:col-span-1">
+                <label className="text-body-m-bold text-admin-text-secondary ml-1">재난 구분/유형 (코드/명칭)</label>
                 <input 
-                  name="categoryName"
-                  value={guide.categoryName}
+                  name="contentType"
+                  value={formData.contentType}
                   onChange={handleChange}
-                  placeholder="예: 자연재난"
+                  placeholder="예: 자연재난-지진"
                   className="h-14 px-5 rounded-lg border border-admin-primary bg-white focus:ring-2 ring-blue-100 outline-none text-body-m transition-all"
                 />
               </div>
-              <div className="flex flex-col gap-3">
-                <label className="text-body-m-bold text-admin-text-secondary ml-1">재난 유형 (코드/명칭)</label>
+              {/* 두 번째 섹션: 4칸 중 3칸 차지 */}
+              <div className="flex flex-col gap-3 md:col-span-3">
+                <label className="text-body-m-bold text-admin-text-secondary ml-1">행동요령 제목</label>
                 <input 
-                  name="typeName"
-                  value={guide.typeName}
+                  name="title"
+                  value={formData.title}
                   onChange={handleChange}
-                  placeholder="예: 지진"
+                  placeholder="사용자에게 보여줄 제목을 입력하세요"
                   className="h-14 px-5 rounded-lg border border-admin-primary bg-white focus:ring-2 ring-blue-100 outline-none text-body-m transition-all"
                 />
               </div>
             </div>
 
-            {/* 2열: 제목 */}
-            <div className="flex flex-col gap-3">
-              <label className="text-body-m-bold text-admin-text-secondary ml-1">행동요령 제목</label>
+            {/* ★ Quill 에디터 영역 (팀원 스타일 적용) */}
+            <div className="w-full">
+              <label className="block font-bold text-[16px] mb-3">내용</label>
+              {/* 배경색이나 테두리는 CSS(index.css)에서 처리됨 */}
+              <div className="bg-white rounded-lg"> 
+                <ReactQuill 
+                  theme="snow" 
+                  value={formData.body}    // DB 컬럼: body
+                  onChange={handleEditorChange} 
+                  modules={modules} 
+                  placeholder="내용을 입력해주세요." 
+                  // className은 index.css의 .ql-container 스타일을 따라갑니다.
+                />
+              </div>
+            </div>
+
+            {/* 링크 필드 추가 할 경우*/}
+            {/* <div className="flex flex-col gap-3">
+              <label className="text-body-m-bold text-admin-text-secondary ml-1">관련 링크 (출처)</label>
               <input 
-                name="title"
-                value={guide.title}
-                onChange={handleChange}
-                placeholder="사용자에게 보여줄 제목을 입력하세요"
+                name="contentLink" 
+                value={formData.contentLink} 
+                onChange={handleChange} 
+                placeholder="출처 링크를 입력하세요 (선택)" 
                 className="h-14 px-5 rounded-lg border border-admin-primary bg-white focus:ring-2 ring-blue-100 outline-none text-body-m transition-all"
               />
-            </div>
+            </div> */}
 
-            {/* 3열: 상세 내용 */}
-            <div className="flex flex-col gap-3">
-              <label className="text-body-m-bold text-admin-text-secondary ml-1">콘텐츠 내용</label>
-              <textarea 
-                name="actRmks"
-                value={guide.actRmks}
-                onChange={handleChange}
-                rows={12}
-                placeholder="상세한 행동요령 내용을 입력하세요. (줄바꿈 포함)"
-                className="p-6 rounded-lg border border-admin-primary bg-white focus:ring-2 ring-blue-100 outline-none text-body-m leading-relaxed resize-none transition-all"
-              />
-            </div>
-
-            {/* 4열: 노출 여부 */}
+            {/* 노출 여부 (Y/N 토글 스위치 디자인) */}
             <div className="flex items-center gap-6 pt-4 border-t border-admin-border">
               <label className="text-body-m-bold text-admin-text-secondary">즉시 노출 여부</label>
-              <button
-                type="button"
-                onClick={() => setGuide(prev => ({ ...prev, visible: !prev.visible }))}
-                className={`w-14 h-7 flex items-center rounded-full p-1 transition-all duration-300 ${
-                  guide.visible ? 'bg-admin-primary' : 'bg-graygray-30'
-                } cursor-pointer`}
-              >
-                <div className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-300 ${
-                  guide.visible ? 'translate-x-7' : 'translate-x-0'
-                }`} />
-              </button>
-              <span className={`text-body-s-bold ${guide.visible ? 'text-admin-primary' : 'text-graygray-40'}`}>
-                {guide.visible ? "등록 즉시 노출" : "비노출로 저장"}
-              </span>
-            </div>
+              
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleToggle} // 상단에서 만든 'Y' <-> 'N' 전환 함수
+                  className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${
+                    formData.visibleYn === 'Y' ? 'bg-admin-primary' : 'bg-gray-300'
+                  } cursor-pointer hover:shadow-inner`}
+                >
+                  {/* 스위치 내부 원형 버튼 */}
+                  <div 
+                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
+                      formData.visibleYn === 'Y' ? 'translate-x-6' : 'translate-x-0'
+                    }`} 
+                  />
+                </button>
 
+                {/* 상태 표시 (선택 사항) */}
+                <span className={`text-body-s-bold ${formData.visibleYn === 'Y' ? 'text-admin-primary' : 'text-graygray-40'}`}>
+                  {formData.visibleYn === 'Y' ? "활성화 (Y)" : "비활성화 (N)"}
+                </span>
+                {/* 상태 안내 문구 (선택 사항) */}
+                <span className="text-sm text-gray-400">
+                  * {formData.visibleYn === 'Y' ? '현재 사용자에게 노출되는 상태입니다.' : '현재 사용자에게 숨겨진 상태입니다.'}
+                </span>
+
+              </div>
+            </div>
           </div>
         </section>
       </main>
@@ -150,4 +212,4 @@ const BehavioralGuideAdd = () => {
   );
 };
 
-export default BehavioralGuideAdd;
+export default BehavioralFormDataAdd;

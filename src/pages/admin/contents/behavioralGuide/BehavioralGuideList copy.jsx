@@ -60,43 +60,62 @@ const BehavioralGuideList = () => {
     navigate(`/admin/contents/behavioralGuideDetail/${id}`);
   }, [navigate]);
 
-  // 1단 필터: '구분' (자연재난, 사회재난 등)
+  // [옵션 1] 재난 구분(대분류) 자동 추출 @@
   const categoryOptions = useMemo(() => {
-    // contentType의 '-' 앞부분만 추출하여 중복 제거
-    const categories = [...new Set(guides.map(item => item.contentType.split('-')[0]))];
-    return [{ value: "all", label: "구분 전체" }, ...categories.map(c => ({ value: c, label: c }))];
-  }, [guides]);
-
-  // 2단 필터: '유형' (지진, 태풍 등)
+    const categories = BehavioralGuideData.map(item => ({
+      value: item.category,
+      label: item.categoryName
+    }));
+    // 중복 제거
+    const uniqueCategories = categories.filter(
+      (opt, index, self) => index === self.findIndex((t) => t.value === opt.value)
+    );
+    return [{ value: "all", label: "구분 전체" }, ...uniqueCategories];
+  }, []);
+  
+  // [옵션 2] 재난 유형(소분류) 자동 추출 @@
   const typeOptions = useMemo(() => {
+    // 전체 선택일 때는 유형 필터를 비우거나 전체를 보여줌
     if (selectedCategory === "all") return [{ value: "all", label: "유형 전체" }];
 
-    // 선택된 구분에 해당하는 항목들의 '-' 뒷부분만 추출
-    const types = guides
-      .filter(item => item.contentType.startsWith(selectedCategory))
-      .map(item => item.contentType.split('-')[1]);
-      
-    const uniqueTypes = [...new Set(types)];
-    return [{ value: "all", label: "유형 전체" }, ...uniqueTypes.map(t => ({ value: t, label: t }))];
-  }, [guides, selectedCategory]);
+    const filteredByType = BehavioralGuideData.filter(
+      (item) => item.category === selectedCategory
+    );
+    const options = filteredByType.map((item) => ({
+      value: item.type,
+      label: item.typeName,
+    }));
+    const uniqueOptions = options.filter(
+      (opt, index, self) => index === self.findIndex((t) => t.value === opt.value)
+    );
+    return [{ value: "all", label: "유형 전체" }, ...uniqueOptions];
+  }, [selectedCategory]);
 
   // ==================================================================================
   // 3. 데이터 가공 (Filtering & Sorting) @@
   // ==================================================================================
   const filteredData = useMemo(() => {
-    return guides.filter(item => {
-      // DB의 '자연재난-지진'을 실시간으로 쪼개서 비교
-      const [itemCat, itemType] = item.contentType.split('-');
-      
-      const isCategoryMatch = selectedCategory === "all" || itemCat === selectedCategory;
-      const isTypeMatch = selectedType === "all" || itemType === selectedType;
-      
-      // 검색어 필터링 (제목, 본문 등)
-      const matchesSearch = item.title.includes(appliedKeyword) || item.body.includes(appliedKeyword);
+    const searchTerm = appliedKeyword.replace(/\s+/g, "").toLowerCase();
+    
+      return guides.filter(item => {
+        // 1. 필터 조건 확인 (키값 변경: category, type)
+        const isCategoryMatch = selectedCategory === "all" || item.category === selectedCategory;
+        const isTypeMatch = selectedType === "all" || item.type === selectedType;
+        
+        if (!searchTerm) return isCategoryMatch && isTypeMatch;
 
-      return isCategoryMatch && isTypeMatch && matchesSearch;
-    });
-  }, [guides, selectedCategory, selectedType, appliedKeyword]);
+        // 2. 검색어 조건 확인 (제목, 카테고리명 포함)
+        const targetString = [ item.contentType, item.title, item.body]
+          .join("")
+          .replace(/\s+/g, "")
+          .toLowerCase();
+          
+        return isCategoryMatch && isTypeMatch && targetString.includes(searchTerm);
+      }).sort((a, b) => {
+        // 3. 정렬 로직 (최신 등록순)
+        return new Date(b.date) - new Date(a.date);
+      });
+  }, [guides, appliedKeyword, selectedCategory, selectedType]); // 의존성 배열에 필터 상태 추가 @@
 
   // 현재 페이지에 보여줄 데이터 슬라이싱
   const currentData = useMemo(() => {
@@ -109,52 +128,31 @@ const BehavioralGuideList = () => {
   // ==================================================================================
   const columns = useMemo(() => [
     { key: 'contentId', header: 'No', width: '60px', className: 'text-center' },
-    { 
-      key: 'contentType', 
-      header: '재난구분/유형', 
-      className: 'text-center',
-      render: (val) => {
-        if (!val) return '-';
-        const [cat, type] = val.split('-');
-        return (
-          <div className="flex flex-col items-center">
-            <span>{cat}</span>
-            <span className="font-bold">{type}</span>
-          </div>
-        );
-      }
-    },
+    { key: 'contentType', header: '재난구분/유형', width: '100px', className: 'text-center' }, // 예: 자연재난
     { key: 'title', header: '제목', width: '200px', className: 'text-center' },
-    { 
-      key: 'body', 
-      header: '내용', 
-      className: 'text-left',
-      render: (text) => (
-        <div className="truncate max-w-[300px]" title={text?.replace(/<[^>]*>?/gm, '')}>
-          {text?.replace(/<[^>]*>?/gm, '') /* HTML 태그 제거하고 텍스트만 보여주기 */}
-        </div>
-      )
-    },
+    { key: 'body', header: '내용', className: 'text-center' },
     { 
       key: 'visibleYn', 
       header: '노출여부', 
       width: '100px',
       className: 'text-center',
-      render: (val, row) => ( // val은 'Y' 또는 'N'
+      // 'Y'/'N'을 true/false로 변환하여 UI 표시
+      render: (visible, row) => (
         <div className="flex justify-center">
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              handleToggleVisible(row.contentId, val); // val 그대로 전달 ('Y'/'N')
+              // ID와 현재 visible 상태를 같이 넘겨줍니다.
+              handleToggleVisible(row.id, visible);
             }}
             className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${
-              val === 'Y' ? 'bg-admin-primary' : 'bg-gray-300'
+              visible ? 'bg-admin-primary' : 'bg-gray-300'
             } cursor-pointer hover:shadow-inner`}
           >
             <div 
               className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
-                val === 'Y' ? 'translate-x-6' : 'translate-x-0' 
+                visible ? 'translate-x-6' : 'translate-x-0'
               }`} 
             />
           </button>
@@ -168,7 +166,7 @@ const BehavioralGuideList = () => {
         width: '80px',
         className: 'text-center',
         render: (_, row) => (
-        <button onClick={() => goDetail(row.contentId)} className="bg-gray-50 border border-gray-300 rounded px-3 py-1 text-sm hover:bg-blue-50 whitespace-nowrap">
+        <button onClick={() => goDetail(row.id)} className="bg-graygary-0 border border-gray-300 rounded px-3 py-1 text-sm hover:bg-blue-200 whitespace-nowrap">
             보기
         </button>
         )
@@ -193,7 +191,7 @@ const BehavioralGuideList = () => {
 
   // 선택된 항목들의 이름 목록 가져오기 (메시지 표시용)
   const getAllSelectedItemsList = () => {
-    const selectedItems = guides.filter(item => selectedIds.includes(item.contentId));
+    const selectedItems = guides.filter(item => selectedIds.includes(item.id));
     return selectedItems.map(item => item.title).join(", ");
   };
 
@@ -207,12 +205,12 @@ const BehavioralGuideList = () => {
       message: (
         <div className="flex flex-col gap-2 text-left">
           <p>선택하신 <span className="text-red-600 font-bold">[{allNames}]</span> 항목을 정말 삭제하시겠습니까?</p>
-          <p className="text-body-s text-gray-500">* 삭제된 데이터는 복구할 수 없습니다.</p>
+          <p className="text-body-s text-graygray-50">* 삭제된 데이터는 복구할 수 없습니다.</p>
         </div>
       ),
       type: 'delete',
       onConfirm: () => {
-        setGuides(prev => prev.filter(c => !selectedIds.includes(c.contentId)));
+        setGuides(prev => prev.filter(c => !selectedIds.includes(c.id)));
         setSelectedIds([]);
         setIsModalOpen(false);
       }
@@ -223,8 +221,6 @@ const BehavioralGuideList = () => {
   // [일괄 상태 변경] 핸들러 (노출/비노출)
   const handleBatchStatus = (status) => {
     if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
-
-    const targetStatus = isExpose ? 'Y' : 'N';
     const allNames = getAllSelectedItemsList();
     
     setModalConfig({
@@ -237,7 +233,7 @@ const BehavioralGuideList = () => {
       ),
       type: status ? 'confirm' : 'delete', // 기존 delete 타입 디자인 재활용
       onConfirm: () => {
-        setGuides(prev => prev.map(item => selectedIds.includes(item.contentId) ? { ...item, visibleYn: targetStatus } : item));
+        setGuides(prev => prev.map(item => selectedIds.includes(item.id) ? { ...item, visible: status } : item));
         setSelectedIds([]); 
         setIsModalOpen(false);
       }
@@ -247,26 +243,28 @@ const BehavioralGuideList = () => {
   
   // 개별 노출 상태 토글 핸들러 (모달 버전)
   const handleToggleVisible = (id, currentStatus) => {
-    // 현재 상태의 반대값 (변경될 상태) 'Y'면 'N'으로, 'N'이면 'Y'로
-    const nextStatus = currentStatus === 'Y' ? 'N' : 'Y';
+    // 현재 상태의 반대값 (변경될 상태)
+    const nextStatus = !currentStatus;
     
     setModalConfig({
       title: '노출 상태 변경',
       message: (
         <div className="flex flex-col gap-2 text-left">
-          <p>해당 항목의 상태를 <span className={`font-bold ${nextStatus === 'Y' ? 'text-admin-primary' : 'text-gray-500'}`}>[{nextStatus === 'Y' ? '노출' : '비노출'}]</span>로 변경하시겠습니까?</p>
-          <p className="text-body-s text-gray-500">* 변경 즉시 사용자 화면에 반영됩니다.</p>
+          <p>해당 항목의 상태를 <span className={`font-bold ${nextStatus ? 'text-admin-primary' : 'text-gray-500'}`}>[{nextStatus ? '노출' : '비노출'}]</span>로 변경하시겠습니까?</p>
+          <p className="text-body-s text-graygray-50">* 변경 즉시 사용자 화면에 반영됩니다.</p>
         </div>
       ),
-      type: nextStatus === 'Y' ? 'confirm' : 'delete',
+      type: nextStatus ? 'confirm' : 'delete', // 디자인 톤 맞추기 (노출-파랑, 미노출-회색/빨강)
       onConfirm: () => {
+        // 실제 데이터 업데이트 로직
         setGuides(prev => prev.map(item => 
-          item.contentId === id ? { ...item, visibleYn: nextStatus } : item
+          item.id === id ? { ...item, visible: nextStatus } : item
         ));
-        setIsModalOpen(false);
+        setIsModalOpen(false); // 모달 닫기
       }
     });
-    setIsModalOpen(true);
+    
+    setIsModalOpen(true); // 모달 열기
   };
   // console.log(`${id}번 항목의 노출 상태가 변경되었습니다.`);
   
@@ -374,7 +372,6 @@ const BehavioralGuideList = () => {
             data={currentData}
             selectedIds={selectedIds}
             onSelectionChange={setSelectedIds}
-            rowKey="contentId"
           />
 
           {/* [D] 페이지네이션 (AdminPagination) */}

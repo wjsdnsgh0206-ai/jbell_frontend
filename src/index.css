@@ -227,4 +227,99 @@
   .flex-col-center {
     @apply flex flex-col items-center justify-center;
   }
+
+  /* ============================================================
+   [관리자] Quill 에디터 스타일 통합 (리팩토링 완료)
+   ============================================================ */
+
+  /* 1. 에디터 컨테이너 기본 폰트 */
+  .ql-container {
+    font-family: 'Pretendard_GOV', sans-serif !important;
+    font-size: 17px !important; 
+  }
+
+  /* 2. 툴바 스타일 (상단 버튼 영역) */
+  .ql-toolbar.ql-snow {
+    border: 1px solid #D1D5DB !important;
+    border-bottom: none !important;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    background-color: #F9FAFB;
+    padding: 12px !important;
+  }
+
+  /* 툴바 아이콘 및 드롭다운 크기 */
+  .ql-snow .ql-picker-label::before,
+  .ql-snow .ql-picker-item::before {
+    font-size: 15px !important;
+  }
+
+  /* 3. 에디터 컨테이너 (테두리 및 높이 제어) */
+  .ql-container.ql-snow {
+    border: 1px solid #D1D5DB !important;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    background-color: #fff;
+    /* ★ 잘림 방지 핵심: 고정 높이 대신 최소 높이 사용 */
+    min-height: 400px !important; 
+    height: auto !important; 
+  }
+
+  /* 에디터 본문 영역 (입력 시) */
+  .ql-editor {
+    min-height: 400px !important;
+    height: auto !important;
+    font-size: 17px !important;     /* ★ 기본 크기 17px */
+    line-height: 1.8 !important;    /* 줄 간격 넉넉하게 */
+    color: #111;
+    padding: 20px !important;
+  }
+
+  /* Quill 내부 p태그 스타일 (문단 입력 시 적용) */
+  .ql-editor p {
+    font-size: 17px !important;     /* ★ p태그도 17px 강제 적용 */
+    line-height: 1.8 !important;
+    margin-bottom: 10px !important; /* 문단 간 간격 살짝 추가 */
+  }
+
+  /* 포커스 시 파란색 보더 */
+  .ql-container.ql-snow:focus-within,
+  .ql-toolbar.ql-snow:focus-within {
+    border-color: #2563EB !important;
+  }
+
+  /* 에디터 하단 여백 (레이아웃 잘림 방지) */
+  .quill {
+    margin-bottom: 50px !important; 
+  }
+
+  /* ============================================================
+    [상세 보기 모드] (.view-mode-container 내부일 때)
+    ============================================================ */
+
+  /* 상세 보기 박스 (Input 디자인 모방) */
+  .view-mode-container {
+    min-height: 3.5rem; /* h-14 */
+    padding: 0.75rem 1.25rem; /* px-5 */
+    border-radius: 0.5rem;
+    background-color: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    color: #6B7280;
+  }
+
+  /* 상세 보기 시 Quill 내부 테두리/배경 제거 */
+  .view-mode-container .ql-container.ql-snow {
+    border: none !important;
+    background-color: transparent !important;
+    min-height: auto !important;
+  }
+
+  /* 상세 보기 시 텍스트 스타일 (input 디자인 내부) */
+  .view-mode-container .ql-editor,
+  .view-mode-container .ql-editor p {
+    font-size: 17px !important;     /* ★ 상세 보기 시에도 17px로 통일 */
+    line-height: 1.6 !important;
+    color: inherit !important;
+    padding: 0 !important;
+  }
 }
