@@ -32,11 +32,8 @@ const AllRoutes = (props) => {
   
   // 2. 관리자 페이지 라우트 병합
   const allAdminRoutes = [
-    // ...jyUserRoutes,
     ...shAdminRoutes,
-    // ...ehUserRoutes,
-    // ...mjUserRoutes,
-    // ...bjUserRoutes,
+    ...bjAdminRoutes,
     ...jhAdminRoutes,
   ];
 

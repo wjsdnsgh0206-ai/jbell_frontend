@@ -335,8 +335,6 @@ export const noticeData = [
   }
 ];
 
-
-
 // 보도자료 데이터
 export const pressData = [
   { 
@@ -619,9 +617,9 @@ export const pressData = [
     sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=2&key=&val=&CAT_ID=0&BID=3765&cmd=view",
     title: "충북, 전북, 경북 등 대설 특보, 중앙재난안전대책본부 1단계 선제적 가동", 
     author: "관리자", 
-    date: "2026.01.10",
-    createdAt: "2026.01.10 17:00:00",
-    updatedAt: "2026.01.10 17:00:00",
+    date: "2026-01-10",
+    createdAt: "2026-01-10 17:00:00",
+    updatedAt: "2026-01-10 17:00:00",
     isPublic: true,
     views: 800,
     isPin: false,

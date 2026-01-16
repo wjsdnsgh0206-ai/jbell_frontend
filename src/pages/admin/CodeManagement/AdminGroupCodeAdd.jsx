@@ -1,8 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
-
 
 const SuccessIcon = ({ fill = "#2563EB" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -35,6 +34,19 @@ const AdminGroupCodeAdd = () => {
     groupCodeId: false,
     groupName: false
   });
+  
+  // 페이지 이탈 방지 로직 @@
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      // 그룹코드 ID나 그룹명이 입력된 경우 경고창 표시
+      if (formData.groupCodeId || formData.groupName || formData.desc) {
+        e.preventDefault();
+        e.returnValue = ""; 
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [formData]);
 
   // 중복 체크 로직
   const checkDuplicate = useMemo(() => {
@@ -49,27 +61,27 @@ const AdminGroupCodeAdd = () => {
     const { name, value } = e.target;
     
     if (name === "groupCodeId") {
-      // ⭐️ 한글 입력 원천 차단 + 영문 대문자/숫자/_만 허용 + 20자 제한
+      //  한글 입력 원천 차단 + 영문 대문자/숫자/_만 허용 + 20자 제한
       const transformedValue = value.toUpperCase().replace(/[^A-Z0-9_]/g, "").slice(0, 20);
       setFormData(prev => ({ ...prev, [name]: transformedValue }));
       setErrors(prev => ({ ...prev, groupCodeId: false }));
     } 
     else if (name === "groupName") {
-      // ⭐️ 그룹명 최대 20자 제한
+      //  그룹명 최대 20자 제한
       if (value.length <= 20) {
         setFormData(prev => ({ ...prev, [name]: value }));
         setErrors(prev => ({ ...prev, groupName: false }));
       }
     } 
     else if (name === "order") {
-      // ⭐️ 숫자 이외 제거
+      // 숫자 이외 제거
       const val = value.replace(/[^0-9]/g, "");
       let numVal = val === "" ? "" : parseInt(val);
       if (numVal !== "" && numVal < 1) numVal = 1;
       setFormData(prev => ({ ...prev, [name]: numVal }));
     } 
     else if (name === "desc") {
-      // ⭐️ 설명 최대 50자 제한
+      //  설명 최대 50자 제한
       if (value.length <= 50) {
         setFormData(prev => ({ ...prev, [name]: value }));
       }
@@ -85,7 +97,7 @@ const AdminGroupCodeAdd = () => {
     setErrors(newErrors);
 
     if (newErrors.groupCodeId || newErrors.groupName || checkDuplicate.id || checkDuplicate.name) {
-      alert("입력 항목을 다시 확인해주세요.");
+      alert("필수 입력 사항을 모두 작성해주세요.");
       return;
     }
     setIsModalOpen(true);

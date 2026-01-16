@@ -44,7 +44,7 @@ export const ADMIN_MENU_DATA = {
     },
     {
       title: "주요 안전정책 관리",
-      path: "/admin/content/citySafetyMasterPlan",
+      path: "/admin/contents/citySafetyMasterPlan",
       isAvailable: false,
       items: [
         { name: "도시안전기본계획 관리", path: "/admin/contents/citySafetyMasterPlan" },
@@ -55,18 +55,14 @@ export const ADMIN_MENU_DATA = {
     },
     {
       title: "열린마당 관리",
-      path: "/admin/contents/logList",
-      isAvailable: false,
-      items: [],
+      path: "/admin/contents/pressRelList",
+      isAvailable: true,
+      items: [
+        { name: "보도자료 관리", path: "/admin/contents/pressRelList" },
+      ],
     },
     {
       title: "고객센터",
-      path: "/admin/contents/logList",
-      isAvailable: false,
-      items: [],
-    },
-    {
-      title: "열린마단 관리",
       path: "/admin/contents/logList",
       isAvailable: false,
       items: [],

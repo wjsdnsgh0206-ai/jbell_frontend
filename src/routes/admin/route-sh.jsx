@@ -1,13 +1,13 @@
 // src/routes/admin/route-sh.jsx
 import { lazy } from 'react';
 
-export const AdminCommonCodeList = lazy(() => import("@/pages/admin/CodeManagement/AdminCommonCodeList"));
-export const AdminGroupCodeAdd = lazy(() => import("@/pages/admin/CodeManagement/AdminGroupCodeAdd"));
-export const AdminSubCodeAdd = lazy(() => import("@/pages/admin/CodeManagement/AdminSubCodeAdd"));
-export const AdminGroupCodeDetail = lazy(() => import("@/pages/admin/CodeManagement/AdminGroupCodeDetail"));
-export const AdminSubCodeDetail = lazy(() => import("@/pages/admin/CodeManagement/AdminSubCodeDetail"));
-export const AdminGroupCodeEdit = lazy(() => import("@/pages/admin/CodeManagement/AdminGroupCodeEdit"));
-export const AdminSubCodeEdit = lazy(() => import("@/pages/admin/CodeManagement/AdminSubCodeEdit"));
+export const AdminCommonCodeList = lazy(() => import("@/pages/admin/codeManagement/AdminCommonCodeList"));
+export const AdminGroupCodeAdd = lazy(() => import("@/pages/admin/codeManagement/AdminGroupCodeAdd"));
+export const AdminSubCodeAdd = lazy(() => import("@/pages/admin/codeManagement/AdminSubCodeAdd"));
+export const AdminGroupCodeDetail = lazy(() => import("@/pages/admin/codeManagement/AdminGroupCodeDetail"));
+export const AdminSubCodeDetail = lazy(() => import("@/pages/admin/codeManagement/AdminSubCodeDetail"));
+export const AdminGroupCodeEdit = lazy(() => import("@/pages/admin/codeManagement/AdminGroupCodeEdit"));
+export const AdminSubCodeEdit = lazy(() => import("@/pages/admin/codeManagement/AdminSubCodeEdit"));
 export const AdminPressRelList = lazy(() => import("@/pages/admin/pressManagement/AdminPressRelList"));
 export const AdminPressRelAdd = lazy(() => import("@/pages/admin/pressManagement/AdminPressRelAdd"));
 
@@ -66,14 +66,14 @@ export const shAdminRoutes = [
   // 보도자료관리 목록페이지 (콘텐츠관리 그룹- 홍보/자료 관리)
 
    {
-    path: "/admin/content/pressRelList", 
+    path: "/admin/contents/pressRelList", 
     element: <AdminPressRelList />,
     nowPage: "보도자료관리",
   },
 
   // 보도자료관리 등록페이지 (콘텐츠관리 그룹- 홍보/자료 관리)
    {
-    path: "/admin/content/pressRelAdd", 
+    path: "/admin/contents/pressRelAdd", 
     element: <AdminPressRelAdd />,
     nowPage: "보도자료등록",
   },

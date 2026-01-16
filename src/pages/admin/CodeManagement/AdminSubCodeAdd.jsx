@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
@@ -33,6 +33,19 @@ const AdminSubCodeAdd = () => {
   });
   
   const [errors, setErrors] = useState({ groupCodeId: false, subCodeId: false, subName: false });
+
+  // 페이지 이탈 방지 로직 @@
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      // 그룹 선택, 상세코드 ID, 상세코드명 중 하나라도 입력된 경우
+      if (formData.groupCodeId || formData.subCodeId || formData.subName || formData.desc) {
+        e.preventDefault();
+        e.returnValue = ""; 
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [formData]);
 
   // 상위 그룹 코드 옵션 추출
   const groupOptions = useMemo(() => {
@@ -87,7 +100,7 @@ const AdminSubCodeAdd = () => {
     setErrors(newErrors);
 
     if (Object.values(newErrors).some(Boolean) || checkDuplicate.id) {
-      alert("입력 항목을 다시 확인해주세요.");
+      alert("필수 입력 사항을 모두 작성해주세요.");
       return;
     }
     setIsModalOpen(true);
