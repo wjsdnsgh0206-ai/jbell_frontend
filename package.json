@@ -22,6 +22,7 @@
     "react-hook-form": "^7.71.0",
     "react-icons": "^5.5.0",
     "react-kakao-maps-sdk": "^1.2.0",
+    "react-quill-new": "^3.7.0",
     "react-router-dom": "^7.12.0",
     "terraformer-wkt-parser": "^1.2.1",
     "vite-plugin-html": "^3.2.2"
