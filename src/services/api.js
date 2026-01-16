@@ -49,6 +49,20 @@ export const shelterService = {
   },
 };
 
+export const facilityService = {
+  // 백엔드 리스트 호출 (최대 1000개씩 조회)
+  getFacilityList: async (params) => {
+    // params: { ctpvNm, sggNm, fcltNm, page }
+    const response = await api.get('/facility/list', { params });
+    return response.data; // Flux는 JSON 배열 형태로 들어옵니다.
+  },
+};
+
+
+
+
+
+
 /* =========================================================
    재난 · 지진 관련 API - 최지영 * 건드리지 말 것 *
 ========================================================= */
