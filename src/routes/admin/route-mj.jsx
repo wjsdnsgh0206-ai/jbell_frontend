@@ -36,7 +36,7 @@ const mjAdminRoutes = [
             nowPage: "공지사항",
       },
        {
-            path: "/admin/contents/adminBoardDetail", 
+            path: "/admin/contents/adminBoardDetail/:boardTitle", 
             element: <AdminBoardDetail />,
             nowPage: "공지사항 조회",
       },

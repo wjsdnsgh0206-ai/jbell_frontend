@@ -37,16 +37,8 @@ const AdminBoardDetail = () => {
           >
             <ArrowLeft size={20} className="mr-1" /> 목록으로 돌아가기
           </button>
-          <h2 className="text-heading-l text-admin-text-primary tracking-tight">공지사항 상세</h2>
+          <h2 className="text-heading-l text-admin-text-primary tracking-tight">공지사항 상세 보기</h2>
         </div>
-        
-        {/* 수정 버튼 */}
-        <button 
-          onClick={() => navigate(`/admin/contents/adminBoardEdit/${post.id}`, { state: post })}
-          className="px-6 h-12 bg-admin-primary text-white rounded-md font-bold hover:opacity-90 transition-all flex items-center gap-2 shadow-sm"
-        >
-          <Edit size={18} /> 수정하기
-        </button>
       </div>
 
       {/* 본문 영역 */}
@@ -143,7 +135,7 @@ const AdminBoardDetail = () => {
           목록으로
         </button>
         <button 
-          onClick={() => navigate(`/admin/contents/adminBoardEdit/${post.id}`, { state: post })}
+          onClick={() => navigate(`/admin/contents/adminBoardRegister/${post.boardTitle}`, { state: post })}
           className="px-10 h-14 bg-admin-primary text-white font-bold rounded-md hover:opacity-90 transition-all flex items-center gap-2 shadow-md"
         >
           <Edit size={20} /> 수정하기
