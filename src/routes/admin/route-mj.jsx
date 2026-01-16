@@ -3,10 +3,10 @@ import AdminMemberEdit from "../../pages/admin/member/AdminMemberEdit";
 import AdminMemberDetail from "../../pages/admin/member/AdminMemberDetail";
 export const AdminBoardList = lazy(() => import("@/pages/admin/board/AdminBoardList"));
 export const AdminBoardRegister = lazy(() => import("@/pages/admin/board/AdminBoardRegister"));
+export const AdminBoardDetail = lazy(() => import("@/pages/admin/board/AdminBoardDetail"));
 export const AdminLogList = lazy(() => import("@/pages/admin/board/AdminLogList"));
 export const AdminMemberList = lazy(() => import("@/pages/admin/member/AdminMemberList"));
 export const AdminMemberRegister = lazy(() => import("@/pages/admin/member/AdminMemberRegister"));
-
 
 // ------ 라우트 페이지 경로 입력 파일 ------ //
 // Routes.jsx에서 이 파일을 불러와서 Route를 생성함.
@@ -35,6 +35,11 @@ const mjAdminRoutes = [
             element: <AdminBoardList />,
             nowPage: "공지사항",
       },
+       {
+            path: "/admin/contents/adminBoardDetail", 
+            element: <AdminBoardDetail />,
+            nowPage: "공지사항 조회",
+      },
       {
             path: "/admin/contents/adminBoardRegister", 
             element: <AdminBoardRegister />,
@@ -50,8 +55,8 @@ const mjAdminRoutes = [
             element: <AdminMemberList />,
             nowPage: "회원 조회",
       },
-       {
-            path: "/admin/contents/adminMemberDetail/:memberId", 
+      {
+            path: "/admin/member/adminMemberDetail/:memberId", 
             element: <AdminMemberDetail />,
             nowPage: "회원 상세 정보 조회",
       },
