@@ -12,7 +12,7 @@ import {
   CalendarDays
 } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
-import { userService } from '../../../services/api'; 
+import { userService } from '@/services/api'; 
 import axios from 'axios'; // axios가 설치되어 있다고 가정합니다.
 
 const SignupForm = () => {
@@ -30,20 +30,20 @@ const SignupForm = () => {
   const userId = watch('userId');
   const email = watch('email');
 
-  // [기능 추가] 아이디 중복 확인 API 연동
-  const handleIdCheck = async () => {
-  try {
-    const isAvailable = await userService.checkId(userId); // 백엔드에서 true가 옴
-    if (isAvailable === true) { 
-      alert("사용 가능한 아이디입니다.");
-      setIsIdChecked(true);
+    // [기능 추가] 아이디 중복 확인 API 연동
+    const handleIdCheck = async () => {
+    try {
+      const isAvailable = await userService.checkId(userId); // 백엔드에서 true가 옴
+      if (isAvailable === true) { 
+        alert("사용 가능한 아이디입니다.");
+        setIsIdChecked(true);
+      }
+    } catch (error) {
+      // 409 에러는 여기서 잡힘
+      alert(error.response?.data?.message || "이미 사용 중인 아이디입니다.");
+      setIsIdChecked(false);
     }
-  } catch (error) {
-    // 409 에러는 여기서 잡힘
-    alert(error.response?.data?.message || "이미 사용 중인 아이디입니다.");
-    setIsIdChecked(false);
-  }
-};
+  };
 
   const handleSendCode = () => {
     if (!email || errors.email) {
