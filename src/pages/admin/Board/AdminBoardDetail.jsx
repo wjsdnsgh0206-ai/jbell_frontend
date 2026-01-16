@@ -135,7 +135,7 @@ const AdminBoardDetail = () => {
           목록으로
         </button>
         <button 
-          onClick={() => navigate(`/admin/contents/adminBoardEdit/${post.memberId}`, { state: post })}
+          onClick={() => navigate(`/admin/contents/adminBoardEdit/${post.boardId}`, { state: post })}
           className="px-10 h-14 bg-admin-primary text-white font-bold rounded-md hover:opacity-90 transition-all flex items-center gap-2 shadow-md"
         >
           <Edit size={20} /> 수정하기
