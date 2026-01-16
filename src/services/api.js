@@ -14,10 +14,12 @@ const messageApi = axios.create({ baseURL: "/message-api" }); // 재난문자 ap
 const earthquakeApi = axios.create({ baseURL: "/earthquake-api" }); // 지진 특보 api
 const earthquakeLevelApi = axios.create({ baseURL: "/earthquakeLevel-api" }); // 지진 진도 정보 api
 const floodTraceApi = axios.create({ baseURL: "/floodTrace-api" }); // 호우홍수 침수흔적도 api
-const sluiceApi = axios.create({ baseURL: "/sluice-api"});
+const kmaApi = axios.create({ baseURL: "/kma-api/api" }); // 기상청 지진·지진특보용
+const sluiceApi = axios.create({ baseURL: "/sluice-api" }); // 댐수문 api
+const landSlideWarningApi = axios.create({ baseURL: "/landSlideWarning-api" });
+const weatherWarningApi = axios.create({ baseURL: "/weatherWarning-api" }); // 기상특보 api
+const forestFireWarningApi = axios.create({ baseURL: "/forestFireWarning-api"}); // 산불위험예보정보 api
 
-// 기상청 지진·지진특보용
-const kmaApi = axios.create({ baseURL: "/kma-api/api" });
 
 export const userService = {
   // 유저 정보 가져오기 (기존 8080 서버)
@@ -124,23 +126,73 @@ export const disasterModalService = {
     });
     return response.data;
   },
-/* -----------------------------
+  /* -----------------------------
    수문 api - 호우홍수탭에서 사용할 api
 ----------------------------- */
-getSluice: async (params) => {
-  // axios 인스턴스(sluiceApi)의 baseURL이 "/sluice-api"여야 해!
-  const response = await sluiceApi.get("/B500001/dam/sluicePresentCondition/mntlist", {
-    params: {
-      // 훅에서 넘겨받은 serviceKey를 우선 사용하고, 없으면 env 사용
-      serviceKey: params.serviceKey || import.meta.env.VITE_API_DISATER_SLUICE_KEY,
-      pageNo: params.pageNo || 1,
-      numOfRows: params.numOfRows || 10,
-      damcode: params.damcode, // 필수
-      stdt: params.stdt,       // 필수 (YYYY-MM-DD)
-      eddt: params.eddt,       // 필수 (YYYY-MM-DD)
-      _type: 'json',           // 필수
-    },
-  });
-  return response.data;
-},
+  getSluice: async (params) => {
+    const response = await sluiceApi.get(
+      "/B500001/dam/sluicePresentCondition/mntlist",
+      {
+        params: {
+          serviceKey:
+            params.serviceKey || import.meta.env.VITE_API_DISATER_SLUICE_KEY,
+          pageNo: params.pageNo || 1,
+          numOfRows: params.numOfRows || 10,
+          damcode: params.damcode,
+          stdt: params.stdt,
+          eddt: params.eddt,
+          _type: "json",
+        },
+      }
+    );
+    return response.data;
+  },
+
+  /* -----------------------------
+   기상특보 api 
+----------------------------- */
+  getWeatherWarning: async (params) => {
+    const response = await weatherWarningApi.get("/DSSP-IF-00045", {
+      params: {
+        serviceKey: import.meta.env.VITE_API_SPECIAL_NOTICE_KEY,
+        ...params,
+      },
+    });
+    return response.data; 
+  },
+
+  /* -----------------------------
+    산불위험예보정보  api
+----------------------------- */
+// 시도별 산불위험지수 조회
+  getForestFireWarning: async (params) => {
+    const response = await forestFireWarningApi.get('/forestPointListSidoSearch', {
+      params: {
+        serviceKey: import.meta.env.VITE_FOREST_SERVICE_KEY,
+        numOfRows: 20, // 전국 시도 데이터 포함을 위해 20건
+        pageNo: 1,
+        _type: 'json', // JSON으로 요청
+        excludeForecast: 0,
+        ...params
+      }
+    });
+    return response.data;
+  },
+  
+  /* -----------------------------
+    산사태 예보발령 api
+----------------------------- */
+
+getLandSlideWarning: async (params) => {
+      const response = await landSlideWarningApi.get('/forecastIssueList', {
+        params: {
+          serviceKey: '2e572cb46f96a219ef27c211707e7875f4791d19b01a025e64cab130ec2cfcc1',
+          pageNo: params.pageNo || 1,
+          numOfRows: params.numOfRows || 10,
+          _type: 'json', // JSON으로 받기 위해 설정
+          ...params
+        }
+      });
+      return response.data;
+  },
 };
