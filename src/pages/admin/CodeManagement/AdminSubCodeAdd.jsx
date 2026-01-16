@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
@@ -33,6 +33,19 @@ const AdminSubCodeAdd = () => {
   });
   
   const [errors, setErrors] = useState({ groupCodeId: false, subCodeId: false, subName: false });
+
+  // 페이지 이탈 방지 로직 @@
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      // 그룹 선택, 상세코드 ID, 상세코드명 중 하나라도 입력된 경우
+      if (formData.groupCodeId || formData.subCodeId || formData.subName || formData.desc) {
+        e.preventDefault();
+        e.returnValue = ""; 
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [formData]);
 
   // 상위 그룹 코드 옵션 추출
   const groupOptions = useMemo(() => {
@@ -87,7 +100,7 @@ const AdminSubCodeAdd = () => {
     setErrors(newErrors);
 
     if (Object.values(newErrors).some(Boolean) || checkDuplicate.id) {
-      alert("입력 항목을 다시 확인해주세요.");
+      alert("필수 입력 사항을 모두 작성해주세요.");
       return;
     }
     setIsModalOpen(true);
@@ -233,7 +246,7 @@ const AdminSubCodeAdd = () => {
 
             {/* 6. 등록 여부 */}
             <div className="flex items-center gap-5 pt-2">
-              <label className="font-bold text-[16px] text-[#111]">노출 여부</label>
+              <label className="font-bold text-[16px] text-[#111]">사용 여부</label>
               <div className="flex items-center gap-3">
                 <button 
                   type="button"
@@ -243,7 +256,7 @@ const AdminSubCodeAdd = () => {
                   <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${isVisible ? 'translate-x-[26px]' : 'translate-x-0'}`} />
                 </button>
                 <span className={`text-[14px] font-bold ${isVisible ? 'text-[#2563EB]' : 'text-gray-400'}`}>
-                  {isVisible ? '노출' : '미노출'}
+                  {isVisible ? '사용' : '미사용'}
                 </span>
               </div>
             </div>

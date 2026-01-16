@@ -1,8 +1,8 @@
-// src/pages/admin/CodeManagement/AdminCommonCodeList.jsx
+// src/pages/admin/codeManagement/AdminCommonCodeList.jsx
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { AdminCommonCodeData } from './AdminCommonCodeData';
-import { ChevronDown } from 'lucide-react'; // 아이콘
+import { AdminCommonCodeData } from '@/pages/admin/codeManagement/AdminCommonCodeData';
+import { X, ChevronDown, RotateCcw } from 'lucide-react';
 
 // [공통 컴포넌트] 팀원들과 공유할 핵심 부품들
 import AdminDataTable from '@/components/admin/AdminDataTable';
@@ -15,6 +15,15 @@ import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
  * - 공통 컴포넌트(Table, SearchBox, Pagination) 사용 예시 포함
  * - 2단 필터링 (그룹 -> 상세) 및 정밀 검색 로직 구현
  */
+
+// 토스트용 성공 아이콘 컴포넌트
+const SuccessIcon = ({ fill = "#4ADE80" }) => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <circle cx="8" cy="8" r="8" fill={fill}/>
+    <path d="M11 6L7 10L5 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
 const AdminCommonCodeList = () => {
   const navigate = useNavigate();
 
@@ -41,9 +50,20 @@ const AdminCommonCodeList = () => {
   // [브레드크럼 상태]
   const { setBreadcrumbTitle } = useOutletContext();
 
+  // [토스트 관련 상태] 
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
   useEffect(() => {
     setBreadcrumbTitle(""); // 목록 페이지는 URL 매핑값을 따르도록 초기화
   }, [setBreadcrumbTitle]);
+
+  // 3. [추가] 토스트 실행 함수
+  const triggerToast = (msg) => {
+    setToastMessage(msg);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 2000); // 2초 뒤 사라짐
+  };
 
   // ==================================================================================
   // 2. 필터링 로직 (Filtering Logic)
@@ -110,13 +130,13 @@ const AdminCommonCodeList = () => {
   // 4. 테이블 컬럼 정의 (Table Columns)
   // ==================================================================================
   const columns = useMemo(() => [
-    { key: 'groupCode', header: '그룹코드', width: '10%', className: 'text-center font-mono' },
+    { key: 'groupCode', header: '그룹코드ID', width: '10%', className: 'text-center font-mono' },
     { key: 'groupName', header: '그룹명', width: '15%', className: 'text-center' },
-    { key: 'subCode', header: '상세코드', width: '10%', className: 'text-center font-mono' },
+    { key: 'subCode', header: '상세코드ID', width: '10%', className: 'text-center font-mono' },
     { key: 'subName', header: '상세명', width: '15%', className: 'text-center' },
     { 
       key: 'desc', 
-      header: '코드설명', 
+      header: '코드 설명', 
       render: (text) => <div className="truncate max-w-[200px] text-left" title={text}>{text}</div> 
     },
     { key: 'date', header: '등록일시', width: '12%', className: 'text-center text-graygray-50' },
@@ -128,11 +148,23 @@ const AdminCommonCodeList = () => {
       className: 'text-center',
       // 커스텀 렌더링: 사용여부를 시각적인 뱃지/토글 형태로 표시
       render: (visible) => (
-        <div className="flex justify-center">
-          <div className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${visible ? 'bg-admin-primary' : 'bg-graygray-30'}`}>
-             <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${visible ? 'translate-x-6' : 'translate-x-0'}`} />
+        <>
+         {/* 토글 아이콘 설정 */}
+          {/* <div className="flex justify-center">
+            <div className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${visible ? 'bg-admin-primary' : 'bg-graygray-30'}`}>
+              <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${visible ? 'translate-x-6' : 'translate-x-0'}`} />
+            </div>
+          </div> */}
+          
+          {/* 배지 아이콘 설정 */}
+          <div className="flex justify-center">
+            {visible ? (
+              <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-blue-50 text-blue-600 text-[12px] font-bold border border-blue-200">사용</span>
+            ) : (
+              <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-50 text-gray-400 text-[12px] font-bold border border-gray-200">미사용</span>
+            )}
           </div>
-        </div>
+        </>
       )
     },
     {
@@ -198,6 +230,7 @@ const AdminCommonCodeList = () => {
         setCodes(prev => prev.filter(c => !selectedIds.includes(c.id)));
         setSelectedIds([]);
         setIsModalOpen(false);
+        triggerToast("선택한 항목이 삭제되었습니다."); // 토스트 호출
       }
     });
     setIsModalOpen(true);
@@ -221,6 +254,7 @@ const AdminCommonCodeList = () => {
         setCodes(prev => prev.map(code => selectedIds.includes(code.id) ? { ...code, visible: status } : code));
         setSelectedIds([]); 
         setIsModalOpen(false);
+        triggerToast(`선택한 항목이 ${status ? '사용' : '미사용'} 처리되었습니다.`); // 토스트 호출
       }
     });
     setIsModalOpen(true);
@@ -231,6 +265,16 @@ const AdminCommonCodeList = () => {
   // ==================================================================================
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
+      {/* 토스트 알림 UI */}
+      {showToast && (
+        <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[9999] transition-all duration-500">
+          <div className="bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-gray-700">
+            <SuccessIcon fill="#4ADE80" />
+            <span className="font-bold text-[16px]">{toastMessage}</span>
+          </div>
+        </div>
+      )}
+      
       <main className="p-10">
         <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight">공통코드 목록</h2>
 
@@ -306,12 +350,6 @@ const AdminCommonCodeList = () => {
                 className="px-8 h-14 bg-[#FF003E] text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm"
               >
                 삭제
-              </button>
-               <button 
-                onClick={() => navigate('/admin/system/groupCodeAdd')}
-                className="px-8 h-14 bg-admin-primary text-white rounded-md hover:opacity-90 font-bold active:scale-95 transition-all shadow-sm"
-              >
-                등록
               </button>
             </div>
           </div>

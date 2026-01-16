@@ -17,6 +17,8 @@ const adminMap = {
   "subCodeDetail": "상세 코드 상세",
   "subCodeEdit": "상세 코드 수정",
   "behavioralGuideDetail": "행동요령 상세",
+  "pressRelList": "보도자료 목록",
+  "pressRelAdd": "보도자료 등록",
 };
 
 /**
