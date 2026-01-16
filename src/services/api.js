@@ -51,9 +51,31 @@ export const shelterService = {
   },
 };
 
+
+
+
+/* =========================================================
+   날씨 관련 API - 최지영 * 건드리지 말 것 *
+========================================================= */
+export const weatherService = {
+  // 기본적인 날씨 정보
+  getWeather: async (params) => {
+    const response = await weatherApi.get("/weather", { params });
+    return response.data;
+  },
+  // 미세먼지 정보
+  getWeatherDust: async (params) => {
+    const response = await weatherApi.get("/air_pollution", { params });
+    return response.data;
+  }
+}
+
+
+
 /* =========================================================
    재난 · 지진 관련 API - 최지영 * 건드리지 말 것 *
 ========================================================= */
+
 export const disasterModalService = {
   /* -----------------------------
      재난문자 (CBS)
@@ -186,7 +208,7 @@ export const disasterModalService = {
 getLandSlideWarning: async (params) => {
       const response = await landSlideWarningApi.get('/forecastIssueList', {
         params: {
-          serviceKey: '2e572cb46f96a219ef27c211707e7875f4791d19b01a025e64cab130ec2cfcc1',
+          serviceKey: import.meta.env.VITE_LANDSLIDE_WARNING_SERVICE_KEY,
           pageNo: params.pageNo || 1,
           numOfRows: params.numOfRows || 10,
           _type: 'json', // JSON으로 받기 위해 설정

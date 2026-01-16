@@ -50,7 +50,7 @@ export default defineConfig(({ mode }) => {
           },
         },
         "/weather-api": {
-          target: "https://api.openweathermap.org/data/2.5/weather",
+          target: "https://api.openweathermap.org/data/2.5",
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/weather-api/, ""),
           secure: false,
