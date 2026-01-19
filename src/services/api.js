@@ -19,7 +19,7 @@ const sluiceApi = axios.create({ baseURL: "/sluice-api" }); // 댐수문 api
 const landSlideWarningApi = axios.create({ baseURL: "/landSlideWarning-api" });
 const weatherWarningApi = axios.create({ baseURL: "/weatherWarning-api" }); // 기상특보 api
 const forestFireWarningApi = axios.create({ baseURL: "/forestFireWarning-api"}); // 산불위험예보정보 api
-
+const accidentNewsApi = axios.create({ baseURL: "/accidentNews-api"}); // 도로교통 정보 api
 
 export const userService = {
   // 유저 정보 가져오기 (기존 8080 서버)
@@ -217,4 +217,17 @@ getLandSlideWarning: async (params) => {
       });
       return response.data;
   },
+
+  getAccidentNews: async (params) => {
+    const response = await accidentNewsApi.get('/eventInfo', {
+      params: {
+        apiKey: import.meta.env.VITE_API_DISATER_ACCIDENTNEWS_KEY,
+        type: params?.type || 'all',       // 도로 유형 (기본값: 전체)
+        eventType: params?.eventType || 'all', // 이벤트 유형 (기본값: 전체)
+        getType: 'json',                   // 결과 형식 (JSON 고정)
+        ...params,                         // 추가적인 파라미터(minX, minY 등) 대응
+      }
+    });
+    return response.data;
+  }
 };

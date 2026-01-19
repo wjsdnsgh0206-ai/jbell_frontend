@@ -75,8 +75,8 @@ const DisasterMessage = () => {
   }, [DISASTER_API_KEY]);
 
   return (
-    <div className="flex flex-col h-full max-h-[440px] md:max-h-full bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
-      <div className="px-4 py-3 md:px-6 md:py-4 border-b border-gray-100 flex items-center gap-2.5 flex-shrink-0 bg-white">
+    <div className="flex flex-col h-auto lg:h-full max-h-[440px] md:max-h-full bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+      <div className="px-4 py-3 md:px-6 md:py-4 border-b border-gray-100 flex items-center gap-2.5 flex-shrink-0 bg-white rounded-none">
         <div className="h-6 w-6 flex items-center justify-center rounded-lg bg-red-50">
           <AlertCircle size={16} className="text-red-500" />
         </div>

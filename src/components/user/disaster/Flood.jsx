@@ -162,9 +162,9 @@ const Flood = () => {
             ))}
           </div>
 
-          <div className="absolute bottom-5 right-5 z-20">
+          {/* <div className="absolute bottom-5 right-5 z-20">
             <MapControlBtn />
-          </div>
+          </div> */}
         </div>
       </div>
 

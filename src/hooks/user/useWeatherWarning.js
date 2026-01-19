@@ -8,65 +8,101 @@ export const useWeatherWarning = (disasterType) => {
   const fetchWarnings = useCallback(async () => {
     setIsLoading(true);
     try {
-      // 1. 날짜 설정: 오늘 날짜를 기준으로 조회 (15일 데이터 포함을 위해)
       const now = new Date();
-      // 만약 과거 데이터를 더 넓게 보고 싶다면 setDate(now.getDate() - 1) 등을 유지해도 됨
-      const inqDt = now.toISOString().split('T')[0].replace(/-/g, '');
+      const threeDaysAgo = new Date(now);
+      threeDaysAgo.setDate(now.getDate() - 3);
       
-      const res = await disasterModalService.getWeatherWarning({ inqDt });
+      const dateList = [];
+      for (let i = 0; i <= 3; i++) {
+        const date = new Date(threeDaysAgo);
+        date.setDate(threeDaysAgo.getDate() + i);
+        const dateStr = date.toISOString().split('T')[0].replace(/-/g, '');
+        dateList.push(dateStr);
+      }
       
-      const result = res.data || res; 
-      const rawData = result.body || []; 
+      const threeDaysAgoStr = threeDaysAgo.toISOString().split('T')[0].replace(/-/g, '');
+      const todayStr = now.toISOString().split('T')[0].replace(/-/g, '');
+      
+      let allRawData = [];
+      
+      for (const inqDt of dateList) {
+        try {
+          const res = await disasterModalService.getWeatherWarning({ inqDt });
+          
+          let result = res?.data || res?.response || res;
+          
+          if (result?.header && !['00', '0'].includes(String(result.header.resultCode))) {
+            continue;
+          }
+          
+          let dateRawData = [];
+          const body = result?.body || result?.response?.body;
+          const items = body?.item || result?.items?.item;
+          
+          if (Array.isArray(body)) {
+            dateRawData = body;
+          } else if (items) {
+            dateRawData = Array.isArray(items) ? items : [items];
+          }
+          
+          if (dateRawData.length > 0) {
+            allRawData = allRawData.concat(dateRawData);
+          }
+        } catch (error) {
+          // API 호출 실패 시 해당 날짜 건너뛰기
+        }
+      }
+      
+      if (allRawData.length > 0) {
+        const uniqueDataMap = new Map();
+        allRawData.forEach(item => {
+          const key = `${item.PRSNTN_TM}_${item.PRSNTN_SN}`;
+          if (!uniqueDataMap.has(key)) {
+            uniqueDataMap.set(key, item);
+          }
+        });
+        const uniqueData = Array.from(uniqueDataMap.values());
+        
+        const filtered = uniqueData.filter((item, index) => {
+          const fullTimeStr = String(item.PRSNTN_TM || "");
+          const itemDate = fullTimeStr.substring(0, 8);
+          
+          if (!itemDate || itemDate < threeDaysAgoStr || itemDate > todayStr) {
+            return false;
+          }
 
-      console.log(`📡 [API 응답] 전체 데이터 개수: ${result.totalCount || rawData.length}`);
-
-      if (Array.isArray(rawData) && rawData.length > 0) {
-        const filtered = rawData.filter((item) => {
           const title = item.TTL || "";
           const content = item.SPNE_FRMNT_PRCON_CN || "";
           const zone = item.RLVT_ZONE || "";
           const targetText = (title + content + zone).replace(/\s/g, "");
-
-          // 2. 재난별 필터링
+          let matchesType = false;
           switch (disasterType) {
-            case 'earthquake':
-              return /지진|해일/.test(targetText);
-            case 'flood':
-              return /호우|홍수|강수|비/.test(targetText);
-            case 'landSlide':
-              return /산사태|대설|한파|눈/.test(targetText);
-            case 'typhoon':
-              return /태풍|강풍|풍랑|바람/.test(targetText);
-            case 'forestFire':
-              return /건조|산불|화재/.test(targetText);
-            default:
-              return false;
+            case 'earthquake': matchesType = /지진|해일/.test(targetText); break;
+            case 'flood': matchesType = /호우|홍수|강수|비/.test(targetText); break;
+            case 'landSlide': matchesType = /산사태|대설|한파|눈/.test(targetText); break;
+            case 'typhoon': matchesType = /태풍|강풍|풍랑|바람/.test(targetText); break;
+            case 'forestFire': matchesType = /건조|산불|화재/.test(targetText); break;
+            default: matchesType = false;
           }
+          
+          return matchesType;
         });
 
-        // 3. 🔥 최신순 정렬 보강 (날짜 우선 -> 일련번호 차선)
         const sorted = filtered.sort((a, b) => {
-          // PRSNTN_DT (발표일시: 20260115...) 비교
-          const dateA = String(a.PRSNTN_DT || "");
-          const dateB = String(b.PRSNTN_DT || "");
-
-          if (dateA !== dateB) {
-            // 문자열 내림차순 정렬 (최신 날짜가 위로)
-            return dateB.localeCompare(dateA);
+          const timeA = String(a.PRSNTN_TM || "");
+          const timeB = String(b.PRSNTN_TM || "");
+          
+          if (timeA !== timeB) {
+            return timeB.localeCompare(timeA);
           }
-
-          // 날짜가 같으면 PRSNTN_SN (일련번호) 기준 내림차순
           return Number(b.PRSNTN_SN || 0) - Number(a.PRSNTN_SN || 0);
         });
 
-        console.log(`🎯 [${disasterType}] 최신순 정렬 완료: ${sorted.length}건`);
         setWarnings(sorted);
       } else {
-        console.warn("⚠️ 원본 데이터(body)가 배열이 아니거나 비어있어.");
         setWarnings([]);
       }
     } catch (error) {
-      console.error("🚨 기상특보 API 연결 에러:", error);
       setWarnings([]);
     } finally {
       setIsLoading(false);
