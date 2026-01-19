@@ -30,7 +30,7 @@ const AdminMemberEdit = () => {
             const res = await userService.getMemberDetail(memberId);
             setMemberForm({
                 memberId: res.memberId || '',
-                memberPw: '', // 비번은 보통 보안상 비워둡니다.
+                memberPw: '', // 비번은 보통 보안상 비워둠
                 memberName: res.memberName || '', 
                 memberTelNum: res.memberTelNum || '',
                 memberRegion: res.memberRegion || '',
