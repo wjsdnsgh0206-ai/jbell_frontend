@@ -22,7 +22,6 @@ const AdminMemberDetail = () => {
     
     // 수정 버튼 클릭 핸들러 (만들어야 함!)
         const handleEditClick = () => {
-            alert(`'${item.memberId}' 회원 정보 수정 페이지로 이동! (아직 페이지 없음)`);
             navigate('/admin/member/adminMemberEdit/' + item.memberId); // 실제 수정 페이지 경로
         };
 
