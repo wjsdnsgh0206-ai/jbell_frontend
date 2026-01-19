@@ -13,7 +13,7 @@ const AdminHeader = () => {
   const navItems = [
     { key: 'realtime', name: '실시간 정보 관리', path: '/admin/realtime/realtimeDashboard' },
     { key: 'contents', name: '콘텐츠 관리', path: '/admin/contents/behavioralGuideList' },
-    { key: 'safetyMap', name: '안전정보지도 관리', path: '/admin/safetyMap/safetyMapList' },
+    { key: 'facility', name: '시설 관리', path: '/admin/facility/facilityList' },
     { key: 'user', name: '회원 관리', path: '/admin/user/userList' },
     { key: 'system', name: '시스템 관리', path: '/admin/system/commonCodeList' },
   ]; 

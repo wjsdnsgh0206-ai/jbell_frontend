@@ -1,4 +1,3 @@
-// src/pages/user/openboards/UserNoticeList.jsx
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
@@ -34,7 +33,9 @@ const UserNoticeList = () => {
 
   // 2. 검색 필터링: activeSearch 상태에 따라 데이터를 필터링
   const filteredData = useMemo(() => {
-    let result = [...cleanData];
+    // [수정 반영]: 비공개(isPublic: false)인 게시글은 사용자 페이지 목록에서 제외합니다.
+    let result = cleanData.filter(item => item.isPublic !== false); 
+
     const { category, term } = activeSearch;
     const trimmedTerm = term.trim();
 
@@ -113,12 +114,11 @@ const UserNoticeList = () => {
         <h1 className="text-heading-xl text-graygray-90 pb-20">공지사항</h1>
 
         {/* --- 검색바 영역 --- */}
-        {/* --- 검색바 영역 병합 적용 --- */}
         <SearchBarTemplate
           keyword={searchTerm}
           onKeywordChange={(e) => setSearchTerm(e.target.value)}
           onSearch={handleSearch}
-          onReset={handleReset} // 👈 이제 이 handleReset이 위에서 만든 함수를 가리킵니다.
+          onReset={handleReset}
           placeholder="검색어를 입력해주세요."
         >
           {/* 공지사항 전용 필터: 카테고리 선택 */}

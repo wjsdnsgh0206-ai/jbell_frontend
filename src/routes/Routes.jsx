@@ -20,6 +20,7 @@ import { mjAdminRoutes } from "@/routes/admin/route-mj";
 import { jhAdminRoutes } from "@/routes/admin/route-jh";
 import { bjAdminRoutes } from "@/routes/admin/route-bj";
 import { jyAdminRoutes } from "@/routes/admin/route-jy";
+import { ehAdminRoutes } from "@/routes/admin/route-eh";
 
 
 const AllRoutes = (props) => {
@@ -37,7 +38,7 @@ const AllRoutes = (props) => {
   const allAdminRoutes = [
     // ...jyAdminRoutes,
     ...shAdminRoutes,
-    // ...ehAdminRoutes,
+    ...ehAdminRoutes,
     ...mjAdminRoutes,
     ...bjAdminRoutes,
     ...jhAdminRoutes,

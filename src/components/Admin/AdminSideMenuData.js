@@ -62,7 +62,7 @@ export const ADMIN_MENU_DATA = {
     },
     {
       title: "주요 안전정책 관리",
-      path: "/admin/content/citySafetyMasterPlan",
+      path: "/admin/contents/citySafetyMasterPlan",
       isAvailable: false,
       items: [
         {
@@ -85,11 +85,10 @@ export const ADMIN_MENU_DATA = {
     },
     {
       title: "열린마당 관리",
-      path: "/admin/contents/adminBoardList",
+      path: "/admin/contents/pressRelList",
       isAvailable: true,
       items: [
-        { name: "공지사항", path: "/admin/contents/adminBoardList" },
-        { name: "보도자료", path: "/admin/contents/adminPressRelList" },
+        { name: "보도자료 관리", path: "/admin/contents/pressRelList" },
       ],
     },
     {
