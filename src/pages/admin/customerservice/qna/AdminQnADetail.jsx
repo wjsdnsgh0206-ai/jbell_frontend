@@ -31,7 +31,7 @@ const AdminQnADetail = () => {
       setInquiry(foundData);
     } else {
       alert('해당 문의 내역을 찾을 수 없습니다.');
-      navigate('/admin/customer/QnAList');
+      navigate('/admin/contents/QnAList');
     }
   }, [id, navigate]);
 
@@ -92,7 +92,7 @@ const AdminQnADetail = () => {
 
   // --- Logic: 목록으로 이동 ---
   const handleGoBack = () => {
-    navigate('/admin/customer/QnAList');
+    navigate('/admin/contents/QnAList');
   };
 
   // --- Logic: 게시글 삭제 ---
@@ -100,7 +100,7 @@ const AdminQnADetail = () => {
     if (window.confirm('이 문의 내역을 완전히 삭제하시겠습니까?')) {
       // 실제 API 연동 시 삭제 요청 전송
       alert('삭제되었습니다. (목록으로 이동)');
-      navigate('/admin/customer/QnAList');
+      navigate('/admin/contents/QnAList');
     }
   };
 

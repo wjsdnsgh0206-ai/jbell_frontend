@@ -128,7 +128,7 @@ const AdminFAQList = () => {
       key: 'title', 
       header: '질문(Q)', 
       render: (title, row) => (
-        <div className="flex items-center cursor-pointer hover:text-blue-600" onClick={() => navigate(`/admin/content/FAQDetail/${row.id}`)}>
+        <div className="flex items-center cursor-pointer hover:text-blue-600" onClick={() => navigate(`/admin/contents/FAQDetail/${row.id}`)}>
           <span className="font-bold text-blue-600 mr-2">Q.</span>
           <span className="font-medium text-gray-900 truncate max-w-[400px]">{title}</span>
         </div>
@@ -172,9 +172,9 @@ const AdminFAQList = () => {
         <button 
           onClick={(e) => {
             e.stopPropagation();
-            navigate(`/admin/content/FAQDetail/${row.id}`); // 상세/수정 페이지 이동
+            navigate(`/admin/contents/FAQDetail/${row.id}`); // 상세/수정 페이지 이동
           }}
-          className="border border-gray-300 text-[#666] rounded px-3 py-1 text-[12px] font-bold bg-white hover:bg-gray-50 hover:text-blue-600 hover:border-blue-300 transition-all"
+          className="border border-gray-300 text-graygray-70 rounded px-3 py-1 text-[12px] font-bold bg-white hover:bg-gray-50 hover:text-blue-600 hover:border-blue-300 transition-all"
         >
           수정
         </button>
@@ -234,7 +234,7 @@ const AdminFAQList = () => {
   // 5. UI 렌더링
   // ==================================================================================
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-[#F5F7FB] font-sans antialiased text-gray-900">
+    <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-gray-900">
       <main className="p-10">
         
         {/* Title */}
@@ -324,12 +324,12 @@ const AdminFAQList = () => {
             <div className="flex gap-2">
                <button 
                 onClick={handleDeleteSelected} 
-                className="px-6 h-12 bg-[#FF3B30] text-white rounded-md font-bold text-sm hover:bg-[#D63025] transition-all shadow-sm"
+                className="px-6 h-12 bg-red-500 text-white rounded-md font-bold text-sm hover:bg-red-600 transition-all shadow-sm"
               >
                 삭제
               </button>
               <button 
-                onClick={() => navigate('/admin/customer/FAQAdd')}
+                onClick={() => navigate('/admin/contents/FAQAdd')}
                 className="px-6 h-12 bg-blue-600 text-white rounded-md font-bold text-sm hover:bg-blue-700 transition-all shadow-sm flex items-center gap-2"
               >
                 등록

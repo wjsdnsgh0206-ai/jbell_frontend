@@ -146,7 +146,7 @@ const AdminQnAList = () => {
       render: (title, row) => (
         <div 
           className="flex items-center gap-2 cursor-pointer hover:text-blue-600 hover:underline"
-          onClick={() => navigate(`/admin/content/QnADetail/${row.id}`)}
+          onClick={() => navigate(`/admin/contents/QnADetail/${row.id}`)}
         >
           <span className="truncate max-w-[400px] text-gray-900">{title}</span>
          {/* 최신 글 3개에 N 뱃지 표시 */}
@@ -180,7 +180,7 @@ const AdminQnAList = () => {
         <button 
           onClick={(e) => {
             e.stopPropagation();
-            navigate(`/admin/content/QnADetail/${row.id}`);
+            navigate(`/admin/contents/QnADetail/${row.id}`);
           }}
           className="border border-gray-300 text-[#666] rounded px-3 py-1 text-[12px] font-bold bg-white hover:bg-gray-50 hover:text-blue-600 hover:border-blue-300 transition-all"
         >
@@ -353,7 +353,7 @@ const AdminQnAList = () => {
             data={currentData}
             selectedIds={selectedIds}
             onSelectionChange={setSelectedIds}
-            onRowClick={(row) => navigate(`/admin/content/QnADetail/${row.id}`)}
+            onRowClick={(row) => navigate(`/admin/contents/QnADetail/${row.id}`)}
           />
 
           {/* Pagination */}

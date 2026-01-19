@@ -1,12 +1,14 @@
 //src/pages/admin/customerservice/faq/AdminFAQAdd.jsx
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Save, X, RotateCcw, ChevronRight, Bold,Italic, Underline, List, Link as LinkIcon, Image as ImageIcon, } from 'lucide-react';
 
 /**
  * FAQ 신규 등록 전용 컴포넌트
  */
 const FaqRegisterPage = ({ onCancel, onSave }) => {
+    const navigate = useNavigate();
   // 폼 상태 관리 (초기값 설정)
   const [formData, setFormData] = useState({
     category: '회원/계정',
@@ -49,10 +51,20 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
     if (onSave) onSave(formData);
     
     alert('FAQ가 정상적으로 등록되었습니다.');
+
+    navigate(-1);
+  };
+    // 취소 버튼 핸들러
+    const handleCancelClick = () => {
+    if (onCancel) {
+        onCancel();
+    } else {
+        navigate(-1); // 이전 페이지로 이동
+    }
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-[#F5F7FB] font-sans antialiased text-gray-900">
+    <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-gray-900">
       <main className="p-10">
         
         {/* 1. Header Area (Breadcrumb & Title) */}
@@ -71,7 +83,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
                     <tbody>
                     {/* 카테고리 & 노출순서 */}
                     <tr>
-                        <th className="w-[140px] px-4 py-3 bg-[#f8f9fa] border-b border-gray-300 font-semibold text-gray-700">
+                        <th className="w-[140px] px-4 py-3 bg-graygray-5 border-b border-gray-300 font-semibold text-gray-700">
                         분류 <span className="text-red-500">*</span>
                         </th>
                         <td className="px-4 py-3 border-b border-gray-300">
@@ -90,7 +102,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
                         </td>
                         
                         {/* 2단 레이아웃: 노출 순서 */}
-                        <th className="w-[140px] px-4 py-3 bg-[#f8f9fa] border-b border-gray-300 font-semibold text-gray-700 border-l border-gray-200">
+                        <th className="w-[140px] px-4 py-3 bg-graygray-5 border-b border-gray-300 font-semibold text-gray-700 border-l border-gray-200">
                         노출 순서
                         </th>
                         <td className="px-4 py-3 border-b border-gray-300">
@@ -108,7 +120,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
 
                     {/* 제목 */}
                     <tr>
-                        <th className="px-4 py-3 bg-[#f8f9fa] border-b border-gray-300 font-semibold text-gray-700">
+                        <th className="px-4 py-3 bg-graygray-5 border-b border-gray-300 font-semibold text-gray-700">
                         제목 <span className="text-red-500">*</span>
                         </th>
                         <td colSpan="3" className="px-4 py-3 border-b border-gray-300">
@@ -125,7 +137,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
 
                     {/* 사용 여부 (Radio Style) */}
                     <tr>
-                        <th className="px-4 py-3 bg-[#f8f9fa] border-b border-gray-300 font-semibold text-gray-700">
+                        <th className="px-4 py-3 bg-graygray-5 border-b border-gray-300 font-semibold text-gray-700">
                         사용 여부 <span className="text-red-500">*</span>
                         </th>
                         <td colSpan="3" className="px-4 py-3 border-b border-gray-300">
@@ -156,7 +168,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
 
                     {/* 본문 (Editor Mockup) */}
                     <tr>
-                        <th className="px-4 py-3 bg-[#f8f9fa] border-b border-gray-300 font-semibold text-gray-700 align-top pt-4">
+                        <th className="px-4 py-3 bg-graygray-5 border-b border-gray-300 font-semibold text-gray-700 align-top pt-4">
                         내용 <span className="text-red-500">*</span>
                         </th>
                         <td colSpan="3" className="px-4 py-3 border-b border-gray-300">
@@ -190,7 +202,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
                 <div className="flex justify-center gap-3 mt-8">
                     <button
                         type="button"
-                        onClick={onCancel}
+                        onClick={handleCancelClick}
                         className="h-12 px-8 border border-gray-300 bg-white text-gray-700 text-sm font-bold rounded-md hover:bg-gray-50 flex items-center gap-2 shadow-sm transition-all"
                     >
                         <X className="w-4 h-4" /> 취소

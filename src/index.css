@@ -52,8 +52,11 @@
   --blue-800: #083891; /* Primary Press (New) */
 
   /* =========================================
-     3. Others (Orange, Green - 기존 유지)
+     3. Others (Red, Orange, Green - 기존 유지)
      ========================================= */
+  --red-500: #FF3B30;
+  --red-600: #D63025;
+
   --orange-50: #fff7ed;
   --orange-200: #fed7aa;
   --orange-600: #ea580c;

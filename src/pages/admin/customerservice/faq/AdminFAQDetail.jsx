@@ -82,7 +82,7 @@ const AdminFAQDetail = () => {
   const handleDelete = () => {
     if (window.confirm('정말 삭제하시겠습니까?')) {
       alert('삭제되었습니다.');
-      navigate('/admin/customer/FAQList');
+      navigate('/admin/contents/FAQList');
     }
   };
 
@@ -98,7 +98,7 @@ const AdminFAQDetail = () => {
   };
 
   const handleBack = () => {
-    navigate('/admin/customer/FAQList');
+    navigate('/admin/contents/FAQList');
   };
 
   // JSON Content 렌더러
@@ -152,7 +152,7 @@ const AdminFAQDetail = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-[#F5F7FB] font-sans antialiased text-gray-900">
+    <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-gray-900">
       <main className="p-10">
         
         {/* 헤더 영역 */}
@@ -260,7 +260,7 @@ const AdminFAQDetail = () => {
                                 </button>
                                 <button 
                                     onClick={() => setIsEditing(true)} 
-                                    className="flex items-center gap-2 px-8 h-12 bg-[#1e293b] text-white rounded-md hover:bg-slate-800 text-sm font-bold shadow-sm transition-all"
+                                    className="flex items-center gap-2 px-8 h-12 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-bold shadow-sm transition-all"
                                 >
                                     <Edit2 size={16}/> 수정
                                 </button>
@@ -311,7 +311,7 @@ const AdminFAQDetail = () => {
                     </ul>
                 </div>
 
-                <div className="bg-[#f8fafc] border border-slate-200 p-6 rounded-xl">
+                <div className="bg-graygray-5 border border-slate-200 p-6 rounded-xl">
                     <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Quick Actions</h4>
                     <button 
                         onClick={handleToggleStatus} 

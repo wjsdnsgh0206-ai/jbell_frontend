@@ -63,9 +63,13 @@ export const ADMIN_MENU_DATA = {
     },
     {
       title: "고객센터",
-      path: "/admin/contents/logList",
-      isAvailable: false,
-      items: [],
+      path: "/admin/contents/FAQList",
+      isAvailable: true,
+      items: [
+        {name: "FAQ관리목록", path: "/admin/contents/FAQList"},
+        {name: "FAQ관리등록", path: "/admin/contents/FAQAdd"},
+        {name: "QnA관리목록", path: "/admin/contents/QnAList"},
+      ]
     },
   ],
 
@@ -82,25 +86,4 @@ export const ADMIN_MENU_DATA = {
       }
     */
   ],
-
-  // [콘텐츠 관리] 그룹: URL이 /admin/content/... 일 때 활성화
-  content: [
-    {
-      title:"FAQ관리",        //소분류 그웁
-      isAvailable: true,     //메뉴 활성화 여부 (준비 중일 경우 false)
-      items:[
-        {name: "FAQ관리목록", path: "/admin/content/FAQList"},
-        {name: "FAQ관리등록", path: "/admin/content/FAQAdd"},
-      ]
-    },
-     {
-      title:"QnA관리",        //소분류 그웁
-      isAvailable: true,     //메뉴 활성화 여부 (준비 중일 경우 false)
-      items:[
-        {name: "QnA관리목록", path: "/admin/content/QnAList"},
-      ]
-    },
-
-
-  ]
 };
