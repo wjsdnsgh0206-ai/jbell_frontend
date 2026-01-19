@@ -12,8 +12,10 @@ export const ADMIN_MENU_DATA = {
     {
       title: "대시보드",
       path: "/admin/realtime/realtimeDashboard",
-      isAvailable: false, // 하위메뉴가 없으니 false 처리
-      items: [],
+      isAvailable: true,
+      items: [
+        { name: "대시보드", path: "/admin/realtime/realtimeDashboard" },
+      ],
     },
     {
       title: "재난사고속보 관리",

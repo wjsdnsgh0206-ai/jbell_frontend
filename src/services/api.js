@@ -218,7 +218,6 @@ export const disasterModalService = {
   /* -----------------------------
     산사태 예보발령 api
 ----------------------------- */
-
 getLandSlideWarning: async (params) => {
       const response = await landSlideWarningApi.get('/forecastIssueList', {
         params: {
@@ -232,6 +231,9 @@ getLandSlideWarning: async (params) => {
       return response.data;
   },
 
+  /* -----------------------------
+    사고속보(도로관련) api
+----------------------------- */
   getAccidentNews: async (params) => {
     const response = await accidentNewsApi.get('/eventInfo', {
       params: {
