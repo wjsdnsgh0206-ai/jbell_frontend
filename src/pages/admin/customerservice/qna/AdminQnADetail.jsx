@@ -167,28 +167,6 @@ const AdminQnADetail = () => {
                 </div>
                 </div>
 
-                {/* Row 3: Files */}
-                <div className="flex border-b border-gray-200">
-                <div className="w-32 bg-[#f8f9fa] px-4 py-3 text-sm font-semibold text-gray-600 flex items-center">
-                    첨부파일
-                </div>
-                <div className="flex-1 px-4 py-3 text-sm text-gray-700">
-                    {inquiry.files && inquiry.files.length > 0 ? (
-                    <ul className="flex flex-col gap-1">
-                        {inquiry.files.map((file, idx) => (
-                        <li key={idx} className="flex items-center gap-2 text-gray-600 hover:text-blue-600 cursor-pointer transition-colors">
-                            <FileText className="h-4 w-4" />
-                            <span className="underline decoration-gray-300 underline-offset-2">{file.name}</span>
-                            <span className="text-xs text-gray-400">({file.size})</span>
-                        </li>
-                        ))}
-                    </ul>
-                    ) : (
-                    <span className="text-gray-400">첨부된 파일이 없습니다.</span>
-                    )}
-                </div>
-                </div>
-
                 {/* Row 4: Content Body */}
                 <div className="min-h-[200px] p-6 text-sm text-gray-800 leading-relaxed whitespace-pre-wrap border-b border-gray-200">
                 {inquiry.content}

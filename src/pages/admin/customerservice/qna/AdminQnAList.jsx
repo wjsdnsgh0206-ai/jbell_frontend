@@ -17,7 +17,6 @@ const cn = (...classes) => classes.filter(Boolean).join(' ');
 
 /**
  * [관리자] 1:1 문의 목록 페이지
- * - 공통 컴포넌트(Table, Pagination, SearchBox) 적용
  */
 const AdminQnAList = () => {
   const navigate = useNavigate();
@@ -51,7 +50,7 @@ const AdminQnAList = () => {
   }, [inquiries]);
 
   // ==================================================================================
-  // 2. 필터링 로직 (Filtering Logic)
+  // 2. 필터링 로직
   // ==================================================================================
   const filteredData = useMemo(() => {
     const { status, type, keyword, dateStart, dateEnd } = appliedFilters;
@@ -82,7 +81,7 @@ const AdminQnAList = () => {
     }).sort((a, b) => b.id - a.id); // 최신순 정렬
   }, [inquiries, appliedFilters]);
 
-  // [페이지네이션] 현재 페이지 데이터 슬라이싱
+  // 현재 페이지 데이터 슬라이싱
   const currentData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     return filteredData.slice(startIndex, startIndex + itemsPerPage);
@@ -103,16 +102,37 @@ const AdminQnAList = () => {
       header: '상태', 
       width: '100px', 
       className: 'text-center',
-      render: (status) => (
-        <span className={cn(
-          "inline-block px-2 py-1 text-xs font-bold rounded-sm min-w-[60px] border",
-          status === 'WAITING' 
-            ? "bg-gray-50 text-gray-500 border-gray-200" 
-            : "bg-blue-50 text-blue-600 border-blue-100"
-        )}>
-          {status === 'WAITING' ? '답변대기' : '답변완료'}
-        </span>
-      )
+      render: (status) => {
+        let badgeClass = "";
+        let label = "";
+
+        switch (status) {
+          case 'WAITING':
+            badgeClass = "bg-gray-50 text-gray-500 border-gray-200";
+            label = "답변대기";
+            break;
+          case 'PROCESSING':
+            badgeClass = "bg-orange-50 text-orange-600 border-orange-200";
+            label = "답변처리중";
+            break;
+          case 'ANSWERED':
+            badgeClass = "bg-blue-50 text-blue-600 border-blue-100";
+            label = "답변완료";
+            break;
+          default:
+            badgeClass = "bg-gray-50 text-gray-500 border-gray-200";
+            label = status;
+        }
+
+        return (
+          <span className={cn(
+            "inline-block px-2 py-1 text-xs font-bold rounded-sm min-w-[70px] border text-center",
+            badgeClass
+          )}>
+            {label}
+          </span>
+        );
+      }
     },
     { 
       key: 'type', 
@@ -126,7 +146,7 @@ const AdminQnAList = () => {
       render: (title, row) => (
         <div 
           className="flex items-center gap-2 cursor-pointer hover:text-blue-600 hover:underline"
-          onClick={() => navigate(`/admin/customer/QnADetail/${row.id}`)}
+          onClick={() => navigate(`/admin/content/QnADetail/${row.id}`)}
         >
           <span className="truncate max-w-[400px] text-gray-900">{title}</span>
          {/* 최신 글 3개에 N 뱃지 표시 */}
@@ -160,7 +180,7 @@ const AdminQnAList = () => {
         <button 
           onClick={(e) => {
             e.stopPropagation();
-            navigate(`/admin/customer/QnADetail/${row.id}`);
+            navigate(`/admin/content/QnADetail/${row.id}`);
           }}
           className="border border-gray-300 text-[#666] rounded px-3 py-1 text-[12px] font-bold bg-white hover:bg-gray-50 hover:text-blue-600 hover:border-blue-300 transition-all"
         >
@@ -273,6 +293,7 @@ const AdminQnAList = () => {
               >
                 <option value="ALL">상태(전체)</option>
                 <option value="WAITING">답변대기</option>
+                <option value="PROCESSING">답변처리중</option>
                 <option value="ANSWERED">답변완료</option>
               </select>
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
@@ -332,7 +353,7 @@ const AdminQnAList = () => {
             data={currentData}
             selectedIds={selectedIds}
             onSelectionChange={setSelectedIds}
-            onRowClick={(row) => navigate(`/admin/customer/QnADetail/${row.id}`)}
+            onRowClick={(row) => navigate(`/admin/content/QnADetail/${row.id}`)}
           />
 
           {/* Pagination */}

@@ -198,7 +198,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
                     
                     <button
                         type="submit"
-                        className="h-12 px-10 bg-[#1e3a8a] text-white text-sm font-bold rounded-md hover:bg-[#1e293b] flex items-center gap-2 shadow-sm transition-all"
+                        className="h-12 px-10 bg-blue-600 text-white text-sm font-bold rounded-md hover:bg-blue-700 flex items-center gap-2 shadow-sm transition-all"
                     >
                         <Save className="w-4 h-4" /> 등록
                     </button>

@@ -45,20 +45,20 @@ export const ADMIN_MENU_DATA = {
   ],
 
   // [콘텐츠 관리] 그룹: URL이 /admin/content/... 일 때 활성화
-  customer: [
+  content: [
     {
       title:"FAQ관리",        //소분류 그웁
       isAvailable: true,     //메뉴 활성화 여부 (준비 중일 경우 false)
       items:[
-        {name: "FAQ관리목록", path: "/admin/customer/FAQList"},
-        {name: "FAQ관리등록", path: "/admin/customer/FAQAdd"},
+        {name: "FAQ관리목록", path: "/admin/content/FAQList"},
+        {name: "FAQ관리등록", path: "/admin/content/FAQAdd"},
       ]
     },
      {
       title:"QnA관리",        //소분류 그웁
       isAvailable: true,     //메뉴 활성화 여부 (준비 중일 경우 false)
       items:[
-        {name: "QnA관리목록", path: "/admin/customer/QnAList"},
+        {name: "QnA관리목록", path: "/admin/content/QnAList"},
       ]
     },
 

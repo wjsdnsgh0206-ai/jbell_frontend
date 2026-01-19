@@ -38,7 +38,7 @@ export const qnaData = [
   {
     id: 4,
     status: 'waiting',
-    statusText: '확인중',
+    statusText: '처리중',
     title: '기관 연동이 안돼요',
     content: '타기관 인증서 등록 시 오류가 뜹니다.',
     date: '2025.11.01',

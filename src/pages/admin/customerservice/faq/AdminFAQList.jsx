@@ -128,7 +128,7 @@ const AdminFAQList = () => {
       key: 'title', 
       header: '질문(Q)', 
       render: (title, row) => (
-        <div className="flex items-center cursor-pointer hover:text-blue-600" onClick={() => navigate(`/admin/customer/FAQDetail/${row.id}`)}>
+        <div className="flex items-center cursor-pointer hover:text-blue-600" onClick={() => navigate(`/admin/content/FAQDetail/${row.id}`)}>
           <span className="font-bold text-blue-600 mr-2">Q.</span>
           <span className="font-medium text-gray-900 truncate max-w-[400px]">{title}</span>
         </div>
@@ -172,7 +172,7 @@ const AdminFAQList = () => {
         <button 
           onClick={(e) => {
             e.stopPropagation();
-            navigate(`/admin/customer/FAQDetail/${row.id}`); // 상세/수정 페이지 이동
+            navigate(`/admin/content/FAQDetail/${row.id}`); // 상세/수정 페이지 이동
           }}
           className="border border-gray-300 text-[#666] rounded px-3 py-1 text-[12px] font-bold bg-white hover:bg-gray-50 hover:text-blue-600 hover:border-blue-300 transition-all"
         >

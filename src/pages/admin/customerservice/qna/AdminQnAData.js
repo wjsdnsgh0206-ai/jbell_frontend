@@ -10,7 +10,7 @@
  * 5. content: 문의 본문 내용
  * 6. author: 작성자 이름
  * 7. date: 등록 일시 (YYYY-MM-DD HH:mm)
- * 8. status: 답변 상태 ('WAITING' | 'ANSWERED')
+ * 8. status: 'WAITING' (답변대기) | 'PROCESSING' (답변처리중) | 'ANSWERED' (답변완료)
  * 9. files: 첨부파일 배열 [{ name, size }]
  * 10. answer: 답변 객체 (null 또는 { content, author, date })
  */
@@ -26,9 +26,6 @@ export const AdminQnAData = [
     author: '김철수',
     date: '2025-01-09 14:30',
     status: 'WAITING',
-    files: [
-      { name: 'error_screenshot_01.jpg', size: '1.2MB' }
-    ],
     answer: null
   },
 
@@ -42,7 +39,6 @@ export const AdminQnAData = [
     author: '이영희',
     date: '2025-01-09 10:15',
     status: 'ANSWERED',
-    files: [],
     answer: {
       content: '안녕하세요. 관리자입니다.\n마이페이지 > [회원정보 수정] 메뉴 하단에서 비밀번호 변경이 가능합니다.\n이용에 참고 부탁드립니다.',
       author: '통합관리자',
@@ -59,8 +55,7 @@ export const AdminQnAData = [
     content: '아이폰 13 mini 사용 중입니다.\n메인 화면 하단 "더보기" 버튼이 화면 밖으로 나가서 누를 수가 없네요.\n수정 부탁드립니다.',
     author: '박민수',
     date: '2025-01-08 16:40',
-    status: 'WAITING',
-    files: [],
+    status: 'PROCESSING',
     answer: null
   },
 
@@ -74,7 +69,6 @@ export const AdminQnAData = [
     author: '최지은',
     date: '2025-01-08 09:20',
     status: 'ANSWERED',
-    files: [],
     answer: {
       content: '소중한 의견 감사합니다.\n현재 다크 모드는 개발 로드맵에 포함되어 있으며, 올 상반기 내 적용 예정입니다.\n조금만 기다려 주시면 감사하겠습니다.',
       author: '개발팀장',
@@ -92,7 +86,6 @@ export const AdminQnAData = [
     author: '정준호',
     date: '2025-01-07 13:00',
     status: 'ANSWERED',
-    files: [],
     answer: {
       content: '불편을 드려 죄송합니다.\n시스템 일시 오류로 확인되어 현재는 정상적으로 처리가 가능합니다.\n다시 시도해 보시고 안 되시면 재문의 부탁드립니다.',
       author: 'CS팀',
@@ -109,11 +102,7 @@ export const AdminQnAData = [
     content: '게시글 작성 시 PDF 파일이 올라가지 않습니다.\n용량은 5MB 미만입니다.',
     author: '강서연',
     date: '2025-01-07 11:20',
-    status: 'WAITING',
-    files: [
-      { name: 'upload_error_log.txt', size: '12KB' },
-      { name: 'screen_capture.png', size: '2.5MB' }
-    ],
+    status: 'PROCESSING',
     answer: null
   },
 
@@ -127,7 +116,6 @@ export const AdminQnAData = [
     author: '윤동주',
     date: '2025-01-06 15:45',
     status: 'ANSWERED',
-    files: [],
     answer: {
       content: '안녕하세요.\n입력하신 정보로 조회가 되지 않는 경우, 가입 시 오타가 있었거나 탈퇴된 계정일 수 있습니다.\n고객센터 유선 문의(1588-0000) 주시면 상세 확인 도와드리겠습니다.',
       author: '운영팀',
@@ -145,7 +133,6 @@ export const AdminQnAData = [
     author: '한석봉',
     date: '2025-01-05 09:10',
     status: 'ANSWERED',
-    files: [],
     answer: {
       content: '결제 영수증은 [마이페이지] > [결제 내역] > [상세보기]에서 출력 가능합니다.',
       author: 'CS팀',
@@ -163,7 +150,6 @@ export const AdminQnAData = [
     author: '심사임당',
     date: '2025-01-04 20:30',
     status: 'ANSWERED',
-    files: [],
     answer: {
       content: '좋은 의견 감사합니다. 다음 앱 업데이트(v2.1)에 알림 세분화 기능이 반영될 예정입니다.',
       author: '기획팀',
@@ -181,7 +167,6 @@ export const AdminQnAData = [
     author: '장영실',
     date: '2025-01-03 14:00',
     status: 'WAITING',
-    files: [],
     answer: null
   }
 ];

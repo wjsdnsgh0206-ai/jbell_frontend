@@ -12,11 +12,10 @@ const AdminHeader = () => {
 
   const navItems = [
     { key: 'realtime', name: '실시간 정보 관리', path: '/admin/realtime/realtimeDashboard' },
-    { key: 'content', name: '콘텐츠 관리', path: '/admin/content/contentList' },
+    { key: 'content', name: '콘텐츠 관리', path: '/admin/content/FAQList' },
     { key: 'safetyMap', name: '안전정보지도 관리', path: '/admin/safetyMap/safetyMapList' },
     { key: 'user', name: '회원 관리', path: '/admin/user/userList' },
     { key: 'system', name: '시스템 관리', path: '/admin/system/commonCodeList' },
-    { key: 'customer', name: '고객지원 관리', path: '/admin/customer/FAQList'},
   ]; 
 
   return (

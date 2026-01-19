@@ -101,7 +101,7 @@ const AdminFAQDetail = () => {
     navigate('/admin/customer/FAQList');
   };
 
-  // [핵심] JSON Content 렌더러
+  // JSON Content 렌더러
   const renderContent = (contentData) => {
     if (!Array.isArray(contentData)) return <p>내용이 없습니다.</p>;
 
@@ -285,7 +285,7 @@ const AdminFAQDetail = () => {
                 </div>
             </div>
 
-            {/* Sidebar (변경 없음) */}
+            {/* Sidebar */}
             <div className="w-full xl:w-80 shrink-0 space-y-6">
                 <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
                     <h4 className="font-bold text-gray-900 mb-5 pb-3 border-b border-gray-100 flex items-center gap-2">
