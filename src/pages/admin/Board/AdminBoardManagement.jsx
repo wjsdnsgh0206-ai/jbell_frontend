@@ -14,19 +14,24 @@ const AdminBoardManagement = () => {
   // ✅ id로 찾기
   const existingData = location.state || noticeData.find(post => post.boardId === parseInt(boardId));
 
-  const nextId = noticeData.length > 0 
-    ? Math.max(...noticeData.map(post => post.boardId)) + 1 // ✅ id로 변경
-    : 1;
+  // nextId
+  const ids = noticeData
+  .map(post => Number(post.boardId))
+  .filter(id => !isNaN(id));
+  const nextId = ids.length > 0 ? Math.max(...ids) + 1 : 1;
+
+  
 
 // 상태 관리
   const [formData, setFormData] = useState({
-    title: '',
-    content: '',
+    boardId:'',
+    boardTitle: '',
+    boardContent: '',
     isPublic: true, // 라디오 버튼 상태
     files: []
   });
 
-
+/** <=================================================================== handle 모음 =================================================================== **/
    const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -73,6 +78,32 @@ const AdminBoardManagement = () => {
     
     navigate('/admin/contents/adminBoardList');
   };
+/** <=================================================================== handle 모음 =================================================================== **/
+
+// 수정 모드 데이터 채우기
+useEffect(() => {
+  if (isEditMode && existingData) {
+    setFormData({
+      boardId: Number(existingData.boardId),
+      boardTitle: existingData.boardTitle || "",
+      boardContent: existingData.boardContent || "",
+      isPublic: existingData.isPublic ?? true,
+      files: existingData.files || []
+    });
+  }
+}, [isEditMode, existingData]);
+
+
+console.log("전체 데이터:", noticeData);
+console.log("다음 번호:", nextId);
+console.log(
+  noticeData.map(post => ({
+    boardId: post.boardId,
+    type: typeof post.boardId
+  }))
+);
+
+
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg p-10 font-sans">
@@ -97,8 +128,8 @@ const AdminBoardManagement = () => {
             <div>
               <label className="block text-body-m-bold text-admin-text-primary mb-3">공지 번호</label>
               <input 
-                type="text" 
-                value={isEditMode ? existingData?.boardId : nextId} // ✅ id로 표시
+                type="number" 
+                value={isEditMode ? (formData.boardId || 0) : nextId} // ✅ id로 표시
                 disabled 
                 className="w-full h-12 px-4 bg-graygray-5 border border-admin-border rounded-md text-graygray-40 font-mono"
               />
@@ -141,7 +172,7 @@ const AdminBoardManagement = () => {
             <input 
               type="text" 
               name="boardTitle"
-              value={formData.boardTitle}
+              value={formData.boardTitle || ""}
               onChange={handleInputChange}
               placeholder="공지사항 제목을 입력하세요"
               className="w-full h-14 px-5 border border-admin-border rounded-md text-body-m outline-none focus:border-admin-primary transition-all"
@@ -152,7 +183,7 @@ const AdminBoardManagement = () => {
             <label className="block text-body-m-bold text-admin-text-primary mb-3">본문 내용</label>
             <textarea 
               name="boardContent"
-              value={formData.boardContent}
+              value={formData.boardContent || ""}
               onChange={handleInputChange}
               placeholder="내용을 작성해주세요"
               className="w-full h-80 p-5 border border-admin-border rounded-md text-body-m outline-none focus:border-admin-primary transition-all resize-none"

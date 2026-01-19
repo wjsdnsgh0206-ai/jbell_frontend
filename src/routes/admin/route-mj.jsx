@@ -37,7 +37,7 @@ const mjAdminRoutes = [
             nowPage: "공지사항",
       },
       {
-            path: "/admin/contents/adminBoardDetail/:boardTitle", 
+            path: "/admin/contents/adminBoardDetail/:boardId", 
             element: <AdminBoardDetail />,
             nowPage: "공지사항 상세보기",
       },
@@ -47,7 +47,7 @@ const mjAdminRoutes = [
             nowPage: "공지사항 등록",
       },
       {
-            path: "/admin/contents/adminBoardEdit/:boardTitle", 
+            path: "/admin/contents/adminBoardEdit/:boardId", 
             element: <AdminBoardManagement />,
             nowPage: "공지사항 수정",
       },

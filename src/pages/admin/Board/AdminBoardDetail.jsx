@@ -6,10 +6,11 @@ import { noticeData } from '@/pages/user/openboards/BoardData';
 const AdminBoardDetail = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { id } = useParams();
+  const { boardId } = useParams();
+  console.log(boardId)
   
   // location.state로 넘어온 데이터 또는 id로 찾기
-  const post = location.state || noticeData.find(p => p.id === parseInt(id));
+  const post = location.state || noticeData.find(p => p.boardId === parseInt(boardId));
 
   // 데이터가 없으면 에러 처리
   if (!post) {
@@ -61,7 +62,7 @@ const AdminBoardDetail = () => {
           </div>
           
           <h1 className="text-2xl font-bold text-admin-text-primary mb-6">
-            {post.title}
+            {post.boardTitle}
           </h1>
           
           {/* 메타 정보 */}
@@ -90,7 +91,7 @@ const AdminBoardDetail = () => {
         {/* 본문 내용 */}
         <div className="p-8 border-b border-admin-border">
           <div className="text-body-m text-graygray-70 whitespace-pre-wrap leading-relaxed min-h-[300px]">
-            {post.content}
+            {post.boardContent}
           </div>
         </div>
 
@@ -135,7 +136,7 @@ const AdminBoardDetail = () => {
           목록으로
         </button>
         <button 
-          onClick={() => navigate(`/admin/contents/adminBoardEdit/${post.boardId}`, { state: post })}
+          onClick={() => navigate(`/admin/contents/adminBoardEdit/${boardId}`, { state: post })}
           className="px-10 h-14 bg-admin-primary text-white font-bold rounded-md hover:opacity-90 transition-all flex items-center gap-2 shadow-md"
         >
           <Edit size={20} /> 수정하기
