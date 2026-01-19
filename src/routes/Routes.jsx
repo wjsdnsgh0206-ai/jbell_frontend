@@ -5,18 +5,25 @@ import AdminLayout from "@/layouts/admin/AdminLayout";
 import DisasterModalLayout from "@/layouts/user/disasterModal/DisasterModalLayout";
 import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
-// 팀원별 라우트 파일 import
+// 팀원별 라우트 파일 import (user)
 import { jyUserRoutes, disasterModal } from "@/routes/route-jy";
 import { shUserRoutes } from "@/routes/route-sh";
 import { ehUserRoutes } from "@/routes/route-eh";
 import { mjUserRoutes } from "@/routes/route-mj";
 import { bjUserRoutes } from "@/routes/route-bj";
 import { jhUserRoutes } from "@/routes/route-jh";
+
+// 팀원별 라우트 파일 import (amdin)
+// import { jyUserRoutes } from "@/routes/admin/route-jy";
 import { shAdminRoutes } from "@/routes/admin/route-sh";
+import { mjAdminRoutes } from "@/routes/admin/route-mj";
+import { jhAdminRoutes } from "@/routes/admin/route-jh";
 import { bjAdminRoutes } from "@/routes/admin/route-bj";
+import { ehAdminRoutes } from "@/routes/admin/route-eh";
+
 
 const AllRoutes = (props) => {
-  // 1. 모든 팀원의 라우트를 하나의 배열로 병합 (충돌 방지: 각자 파일만 수정하면 됨)
+  // 1. 사용자 페이지 라우트 병합
   const allUserRoutes = [
     ...jyUserRoutes,
     ...shUserRoutes,
@@ -25,12 +32,15 @@ const AllRoutes = (props) => {
     ...bjUserRoutes,
     ...jhUserRoutes,
   ];
-
-  // 2. 관리자 라우트 병합 (팀원이 늘어나면 여기에 추가)
+  
+  // 2. 관리자 페이지 라우트 병합
   const allAdminRoutes = [
+    // ...jyAdminRoutes,
     ...shAdminRoutes,
+    ...ehAdminRoutes,
+    ...mjAdminRoutes,
     ...bjAdminRoutes,
-    // ...다른 팀원 관리자 라우트
+    ...jhAdminRoutes,
   ];
 
   /* 2. 사이드바 종류별로 라우트 필터링.
@@ -83,7 +93,7 @@ const AllRoutes = (props) => {
         {allAdminRoutes.map((route, idx) => (
           <Route
             key={`admin-route-${idx}`}
-            path={route.path} // 예: /admin/system/adminCommonCodeList
+            path={route.path} // 예: /admin/system/commonCodeList
             element={route.element}
           />
         ))}
@@ -237,6 +247,9 @@ const AllRoutes = (props) => {
         </Route>
       ))}
     </Routes>
+
+
+
   );
 };
 
@@ -311,3 +324,4 @@ export default AllRoutes;
 // };
 
 // export default AllRoutes;
+ 

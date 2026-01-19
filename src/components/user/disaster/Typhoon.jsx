@@ -18,13 +18,12 @@ const Typhoon = () => {
   });
 
   const mapTabs = [
-    { id: "기상특보", label: "기상특보" },
     { id: "태풍경로도", label: "태풍경로도" },
     { id: "재난안전시설", label: "재난안전시설", hasArrow: true },
   ];
 
   const typhoonItems = [
-    { id: "shelter", label: "이재민임시시설" },
+    { id: "shelter", label: "대피소" },
     { id: "hospital", label: "병원" },
     { id: "pharmacy", label: "약국" },
   ];
@@ -104,11 +103,6 @@ const Typhoon = () => {
             <div className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-detail-s lg:text-body-s-bold text-center">
               제1호 태풍 네파탁
             </div>
-          </div>
-
-          {/* 지도 컨트롤 버튼 */}
-          <div className="absolute bottom-5 right-5 lg:bottom-20 z-20">
-            <MapControlBtn />
           </div>
         </div>
       </div>

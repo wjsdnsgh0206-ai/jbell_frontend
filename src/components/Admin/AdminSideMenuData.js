@@ -10,6 +10,7 @@ export const ADMIN_MENU_DATA = {
   system: [ 
     {
       title: "코드 관리",     // 소분류 그룹 제목
+      path: "/admin/system/commonCodeList", // 대표 경로 추가
       isAvailable: true,     // 메뉴 활성화 여부 (준비 중일 경우 false)
       items: [
         { name: "공통코드 목록", path: "/admin/system/commonCodeList" },
@@ -19,19 +20,57 @@ export const ADMIN_MENU_DATA = {
       ],
     },
     {
-      title: "권한 관리",     // 추후 확장 예정 메뉴
+      title: "권한 관리",
+      path: "/admin/system/authList",
       isAvailable: false,    // 비활성화 상태 (클릭 불가 처리 등에 활용)
       items: [],
     },
     {
-      title: "로그 관리",     // 추후 확장 예정 메뉴
+      title: "로그 관리",
+      path: "/admin/system/logList",
+      isAvailable: false,
+      items: [],
+    },
+  ],
+  contents: [ 
+    {
+      title: "행동요령 관리",     // 소분류 그룹 제목
+      path: "/admin/contents/behavioralGuideList", // 대표 경로 추가
+      isAvailable: true,     // 메뉴 활성화 여부 (준비 중일 경우 false)
+      items: [
+        { name: "행동요령 목록", path: "/admin/contents/behavioralGuideList" },
+        { name: "행동요령 등록", path: "/admin/contents/behavioralGuideAdd" },
+      ],
+    },
+    {
+      title: "주요 안전정책 관리",
+      path: "/admin/contents/citySafetyMasterPlan",
+      isAvailable: false,
+      items: [
+        { name: "도시안전기본계획 관리", path: "/admin/contents/citySafetyMasterPlan" },
+        { name: "재난별 안전정책 관리", path: "/admin/contents/disasterSafetyPolicy" },
+        { name: "시민 안전보험 관리", path: "/admin/contents/citySafetyMasterPlan" },
+        { name: "풍수해 안전보험 관리", path: "/admin/contents/stormAndFloodInsurance" },
+      ],
+    },
+    {
+      title: "열린마당 관리",
+      path: "/admin/contents/pressRelList",
+      isAvailable: true,
+      items: [
+        { name: "보도자료 관리", path: "/admin/contents/pressRelList" },
+      ],
+    },
+    {
+      title: "고객센터",
+      path: "/admin/contents/logList",
       isAvailable: false,
       items: [],
     },
   ],
 
   // [회원 관리] 그룹: URL이 /admin/user/... 일 때 활성화 (팀원 추가 영역)
-  user: [ 
+  member: [ 
     /* 예시:
       {
         title: "사용자 정보 관리",

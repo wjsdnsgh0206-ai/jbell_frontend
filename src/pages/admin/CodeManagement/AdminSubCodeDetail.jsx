@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData'; 
-import AdminCodeConfirmModal from './AdminCodeConfirmModal';
+import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
 const AdminSubCodeDetail = () => {
   const { id } = useParams();
@@ -124,14 +124,14 @@ const AdminSubCodeDetail = () => {
 
             {/* 사용 여부 (상세페이지용 - 가로 배치 및 명칭 수정) */}
             <div className="flex items-center gap-5 pt-2">
-            <label className="font-bold text-[16px] text-[#111]">노출 여부</label>
+            <label className="font-bold text-[16px] text-[#111]">사용 여부</label>
             <div className="flex items-center gap-3">
                 {/* 토글 버튼 영역 (Detail이므로 클릭 기능 제외, 애니메이션 유지) */}
                 <div className={`w-[54px] h-[28px] flex items-center rounded-full p-1 transition-colors duration-300 ${formData.visible ? 'bg-[#2563EB]' : 'bg-gray-300'}`}>
                 <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${formData.visible ? 'translate-x-[26px]' : 'translate-x-0'}`}></div>
                 </div>
                 <span className={`text-[14px] font-bold ${formData.visible ? 'text-[#2563EB]' : 'text-gray-400'}`}>
-                {formData.visible ? '노출' : '미노출'}
+                {formData.visible ? '사용' : '미사용'}
                 </span>
             </div>
             </div>
@@ -159,7 +159,7 @@ const AdminSubCodeDetail = () => {
         </section>
       </main>
 
-      <AdminCodeConfirmModal 
+      <AdminConfirmModal 
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
-import AdminCodeConfirmModal from './AdminCodeConfirmModal';
+import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
 // 아이콘 컴포넌트 (생략 없이 포함)
 const SuccessIcon = ({ fill = "#2563EB" }) => (
@@ -195,7 +195,7 @@ const AdminSubCodeEdit = () => {
 
             {/* 6. 사용 여부 */}
             <div className="mb-10 flex items-center gap-5 pt-2">
-              <label className="font-bold text-[16px] text-[#111]">노출 여부</label>
+              <label className="font-bold text-[16px] text-[#111]">사용 여부</label>
               <div className="flex items-center gap-3">
                 <button 
                   type="button" 
@@ -204,7 +204,7 @@ const AdminSubCodeEdit = () => {
                 >
                   <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${isRegistered ? 'translate-x-[26px]' : 'translate-x-0'}`} />
                 </button>
-                <span className={`text-[14px] font-bold ${isRegistered ? 'text-[#2563EB]' : 'text-gray-400'}`}>{isRegistered ? '노출' : '미노출'}</span>
+                <span className={`text-[14px] font-bold ${isRegistered ? 'text-[#2563EB]' : 'text-gray-400'}`}>{isRegistered ? '사용' : '미사용'}</span>
               </div>
             </div>
 
@@ -244,7 +244,7 @@ const AdminSubCodeEdit = () => {
       </main>
 
       {/* 확인 모달 */}
-      <AdminCodeConfirmModal 
+      <AdminConfirmModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onConfirm={handleConfirmSave} 

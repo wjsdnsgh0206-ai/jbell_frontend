@@ -1,10 +1,13 @@
 // src/components/admin/AdminBreadcrumb.jsx
-import { useLocation, Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { ChevronRight } from 'lucide-react';
 import { GoHomeFill } from "react-icons/go";
 
 // 고정 메뉴 매핑 (ID를 제외한 정적 경로들)
 const adminMap = {
+  "contents": "콘텐츠 관리",
+  "behavioralGuide": "행동요령 관리",
+  "behavioralGuideList": "행동요령 목록",
   "system": "시스템 관리",
   "commonCodeList": "공통코드 목록",
   "groupCodeAdd": "그룹코드 등록",
@@ -13,13 +16,15 @@ const adminMap = {
   "groupCodeEdit": "공통 코드 수정",
   "subCodeDetail": "상세 코드 상세",
   "subCodeEdit": "상세 코드 수정",
-  "customer": "고객지원 관리",
   "FAQList": "FAQ목록",
   "FAQDetail": "FAQ 상세정보",
   "FAQAdd": "FAQ 신규등록",
   "QnAList": "1:1 목록",
   "QnADetail": "1:1 상세정보",
 
+  "behavioralGuideDetail": "행동요령 상세",
+  "pressRelList": "보도자료 목록",
+  "pressRelAdd": "보도자료 등록",
 };
 
 /**
@@ -32,13 +37,13 @@ const AdminBreadcrumb = ({ customTitle }) => {
   return (
     <nav className="flex py-2" aria-label="Breadcrumb">
       <ol className="flex items-center gap-2">
-        <li className="flex items-center gap-2 text-graygray-50 hover:text-admin-primary">
-          <Link to="/admin"><GoHomeFill className="w-4 h-4" /></Link>
+        {/* 홈 아이콘 */}
+        <li className="flex items-center gap-2 text-graygray-50">
+          <GoHomeFill className="w-4 h-4" />
           {pathnames.length > 0 && <ChevronRight className="w-3 h-3 text-graygray-30" />}
         </li>
 
         {pathnames.map((name, index) => {
-          const routeTo = `/admin/${pathnames.slice(0, index + 1).join("/")}`;
           const isLast = index === pathnames.length - 1;
           
           /**
@@ -49,13 +54,15 @@ const AdminBreadcrumb = ({ customTitle }) => {
           const label = (isLast && customTitle) ? customTitle : (adminMap[name] || name);
 
           return (
-            <li key={index} className="flex items-center gap-2 text-graygray-50 hover:text-admin-primary">
-              <Link 
-                to={routeTo}
-                className={`text-detail-m ${isLast ? 'font-bold text-graygray-90 pointer-events-none' : 'hover:underline'}`}
+            <li key={index} className="flex items-center gap-2 text-graygray-50">
+              <div
+                className={`text-detail-m ${
+                  isLast ? 'font-bold text-graygray-90' : 'text-graygray-50'
+                }`}
               >
                 {label}
-              </Link>
+              </div>
+              {/* 마지막 항목이 아니면 화살표 표시 */}
               {!isLast && <ChevronRight className="w-3 h-3 text-graygray-50" />}
             </li>
           );

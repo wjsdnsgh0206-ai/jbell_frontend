@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
-import AdminCodeConfirmModal from './AdminCodeConfirmModal';
+import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
 const AdminGroupCodeDetail = () => {
   const { id } = useParams();
@@ -116,13 +116,13 @@ const AdminGroupCodeDetail = () => {
 
             {/* 그룹코드 상세페이지 - 등록 여부 (가로 배치) */}
             <div className="flex items-center gap-5 pt-2">
-            <label className="font-bold text-[16px] text-[#111]">노출 여부</label>
+            <label className="font-bold text-[16px] text-[#111]">사용 여부</label>
             {/* 상세페이지이므로 button 대신 div 사용, transition-colors duration-300 추가 */}
             <div className={`w-[54px] h-[28px] flex items-center rounded-full p-1 transition-colors duration-300 ${formData.visible ? 'bg-[#2563EB]' : 'bg-gray-300'}`}>
                 <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${formData.visible ? 'translate-x-[26px]' : 'translate-x-0'}`}></div>
             </div>
             <span className={`text-[14px] font-bold ${formData.visible ? 'text-[#2563EB]' : 'text-gray-400'}`}>
-                {formData.visible ? '노출' : '미노출'}
+                {formData.visible ? '사용' : '미사용'}
             </span>
             </div>
             {/* 등록 일자 및 수정 일자 (구분선 후 수직 배치) */}
@@ -148,7 +148,7 @@ const AdminGroupCodeDetail = () => {
         </section>
       </main>
 
-      <AdminCodeConfirmModal 
+      <AdminConfirmModal 
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}

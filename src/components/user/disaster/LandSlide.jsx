@@ -1,133 +1,158 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
 import FacilityCheckGroup from "../modal/FacilityCheckGroup";
 import MapControlBtn from "@/components/user/modal/MapControlBtn";
-import CommonMap from "@/components/user/modal/CommonMap"; // 공통 지도 엔진
-
-/*
-  LandSlide 컴포넌트
-  - PC: 세로형 사이드 탭 메뉴 구조 유지
-  - 모바일: 상단 가로 칩(Chip) + 하단 요약창 레이아웃
-*/
+import CommonMap from "@/components/user/modal/CommonMap";
+import useLandSlide from "@/hooks/user/useLandSlide";
 
 const LandSlide = () => {
-  // 산사태 관련 마커 데이터 (예시: 위험 징후 발견 지역 또는 주요 대피소)
-  const landSlideData = [
-    { lat: 35.8100, lng: 127.1600, title: "산사태 주의 구간", content: "경사면 붕괴 위험 감지" },
-  ];
-
-  const [activeTab, setActiveTab] = useState("위험등급");
+  const { lsMarkers, isLoading, fetchLandSlideData } = useLandSlide();
+  const [activeTab, setActiveTab] = useState("위험예보");
   const [facilities, setFacilities] = useState({
-    shelter: true,
-    hospital: false,
-    pharmacy: false,
+    shelter: true, hospital: false, pharmacy: false,
   });
 
-  const mapTabs = [
-    { id: "위험등급", label: "산사태 위험등급" },
-    { id: "예보현황", label: "주의보/경보 현황" },
-    { id: "대피장소", label: "산사태 대피소", hasArrow: true },
-  ];
+  const todayStr = new Date().toLocaleDateString('ko-KR', {
+    year: 'numeric', month: '2-digit', day: '2-digit'
+  });
 
-  const LandSlideItems = [
-    { id: "shelter", label: "산사태대피소" }, 
-    { id: "hospital", label: "병원" },
-    { id: "pharmacy", label: "약국" },
-  ];
+  useEffect(() => {
+    if (activeTab === "위험예보") fetchLandSlideData();
+  }, [activeTab, fetchLandSlideData]);
 
-  const handleTabClick = (tabId) => {
-    setActiveTab(prev => (prev === tabId ? null : tabId));
-  };
-
-  const handleCheck = (key) => {
-    setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+  const hasActiveNotice = lsMarkers.some(marker => marker.isActiveWarning);
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 gap-5 lg:gap-6">
-      {/* === 상단 지도 섹션 === */}
-      <div className="bg-white rounded-2xl p-4 lg:p-5 border border-gray-100 flex-1 flex flex-col min-h-0">
+    // 전체 컨테이너: h-full과 min-h-0을 통해 내부 스크롤이 가능하도록 구조화
+    <div className="flex-1 flex flex-col min-h-0 gap-5 lg:gap-6 overflow-hidden">
+      
+      {/* 메인 상단 박스 */}
+      <div className="bg-white rounded-2xl p-4 lg:p-5 border border-gray-100 flex-1 flex flex-col min-h-0 shadow-sm overflow-hidden">
         
-        {/* 헤더 섹션 */}
+        {/* 헤더 섹션: 고정 높이 */}
         <div className="flex justify-between items-center mb-4 flex-shrink-0">
           <div className="flex items-center gap-2 lg:gap-3">
             <h3 className="md:text-body-m-bold lg:text-title-m text-body-s-bold text-gray-900">
               실시간 산사태정보
             </h3>
-            <span className="rounded-xl font-bold bg-gray-100 text-gray-500 text-center text-[10px] px-2.5 py-1 md:text-detail-s md:px-4 md:py-1.5 md:w-[80px]">
-              특보없음
+            <span className={`rounded-xl font-bold text-[10px] px-2.5 py-1 md:text-detail-s md:px-4 md:py-1.5 transition-colors ${
+              hasActiveNotice ? "bg-orange-100 text-orange-600" : "bg-gray-100 text-gray-500"
+            }`}>
+              {isLoading ? "조회중..." : hasActiveNotice ? "특보발생" : "특보없음"}
             </span>
           </div>
-          <p className="text-detail-xs md:text-detail-s text-gray-400 font-medium">
-            2026.01.09 기준
-          </p>
+          <p className="text-detail-xs md:text-detail-s text-gray-400 font-medium">{todayStr} 기준</p>
         </div>
 
-        {/* 지도 영역 */}
-        <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[400px] lg:min-h-0">
+        {/* 지도 영역: flex-1과 relative를 사용하여 부모 박스 크기를 벗어나지 않게 함 */}
+        <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[300px] md:min-h-[400px] lg:min-h-0">
           
-          {/* 공통 지도 컴포넌트 적용 */}
-          <CommonMap markers={landSlideData} />
+          {/* 실제 지도: 부모 높이를 100% 채움 */}
+          <div className="absolute inset-0 z-0">
+            <CommonMap markers={[]} /> 
+          </div>
 
-          {/* [1] 탭 메뉴: 모바일(상단 가로 스크롤) / PC(좌측 세로) */}
-          <div className="absolute top-3 left-0 right-0 px-3 lg:px-0 lg:top-5 lg:left-5 lg:right-auto flex lg:flex-col gap-2 z-20 overflow-x-auto no-scrollbar">
-            {mapTabs.map((tab) => (
-              <div key={tab.id} className="relative flex flex-col gap-2 flex-shrink-0 lg:flex-shrink">
-                <button
-                  onClick={() => handleTabClick(tab.id)}
-                  className={`
-                    flex items-center justify-center px-3 py-2 lg:px-5 text-center lg:py-3 rounded-2xl lg:rounded-xl text-detail-s-bold lg:text-body-m transition-all border
-                    ${activeTab === tab.id 
-                      ? "bg-blue-600 text-white border-blue-600 shadow-md" 
-                      : "bg-white/95 backdrop-blur-md border-gray-100 text-gray-600 hover:bg-white"
-                    }
-                  `}
-                >
-                  <span className="whitespace-nowrap">{tab.label}</span>
-                  {tab.hasArrow && (
-                    <span className={`hidden lg:block ml-2 transition-transform ${activeTab === tab.id ? "rotate-90" : ""}`}>
-                      <span className="text-[10px]">▶</span>
-                    </span>
-                  )}
-                </button>
+          {/* 위험예보 리스트 오버레이 */}
+          {activeTab === "위험예보" && (
+            <div className="absolute inset-0 z-10 bg-black/5 backdrop-blur-[1.5px] p-4 pl-[110px] md:pl-[140px] lg:pl-[180px] overflow-y-auto no-scrollbar">
+              <div className="flex flex-col gap-4 max-w-2xl">
+                
+                <div className={`bg-white/95 p-3 rounded-xl shadow-md border self-start backdrop-blur-md ${
+                  hasActiveNotice ? "border-orange-200" : "border-gray-200"
+                }`}>
+                  <p className={`text-detail-s-bold flex items-center gap-2 ${
+                    hasActiveNotice ? "text-orange-700" : "text-gray-500"
+                  }`}>
+                    {hasActiveNotice ? "⚠️ 전북 지역 산사태 발령 현황" : "✅ 현재 유효한 산사태 특보가 없습니다."}
+                  </p>
+                </div>
 
-                {/* 대피장소 체크박스 그룹 */}
-                {tab.id === "대피장소" && activeTab === "대피장소" && (
-                  <div className="absolute top-12 left-0 lg:static lg:mt-1">
-                    <FacilityCheckGroup
-                      items={LandSlideItems}
-                      facilities={facilities}
-                      onCheck={handleCheck}
-                    />
+                {isLoading ? (
+                  <div className="h-[200px] flex flex-col items-center justify-center bg-white/50 rounded-2xl backdrop-blur-sm">
+                    <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                    <p className="text-gray-500 font-medium text-detail-s">데이터 로드 중...</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-3">
+                    {lsMarkers.length > 0 ? (
+                      lsMarkers.map((item) => (
+                        <div key={item.id} className={`bg-white p-4 rounded-2xl shadow-lg border-l-4 transition-all ${
+                          item.isActiveWarning ? "border-orange-500" : "border-gray-300 opacity-80"
+                        }`}>
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                                item.isActiveWarning ? "bg-orange-100 text-orange-600" : "bg-gray-100 text-gray-500"
+                              }`}>
+                                {item.info.grade}
+                              </span>
+                              <h4 className="text-gray-900 font-bold text-base mt-1">{item.info.name}</h4>
+                            </div>
+                            <span className="text-[10px] text-gray-400 font-medium">{item.info.date}</span>
+                          </div>
+                          <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-50">
+                            <span className="text-detail-s text-gray-500">
+                              📞 연락처: <span className="text-gray-800 font-semibold">{item.info.tel}</span>
+                            </span>
+                            <span className={`text-detail-s font-extrabold ${
+                              item.isActiveWarning ? 'text-red-600 animate-pulse' : 'text-blue-500'
+                            }`}>
+                              {item.info.status}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="bg-white/80 p-10 rounded-2xl text-center border border-dashed border-gray-300">
+                        <p className="text-gray-400 text-detail-s">조회된 데이터가 없습니다.</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* 재난안전시설 탭 오버레이 */}
+          {activeTab === "재난안전시설" && (
+            <div className="absolute top-5 left-[110px] md:left-[140px] lg:left-[180px] z-20">
+              <FacilityCheckGroup 
+                items={[
+                  {id: 'shelter', label: '대피소'},
+                  {id: 'hospital', label: '병원'},
+                  {id: 'pharmacy', label: '약국'}
+                ]} 
+                facilities={facilities} 
+                onCheck={(key) => setFacilities(prev => ({...prev, [key]: !prev[key]}))} 
+              />
+            </div>
+          )}
+
+          {/* 좌측 사이드 탭 메뉴 */}
+          <div className="absolute top-5 left-3 lg:left-5 flex flex-col gap-3 z-30">
+            {["위험예보", "재난안전시설"].map((label) => (
+              <button
+                key={label}
+                onClick={() => setActiveTab(label)}
+                className={`flex items-center justify-center px-3 py-2 lg:px-5 lg:py-3 rounded-2xl text-detail-s-bold lg:text-body-m-bold transition-all border shadow-sm ${
+                  activeTab === label 
+                    ? "bg-blue-600 text-white border-blue-600 translate-x-1" 
+                    : "bg-white/95 backdrop-blur-md text-gray-600 border-gray-100 hover:bg-gray-50"
+                }`}
+              >
+                {label}
+              </button>
             ))}
           </div>
 
-          {/* [2] 정보 요약 창: 모바일은 우측 하단, PC는 우측 상단 */}
-          <div className="absolute bottom-4 right-4 lg:top-5 lg:right-5 lg:bottom-auto bg-white/90 backdrop-blur-md p-4 lg:p-5 rounded-2xl border border-gray-100 shadow-xl z-10 min-w-[150px] lg:min-w-[200px]">
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-detail-l lg:text-body-m text-gray-700">전주시 완산구</span>
-                <span className="text-detail-s lg:text-detail-s-bold text-orange-600 font-bold">주의</span>
-              </div>
-              <div className="flex items-center justify-between border-t border-gray-100 pt-2">
-                <span className="text-detail-l lg:text-body-m text-gray-700">전주시 덕진구</span>
-                <span className="text-detail-s lg:text-detail-s-bold text-emerald-600 font-bold">보통</span>
-              </div>
-            </div>
-          </div>
-
-          {/* [3] 지도 컨트롤 버튼 */}
-          <div className="absolute bottom-5 left-5 z-20">
+          {/* <div className="absolute bottom-5 right-5 z-20 scale-90 md:scale-100">
             <MapControlBtn />
-          </div>
+          </div> */}
         </div>
       </div>
 
-      {/* === 하단 행동요령 박스 === */}
-      <div className="bg-white rounded-2xl p-5 lg:p-6 border border-gray-100 flex-shrink-0">
+      {/* 하단 행동요령: flex-shrink-0으로 지도 영역에 밀리지 않게 함 */}
+      <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex-shrink-0 mb-0">
         <ActionTipBox type="산사태" />
       </div>
     </div>

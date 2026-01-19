@@ -1,10 +1,14 @@
-// BoardData.js
+// 공지사항 데이터
 export const noticeData = [
   { 
     id: 7, 
     title: "행정안전부 재난안전데이터 공유플랫폼 안내", 
     author: "관리자", 
-    date: "2025-04-11", 
+    date: "2025-04-11",
+    createdAt: "2025-04-11 09:15:30",
+    updatedAt: "2025-04-11 09:15:30",
+    isPublic: true,
+    views: 1240, 
     isPin: true,
     files: [
       { name: "재난안전데이터 공유플랫폼 리플렛.pdf", url: "/files/leaflet.pdf" }
@@ -29,7 +33,11 @@ export const noticeData = [
     id: 8, 
     title: "전북특별자치도 '25년도 11월 재난 현황 정리입니다", 
     author: "관리자", 
-    date: "2025-12-08", 
+    date: "2025-12-08",
+    createdAt: "2025-12-08 10:30:00",
+    updatedAt: "2025-12-08 10:30:00",
+    isPublic: true,
+    views: 856,
     isPin: true,
     files: [
       { name: "25년11월_재난현황.pdf", url: "/files/report_nov.pdf" },
@@ -44,7 +52,11 @@ export const noticeData = [
     id: 1, 
     title: "전북특별자치도 새롭게 추가된 쉼터 목록입니다", 
     author: "관리자", 
-    date: "2025-12-06", 
+    date: "2025-12-06",
+    createdAt: "2025-12-06 14:15:22",
+    updatedAt: "2025-12-06 14:15:22",
+    isPublic: true,
+    views: 2105,
     isPin: false,
     files: [
       { name: "25년11월_쉼터 목록.pdf", url: "/files/report_nov.pdf" },
@@ -57,7 +69,11 @@ export const noticeData = [
     id: 2, 
     title: "전북특별자치도 새롭게 추가된 대피소 목록입니다", 
     author: "관리자", 
-    date: "2025-11-25", 
+    date: "2025-11-25",
+    createdAt: "2025-11-25 16:40:00",
+    updatedAt: "2025-11-25 16:40:00",
+    isPublic: true,
+    views: 540,
     isPin: false,
     files: [
       { name: "25년_대피소_추가목록.pdf", url: "/files/report_nov.pdf" },
@@ -71,11 +87,14 @@ export const noticeData = [
     id: 3, 
     title: "전북 특별자치도 겨울철 재난 대비 요령입니다", 
     author: "관리자", 
-    date: "2025-11-11", 
+    date: "2025-11-11",
+    createdAt: "2025-11-11 11:11:00",
+    updatedAt: "2025-11-11 11:11:00",
+    isPublic: true,
+    views: 920,
     isPin: false,
     files: [
       { name: "겨울철재난대비요령.pdf", url: "/files/report_nov.pdf" },
-      
     ],
     content: `전북 특별자치도 겨울철 재난 대비 요령입니다.
 도민 여러분께서는 겨울철 재난 대비를 확인하시어 안전한 겨울 보내시기 바랍니다. ` 
@@ -84,11 +103,14 @@ export const noticeData = [
     id: 4, 
     title: "겨울철 동파 대비, 이렇게 대비하세요", 
     author: "관리자", 
-    date: "2025-11-02", 
+    date: "2025-11-02",
+    createdAt: "2025-11-02 09:45:10",
+    updatedAt: "2025-11-02 09:45:10",
+    isPublic: true,
+    views: 1102,
     isPin: false,
     files: [
       { name: "겨울철동파대비.pdf", url: "/files/report_nov.pdf" },
-      
     ],
     content: `전북 특별자치도 겨울철 동파 대비, 이렇게 대비하세요.
 도민 여러분께서는 겨울철 동파 재난 대비를 확인하시어 안전한 겨울 보내시기 바랍니다. ` 
@@ -97,12 +119,13 @@ export const noticeData = [
     id: 5, 
     title: "한파정보 받고 부모님께 효도 안부전화드리기 캠페인", 
     author: "관리자", 
-    date: "2025-10-30", 
+    date: "2025-10-30",
+    createdAt: "2025-10-30 13:20:00",
+    updatedAt: "2025-10-30 13:20:00",
+    isPublic: true,
+    views: 345,
     isPin: false,
-    files: [
-     
-      
-    ],
+    files: [],
     content: `한파정보 받고 부모님께 효도 안부전화드리기 캠페인을 실천해보세요!
      ` 
   },
@@ -110,11 +133,14 @@ export const noticeData = [
     id: 6, 
     title: "전북자치도, 도민 누구나 안전보험 혜택 받는다!", 
     author: "관리자", 
-    date: "2025-10-20", 
+    date: "2025-10-20",
+    createdAt: "2025-10-20 10:10:00",
+    updatedAt: "2025-10-20 10:10:00",
+    isPublic: true,
+    views: 1560,
     isPin: false,
     files: [
       { name: "전북자치도, 도민 누구나 안전보험 혜택 받는다.hwp", url:  "/files/press_01.hwp" },
-      
     ],
     content: `전북자치도, 도민 누구나 안전보험 혜택 받는다!의 내용입니다.
 
@@ -124,11 +150,14 @@ export const noticeData = [
     id: 9, 
     title: "2025년 지진안전주간 안내", 
     author: "관리자", 
-    date: "2025-10-16", 
+    date: "2025-10-16",
+    createdAt: "2025-10-16 15:00:00",
+    updatedAt: "2025-10-16 15:00:00",
+    isPublic: true,
+    views: 420,
     isPin: false,
     files: [
       { name: "2025년 지진안전주간 포스터.pdf", url: "/files/report_nov.pdf" },
-      
     ],
     content: `행정안전부는 2016년 경주 지진 발생을 계기로 매년 한 주간을 '지진안전주간'으로 정하고 전국민을 대상으로 지진 행동요령을 집중 홍보하고 있습니다.
 2025년 '지진안전주간'은 10월 20일(월)부터 10월 26일(일)까지 입니다. ` 
@@ -137,19 +166,20 @@ export const noticeData = [
     id: 10, 
     title: "이번 여름 이것만은 꼭 지키자. 폭염행동요령", 
     author: "관리자", 
-    date: "2025-07-09", 
+    date: "2025-07-09",
+    createdAt: "2025-07-09 11:30:00",
+    updatedAt: "2025-07-09 11:30:00",
+    isPublic: true,
+    views: 2300,
     isPin: false,
-    files: [
-      
-      
-    ],
+    files: [],
     content: `이번 여름 이것만은 꼭 지키자
 폭염행동요령
 폭염이란? 기온이 매우 높은 상태가 일정기간 지속되는 심한더위
 폭염경보 : 일 최고 체감온도 35도 이상인 상태가 2일이상 지속 예상될때
 폭염주의보 : 일 최고 체감온도 22도 이상인 상태가 2일 이상 지속 예상될때
 온열질환은? 열로인해 발생하는 급성질환
-증상: 고온환경에서 장시간 노출시 두통, 어지럼증, 근육경련, 피로감, 의식저하 등의 증상 발생가능
+증상: 고온환경에서 장시간 노출시 두통, 어지럼증, 근욕경련, 피로감, 의식저하 등의 증상 발생가능
 종류: 대표적으로 열사병, 열탈진, 열경련, 열발진(땀띠)
 수분더하기
 야외활동 및 신체노출 빼기
@@ -163,11 +193,13 @@ export const noticeData = [
     id: 11, 
     title: "열대야를 슬기롭게 이겨내는 건강수칙", 
     author: "관리자", 
-    date: "2025-07-09", 
+    date: "2025-07-09",
+    createdAt: "2025-07-09 09:00:00",
+    updatedAt: "2025-07-09 09:00:00",
+    isPublic: true,
+    views: 1890,
     isPin: false,
-    files: [
-      
-    ],
+    files: [],
     content: `열대야를 슬기롭게 이겨내는 건강수칙
 
 
@@ -268,17 +300,19 @@ export const noticeData = [
 열대야를 이기고, 건강한 여름 보내세요!
 
 출처: 서울안전누리 (https://safecity.seoul.go.kr/board/ntcMttr/boardNtcMttrDetail.page) `
-
   },
   { 
     id: 12, 
     title: "전북 특별자치도 겨울철 재난 대비 요령입니다", 
     author: "관리자", 
-    date: "2025-11-11", 
+    date: "2025-11-11",
+    createdAt: "2025-11-11 14:00:00",
+    updatedAt: "2025-11-11 14:00:00",
+    isPublic: true,
+    views: 670,
     isPin: false,
     files: [
       { name: "겨울철재난대비요령.pdf", url: "/files/report_nov.pdf" },
-      
     ],
     content: `전북 특별자치도 겨울철 재난 대비 요령입니다.
     도민 여러분께서는 겨울철 재난 대비를 확인하시어 안전한 겨울 보내시기 바랍니다. ` 
@@ -287,28 +321,35 @@ export const noticeData = [
     id: 13, 
     title: "전북 특별자치도 겨울철 재난 대비 요령입니다", 
     author: "관리자", 
-    date: "2025-11-11", 
+    date: "2025-11-11",
+    createdAt: "2025-11-11 15:00:00",
+    updatedAt: "2025-11-11 15:00:00",
+    isPublic: true,
+    views: 430,
     isPin: false,
     files: [
       { name: "겨울철재난대비요령.pdf", url: "/files/report_nov.pdf" },
-      
     ],
     content: `전북 특별자치도 겨울철 재난 대비 요령입니다.
     도민 여러분께서는 겨울철 재난 대비를 확인하시어 안전한 겨울 보내시기 바랍니다. ` 
   }
-  
-  
-
-
-
 ];
 
+// 보도자료 데이터
 export const pressData = [
   { 
     id: 1, 
+    mgmtId: "W-2025-001",
+    regType: "직접등록", // 등록방식 : 직접등록 및 API
+    source: "전북안전대책본부", // 출처 (부서 대신 기관명)
+    sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=4016&cmd=view", // 원문 링크 (상세페이지용)
     title: "전북특별자치도 지진방재 국제세미나 개최", 
     author: "관리자", 
-    date: "2025-11-11", 
+    date: "2025-11-11",
+    createdAt: "2025-11-11 06:00:00",
+    updatedAt: "2025-11-11 06:00:00",
+    isPublic: true,
+    views: 68,
     isPin: false,
     files: [
       { name: "전북특별자치도_지진방재국제세미나계획.hwp", url: "/files/press_01.hwp" }
@@ -326,9 +367,17 @@ export const pressData = [
   }, 
   { 
     id: 2, 
+    mgmtId: "W-2025-002",    
+    regType: "직접등록",
+    source: "전북안전대책본부",
+    sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=4015&cmd=view",
     title: "전북특별자치도, 2026년 재해예방사업 국비 1,054억 확보", 
     author: "관리자", 
-    date: "2025-11-11", 
+    date: "2025-11-11",
+    createdAt: "2025-11-11 10:00:00",
+    updatedAt: "2025-11-11 10:00:00",
+    isPublic: true,
+    views: 76,
     isPin: false,
     files: [
       { name: "2026년_재해예방사업_국비확보내역.hwp", url: "/files/press_02.hwp" }
@@ -342,9 +391,17 @@ export const pressData = [
   },
   { 
     id: 3, 
+    mgmtId: "W-2025-003",
+    regType: "직접등록",
+    source: "전북안전대책본부",
+    sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=4014&cmd=view",
     title: "전북특별자치도 여름철 자연재난 인명피해 '0명'", 
     author: "관리자", 
-    date: "2025-11-11", 
+    date: "2025-11-11",
+    createdAt: "2025-11-11 09:30:00",
+    updatedAt: "2025-11-11 09:30:00",
+    isPublic: true,
+    views: 55,
     isPin: false,
     files: [{ name: "여름철_자연재난_대응실적보고.hwp", url: "/files/press_03.hwp" }],
     content: `전북특별자치도는 올 여름철 자연재난 대책 기간 동안 철저한 상황 관리와 
@@ -356,9 +413,17 @@ export const pressData = [
   },
   { 
     id: 4, 
+    mgmtId: "W-2025-004",
+    regType: "직접등록",
+    source: "전북안전대책본부",
+    sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3992&cmd=view",
     title: "한가위 연휴기간 축제 전북도 민관합동점검 안전관리 총력!", 
     author: "관리자", 
-    date: "2025-10-24", 
+    date: "2025-10-24",
+    createdAt: "2025-10-24 11:15:00",
+    updatedAt: "2025-10-24 11:15:00",
+    isPublic: true,
+    views: 70,
     isPin: false,
     files: [{ name: "251001한가위연휴기간 축제 전북도 민관합동점검 안전관리 총력.hwpx", url: "/files/press_04.hwp" }],
     content: `전북특별자치도는 다가오는 추석 명절을 맞아 귀성객과 관광객이 대거 방문할 것으로
@@ -372,9 +437,17 @@ export const pressData = [
   },
   { 
     id: 5, 
+    mgmtId: "W-2025-005",
+    regType: "직접등록",
+    source: "전북안전대책본부",
+    sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3957&cmd=view",
     title: "전북자치도, 안전점검의 날 교통안전 캠페인 전개", 
     author: "관리자", 
-    date: "2025-09-25", 
+    date: "2025-09-25",
+    createdAt: "2025-09-25 09:00:00",
+    updatedAt: "2025-09-25 09:00:00",
+    isPublic: true,
+    views: 88,
     isPin: false,
     files: [{ name: "250904 민관 합동 안전문화 캠페인 실시(9월 안전점검의 날) 보도자료.hwp", url: "/files/press_05.hwp" }],
     content: `전북특별자치도가 4일 완주 봉동초등학교 일원에서 안전한 학교 환경 조성을 위한 민관 합동 교통안전 캠페인을 실시했다. 
@@ -386,71 +459,184 @@ export const pressData = [
   },
   { 
     id: 6, 
+    mgmtId: "W-2025-006",
+    regType: "직접등록",
+    source: "전북안전대책본부",
+    sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3956&cmd=view",
     title: "전북도, 상반기 안전신문고 우수 신고자 선정 포상", 
     author: "관리자", 
-    date: "	2025-09-25", 
+    date: "2025-09-24",
+    createdAt: "2025-09-24 13:00:00",
+    updatedAt: "2025-09-24 13:00:00",
+    isPublic: true,
+    views: 81,
     isPin: false,
-    files: [{ name: "250827 보도자료-전북도, 상반기 안전신문고 우수 신고자 선정 포상.hwpx", url: "/files/press_06.hwp" }],
+    files: [{ name: "250827 보도자료-전북도, 상반기 안전신문고 우수 신고자 선정 포상.hwpx", url: "/files/press_06.hwpx" }],
     content: `2025년 상반기 안전신문고 우수 신고자 포상 관련 보도자료입니다.
     
 출처 : 전북안전대책본부 (https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3956&cmd=view) ` 
   },
   { 
     id: 7, 
+    mgmtId: "W-2025-007",
+    regType: "직접등록",
+    source: "전북안전대책본부",
+    sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3954&cmd=view",
     title: "전북자치도, 가을축제 안전관리 우리가 간다!", 
     author: "관리자", 
-    date: "	2025-09-24", 
+    date: "2025-09-24",
+    createdAt: "2025-09-24 14:00:00",
+    updatedAt: "2025-09-24 14:00:00",
+    isPublic: true,
+    views: 85,
     isPin: false,
-    files: [{ name: " 250908 보도자료_전북자치도, 가을축제 안전관리 우리가 간다!(수정).hwp", url: "/files/press_06_1.hwp" }],
+    files: [{ name: "250908 보도자료_전북자치도, 가을축제 안전관리 우리가 간다!(수정).hwp", url: "/files/press_06_1.hwp" }],
     content: `가을축제 안전관리 점검관련 보도자료 입니다.
 
 출처 : 전북안전대책본부 (https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3954&cmd=view)` 
   },
   { 
     id: 8, 
+    mgmtId: "W-2025-008",
+    regType: "직접등록",
+    source: "전북안전대책본부",
+    sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3953&cmd=view",
     title: "전북자치도, ‘찾아가는 중대재해 예방 컨설팅’으로", 
     author: "관리자", 
-    date: "2025-09-24", 
+    date: "2025-09-24",
+    createdAt: "2025-09-24 10:00:00",
+    updatedAt: "2025-09-24 10:00:00",
+    isPublic: true,
+    views: 107,
     isPin: false,
     files: [{ name: "전북자치도, ‘찾아가는 중대재해 예방 컨설팅’으로.hwpx", url: "/files/press_07.hwp" }],
-    content: `중대재해예방 컨설팅 관련 보도자료 입니다.
-    
-출처 : 전북안전대책본부 (https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3953&cmd=view)    ` 
+    content: `중대재해예방 컨설팅 관련 보도자료 입니다.\n\n출처 : 전북안전대책본부 (https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3953&cmd=view)` 
   },
+  
   { 
     id: 9, 
+    mgmtId: "W-2025-009",
+    regType: "직접등록",
+    source: "전북안전대책본부",
+    sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3952&cmd=view",
     title: "전북도, 물놀이 안전 현장점검·응급처치 교육병행 등을 통한 도민 안심 여름 조성", 
     author: "관리자", 
-    date: "2025-09-24", 
+    date: "2025-09-24",
+    createdAt: "2025-09-24 11:30:00",
+    updatedAt: "2025-09-24 11:30:00",
+    isPublic: true,
+    views: 80,
     isPin: false,
     files: [{ name: "250704 보도자료-전북도, 물놀이 안전 사전점검·응급처치 교육 병행… 도민 안심 여름 조성.hwp", url: "/files/press_08.hwp" }],
-    content: `물놀이 안전 현장점검·응급처치 교육병행 등을 통한 도민 안심 여름 조성관련 보도자료 입니다.
-    
-출처 : 전북안전대책본부 (https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3952&cmd=view) ` 
+    content: `물놀이 안전 현장점검·응급처치 교육병행 등을 통한 도민 안심 여름 조성관련 보도자료 입니다.\n\n출처 : 전북안전대책본부 (https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3952&cmd=view)` 
   },
   { 
     id: 10, 
+    mgmtId: "W-2025-010",
+    regType: "직접등록",
+    source: "전북안전대책본부",
+    sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3951&cmd=view",
     title: "전북자치도, 2025년 국민안전교육 '최우수 기관' 선정", 
     author: "관리자", 
-    date: "2025-09-24", 
+    date: "2025-09-24",
+    createdAt: "2025-09-24 15:40:00",
+    updatedAt: "2025-09-25 11:20:00",
+    isPublic: true,
+    views: 73,
     isPin: false,
-    files: [{ name: "250730 보도자료-전북자치도, 2025년 국민안전교육 최우수 기관 선정.hwp", url: "/files/press_09.hwp" }],
+    files: [{ name: "250730 보도자료-전북자치도, 2025년 국민안전교육 최우수 기관 선정.hwp", url: "/files/press_10.hwp" }],
     content: `2025년 국민안전교육 최우수 기관 전북자치도 선정관련 보도자료 입니다.
 
 출처 : 전북안전대책본부 (https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=1&key=&val=&CAT_ID=0&BID=3951&cmd=view) ` 
-  },   
-
+  },    
   { 
     id: 11, 
+    mgmtId: "W-2025-011",
+    regType: "직접등록",
+    source: "전북안전대책본부",
+    sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=2&key=&val=&CAT_ID=0&BID=3950&cmd=view",
     title: "전북자치도, 가정의 달 지역축제 등 안전관리 강화", 
     author: "관리자", 
-    date: "2025-09-24", 
+    date: "2025-09-24",
+    createdAt: "2025-09-24 17:00:00",
+    updatedAt: "2025-09-24 17:00:00",
+    isPublic: true,
+    views: 70,
     isPin: false,
-    files: [{ name: "250501 전북특별자치도, 가정의 달 지역축제 등 안전관리 강화.hwp", url: "/files/press_09.hwp" }],
+    files: [{ name: "250501 전북특별자치도, 가정의 달 지역축제 등 안전관리 강화.hwp", url: "/files/press_11.hwp" }],
     content: `가정의 달 지역축제 등 안전관리 강화 관련 보도자료 입니다.
     
-출처 : 전북안전대책본부 (https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=2&key=&val=&CAT_ID=0&BID=3950&cmd=view)    ` 
+출처 : 전북안전대책본부 (https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=2&key=&val=&CAT_ID=0&BID=3950&cmd=view) ` 
   },
-  
+
+  { 
+    id: 12, 
+    mgmtId: "W-2025-012",
+    regType: "직접등록",
+    source: "전북안전대책본부",
+    sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=2&key=&val=&CAT_ID=0&BID=3872&cmd=view",
+    title: "도시침수_AI로예측하고대응한다…전북형재난관리체계구축", 
+    author: "관리자", 
+    date: "	2025-07-15",
+    createdAt: "2025-07-15 17:00:00",
+    updatedAt: "2025-07-15 17:00:00",
+    isPublic: false,
+    views: 125,
+    isPin: false,
+    files: [{ name: " 3.도시침수_AI로예측하고대응한다…전북형재난관리체계구축.hwp", url: "/files/press_12.hwp" }],
+    content: `도시침수_AI로예측하고대응한다…전북형재난관리체계구축 관련 보도자료 입니다.
+    
+출처 : 전북안전대책본부 (https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=2&key=&val=&CAT_ID=0&BID=3872&cmd=view) ` 
+  },
+
+  { 
+    id: 13, 
+    mgmtId: "W-2025-013",
+    regType: "직접등록",
+    source: "전북안전대책본부",
+    sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=2&key=&val=&CAT_ID=0&BID=3765&cmd=view",
+    title: "전북자치도, 중대재해 예방 총력… 맞춤형 컨설팅·교육 확대", 
+    author: "관리자", 
+    date: "2025-04-01",
+    createdAt: "2025-04-01 17:00:00",
+    updatedAt: "2025-04-01 17:00:00",
+    isPublic: false,
+    views: 181,
+    isPin: false,
+    files: [{ name: "전북자치도, 중대재해 예방 총력… 맞춤형 컨설팅·교육 확대.hwp", url: "/files/press_13.hwp" }],
+    content: `중대재해 예방 총력을 위한 맞춤형 컨설팅 교육 확대관련 보도자료 입니다. 
+    
+출처 : 전북안전대책본부 (https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=2&key=&val=&CAT_ID=0&BID=3765&cmd=view) ` 
+  },
+
+  { 
+    id: 14, 
+    mgmtId: "W-2026-01",
+    regType: "직접등록",
+    source: "행정안전부",
+    sourceUrl: "https://u-safe.jeonbuk.go.kr/index.php?mt=page&mp=m6_1&mm=oxbbs&oxid=1&cpage=2&key=&val=&CAT_ID=0&BID=3765&cmd=view",
+    title: "충북, 전북, 경북 등 대설 특보, 중앙재난안전대책본부 1단계 선제적 가동", 
+    author: "관리자", 
+    date: "2026-01-10",
+    createdAt: "2026-01-10 17:00:00",
+    updatedAt: "2026-01-10 17:00:00",
+    isPublic: true,
+    views: 800,
+    isPin: false,
+    files: [{ name: "260110 (즉시) 전북자치도, 중대재해 예방 총력… 맞춤형 컨설팅·교육 확대.hwp", url: "/files/press_14.hwp" },
+            { name: "260110 (즉시) 충북 전북 경북 등 대설특보 중앙재난안전대책본부 1단계 선제적 가동(자연재난대응과).pdf", url: "/files/leaflet.pdf" }
+    ],
+    
+    content: `행정안전부(장관 윤호중)는 충북, 전북, 경북도 등에 대설 특보가 발표되어 있고, 경남·전라 지역까지 확대될 가능성이 높아짐에 따라 1월 10일(토) 19시부로 대설 위기경보를 ‘관심’에서 ‘주의’로 상향하고, 중앙재난안전대책본부 1단계를 선제적으로 가동했다.
+
+자세한 내용은 첨부를 참고하시기 바랍니다.
+
+* 담당자 : 자연재난대응과 오병곤(044-205-5234). 
+    
+출처 : 행정안전부 (https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardArticle.do?bbsId=BBSMSTR_000000000008&nttId=123057) ` 
+  },
+
+
+
 
 ];

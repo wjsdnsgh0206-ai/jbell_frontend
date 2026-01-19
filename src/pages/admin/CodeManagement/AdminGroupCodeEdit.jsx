@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
-import AdminCodeConfirmModal from './AdminCodeConfirmModal';
+import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
 const ErrorIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -188,7 +188,7 @@ const AdminGroupCodeEdit = () => {
 
             {/* 5. 등록 여부 */}
             <div className="mb-10 flex items-center gap-5 pt-2">
-              <label className="font-bold text-[16px] text-[#111]">노출 여부</label>
+              <label className="font-bold text-[16px] text-[#111]">사용 여부</label>
               <div className="flex items-center gap-3">
                 <button 
                   type="button" 
@@ -198,7 +198,7 @@ const AdminGroupCodeEdit = () => {
                   <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${isRegistered ? 'translate-x-[26px]' : 'translate-x-0'}`} />
                 </button>
                 <span className={`text-[14px] font-bold ${isRegistered ? 'text-[#2563EB]' : 'text-gray-400'}`}>
-                  {isRegistered ? '노출' : '미노출'}
+                  {isRegistered ? '사용' : '미사용'}
                 </span>
               </div>
             </div>
@@ -247,7 +247,7 @@ const AdminGroupCodeEdit = () => {
         </div>
       </main>
 
-      <AdminCodeConfirmModal 
+      <AdminConfirmModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onConfirm={handleConfirmSave} 

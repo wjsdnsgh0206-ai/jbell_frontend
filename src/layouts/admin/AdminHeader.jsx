@@ -12,8 +12,8 @@ const AdminHeader = () => {
 
   const navItems = [
     { key: 'realtime', name: '실시간 정보 관리', path: '/admin/realtime/realtimeDashboard' },
-    { key: 'content', name: '콘텐츠 관리', path: '/admin/content/FAQList' },
-    { key: 'safetyMap', name: '안전정보지도 관리', path: '/admin/safetyMap/safetyMapList' },
+    { key: 'contents', name: '콘텐츠 관리', path: '/admin/contents/behavioralGuideList' },
+    { key: 'facility', name: '시설 관리', path: '/admin/facility/facilityList' },
     { key: 'user', name: '회원 관리', path: '/admin/user/userList' },
     { key: 'system', name: '시스템 관리', path: '/admin/system/commonCodeList' },
   ]; 
@@ -47,27 +47,33 @@ const AdminHeader = () => {
               {/* [드롭다운] 너비를 부모(button)와 동일하게 맞춤 (w-full) */}
               {hasSub && (
                 <div className="absolute top-full left-0 w-full min-w-full bg-white shadow-2xl border-x border-b border-admin-border rounded-b-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-0 z-50 py-2">
-                  {/* 상단 포인트 디자인 (Active 바와 연결되는 느낌) */}
                   <div className="h-0.5 bg-admin-primary/10 w-full absolute top-0 left-0" />
                   
-                  {subMenuCategories.map((cat, catIdx) => (
-                    <div key={catIdx} className="flex flex-col">
-                      {cat.items.map((subItem) => (
+                  <div className="flex flex-col">
+                    {/* 이제 items가 아닌 subMenuCategories(title 그룹)를 직접 나열합니다 */}
+                    {subMenuCategories.map((cat) => {
+                      // 현재 페이지가 이 카테고리에 속하는지 확인 (상세 메뉴 경로 포함 여부)
+                      const isCurrentCategory = cat.items.some(sub => sub.path === pathname) || pathname === cat.path;
+
+                      return (
                         <button
-                          key={subItem.path}
-                          onClick={() => navigate(subItem.path)}
+                          key={cat.title}
+                          disabled={!cat.isAvailable}
+                          onClick={() => navigate(cat.path)}
                           className={`w-full text-center px-4 py-4 text-body-m transition-colors ${
-                            pathname === subItem.path
+                            isCurrentCategory
                               ? "bg-blue-50 text-admin-primary font-bold border-r-4 border-admin-primary"
-                              : "text-graygray-70 hover:bg-gray-50 hover:text-admin-primary"
+                              : cat.isAvailable 
+                                ? "text-graygray-70 hover:bg-gray-50 hover:text-admin-primary"
+                                : "text-gray-300 cursor-not-allowed" // 비활성화 상태
                           }`}
                           style={{ fontSize: '17px' }}
                         >
-                          {subItem.name}
+                          {cat.title}
                         </button>
-                      ))}
-                    </div>
-                  ))}
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
@@ -89,4 +95,64 @@ const AdminHeader = () => {
   );
 };
 
+
+            // <button onClick={() => navigate("/admin/content/adminBoardList")}>공지사항</button>
 export default AdminHeader;
+
+
+
+// import { useNavigate, useLocation } from 'react-router-dom';
+
+// const AdminHeader = () => {
+//   const navigate = useNavigate();
+//   const location = useLocation();
+
+//   // 현재 경로와 메뉴의 경로가 일치하는지 확인하는 함수
+//   const isActive = (path) => location.pathname === path;
+
+//   // 공통 스타일 클래스
+//   const baseStyle = "cursor-pointer px-2 h-full flex items-center";
+//   const activeStyle = "text-blue-600 border-b-2 border-blue-600";
+//   const inactiveStyle = "hover:text-blue-600 text-gray-700";
+
+//   return (
+//     <>
+//       <span 
+//         className={`${baseStyle} ${isActive("/admin/realtime") ? activeStyle : inactiveStyle}`}
+//         onClick={() => navigate("/admin/realtime")}
+//       >
+//         실시간 정보 관리
+//       </span>
+
+//       <span 
+//         className={`${baseStyle} ${isActive("/admin/content/adminBoardList") ? activeStyle : inactiveStyle}`} 
+//         onClick={() => navigate("/admin/content/adminBoardList")}
+//       >
+//         콘텐츠 관리
+//       </span>
+
+//       <span 
+//         className={`${baseStyle} ${isActive("/admin/safety") ? activeStyle : inactiveStyle}`}
+//         onClick={() => navigate("/admin/safety")}
+//       >
+//         안전정보 관리
+//       </span>
+
+//       <span 
+//         className={`${baseStyle} ${isActive("/admin/member") ? activeStyle : inactiveStyle}`}
+//         onClick={() => navigate("/admin/member")}
+//       >
+//         회원 관리
+//       </span>
+
+//       <span 
+//         className={`${baseStyle} ${isActive("/admin/system") ? activeStyle : inactiveStyle}`}
+//         onClick={() => navigate("/admin/system")}
+//       >
+//         시스템 관리
+//       </span>
+//     </>
+//   );
+// };
+
+// export default AdminHeader;

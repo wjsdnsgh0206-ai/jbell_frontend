@@ -73,6 +73,16 @@ const MainWeather = () => {
       </div>
       
       {/* 하단 경보 카드는 필요시 여기에 그대로 유지 */}
+      <div className="bg-white border-l-4 border-l-orange-500 border border-graygray-10 rounded-[24px] p-4 flex items-center gap-4 shadow-1 hover:translate-y-[-2px] transition-all">
+        <div className="bg-orange-500 text-white w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 font-bold shadow-md">
+          <span className="text-[9px] opacity-80 leading-none mb-0.5">LV</span>
+          <span className="text-xl leading-none">03</span>
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-detail-m font-bold text-orange-600 mb-0.5">태풍 주의보 발령</p>
+          <h4 className="text-body-m-bold text-graygray-90 truncate">강풍 동반 집중호우 주의</h4>
+        </div>
+      </div>
     </div>
   );
 };
