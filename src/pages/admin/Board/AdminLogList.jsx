@@ -8,16 +8,16 @@ const AdminLogList = () => {
         logIp: '192.168.0.1',
         loggedDate: '2026년 01월 14일 09시 00분',
         logSOF: i % 2 === 0 ? '실패' : '성공',
-        logReason: i % 2 === 0 ? '아이디 및 비밀번호 불일치' : '로그인 성공',
+        logReason: i % 2 === 0 ? '자격 증명 오류(ID, PW 불일치)' : '로그인 성공',
         display: true
     }));
 
     // 검색 조건 상태
-    const [searchLogId, setSearchLogId] = useState('');
-    const [searchLogIp, setSearchLogIp] = useState('');
-    const [searchLogDate, setSearchLogDate] = useState('');
-    const [searchLogSOF, setSearchLogSOF] = useState('전체');
-    const [searchLogReason, setSearchLogReason] = useState('전체');
+    const [searchLogId, setSearchLogId] = useState('');                 // 로그인 ID
+    const [searchLogIp, setSearchLogIp] = useState('');                 // 로그인 IP
+    const [searchLogDate, setSearchLogDate] = useState('');             // 발생일자
+    const [searchLogSOF, setSearchLogSOF] = useState('전체');           // 로그인 성공/실패 여부
+    const [searchLogReason, setSearchLogReason] = useState('전체');     // 로그인 성공/실패 이유
     
     // 필터링된 리스트 상태
     const [filteredLogList, setFilteredLogList] = useState(logData);
@@ -25,16 +25,20 @@ const AdminLogList = () => {
     /* <================ 핸들러 ================> */
     
     // 검색 버튼 클릭 시 실행
-    const handleLogSearch = () => {
+   const handleLogSearch = () => {
         const result = logData.filter(item => {
-            const matchLogId = item.logId.includes(searchLogId);
-            const matchLogIp = item.logIp.includes(searchLogIp);
-            const matchLogSOF = (searchLogSOF === '전체' || item.logSOF === searchLogSOF);
-            // 날짜 및 기타 조건은 데이터 형식에 맞춰 추가 가능합니다.
-            return matchLogId && matchLogIp && matchLogSOF;
+            if (searchLogId && !item.logId.includes(searchLogId)) return false;
+            if (searchLogIp && !item.logIp.includes(searchLogIp)) return false;
+            if (searchLogSOF !== '전체' && item.logSOF !== searchLogSOF) return false;
+            if (
+            searchLogReason !== '전체' &&
+            !item.logReason.includes(searchLogReason)
+            ) return false;
+            return true;
         });
         setFilteredLogList(result);
     };
+
 
     // 초기화 버튼 클릭 시 실행
     const handleReset = () => {
@@ -42,7 +46,7 @@ const AdminLogList = () => {
         setSearchLogIp('');
         setSearchLogDate('');
         setSearchLogSOF('전체');
-        setSearchLogReason('');
+        setSearchLogReason('전체');
         setFilteredLogList(logData);
     };
 
@@ -99,6 +103,7 @@ const AdminLogList = () => {
                         <label className="block text-sm mb-1">성공/실패 이유</label>
                         <select 
                         value={searchLogReason}
+                        onChange={(e) => setSearchLogReason(e.target.value)}
                         className="w-full border p-2 rounded text-sm">
                             <option value="전체">전체</option>
                             <option value="자격 증명 오류">자격 증명 오류(ID, PW 불일치)</option>
@@ -108,7 +113,7 @@ const AdminLogList = () => {
                             <option value="인증 부족">인증 부족(추가 인증 실패)</option>
                             <option value="시스템 오류">시스템 오류(서버/DB 연결 오류)</option>
                             <option value="기타 접근 제한">기타 접근 제한(IP 접근 제한)</option>
-                            <option>세션 관련(만료된 세션)</option>
+                            <option value="세션">세션 관련(만료된 세션)</option>
                         </select>
                     </div>
                     <div className="flex items-end gap-2">

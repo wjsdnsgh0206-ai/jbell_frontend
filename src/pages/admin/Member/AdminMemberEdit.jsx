@@ -37,7 +37,6 @@ const AdminMemberEdit = () => {
                 memberRole: res.memberRole || 'USER',
             });
     };
-                
         if (memberId) fetchMemberDetail(); // memberId가 있을 때만 실행하도록 방어 코드 추가
     }, [memberId]);
 

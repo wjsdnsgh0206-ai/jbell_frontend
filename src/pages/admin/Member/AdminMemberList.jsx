@@ -98,6 +98,15 @@ const AdminMemberList = () => {
                 setSelectedMemberRegion('');
                 setMemberList(originalMemberList);
             };
+
+
+            // 회원 상세 조회 기능(목록 페이지에서 회원 아이디 부분 클릭)
+            const handleDetailClick = (item) => {
+                // 2026년 방식: ID를 URL에 넣고, 유저 객체 전체를 state에 실어 보냅니다.
+                navigate(`/admin/member/adminMemberDetail/${item.memberId}`, { state: { item } });
+            };
+           
+
        
     /** <=================================================== handler 모음 ===================================================> **/
     /** <=================================================== useEffect 모음 ===================================================> **/
@@ -235,36 +244,21 @@ const AdminMemberList = () => {
                     <th className="p-3">이름</th>
                     <th className="p-3">전화번호</th>
                     <th className="p-3">주소검색</th>
-                    <th className="p-3">수정/삭제</th>
                 </tr>
                 </thead>
                 <tbody>
                 {memberList.map((item, index) => (
                     <tr key={index} className="border-b hover:bg-gray-50">
                         <td className="p-3 text-center"><input type="checkbox" defaultChecked /></td>
-                        <td className="p-3">
-                            <button 
-                                onClick={() => navigate(`/admin/member/adminMemberDetail/${item.memberId}`, { state: item })}
-                                className="text-blue-600 hover:underline cursor-pointer"
-                            >
-                                {item.memberId}
-                            </button>
+                        <td
+                            onClick={() => handleDetailClick(item)} 
+                            className="p-3 cursor-pointer text-blue-600 hover:underline"
+                        >
+                            {item.memberId}
                         </td>
                         <td className="p-3">{item.memberName}</td>
                         <td className="p-3 truncate max-w-xs">{item.memberTelNum}</td>
                         <td className="p-3">{item.memberRegion}</td>
-                        <td className="p-3">
-                            <button 
-                            onClick={() => navigate(`/admin/member/adminMemberEdit/${item.memberId}`, { state: item })}
-                            className="border px-2 py-1 rounded text-xs"
-                            >수정
-                            </button>
-                            <button 
-                            onClick={() => handleMemberDelete(item.memberId)}
-                            className="border px-2 py-1 rounded text-xs text-red-600 hover:bg-red-50"
-                            >삭제
-                            </button>
-                        </td>
                     </tr>
                 ))}
                 </tbody>
