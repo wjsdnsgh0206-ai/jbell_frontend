@@ -1,3 +1,4 @@
+// src/layouts/user/disasterModal/DisasterModalLayout.jsx
 import React, { Suspense, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import WeatherBox from "@/components/user/modal/WeatherBox";
@@ -18,6 +19,7 @@ const DisasterModalLayout = () => {
     landSlide: "산사태",
     typhoon: "태풍",
     forestFire: "산불",
+    coldWave: "한파",
   };
 
   // 현재 URL 경로의 마지막 부분 추출 (예: accident, earthquake 등)
@@ -31,6 +33,7 @@ const DisasterModalLayout = () => {
     { label: "산사태", path: "/disaster/landSlide" },
     { label: "태풍", path: "/disaster/typhoon" },
     { label: "산불", path: "/disaster/forestFire" },
+    { label: "한파", path: "/disaster/coldWave" },
   ];
 
   return (

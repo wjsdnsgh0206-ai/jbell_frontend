@@ -1,5 +1,6 @@
 // src/services/api.js
 import axios from "axios";
+import { JEONBUK_CODE_MAP } from "@/components/user/disaster/disasterCodes"
 
 // 1. 기본 백엔드 인스턴스 (8080 서버용)
 const api = axios.create({
@@ -13,13 +14,13 @@ const weatherApi = axios.create({ baseURL: "/weather-api" }); // 날씨 api
 const messageApi = axios.create({ baseURL: "/message-api" }); // 재난문자 api
 const earthquakeApi = axios.create({ baseURL: "/earthquake-api" }); // 지진 특보 api
 const earthquakeLevelApi = axios.create({ baseURL: "/earthquakeLevel-api" }); // 지진 진도 정보 api
-const floodTraceApi = axios.create({ baseURL: "/floodTrace-api" }); // 호우홍수 침수흔적도 api
+const floodTraceApi = axios.create({ baseURL: "/flood Trace-api" }); // 호우홍수 침수흔적도 api
 const kmaApi = axios.create({ baseURL: "/kma-api/api" }); // 기상청 지진·지진특보용
 const sluiceApi = axios.create({ baseURL: "/sluice-api" }); // 댐수문 api
 const landSlideWarningApi = axios.create({ baseURL: "/landSlideWarning-api" });
 const weatherWarningApi = axios.create({ baseURL: "/weatherWarning-api" }); // 기상특보 api
 const forestFireWarningApi = axios.create({ baseURL: "/forestFireWarning-api"}); // 산불위험예보정보 api
-
+const kmaWarningApi = axios.create({ baseURL: "/kma-warning-api" });
 
 export const userService = {
   // 유저 정보 가져오기 (기존 8080 서버)
@@ -197,7 +198,7 @@ export const disasterModalService = {
     산사태 예보발령 api
 ----------------------------- */
 
-getLandSlideWarning: async (params) => {
+  getLandSlideWarning: async (params) => {
       const response = await landSlideWarningApi.get('/forecastIssueList', {
         params: {
           serviceKey: '2e572cb46f96a219ef27c211707e7875f4791d19b01a025e64cab130ec2cfcc1',
@@ -208,5 +209,22 @@ getLandSlideWarning: async (params) => {
         }
       });
       return response.data;
+  },
+
+  /* -----------------------------
+     [NEW] 특보코드조회 (getPwnCd) - 태풍/한파/호우 등
+     params: warningType(2: 호우, 3:한파, 7:태풍), areaCode(선택)
+  ----------------------------- */
+  getDisasterSpecials: async (params) => {
+    const response = await kmaWarningApi.get("/getPwnCd", {
+      params: {
+        serviceKey: import.meta.env.VITE_API_KMA_WARNING_KEY, // .env에 키 추가 필요
+        numOfRows: 200, // 전북 전체 시군구를 커버하기 위해 넉넉히
+        pageNo: 1,
+        dataType: "JSON",
+        ...params, // warningType 등 넘어옴
+      },
+    });
+    return response.data;
   },
 };
