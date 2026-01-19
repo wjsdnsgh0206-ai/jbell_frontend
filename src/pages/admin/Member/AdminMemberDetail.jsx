@@ -1,15 +1,18 @@
-import React from 'react'; // React 추가
-import { useLocation, useParams, useNavigate } from 'react-router-dom'; // useNavigate 추가하면 좋아요
+import React, { useState } from 'react';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 
 const AdminMemberDetail = () => {
-    const { memberId } = useParams(); 
+    const { memberId } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
 
-    // 목록에서 넘겨준 user 데이터가 없을 때를 대비한 방어 코드
+    // 수정 모드 상태 관리
+    const [isEdit, setIsEdit] = useState(false);
     const item = location.state?.item;
 
-    // 데이터가 없으면 에러를 뱉는 대신 "데이터가 없다"고 알려주거나 목록으로 튕겨내기
+    // 수정 입력값 상태 관리
+    const [formData, setFormData] = useState({ ...item });
+
     if (!item) {
         return (
             <div className="p-10 text-center">
@@ -19,59 +22,121 @@ const AdminMemberDetail = () => {
         );
     }
 
-    
-    // 수정 버튼 클릭 핸들러 (만들어야 함!)
-        const handleEditClick = () => {
-            navigate('/admin/member/adminMemberEdit/' + item.memberId); // 실제 수정 페이지 경로
-        };
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
 
-    // 삭제 버튼 클릭 핸들러
-        const handleDeleteClick = () => {
-            if (window.confirm(`'${item.memberId}' 회원을 정말 삭제하시겠습니까?`)) {
-            alert('삭제 처리 완료! (실제 DB 삭제 로직 필요)');
-            navigate('/admin/member/adminMemberList'); // 삭제 후 목록으로 돌아가기
-            }
-        };
-    
-    
+    const handleSave = () => {
+        alert('저장 처리 완료 (DB 연동 필요)');
+        setIsEdit(false);
+    };
+
+    const handleDeleteClick = () => {
+        if (window.confirm(`'${item.memberId}' 회원을 정말 삭제하시겠습니까?`)) {
+            alert('삭제 완료');
+            navigate('/admin/member/adminMemberList');
+        }
+    };
+
     return (
-        <div className="p-6 bg-white">
-            <h1 className="text-2xl font-bold mb-6">회원 정보 조회</h1>
+        <div className="p-8 bg-gray-50 min-h-screen">
+            <div className="max-w-4xl mx-auto">
+                <div className="flex justify-between items-center mb-8">
+                    <h1 className="text-2xl font-bold text-gray-800">회원 상세 관리</h1>
+                    <div className="flex gap-2">
+                        <button 
+                            onClick={() => setIsEdit(!isEdit)}
+                            className={`px-5 py-2 rounded-lg font-medium transition ${
+                                isEdit ? 'bg-gray-500 text-white' : 'bg-indigo-600 text-white'
+                            }`}
+                        >
+                            {isEdit ? '수정 취소' : '수정 모드'}
+                        </button>
+                    </div>
+                </div>
 
-            <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-14 w-full max-w-[1000px]">
-               <div className="p-10">
-                    <h2 className="text-2xl mb-5">{item.memberName} 님의 상세 정보</h2>
-                    <div className="bg-white p-6 rounded-lg shadow">
-                        <p value="memberId">아이디: {item.memberId}</p>
-                        <p value="memberName">이름: {item.memberName}</p>
-                        <p value="memberTelNum">전화번호: {item.memberTelNum}</p>
-                        <p value="memberRegion">주소지역: {item.memberRegion}</p>
-                        <p value="memberRole">등급: {item.memberRole}</p>
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="p-8">
+                        <div className="grid grid-cols-1 gap-y-6">
+                            {/* 데이터 필드 반복 */}
+                            {[
+                                { label: '아이디', name: 'memberId', value: formData.memberId, readOnly: true },
+                                { label: '이름', name: 'memberName', value: formData.memberName },
+                                { label: '전화번호', name: 'memberTelNum', value: formData.memberTelNum },
+                                { label: '주소지역', name: 'memberRegion', value: formData.memberRegion },
+                                { label: '등급', name: 'memberRole', value: formData.memberRole },
+                            ].map((field) => (
+                                <div key={field.name} className="flex flex-col md:flex-row md:items-center border-b border-gray-100 pb-4 last:border-0">
+                                    <label className="md:w-1/4 text-sm font-semibold text-gray-500">{field.label}</label>
+                                    <div className="md:w-3/4 mt-1 md:mt-0">
+                                        {isEdit && !field.readOnly ? (
+                                            <input
+                                                type="text"
+                                                name={field.name}
+                                                value={field.value}
+                                                onChange={handleInputChange}
+                                                className="w-full px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                            />
+                                        ) : (
+                                            <span className="text-gray-900 font-medium">{field.value}</span>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="bg-gray-50 px-8 py-4 flex justify-between items-center">
+                        <button 
+                            onClick={() => navigate(-1)}
+                            className="text-gray-600 hover:text-gray-800 font-medium"
+                        >
+                            ← 목록으로 돌아가기
+                        </button>
+                        
+                        <div className="flex gap-3">
+                                {!isEdit && (
+                                    <button
+                                    onClick={() => setIsEdit(true)}
+                                    className="px-5 py-2 bg-indigo-600 text-white rounded-lg"
+                                    >
+                                    수정 모드
+                                    </button>
+                                )}
+
+                                {isEdit && (
+                                    <>
+                                    <button
+                                        onClick={handleSave}
+                                        className="px-6 py-2 bg-green-600 text-white rounded-lg"
+                                    >
+                                        변경사항 저장
+                                    </button>
+
+                                    <button
+                                        onClick={handleDeleteClick}
+                                        className="px-6 py-2 bg-red-600 text-white rounded-lg"
+                                    >
+                                        회원 삭제
+                                    </button>
+
+                                    <button
+                                        onClick={() => {
+                                        setFormData({ ...item });
+                                        setIsEdit(false);
+                                        }}
+                                        className="px-6 py-2 bg-gray-400 text-white rounded-lg"
+                                    >
+                                        수정 취소
+                                    </button>
+                                    </>
+                                )}
+                            </div>
+
                     </div>
                 </div>
-                 <div className="mt-8 flex justify-between">
-                    <button 
-                        onClick={() => navigate(-1)} 
-                        className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
-                    >
-                        목록으로
-                    </button>
-                    <div>
-                        <button 
-                            onClick={handleEditClick} 
-                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mr-3"
-                        >
-                            수정
-                        </button>
-                        <button 
-                            onClick={handleDeleteClick} 
-                            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                        >
-                            삭제
-                        </button>
-                    </div>
-                </div>
-            </section>
+            </div>
         </div>
     );
 };
