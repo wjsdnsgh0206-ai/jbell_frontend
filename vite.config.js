@@ -50,7 +50,7 @@ export default defineConfig(({ mode }) => {
           },
         },
         "/weather-api": {
-          target: "https://api.openweathermap.org/data/2.5/weather",
+          target: "https://api.openweathermap.org/data/2.5",
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/weather-api/, ""),
           secure: false,
@@ -180,6 +180,14 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/landSlideWarning-api/, ""),
         },
+
+        // 도로교통 정보 api
+
+      '/accidentNews-api': {
+        target: 'https://openapi.its.go.kr:9443',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/accidentNews-api/, ''),
+      },
 
         // 🔹 기상청 지진 특보
         "/kma-api": {

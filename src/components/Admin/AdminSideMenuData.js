@@ -7,11 +7,29 @@
  */
 export const ADMIN_MENU_DATA = {
   // [시스템 관리] 그룹: URL이 /admin/system/... 일 때 활성화
-  system: [ 
+  // --- 실시간 정보관리 🐹 최지영 ---
+  realtime: [
     {
-      title: "코드 관리",     // 소분류 그룹 제목
+      title: "대시보드",
+      path: "/admin/realtime/realtimeDashboard",
+      isAvailable: false, // 하위메뉴가 없으니 false 처리
+      items: [],
+    },
+    {
+      title: "재난사고속보 관리",
+      path: "/admin/realtime/accidentNews",
+      isAvailable: true,
+      items: [
+        { name: "사고속보 관리", path: "/admin/realtime/accidentNews" },
+        { name: "재난 관리", path: "/admin/realtime/disaster" },
+      ],
+    },
+  ],
+  system: [
+    {
+      title: "코드 관리", // 소분류 그룹 제목
       path: "/admin/system/commonCodeList", // 대표 경로 추가
-      isAvailable: true,     // 메뉴 활성화 여부 (준비 중일 경우 false)
+      isAvailable: true, // 메뉴 활성화 여부 (준비 중일 경우 false)
       items: [
         { name: "공통코드 목록", path: "/admin/system/commonCodeList" },
         { name: "그룹코드 등록", path: "/admin/system/groupCodeAdd" },
@@ -22,7 +40,7 @@ export const ADMIN_MENU_DATA = {
     {
       title: "권한 관리",
       path: "/admin/system/authList",
-      isAvailable: false,    // 비활성화 상태 (클릭 불가 처리 등에 활용)
+      isAvailable: false, // 비활성화 상태 (클릭 불가 처리 등에 활용)
       items: [],
     },
     {
@@ -32,11 +50,11 @@ export const ADMIN_MENU_DATA = {
       items: [],
     },
   ],
-  contents: [ 
+  contents: [
     {
-      title: "행동요령 관리",     // 소분류 그룹 제목
+      title: "행동요령 관리", // 소분류 그룹 제목
       path: "/admin/contents/behavioralGuideList", // 대표 경로 추가
-      isAvailable: true,     // 메뉴 활성화 여부 (준비 중일 경우 false)
+      isAvailable: true, // 메뉴 활성화 여부 (준비 중일 경우 false)
       items: [
         { name: "행동요령 목록", path: "/admin/contents/behavioralGuideList" },
         { name: "행동요령 등록", path: "/admin/contents/behavioralGuideAdd" },
@@ -47,10 +65,22 @@ export const ADMIN_MENU_DATA = {
       path: "/admin/contents/citySafetyMasterPlan",
       isAvailable: false,
       items: [
-        { name: "도시안전기본계획 관리", path: "/admin/contents/citySafetyMasterPlan" },
-        { name: "재난별 안전정책 관리", path: "/admin/contents/disasterSafetyPolicy" },
-        { name: "시민 안전보험 관리", path: "/admin/contents/citySafetyMasterPlan" },
-        { name: "풍수해 안전보험 관리", path: "/admin/contents/stormAndFloodInsurance" },
+        {
+          name: "도시안전기본계획 관리",
+          path: "/admin/contents/citySafetyMasterPlan",
+        },
+        {
+          name: "재난별 안전정책 관리",
+          path: "/admin/contents/disasterSafetyPolicy",
+        },
+        {
+          name: "시민 안전보험 관리",
+          path: "/admin/contents/citySafetyMasterPlan",
+        },
+        {
+          name: "풍수해 안전보험 관리",
+          path: "/admin/contents/stormAndFloodInsurance",
+        },
       ],
     },
     {
@@ -70,7 +100,7 @@ export const ADMIN_MENU_DATA = {
   ],
 
   // [회원 관리] 그룹: URL이 /admin/user/... 일 때 활성화 (팀원 추가 영역)
-  member: [ 
+  member: [
     /* 예시:
       {
         title: "사용자 정보 관리",
