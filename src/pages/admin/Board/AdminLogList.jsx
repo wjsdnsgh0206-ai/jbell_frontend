@@ -1,54 +1,138 @@
 import React, { useState, useEffect } from 'react';
 // import BreadCrumb from '@/components/Admin/board/BreadCrumb';
+import AdminSearchBox from '@/components/admin/AdminSearchBox'; // ★ 공용 컴포넌트 임포트
+import AdminDataTable from '@/components/admin/AdminDataTable';
+import AdminPagination from '@/components/admin/AdminPagination';
+import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
 const AdminLogList = () => {
+    
+    const [selectedIds, setSelectedIds] = useState([]); // AdminDataTable
+    const [currentPage, setCurrentPage] = useState(1);  // AdminPaigination
+    const itemsPerPage = 10;
+
+    
     /* <================ 데이터 및 상태 관리 ================> */
     const logData = Array(10).fill(null).map((_, i) => ({
         logId: `kimgoogle${12345 + i}`,
         logIp: '192.168.0.1',
-        loggedDate: '2026년 01월 14일 09시 00분',
+        loggedDate: '2026-01-14', // 날짜 필터링 비교를 위해 포맷을 YYYY-MM-DD로 가정 (화면엔 변환해서 보여줌)
         logSOF: i % 2 === 0 ? '실패' : '성공',
         logReason: i % 2 === 0 ? '자격 증명 오류(ID, PW 불일치)' : '로그인 성공',
         display: true
     }));
 
-    // 검색 조건 상태
-    const [searchLogId, setSearchLogId] = useState('');                 // 로그인 ID
-    const [searchLogIp, setSearchLogIp] = useState('');                 // 로그인 IP
-    const [searchLogDate, setSearchLogDate] = useState('');             // 발생일자
-    const [searchLogSOF, setSearchLogSOF] = useState('전체');           // 로그인 성공/실패 여부
-    const [searchLogReason, setSearchLogReason] = useState('전체');     // 로그인 성공/실패 이유
+    // 1. 상태 통합 (AdminSearchBox 규격에 맞춤)
+    const [searchParams, setSearchParams] = useState({
+        logIp: '',
+        logDate: '',
+        logSOF: '전체',
+        logReason: '전체',
+        keyword: '', // ★ keyword는 '로그인 ID' 검색으로 사용
+    });
     
     // 필터링된 리스트 상태
     const [filteredLogList, setFilteredLogList] = useState(logData);
 
+    const columns = [
+          {
+            key: 'no',
+            header: '번호',
+            className: 'text-center',
+            render: (_, __, index) =>
+            (currentPage - 1) * itemsPerPage + index + 1
+        },
+        {
+            key: 'logId',
+            header: '로그인 ID',
+            render: (value) => (
+            <span className="text-blue-600 font-medium">{value}</span>
+            )
+        },
+        {
+            key: 'logIp',
+            header: '로그인 IP'
+        },
+        {
+            key: 'loggedDate',
+            header: '발생일자'
+        },
+        {
+            key: 'logSOF',
+            header: '성공/실패',
+            render: (value) => (
+            <span
+                className={`px-2 py-1 rounded text-xs ${
+                value === '성공'
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-red-100 text-red-700'
+                }`}
+            >
+                {value}
+            </span>
+            )
+        },
+        {
+            key: 'logReason',
+            header: '실패 이유',
+            className: 'text-left'
+        }
+    ];
+
+
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const pagedData = filteredLogList.slice(
+    startIndex,
+    startIndex + itemsPerPage
+    );
+
+   
+
+
     /* <================ 핸들러 ================> */
     
-    // 검색 버튼 클릭 시 실행
-   const handleLogSearch = () => {
+    // 2. 커스텀 입력값 변경 핸들러 (children 내부 input용)
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setSearchParams(prev => ({ ...prev, [name]: value }));
+    };
+
+    // 3. 검색 버튼 클릭 시 실행
+    const handleLogSearch = () => {
         const result = logData.filter(item => {
-            if (searchLogId && !item.logId.includes(searchLogId)) return false;
-            if (searchLogIp && !item.logIp.includes(searchLogIp)) return false;
-            if (searchLogSOF !== '전체' && item.logSOF !== searchLogSOF) return false;
-            if (
-            searchLogReason !== '전체' &&
-            !item.logReason.includes(searchLogReason)
-            ) return false;
+            // keyword -> 로그인 ID 검색
+            if (searchParams.keyword && !item.logId.includes(searchParams.keyword)) return false;
+            
+            // 나머지 조건 검색
+            if (searchParams.logIp && !item.logIp.includes(searchParams.logIp)) return false;
+            
+            // 날짜 검색 (문자열 단순 포함 여부 혹은 일치 여부)
+            if (searchParams.logDate && !item.loggedDate.includes(searchParams.logDate)) return false;
+            
+            if (searchParams.logSOF !== '전체' && item.logSOF !== searchParams.logSOF) return false;
+            
+            if (searchParams.logReason !== '전체' && !item.logReason.includes(searchParams.logReason)) return false;
+            
             return true;
         });
         setFilteredLogList(result);
     };
 
-
-    // 초기화 버튼 클릭 시 실행
+    // 4. 초기화 버튼 클릭 시 실행
     const handleReset = () => {
-        setSearchLogId('');
-        setSearchLogIp('');
-        setSearchLogDate('');
-        setSearchLogSOF('전체');
-        setSearchLogReason('전체');
+        setSearchParams({
+            logIp: '',
+            logDate: '',
+            logSOF: '전체',
+            logReason: '전체',
+            keyword: ''
+        });
         setFilteredLogList(logData);
     };
+
+    // 공통 Input 스타일 (AdminSearchBox와 높이/스타일 통일)
+    const inputStyle = "h-14 px-3 text-body-m border border-admin-border rounded-md bg-white focus:border-admin-primary outline-none transition-all";
 
     return (
         <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
@@ -56,140 +140,94 @@ const AdminLogList = () => {
                 
                 <h1 className="text-2xl font-bold mb-6">로그 관리</h1>
 
-                {/* 검색 바 영역 */}
-                <div className="grid grid-cols-6 gap-4 bg-white p-4 border rounded-md mb-6 shadow-sm">
-                    <div>
-                        <label className="block text-sm mb-1">로그인 ID</label>
+            {/* 검색 바 영역: AdminSearchBox 적용 */}
+            <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8 mb-8">
+                <div className="flex flex-wrap gap-4 items-start">
+                    <AdminSearchBox
+                        searchParams={searchParams}
+                        setSearchParams={setSearchParams}
+                        onSearch={handleLogSearch}
+                        onReset={handleReset}
+                    >
+
+                        {/* <=== 여기서부터 children (커스텀 필터들) ===> */}
+
+                        {/* 1. 로그인 IP */}
                         <input 
                             type="text" 
-                            value={searchLogId}
-                            onChange={(e) => setSearchLogId(e.target.value)}
-                            placeholder="ID를 입력해주세요." 
-                            className="w-full border p-2 rounded text-sm" 
+                            name="logIp"
+                            value={searchParams.logIp}
+                            onChange={handleInputChange}
+                            placeholder="IP 주소 (xxx.xxx...)" 
+                            className={`${inputStyle} w-[160px]`} 
                         />
-                    </div>
-                    <div>
-                        <label className="block text-sm mb-1">로그인 IP</label>
-                        <input 
-                            type="text" 
-                            value={searchLogIp}
-                            onChange={(e) => setSearchLogIp(e.target.value)}
-                            placeholder="xxx.xxx.xx.xx" 
-                            className="w-full border p-2 rounded text-sm" 
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm mb-1">발생일자</label>
+
+                        {/* 2. 발생일자 */}
                         <input 
                             type="date" 
-                            value={searchLogDate}
-                            onChange={(e) => setSearchLogDate(e.target.value)}
-                            className="w-full border p-2 rounded text-sm" 
+                            name="logDate"
+                            value={searchParams.logDate}
+                            onChange={handleInputChange}
+                            className={`${inputStyle} w-[160px] cursor-pointer`} 
                         />
-                    </div>
-                    <div>
-                        <label className="block text-sm mb-1">성공/실패 여부</label>
+
+                        {/* 3. 성공/실패 여부 */}
                         <select 
-                            value={searchLogSOF}
-                            onChange={(e) => setSearchLogSOF(e.target.value)}
-                            className="w-full border p-2 rounded text-sm"
+                            name="logSOF"
+                            value={searchParams.logSOF}
+                            onChange={handleInputChange}
+                            className={`${inputStyle} min-w-[100px] cursor-pointer`}
                         >
-                            <option value="전체">전체</option>
+                            <option value="전체">성공/실패(전체)</option>
                             <option value="성공">성공</option>
                             <option value="실패">실패</option>
                         </select>
-                    </div>
-                    <div>
-                        <label className="block text-sm mb-1">성공/실패 이유</label>
-                        <select 
-                        value={searchLogReason}
-                        onChange={(e) => setSearchLogReason(e.target.value)}
-                        className="w-full border p-2 rounded text-sm">
-                            <option value="전체">전체</option>
-                            <option value="자격 증명 오류">자격 증명 오류(ID, PW 불일치)</option>
-                            <option value="계정 상태 문제">계정 상태 문제(계정 잠금)</option>
-                            <option value="계정 만료">계정 만료(유효 기간 만료)</option>
-                            <option value="계정 비활성화">계정 비활성화(사용 정지)</option>
-                            <option value="인증 부족">인증 부족(추가 인증 실패)</option>
-                            <option value="시스템 오류">시스템 오류(서버/DB 연결 오류)</option>
-                            <option value="기타 접근 제한">기타 접근 제한(IP 접근 제한)</option>
-                            <option value="세션">세션 관련(만료된 세션)</option>
-                        </select>
-                    </div>
-                    <div className="flex items-end gap-2">
-                        <button 
-                            onClick={handleLogSearch}
-                            className="px-4 py-2 bg-blue-500 text-white rounded text-sm"
-                        >
-                            검색
-                        </button>
-                        <button 
-                            onClick={handleReset}
-                            className="px-4 py-2 border rounded text-sm"
-                        >
-                            초기화
-                        </button>
-                    </div>
-                </div>
 
-                {/* 테이블 상단 툴바 */}
-                <div className="flex justify-between items-center mb-4 text-sm">
-                    <div className="flex gap-4">
-                        <label><input type="checkbox" className="mr-1" /> 0개 선택됨</label>
-                        <button className="text-blue-600">일괄 노출</button>
-                    </div>
+                        {/* 4. 성공/실패 이유 */}
+                        <select 
+                            name="logReason"
+                            value={searchParams.logReason}
+                            onChange={handleInputChange}
+                            className={`${inputStyle} w-[200px] cursor-pointer`}
+                        >
+                            <option value="전체">이유(전체)</option>
+                            <option value="자격 증명 오류">자격 증명 오류</option>
+                            <option value="계정 상태 문제">계정 상태 문제</option>
+                            <option value="계정 만료">계정 만료</option>
+                            <option value="계정 비활성화">계정 비활성화</option>
+                            <option value="인증 부족">인증 부족</option>
+                            <option value="시스템 오류">시스템 오류</option>
+                            <option value="기타 접근 제한">기타 접근 제한</option>
+                            <option value="세션">세션 관련</option>
+                        </select>
+                        
+                        {/* 5. 로그인 ID는 AdminSearchBox의 기본 keyword 입력창을 사용 */}
+                        
+                        {/* <=== 여기까지 children ===> */}
+
+                    </AdminSearchBox>
                 </div>
+                </section>
 
                 {/* 테이블 영역 */}
                 <div className="bg-white border rounded-md overflow-hidden shadow-sm">
-                    <table className="w-full text-sm text-left">
-                        <thead className="bg-gray-100 border-b">
-                            <tr>
-                                <th className="p-4 w-12 text-center"><input type="checkbox" className="w-4 h-4" /></th>
-                                <th className="p-4 w-16 text-center">번호</th>
-                                <th className="p-3">로그인 ID</th>
-                                <th className="p-3">로그인 IP</th>
-                                <th className="p-3">발생일자</th>
-                                <th className="p-3">성공/실패 여부</th>
-                                <th className="p-3">성공/실패 이유</th>
-                                <th className="p-3">노출 여부</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredLogList.length > 0 ? (
-                                filteredLogList.map((item, index) => (
-                                    <tr key={index} className="border-b hover:bg-gray-50">
-                                        <td className="p-4 text-center"><input type="checkbox" className="w-4 h-4" /></td>
-                                        <td className="p-4 text-gray-500">{index + 1}</td>
-                                        <td className="p-3 text-blue-600">{item.logId}</td>
-                                        <td className="p-3 text-blue-600">{item.logIp}</td>
-                                        <td className="p-3">{item.loggedDate}</td>
-                                        <td className="p-3">{item.logSOF}</td>
-                                        <td className="p-3">{item.logReason}</td>
-                                        <td className="p-3">
-                                            <div className={`w-10 h-5 ${item.display ? 'bg-blue-500' : 'bg-gray-300'} rounded-full relative cursor-pointer`}>
-                                                <div className={`absolute ${item.display ? 'right-1' : 'left-1'} top-1 w-3 h-3 bg-white rounded-full`}></div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="8" className="p-10 text-center text-gray-500">데이터가 없습니다.</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                    <AdminDataTable
+                        columns={columns}
+                        data={pagedData}
+                        selectedIds={selectedIds}
+                        onSelectionChange={setSelectedIds}
+                        rowKey="logId"
+                    />
                 </div>
 
                 {/* 페이지네이션 */}
                 <div className="flex justify-center mt-6 gap-2 text-sm">
-                    <button className="p-2 text-gray-400">이전</button>
-                    <button className="p-2 bg-blue-900 text-white rounded w-8">1</button>
-                    {[2, 3, 4, 5].map(num => (
-                        <button key={num} className="p-2 text-gray-600 w-8">{num}</button>
-                    ))}
-                    <button className="p-2 text-gray-600">다음</button>
+                    <AdminPagination
+                    totalItems={filteredLogList.length}
+                    itemCountPerPage={itemsPerPage}
+                    currentPage={currentPage}
+                    onPageChange={setCurrentPage}
+                    />
                 </div>
             </div>
         </div>
