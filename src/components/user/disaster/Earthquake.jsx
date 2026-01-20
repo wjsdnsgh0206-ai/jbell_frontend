@@ -83,9 +83,9 @@ const Earthquake = () => {
             ))}
           </div>
 
-          <div className="absolute bottom-4 right-4 z-20 scale-90 md:scale-100">
+          {/* <div className="absolute bottom-4 right-4 z-20 scale-90 md:scale-100">
             <MapControlBtn />
-          </div>
+          </div> */}
         </div>
       </div>
 
