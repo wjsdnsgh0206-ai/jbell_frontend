@@ -19,11 +19,11 @@ export const ADMIN_MENU_DATA = {
     },
     {
       title: "재난사고속보 관리",
-      path: "/admin/realtime/accidentNews",
+      path: "/admin/realtime/accidentNewsList",
       isAvailable: true,
       items: [
-        { name: "사고속보 관리", path: "/admin/realtime/accidentNews" },
-        { name: "재난 관리", path: "/admin/realtime/disaster" },
+        { name: "사고속보 관리", path: "/admin/realtime/accidentNewsList"},
+        { name: "재난 관리", path: "/admin/realtime/disasterManagementList" },
       ],
     },
   ],
