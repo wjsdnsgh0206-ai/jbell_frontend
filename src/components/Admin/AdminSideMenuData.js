@@ -65,24 +65,12 @@ export const ADMIN_MENU_DATA = {
     {
       title: "주요 안전정책 관리",
       path: "/admin/contents/citySafetyMasterPlan",
-      isAvailable: false,
+      isAvailable: true,
       items: [
-        {
-          name: "도시안전기본계획 관리",
-          path: "/admin/contents/citySafetyMasterPlan",
-        },
-        {
-          name: "재난별 안전정책 관리",
-          path: "/admin/contents/disasterSafetyPolicy",
-        },
-        {
-          name: "시민 안전보험 관리",
-          path: "/admin/contents/citySafetyMasterPlan",
-        },
-        {
-          name: "풍수해 안전보험 관리",
-          path: "/admin/contents/stormAndFloodInsurance",
-        },
+        { name: "도시안전기본계획 관리", path: "/admin/contents/citySafetyMasterPlan" },
+        { name: "재난별 안전정책 관리", path: "/admin/contents/disasterSafetyPolicy" },
+        { name: "시민 안전보험 관리", path: "/admin/contents/citizenSafetyInsurance" },
+        { name: "풍수해 안전보험 관리", path: "/admin/contents/stormAndFloodInsurance" },
       ],
     },
     {
@@ -101,8 +89,8 @@ export const ADMIN_MENU_DATA = {
     },
   ],
 
-  // [회원 관리] 그룹: URL이 /admin/user/... 일 때 활성화 (팀원 추가 영역)
-  member: [
+  // [회원 관리] 그룹: URL이 /admin/member/... 일 때 활성화 (팀원 추가 영역)
+  member: [ 
     /* 예시:
       {
         title: "사용자 정보 관리",

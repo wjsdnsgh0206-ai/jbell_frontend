@@ -21,6 +21,10 @@ const adminMap = {
   "subCodeDetail": "상세 코드 상세",
   "subCodeEdit": "상세 코드 수정",
   "behavioralGuideDetail": "행동요령 상세",
+  "citySafetyMasterPlan": "도시안전기본계획 관리",
+  "disasterSafetyPolicy": "재난별 안전정책 관리",
+  "citizenSafetyInsurance": "시민 안전보험 관리",
+  "stormAndFloodInsurance": "풍수해 안전보험 관리",
   "pressRelList": "보도자료 목록",
   "pressRelAdd": "보도자료 등록",
 };

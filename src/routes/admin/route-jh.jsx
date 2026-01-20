@@ -1,26 +1,60 @@
-// src/routes/admin/route-sh.jsx
+// src/routes/admin/route-jh.jsx
 import { lazy } from 'react';
 
 export const BehavioralGuideList = lazy(() => import("@/pages/admin/contents/behavioralGuide/BehavioralGuideList"));
 export const BehavioralGuideDetail = lazy(() => import("@/pages/admin/contents/behavioralGuide/BehavioralGuideDetail"));
+export const BehavioralGuideAdd = lazy(() => import("@/pages/admin/contents/behavioralGuide/BehavioralGuideAdd"));
+export const PolicyPageEditor = lazy(() => import("@/pages/admin/contents/safetyPolicy/PolicyPageEditor"));
 
 export const jhAdminRoutes = [
-  // URL 계층화: /admin/대분류/소분류+행위
-  
-  /* 콘텐츠 관리 그룹 */
-  // 행동요령 목록페이지
+  /* 1. 행동요령 관리 */
   {
     path: "/admin/contents/behavioralGuideList", 
     element: <BehavioralGuideList />,
-    nowPage: "행동요령 관리",
+    nowPage: "행동요령 목록",
   },
-  // 행동요령 상세 및 수정 페이지
   {
     path: "/admin/contents/behavioralGuideDetail/:id", 
     element: <BehavioralGuideDetail />,
     nowPage: "행동요령 상세",
   },
+  {
+    path: "/admin/contents/behavioralGuideAdd", 
+    element: <BehavioralGuideAdd />,
+    nowPage: "행동요령 등록",
+  },
+
+  /* 2. 주요 안전정책 관리 */
+  { 
+    path: "/admin/contents/citySafetyMasterPlan", 
+    element: <PolicyPageEditor 
+                pageTitle="도시안전기본계획 관리" 
+                policyType="CITY_MASTER_PLAN" 
+                tabs={[{id:0, label:'개요'}, {id:1, label:'안전관리기구'}, {id:2, label:'재난안전대책본부'}]} 
+              /> 
+  },
+  { 
+    path: "/admin/contents/disasterSafetyPolicy", 
+    element: <PolicyPageEditor 
+                pageTitle="재난별 안전정책 관리" 
+                policyType="DISASTER_POLICY" 
+                tabs={[{id:0, label:'지진'}, {id:1, label:'태풍·호우'}, {id:2, label:'기타'}]} 
+              /> 
+  },
+  { 
+    path: "/admin/contents/citizenSafetyInsurance", 
+    element: <PolicyPageEditor 
+                pageTitle="시민 안전보험 관리" 
+                policyType="CITIZEN_INSURANCE" 
+                tabs={[{id:0, label:'보장내용'}, {id:1, label:'청구방법'}]} 
+              /> 
+  },
+  { 
+    path: "/admin/contents/stormAndFloodInsurance", 
+    element: <PolicyPageEditor 
+                pageTitle="풍수해 안전보험 관리" 
+                policyType="STORM_FLOOD_INSURANCE" 
+                tabs={[{id:0, label:'가입안내'}, {id:1, label:'지원내용'}]} 
+              /> 
+  },
 ];
-
-
-
