@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, useOutletContext } from "react-router-dom";
-import { BehavioralGuideData } from "@/pages/admin/contents/behavioralGuide/BehavioralGuideData"; // 1. 데이터 임포트 확인
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
+import { BehavioralGuideData } from "@/pages/admin/contents/behavioralGuide/BehavioralGuideData";
 
 const BehavioralGuideDetail = () => {
   const { id } = useParams();
@@ -10,38 +12,46 @@ const BehavioralGuideDetail = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [loading, setLoading] = useState(true);
   
-  // 초기 상태값을 비워두고 useEffect에서 채웁니다.
-  const [guide, setGuide] = useState({
-    categoryName: '',
-    category: '',
-    typeName: '',
-    type: '',
+  // 1. 상태 관리: DB 컬럼명(CamelCase)으로 리팩토링
+  const [formData, setFormData] = useState({
+    contentId: '',
+    contentType: '',
     title: '',
-    actRmks: '',
-    visible: true,
-    date: ''
+    body: '',
+    visibleYn: 'Y',
+    contentLink: '',
+    createdAt: ''
   });
 
-  // 원본 데이터 저장용 상태 (취소 시 복구용)
-  const [originGuide, setOriginGuide] = useState(null);
+  // 원본 데이터 저장용 (수정 취소 시 복구용)
+  const [originData, setOriginData] = useState(null);
 
-  // 2. 데이터 연동 및 브레드크럼 설정 로직
+  // 에디터 설정 (수정 모드일 때만 툴바가 보이도록 처리하기 위해 modules 분리)
+  const modules = useMemo(() => ({
+    toolbar: isEdit ? [ // ★ isEdit 상태에 따라 툴바 구성 제어
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      ['link', 'image'],
+      ['clean']
+    ] : false, // 수정 모드가 아니면 툴바를 비움
+  }), [isEdit]);
+
+  // 3. 데이터 로드 및 브레드크럼 설정
   useEffect(() => {
     const getDetailData = () => {
       setLoading(true);
       try {
-        // 1. 데이터 찾기
-        const foundData = BehavioralGuideData.find(item => item.id === parseInt(id));
+        // contentId 기준으로 데이터 찾기 (parseInt 주의)
+        const found = BehavioralGuideData.find(item => item.contentId === parseInt(id));
 
-        if (foundData) {
-          // 2. 데이터 상태 업데이트
-          setGuide(foundData);
-          setOriginGuide(foundData); // 원본 데이터 따로 보관
-          // 3. 브레드크럼 타이틀을 데이터의 title로 설정
-          setBreadcrumbTitle(foundData.title);
+        if (found) {
+          setFormData(found);
+          setOriginData(found);
+          setBreadcrumbTitle(found.title);
         } else {
           alert("해당 데이터를 찾을 수 없습니다.");
-          navigate("/admin/contents/behavioralGuide");
+          navigate("/admin/contents/behavioralGuideList");
         }
       } catch (error) {
         console.error("데이터 로드 실패:", error);
@@ -51,29 +61,39 @@ const BehavioralGuideDetail = () => {
     };
 
     getDetailData();
-
-    // [Clean-up] 페이지를 나갈 때는 브레드크럼 초기화
     return () => setBreadcrumbTitle("");
   }, [id, setBreadcrumbTitle, navigate]);
 
+  // 4. 이벤트 핸들러
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setGuide(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // [취소 버튼 핸들러] @@
+  const handleEditorChange = (content) => {
+    setFormData(prev => ({ ...prev, body: content }));
+  };
+
+  const handleToggle = () => {
+    if (!isEdit) return; // 수정 모드일 때만 동작
+    setFormData(prev => ({
+      ...prev,
+      visibleYn: prev.visibleYn === 'Y' ? 'N' : 'Y'
+    }));
+  };
+
   const handleCancel = () => {
     if (window.confirm("수정 중인 내용을 취소하고 원래대로 되돌리시겠습니까?")) {
-      setGuide(originGuide); // 보관해둔 원본으로 덮어쓰기
+      setFormData(originData);
       setIsEdit(false);
     }
   };
 
   const handleSave = async () => {
     try {
-      // 현재는 정적 데이터이므로 콘솔에만 찍고 상태만 변경합니다.
-      // 나중에 Spring Boot 연동 시: await axios.put(`/api/.../${id}`, guide);
-      console.log("수정된 데이터:", guide);
+      // Spring Boot 연동 시: await axios.put(`/api/admin/behavioral-guide/${id}`, formData);
+      console.log("저장될 수정 데이터:", formData);
+      setOriginData(formData); // 원본 데이터 갱신
       alert("성공적으로 저장되었습니다.");
       setIsEdit(false);
     } catch (error) {
@@ -89,41 +109,20 @@ const BehavioralGuideDetail = () => {
         {/* 헤더 영역 */}
         <div className="flex justify-between items-end mb-10">
           <div>
-            <h2 className="text-heading-l text-admin-text-primary tracking-tight">행동요령 상세 정보</h2>
+            <h2 className="text-heading-l text-admin-text-primary tracking-tight">
+              행동요령 {isEdit ? '수정' : '상세 정보'}
+            </h2>
           </div>
           <div className="flex gap-3">
-            {/* 수정 모드가 아닐 때만 목록 버튼 표시 */}
-            {!isEdit && (
-              <button 
-                onClick={() => navigate(-1)}
-                className="px-6 h-12 border border-graygray-30 bg-white text-graygray-70 rounded-md font-bold hover:bg-graygray-10 transition-all"
-              >
-                목록으로
-              </button>
-            )}
-
             {!isEdit ? (
-              <button 
-                onClick={() => setIsEdit(true)}
-                className="px-8 h-12 bg-admin-primary text-white rounded-md font-bold hover:opacity-90 transition-all shadow-sm"
-              >
-                수정하기
-              </button>
+              <>
+                <button onClick={() => navigate(-1)} className="px-6 h-12 border border-graygray-30 bg-white text-graygray-70 rounded-md font-bold hover:bg-graygray-10 transition-all">목록으로</button>
+                <button onClick={() => setIsEdit(true)} className="px-8 h-12 bg-admin-primary text-white rounded-md font-bold hover:opacity-90 transition-all shadow-sm">수정하기</button>
+              </>
             ) : (
               <div className="flex gap-2">
-                {/* 취소 버튼 추가 @@ */}
-                <button 
-                  onClick={handleCancel}
-                  className="px-6 h-12 border border-graygray-30 bg-white text-graygray-70 rounded-md font-bold hover:bg-graygray-10 transition-all"
-                >
-                  취소
-                </button>
-                <button 
-                  onClick={handleSave}
-                  className="px-8 h-12 bg-[#22C55E] text-white rounded-md font-bold hover:opacity-90 transition-all shadow-md"
-                >
-                  저장하기
-                </button>
+                <button onClick={handleCancel} className="px-6 h-12 border border-graygray-30 bg-white text-graygray-70 rounded-md font-bold hover:bg-graygray-10 transition-all">취소</button>
+                <button onClick={handleSave} className="px-8 h-12 bg-[#22C55E] text-white rounded-md font-bold hover:opacity-90 transition-all shadow-md">저장하기</button>
               </div>
             )}
           </div>
@@ -133,74 +132,87 @@ const BehavioralGuideDetail = () => {
         <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard overflow-hidden">
           <div className="p-10 space-y-8">
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="flex flex-col gap-3">
-                <label className="text-body-m-bold text-admin-text-secondary ml-1">재난 구분</label>
+            {/* 1열: 유형 & 제목 */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <div className="flex flex-col gap-3 md:col-span-1">
+                <label className="text-body-m-bold text-admin-text-secondary ml-1">재난 유형 코드</label>
                 <input 
-                  name="categoryName"
-                  value={guide.categoryName || ''}
+                  name="contentType"
+                  value={formData.contentType || ''}
                   onChange={handleChange}
                   disabled={!isEdit}
                   className={`h-14 px-5 rounded-lg border transition-all outline-none text-body-m
-                    ${isEdit ? 'border-admin-primary bg-white focus:ring-2 ring-blue-100' : 'border-admin-border bg-graygray-5 shadow-inner text-graygray-50 cursor-not-allowed'}`}
+                    ${isEdit ? 'border-admin-primary bg-white focus:ring-2 ring-blue-100' : 'border-admin-border bg-graygray-5 text-graygray-50 cursor-not-allowed'}`}
                 />
               </div>
-              <div className="flex flex-col gap-3">
-                <label className="text-body-m-bold text-admin-text-secondary ml-1">재난 유형</label>
+              <div className="flex flex-col gap-3 md:col-span-3">
+                <label className="text-body-m-bold text-admin-text-secondary ml-1">행동요령 제목</label>
                 <input 
-                  name="typeName"
-                  value={guide.typeName || ''}
+                  name="title"
+                  value={formData.title || ''}
                   onChange={handleChange}
                   disabled={!isEdit}
                   className={`h-14 px-5 rounded-lg border transition-all outline-none text-body-m
-                    ${isEdit ? 'border-admin-primary bg-white focus:ring-2 ring-blue-100' : 'border-admin-border bg-graygray-5 shadow-inner text-graygray-50 cursor-not-allowed'}`}
+                    ${isEdit ? 'border-admin-primary bg-white focus:ring-2 ring-blue-100' : 'border-admin-border bg-graygray-5 text-graygray-50 cursor-not-allowed'}`}
                 />
               </div>
             </div>
 
+            {/* 2. 본문 내용 (Quill 에디터) */}
             <div className="flex flex-col gap-3">
-              <label className="text-body-m-bold text-admin-text-secondary ml-1">행동요령 제목</label>
+              <label className="text-body-m-bold text-admin-text-secondary ml-1">본문 내용</label>
+              <div className={`rounded-lg transition-all ${
+                isEdit ? 'bg-white' : 'view-mode-container shadow-inner'
+              }`}> 
+                <ReactQuill 
+                  theme={isEdit ? "snow" : null} 
+                  value={formData.body || ''} 
+                  onChange={handleEditorChange} 
+                  modules={modules} 
+                  readOnly={!isEdit}
+                />
+              </div>
+            </div>
+
+            {/* 3열: 링크 입력 (필요시 추가)
+            <div className="flex flex-col gap-3">
+              <label className="text-body-m-bold text-admin-text-secondary ml-1">출처 링크 (URL)</label>
               <input 
-                name="title"
-                value={guide.title || ''}
+                name="contentLink"
+                value={formData.contentLink || ''}
                 onChange={handleChange}
                 disabled={!isEdit}
-                placeholder="제목을 입력하세요"
+                placeholder="https://..."
                 className={`h-14 px-5 rounded-lg border transition-all outline-none text-body-m
-                  ${isEdit ? 'border-admin-primary bg-white focus:ring-2 ring-blue-100' : 'border-admin-border bg-graygray-5 shadow-inner text-graygray-50 cursor-not-allowed'}`}
+                  ${isEdit ? 'border-admin-primary bg-white focus:ring-2 ring-blue-100' : 'border-admin-border bg-graygray-5 text-graygray-50 cursor-not-allowed'}`}
               />
             </div>
+            */}
 
-            <div className="flex flex-col gap-3">
-              <label className="text-body-m-bold text-admin-text-secondary ml-1">콘텐츠 내용</label>
-              <textarea 
-                name="actRmks"
-                value={guide.actRmks || ''}
-                onChange={handleChange}
-                disabled={!isEdit}
-                rows={12}
-                placeholder="상세 행동요령 내용을 입력하세요"
-                className={`p-6 rounded-lg border transition-all outline-none text-body-m leading-relaxed resize-none
-                  ${isEdit ? 'border-admin-primary bg-white focus:ring-2 ring-blue-100' : 'border-admin-border bg-graygray-5 shadow-inner text-graygray-50 cursor-not-allowed'}`}
-              />
-            </div>
-
+            {/* 4열: 노출 여부 토글 */}
             <div className="flex items-center gap-6 pt-4 border-t border-admin-border">
-              <label className="text-body-m-bold text-admin-text-secondary">노출 여부</label>
-              <button
-                type="button"
-                onClick={() => isEdit && setGuide(prev => ({ ...prev, visible: !prev.visible }))}
-                className={`w-14 h-7 flex items-center rounded-full p-1 transition-all duration-300 ${
-                  guide.visible ? 'bg-admin-primary' : 'bg-graygray-30'
-                } ${isEdit ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
-              >
-                <div className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-300 ${
-                  guide.visible ? 'translate-x-7' : 'translate-x-0'
-                }`} />
-              </button>
-              <span className={`text-body-s-bold ${guide.visible ? 'text-admin-primary' : 'text-graygray-40'}`}>
-                {guide.visible ? "노출 중" : "비노출"}
-              </span>
+              <label className="text-body-m-bold text-admin-text-secondary">현재 노출 상태</label>
+              <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  onClick={handleToggle}
+                  className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${
+                    formData.visibleYn === 'Y' ? 'bg-admin-primary' : 'bg-gray-300'
+                  } ${isEdit ? 'cursor-pointer hover:shadow-inner' : 'cursor-not-allowed opacity-60'}`}
+                >
+                  <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
+                    formData.visibleYn === 'Y' ? 'translate-x-6' : 'translate-x-0'
+                  }`} />
+                </button>
+                <div className="flex flex-col">
+                  <span className={`text-body-s-bold ${formData.visibleYn === 'Y' ? 'text-admin-primary' : 'text-graygray-40'}`}>
+                    {formData.visibleYn === 'Y' ? "활성화 (Y)" : "비활성화 (N)"}
+                  </span>
+                  <p className="text-[12px] text-gray-400">
+                    {formData.visibleYn === 'Y' ? '* 현재 사용자 화면에 노출 중입니다.' : '* 현재 사용자 화면에서 숨김 처리되었습니다.'}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
