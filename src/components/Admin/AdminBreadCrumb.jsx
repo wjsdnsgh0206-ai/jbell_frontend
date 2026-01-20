@@ -19,6 +19,11 @@ const adminMap = {
   "behavioralGuideDetail": "행동요령 상세",
   "pressRelList": "보도자료 목록",
   "pressRelAdd": "보도자료 등록",
+  "pressRelDetail": "보도자료 상세",
+  "pressRelEdit": "보도자료 수정",
+  "safetyEduList": "시민안전교육 목록",
+  "safetyEduEdit": "시민안전교육 수정",
+
 };
 
 /**
