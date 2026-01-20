@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
@@ -20,7 +20,9 @@ const ErrorIcon = () => (
 const AdminGroupCodeAdd = () => {
   const navigate = useNavigate();
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState(""); // 토스트 메시지 상태 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false); // 취소 모달 상태 
   const [isRegistered, setIsRegistered] = useState(true);
 
   const [formData, setFormData] = useState({
@@ -36,17 +38,47 @@ const AdminGroupCodeAdd = () => {
   });
   
   // 페이지 이탈 방지 로직 @@
+  // [변경] 입력값이 있는지 체크하는 변수
+  const isDirty = useMemo(() => {
+    return !!(formData.groupCodeId.trim() || formData.groupName.trim() || formData.desc.trim());
+  }, [formData]);
+
+  // 뒤로가기 시 실행될 함수
+const handlePopState = useCallback(() => {
+  // isDirty 상태일 때만 모달을 띄우고 히스토리를 유지
+  if (isDirty) {
+    window.history.pushState(null, "", window.location.href);
+    setIsCancelModalOpen(true);
+  }
+}, [isDirty]); // isDirty가 바뀔 때마다 함수 갱신
+
+  // 1. 브라우저 뒤로가기 버튼 차단 로직 수정
+useEffect(() => {
+  if (!isDirty) {
+    // 값이 비워지면 리스너를 제거하여 일반적인 뒤로가기가 가능하게 함
+    window.removeEventListener('popstate', handlePopState);
+    return;
+  }
+
+  window.history.pushState(null, "", window.location.href);
+  window.addEventListener('popstate', handlePopState);
+
+  return () => {
+    window.removeEventListener('popstate', handlePopState);
+  };
+}, [isDirty, handlePopState]); // handlePopState도 의존성에 추가
+
+  // 2. [변경] 새로고침/탭 닫기 차단 (기존 로직 유지)
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      // 그룹코드 ID나 그룹명이 입력된 경우 경고창 표시
-      if (formData.groupCodeId || formData.groupName || formData.desc) {
+      if (isDirty) {
         e.preventDefault();
         e.returnValue = ""; 
       }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [formData]);
+  }, [isDirty]);
 
   // 중복 체크 로직
   const checkDuplicate = useMemo(() => {
@@ -88,6 +120,35 @@ const AdminGroupCodeAdd = () => {
     }
   };
 
+  //  취소 실행 로직
+ // 3. [변경] 취소 실행 로직 (확인 버튼 클릭 시)
+  const confirmCancel = () => {
+  // 이동하기 전에 이탈 방지 리스너를 미리 제거 (안전장치)
+  window.removeEventListener('popstate', handlePopState); 
+  
+  setIsCancelModalOpen(false);
+  setToastMessage("등록이 취소되었습니다.");
+  setShowToast(true);
+  
+  setTimeout(() => {
+    navigate('/admin/system/commonCodeList');
+  }, 1000);
+};
+
+  // 4. [변경] 모달에서 '아니오' 클릭 시 (현재 페이지 유지)
+  const handleModalClose = () => {
+    setIsCancelModalOpen(false);
+  };
+
+  // 5. [변경] 하단 취소 버튼 핸들러
+  const handleCancel = () => {
+    if (isDirty) {
+      setIsCancelModalOpen(true);
+    } else {
+      navigate(-1);
+    }
+  };
+
   const handleSaveClick = () => {
     // 필수값 체크
     const newErrors = {
@@ -105,6 +166,10 @@ const AdminGroupCodeAdd = () => {
 
   const handleConfirmSave = () => {
     setIsModalOpen(false);
+
+    // 가짜 히스토리를 정리하기 위해 뒤로가기를 한 번 실행하거나, 
+  // 리스너를 확실히 제거합니다.
+  window.removeEventListener('popstate', handlePopState);
     
     // 데이터 저장 시 앞뒤 공백 제거(trim) 적용
     const newEntry = {
@@ -120,16 +185,18 @@ const AdminGroupCodeAdd = () => {
     };
 
     AdminCommonCodeData.unshift(newEntry);
+    setToastMessage("그룹코드가 성공적으로 등록되었습니다."); // 메시지 설정
     setShowToast(true);
-    setTimeout(() => navigate('/admin/system/commonCodeList'), 1500);
-  };
+    // replace: true를 사용하여 히스토리 스택이 꼬이지 않게 합니다.
+  setTimeout(() => navigate('/admin/system/commonCodeList', { replace: true }), 1500);
+};
 
   return (
     <div className="relative flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
       {showToast && (
         <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100] bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-gray-700">
           <SuccessIcon fill="#4ADE80" />
-          <span className="font-bold text-[16px]">그룹코드가 성공적으로 등록되었습니다.</span>
+          <span className="font-bold text-[16px]">{toastMessage}</span>
         </div>
       )}
 
@@ -242,8 +309,9 @@ const AdminGroupCodeAdd = () => {
           </div>
         </section>
 
+        {/* 하단 버튼 구역 수정 */}
         <div className="flex justify-end gap-2 mt-12 max-w-[1000px]">
-          <button type="button" onClick={() => navigate(-1)} className="px-8 py-3.5 border border-gray-300 bg-white text-gray-500 rounded-lg font-bold text-[16px] hover:bg-gray-50 transition-colors shadow-sm">취소</button>
+          <button type="button" onClick={handleCancel} className="px-8 py-3.5 border border-gray-300 bg-white text-gray-500 rounded-lg font-bold text-[16px] hover:bg-gray-50 transition-colors shadow-sm">취소</button>
           <button type="button" onClick={handleSaveClick} className="px-8 py-3.5 bg-[#2563EB] text-white rounded-lg font-bold text-[16px] hover:bg-blue-700 shadow-md transition-colors">저장</button>
         </div>
       </main>
@@ -255,6 +323,15 @@ const AdminGroupCodeAdd = () => {
         title="그룹코드를 저장하시겠습니까?" 
         message="작성하신 내용이 즉시 저장됩니다" 
         type="save" 
+      />
+      {/* [변경] 취소 확인 모달 */}
+      <AdminConfirmModal 
+        isOpen={isCancelModalOpen} 
+        onClose={handleModalClose} // 👈 handleModalClose로 변경
+        onConfirm={confirmCancel} 
+        title="등록을 취소하시겠습니까?" 
+        message="작성 중인 내용이 저장되지 않고 목록으로 이동합니다." 
+        type="delete" 
       />
     </div>
   );
