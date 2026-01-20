@@ -36,6 +36,10 @@ const adminMap = {
   "adminMemberDetail": "회원 상세 정보 조회",
   "adminMemberRegister": "회원 등록",
   "adminMemberEdit": "회원 수정",  
+  "pressRelDetail": "보도자료 상세",
+  "pressRelEdit": "보도자료 수정",
+  "safetyEduList": "시민안전교육 목록",
+  "safetyEduEdit": "시민안전교육 수정",
 };
 
 /**

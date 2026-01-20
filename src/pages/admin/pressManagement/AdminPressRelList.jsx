@@ -292,7 +292,7 @@ const columns = useMemo(() => [
 },
   {
     key: 'actions',
-    header: '상세/수정',
+    header: '상세',
     width: '80px',
     className: 'text-center',
     render: (_, row) => (
@@ -309,8 +309,14 @@ const columns = useMemo(() => [
   // 5. 이벤트 핸들러 (Event Handlers)
   // ==================================================================================
   const handleSearch = () => {
+   // 날짜 유효성 체크: 시작일이 종료일보다 늦으면 경고 후 중단
+    if (startDate && endDate && startDate > endDate) {
+      alert("시작일은 종료일보다 이전이어야 합니다.");
+      return;
+    }
+
     setAppliedKeyword(searchParams.keyword); // 검색 버튼을 눌러야 실제 필터링 적용
-    setCurrentPage(1);
+    setCurrentPage(1); // 검색 시 첫 페이지로 이동
   };
 
   const handleReset = () => {
@@ -450,35 +456,53 @@ const columns = useMemo(() => [
             {/* 기간 필터 영역 */}
             <div className="flex items-center border border-admin-border rounded-md px-4 h-14 bg-white focus-within:border-admin-primary transition-all shrink-0">
               <div className="flex items-center gap-2">
-                {/* 시작일 */}
-                <div className="custom-date-container">
+                
+                {/* 시작일 영역 */}
+                <div className="group relative flex items-center w-[130px]"> {/* 너비 고정으로 안정감 부여 */}
                   <input 
                     type="date" 
                     value={startDate} 
+                    max={endDate}
                     onChange={(e) => {
                       setStartDate(e.target.value);
                       setCurrentPage(1);
                     }} 
-                    className="custom-date-input" 
+                    // appearance-none을 통해 브라우저 기본 아이콘 제거 시도
+                    // pr-7을 주어 글자가 절대 아이콘을 침범하지 못하게 함
+                    className="custom-date-input w-full outline-none bg-transparent pr-7 cursor-pointer text-body-m" 
                   />
-                  <Calendar size={18} className="custom-date-icon text-graygray-30 transition-colors absolute right-0 pointer-events-none" />
+                  <Calendar 
+                    size={16} 
+                    className="absolute right-0 text-graygray-30 transition-colors 
+                              group-hover:text-admin-primary 
+                              group-focus-within:text-admin-primary 
+                              pointer-events-none" 
+                  />
                 </div>
 
                 <span className="text-graygray-30 mx-1">-</span>
 
-                {/* 종료일 */}
-                <div className="custom-date-container">
+                {/* 종료일 영역 */}
+                <div className="group relative flex items-center w-[130px]">
                   <input 
                     type="date" 
                     value={endDate} 
+                    min={startDate}
                     onChange={(e) => {
                       setEndDate(e.target.value);
                       setCurrentPage(1);
                     }} 
-                    className="custom-date-input" 
+                    className="custom-date-input w-full outline-none bg-transparent pr-7 cursor-pointer text-body-m" 
                   />
-                  <Calendar size={18} className="custom-date-icon text-graygray-30 transition-colors absolute right-0 pointer-events-none" />
+                  <Calendar 
+                    size={16} 
+                    className="absolute right-0 text-graygray-30 transition-colors 
+                              group-hover:text-admin-primary 
+                              group-focus-within:text-admin-primary 
+                              pointer-events-none" 
+                  />
                 </div>
+                
               </div>
             </div>
           </AdminSearchBox>

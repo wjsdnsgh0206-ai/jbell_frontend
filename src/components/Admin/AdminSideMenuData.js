@@ -78,6 +78,7 @@ export const ADMIN_MENU_DATA = {
       items: [
         { name: "보도자료 관리", path: "/admin/contents/pressRelList" },
         { name: "공지사항 관리", path: "/admin/contents/adminBoardList" },
+        { name: "시민안전교육 관리", path: "/admin/contents/safetyEduList" },
       ],
     },
     {
