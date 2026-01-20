@@ -244,6 +244,7 @@ const AdminMemberList = () => {
                     <th className="p-3">이름</th>
                     <th className="p-3">전화번호</th>
                     <th className="p-3">주소검색</th>
+                    <th className="p-3">휴면 계정 여부</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -259,6 +260,17 @@ const AdminMemberList = () => {
                         <td className="p-3">{item.memberName}</td>
                         <td className="p-3 truncate max-w-xs">{item.memberTelNum}</td>
                         <td className="p-3">{item.memberRegion}</td>
+                        <td className="p-3">
+                            {item.isDormant ? (
+                                <span className="px-2 py-1 text-xs rounded bg-gray-200 text-gray-700">
+                                휴면
+                                </span>
+                            ) : (
+                                <span className="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
+                                활성
+                                </span>
+                            )}
+                        </td>
                     </tr>
                 ))}
                 </tbody>

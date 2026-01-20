@@ -44,16 +44,7 @@ const AdminMemberDetail = () => {
             <div className="max-w-4xl mx-auto">
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-2xl font-bold text-gray-800">회원 상세 관리</h1>
-                    <div className="flex gap-2">
-                        <button 
-                            onClick={() => setIsEdit(!isEdit)}
-                            className={`px-5 py-2 rounded-lg font-medium transition ${
-                                isEdit ? 'bg-gray-500 text-white' : 'bg-indigo-600 text-white'
-                            }`}
-                        >
-                            {isEdit ? '수정 취소' : '수정 모드'}
-                        </button>
-                    </div>
+                    
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -70,7 +61,18 @@ const AdminMemberDetail = () => {
                                 <div key={field.name} className="flex flex-col md:flex-row md:items-center border-b border-gray-100 pb-4 last:border-0">
                                     <label className="md:w-1/4 text-sm font-semibold text-gray-500">{field.label}</label>
                                     <div className="md:w-3/4 mt-1 md:mt-0">
-                                        {isEdit && !field.readOnly ? (
+                                        {isEdit && !field.readOnly ? 
+                                            field.name === 'memberRole' ? (
+                                            <select
+                                            name={field.name}
+                                            value={field.value}
+                                            onChange={handleInputChange}
+                                            className="w-full px-3 py-2 border rounded-md"
+                                            >
+                                            <option value="USER">사용자</option>
+                                            <option value="ADMIN">관리자</option>
+                                            </select>
+                                        ) :(
                                             <input
                                                 type="text"
                                                 name={field.name}
@@ -85,8 +87,18 @@ const AdminMemberDetail = () => {
                                 </div>
                             ))}
                         </div>
+                        <div class="flex justify-center">
+                            <button 
+                                onClick={() => setIsEdit(!isEdit)}
+                                className={`px-5 py-2 rounded-lg font-medium transition ${
+                                isEdit ? 'bg-gray-500 text-white' : 'bg-indigo-600 text-white'
+                                }`}
+                            >
+                                {isEdit ? '수정 취소' : '수정 모드'}
+                            </button>
+                        </div>
                     </div>
-
+      
                     <div className="bg-gray-50 px-8 py-4 flex justify-between items-center">
                         <button 
                             onClick={() => navigate(-1)}
@@ -96,15 +108,6 @@ const AdminMemberDetail = () => {
                         </button>
                         
                         <div className="flex gap-3">
-                                {!isEdit && (
-                                    <button
-                                    onClick={() => setIsEdit(true)}
-                                    className="px-5 py-2 bg-indigo-600 text-white rounded-lg"
-                                    >
-                                    수정 모드
-                                    </button>
-                                )}
-
                                 {isEdit && (
                                     <>
                                     <button
@@ -113,27 +116,15 @@ const AdminMemberDetail = () => {
                                     >
                                         변경사항 저장
                                     </button>
-
                                     <button
                                         onClick={handleDeleteClick}
                                         className="px-6 py-2 bg-red-600 text-white rounded-lg"
                                     >
                                         회원 삭제
                                     </button>
-
-                                    <button
-                                        onClick={() => {
-                                        setFormData({ ...item });
-                                        setIsEdit(false);
-                                        }}
-                                        className="px-6 py-2 bg-gray-400 text-white rounded-lg"
-                                    >
-                                        수정 취소
-                                    </button>
                                     </>
                                 )}
                             </div>
-
                     </div>
                 </div>
             </div>
