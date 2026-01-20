@@ -19,7 +19,7 @@ const sluiceApi = axios.create({ baseURL: "/sluice-api" }); // 댐수문 api
 const landSlideWarningApi = axios.create({ baseURL: "/landSlideWarning-api" });
 const weatherWarningApi = axios.create({ baseURL: "/weatherWarning-api" }); // 기상특보 api
 const forestFireWarningApi = axios.create({ baseURL: "/forestFireWarning-api"}); // 산불위험예보정보 api
-
+const accidentNewsApi = axios.create({ baseURL: "/accidentNews-api"}); // 도로교통 정보 api
 
 export const userService = {
   // 유저 정보 가져오기 (기존 8080 서버)
@@ -65,9 +65,31 @@ export const facilityService = {
 
 
 
+
+
+
+/* =========================================================
+   날씨 관련 API - 최지영 * 건드리지 말 것 *
+========================================================= */
+export const weatherService = {
+  // 기본적인 날씨 정보
+  getWeather: async (params) => {
+    const response = await weatherApi.get("/weather", { params });
+    return response.data;
+  },
+  // 미세먼지 정보
+  getWeatherDust: async (params) => {
+    const response = await weatherApi.get("/air_pollution", { params });
+    return response.data;
+  }
+}
+
+
+
 /* =========================================================
    재난 · 지진 관련 API - 최지영 * 건드리지 말 것 *
 ========================================================= */
+
 export const disasterModalService = {
   /* -----------------------------
      재난문자 (CBS)
@@ -200,7 +222,7 @@ export const disasterModalService = {
 getLandSlideWarning: async (params) => {
       const response = await landSlideWarningApi.get('/forecastIssueList', {
         params: {
-          serviceKey: '2e572cb46f96a219ef27c211707e7875f4791d19b01a025e64cab130ec2cfcc1',
+          serviceKey: import.meta.env.VITE_LANDSLIDE_WARNING_SERVICE_KEY,
           pageNo: params.pageNo || 1,
           numOfRows: params.numOfRows || 10,
           _type: 'json', // JSON으로 받기 위해 설정
@@ -209,4 +231,17 @@ getLandSlideWarning: async (params) => {
       });
       return response.data;
   },
+
+  getAccidentNews: async (params) => {
+    const response = await accidentNewsApi.get('/eventInfo', {
+      params: {
+        apiKey: import.meta.env.VITE_API_DISATER_ACCIDENTNEWS_KEY,
+        type: params?.type || 'all',       // 도로 유형 (기본값: 전체)
+        eventType: params?.eventType || 'all', // 이벤트 유형 (기본값: 전체)
+        getType: 'json',                   // 결과 형식 (JSON 고정)
+        ...params,                         // 추가적인 파라미터(minX, minY 등) 대응
+      }
+    });
+    return response.data;
+  }
 };
