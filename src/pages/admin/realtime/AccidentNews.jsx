@@ -1,9 +1,11 @@
+'use no memo';
+
 // src/pages/admin/behavioralGuide/BehavioralGuideList.jsx
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { ChevronDown } from 'lucide-react';
 
-// [데이터] 바뀐 이름으로 임포트
+// [데이터]
 import { AccidentNewsData } from './AccidentNewsData';
 
 // [공통 컴포넌트]
@@ -27,8 +29,8 @@ const AccidentNews = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  // 사용자 코드 카테고리에 맞춰 "all", "재난", "공사", "기타돌발"로 관리
   const [selectedCategory, setSelectedCategory] = useState("all"); 
-  const [selectedType, setSelectedType] = useState("all"); 
   const [searchParams, setSearchParams] = useState({ keyword: '' });
   const [appliedKeyword, setAppliedKeyword] = useState('');
 
@@ -40,34 +42,19 @@ const AccidentNews = () => {
     if (setBreadcrumbTitle) setBreadcrumbTitle("");
   }, [setBreadcrumbTitle]);
 
-  // 카테고리가 바뀌면 유형 초기화
-  useEffect(() => {
-    setSelectedType("all");
-  }, [selectedCategory]);
-
   const goDetail = useCallback((id) => {
     navigate(`/admin/contents/accidentNewsDetail/${id}`);
   }, [navigate]);
 
   // ==================================================================================
-  // 2. 필터 옵션 추출
+  // 2. 필터 옵션 (사용자 페이지 카테고리와 동기화)
   // ==================================================================================
-  const categoryOptions = useMemo(() => {
-    const categories = (AccidentNewsData || []).map(item => ({
-      value: item.category,
-      label: item.categoryName
-    }));
-    const unique = categories.filter((opt, idx, self) => idx === self.findIndex((t) => t.value === opt.value));
-    return [{ value: "all", label: "구분 전체" }, ...unique];
-  }, []);
-
-  const typeOptions = useMemo(() => {
-    if (selectedCategory === "all") return [{ value: "all", label: "유형 전체" }];
-    const filtered = (AccidentNewsData || []).filter(item => item.category === selectedCategory);
-    const options = filtered.map(item => ({ value: item.type, label: item.typeName }));
-    const unique = options.filter((opt, idx, self) => idx === self.findIndex((t) => t.value === opt.value));
-    return [{ value: "all", label: "유형 전체" }, ...unique];
-  }, [selectedCategory]);
+  const categoryOptions = [
+    { value: "all", label: "구분 전체" },
+    { value: "재난", label: "🚨 재난 / 사고" },
+    { value: "공사", label: "🚧 도로 공사" },
+    { value: "기타돌발", label: "ℹ️ 기타 돌발" }
+  ];
 
   // ==================================================================================
   // 3. 데이터 가공 (필터링 & 검색)
@@ -76,17 +63,18 @@ const AccidentNews = () => {
     const searchTerm = appliedKeyword.replace(/\s+/g, "").toLowerCase();
     
     return guides.filter(item => {
+      // 사용자 단의 category 필드 기준으로 필터링
       const isCategoryMatch = selectedCategory === "all" || item.category === selectedCategory;
-      const isTypeMatch = selectedType === "all" || item.type === selectedType;
       
-      if (!searchTerm) return isCategoryMatch && isTypeMatch;
+      if (!searchTerm) return isCategoryMatch;
 
-      const targetString = [item.categoryName, item.typeName, item.title, item.actRmks]
+      // 검색 대상에 위치(roadName) 정보 추가
+      const targetString = [item.type, item.content, item.roadName]
         .join("").replace(/\s+/g, "").toLowerCase();
         
-      return isCategoryMatch && isTypeMatch && targetString.includes(searchTerm);
+      return isCategoryMatch && targetString.includes(searchTerm);
     }).sort((a, b) => new Date(b.date) - new Date(a.date));
-  }, [guides, appliedKeyword, selectedCategory, selectedType]);
+  }, [guides, appliedKeyword, selectedCategory]);
 
   const currentData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -94,13 +82,14 @@ const AccidentNews = () => {
   }, [currentPage, filteredData, itemsPerPage]);
 
   // ==================================================================================
-  // 4. 테이블 컬럼 정의
+  // 4. 테이블 컬럼 정의 (위치 정보 및 사용자 단 필드 반영)
   // ==================================================================================
   const columns = useMemo(() => [
     { key: 'id', header: 'No', width: '60px', className: 'text-center' },
-    { key: 'categoryName', header: '재난구분', width: '120px', className: 'text-center' },
-    { key: 'typeName', header: '재난유형', width: '120px', className: 'text-center' },
-    { key: 'title', header: '제목', className: 'text-left font-bold' },
+    { key: 'category', header: '구분', width: '100px', className: 'text-center' },
+    { key: 'type', header: '유형', width: '120px', className: 'text-center' },
+    { key: 'content', header: '사고내용(메시지)', className: 'text-left font-bold' },
+    { key: 'roadName', header: '발생장소', width: '150px', className: 'text-center' },
     { 
       key: 'visible', 
       header: '노출여부', 
@@ -117,7 +106,7 @@ const AccidentNews = () => {
         </div>
       )
     },
-    { key: 'date', header: '등록일', width: '120px', className: 'text-center text-gray-500' },
+    { key: 'date', header: '발생일시', width: '150px', className: 'text-center text-gray-500' },
     {
         key: 'actions',
         header: '상세/수정',
@@ -135,7 +124,7 @@ const AccidentNews = () => {
   // 5. 핸들러 (Handlers)
   // ==================================================================================
   const handleSearch = () => { setAppliedKeyword(searchParams.keyword); setCurrentPage(1); };
-  const handleReset = () => { setSearchParams({ keyword: '' }); setAppliedKeyword(''); setSelectedCategory("all"); setSelectedType("all"); setCurrentPage(1); };
+  const handleReset = () => { setSearchParams({ keyword: '' }); setAppliedKeyword(''); setSelectedCategory("all"); setCurrentPage(1); };
 
   const handleToggleVisible = (id, currentStatus) => {
     const nextStatus = !currentStatus;
@@ -170,7 +159,7 @@ const AccidentNews = () => {
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
       <main className="p-10">
         <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight">
-          사고속보 목록
+          사고속보 관리
         </h2>
         
         {/* 검색 섹션 */}
@@ -182,26 +171,14 @@ const AccidentNews = () => {
             onReset={handleReset}
           >
             <div className="flex gap-4">
-              {/* 1단 필터 */}
-              <div className="relative w-full md:w-48">
+              {/* 카테고리 필터 - 사용자 페이지와 동일하게 구성 */}
+              <div className="relative w-full md:w-56">
                 <select
                   value={selectedCategory}
                   onChange={(e) => { setSelectedCategory(e.target.value); setCurrentPage(1); }}
                   className="w-full appearance-none h-14 pl-5 pr-8 text-body-m border border-admin-border rounded-md bg-white focus:border-admin-primary outline-none cursor-pointer"
                 >
                   {categoryOptions.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
-              </div>
-
-              {/* 2단 필터 */}
-              <div className="relative w-full md:w-48">
-                <select
-                  value={selectedType}
-                  onChange={(e) => { setSelectedType(e.target.value); setCurrentPage(1); }}
-                  className="w-full appearance-none h-14 pl-5 pr-8 text-body-m border border-admin-border rounded-md bg-white focus:border-admin-primary outline-none cursor-pointer"
-                >
-                  {typeOptions.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
               </div>
