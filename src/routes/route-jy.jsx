@@ -1,3 +1,4 @@
+// src/routes/route-jy.jsx
 import { lazy } from "react";
 import {
   AccidentNews,
@@ -6,6 +7,7 @@ import {
   LandSlide,
   Typhoon,
   ForestFire,
+  ColdWave,
 } from "@/components/user/disaster";
 
 import DisasterModalLayout from "@/layouts/user/disasterModal/DisasterModalLayout";
@@ -42,14 +44,15 @@ const disasterModal = [
     path: "/disaster",
     element: <DisasterModalLayout />,
     children: [
-      { index: true, element: <AccidentNews /> },
-      { path: "accident", element: <AccidentNews /> },
-      { path: "earthquake", element: <Earthquake /> },
-      { path: "flood", element: <Flood /> },
-      { path: "landSlide", element: <LandSlide /> },
-      { path: "typhoon", element: <Typhoon /> },
-      { path: "forestFire", element: <ForestFire /> },
-    ],
+      { index: true, element: <AccidentNews /> }, 
+      { path: "accident", element: <AccidentNews /> }, // 사고
+      { path: "earthquake", element: <Earthquake /> }, // 지진
+      { path: "flood", element: <Flood /> }, // 홍수
+      { path: "landSlide", element: <LandSlide /> }, // 산사태
+      { path: "typhoon", element: <Typhoon /> }, // 태풍
+      { path: "forestFire", element: <ForestFire /> }, // 산불
+      { path: "coldWave", element: <ColdWave /> }, // 한파
+    ]
   },
 ];
 

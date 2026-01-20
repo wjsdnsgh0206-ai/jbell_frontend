@@ -1,3 +1,4 @@
+// src/components/user/modal/CommonMap.jsx
 import React, { useState, useEffect } from "react";
 import { Map, MapMarker, CustomOverlayMap } from "react-kakao-maps-sdk";
 

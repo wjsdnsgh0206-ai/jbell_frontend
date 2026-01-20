@@ -1,20 +1,15 @@
-// src/components/user/disaster/Typhoon.jsx
+// src/components/user/disaster/ColdWave.jsx
 import React, { useState, useEffect } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
 import FacilityCheckGroup from "../modal/FacilityCheckGroup";
-import CommonMap from "@/components/user/modal/CommonMap"; // 공통 지도 엔진, 지도 컴포넌트 가정
-import useTyphoon from "@/hooks/user/useTyphoon"; // Hook 임포트
+import CommonMap from "@/components/user/modal/CommonMap"; 
+import useColdWave from "@/hooks/user/useColdWave"; 
 
-const Typhoon = () => {
-  // Hook 사용: 로직은 다 저기에 숨겨져 있음
-  const { disasterStatus, isLoading, fetchTyphoonData } = useTyphoon();
+const ColdWave = () => {
+  // ✅ 실시간 한파 데이터 로직이 담긴 전용 Hook
+  const { disasterStatus, markers, isLoading, fetchColdWaveData } = useColdWave();
 
-  // 태풍 관련 데이터 (예: 태풍 중심 위치, 예상 경로 지점들)
-  // const typhoonData = [
-  //   { lat: 34.5000, lng: 126.5000, title: "제1호 태풍 네파탁", content: "현재 위치: 서귀포 남쪽 약 300km 부근" },
-  // ];
-
-  const [activeTab, setActiveTab] = useState("태풍경로도");
+  const [activeTab, setActiveTab] = useState("한파 특보");
   const [facilities, setFacilities] = useState({
     shelter: true,
     hospital: false,
@@ -22,21 +17,27 @@ const Typhoon = () => {
   });
 
   const mapTabs = [
-    { id: "태풍 특보", label: "태풍 특보" },
-    { id: "태풍경로도", label: "태풍경로도" },
+    { id: "한파 특보", label: "한파 특보" },
     { id: "재난안전시설", label: "재난안전시설", hasArrow: true },
   ];
 
-  const typhoonItems = [
-    { id: "shelter", label: "대피소" },
+  const coldWaveItems = [
+    { id: "shelter", label: "한파쉼터" },
     { id: "hospital", label: "병원" },
     { id: "pharmacy", label: "약국" },
   ];
 
-  // 컴포넌트 마운트 시 데이터 호출
+  // ✅ 마운트 시 데이터 호출
   useEffect(() => {
-    fetchTyphoonData();
-  }, [fetchTyphoonData]);
+    fetchColdWaveData();
+  }, [fetchColdWaveData]);
+
+  // ✅ 콘솔 확인용 로그
+  useEffect(() => {
+    if (Object.keys(disasterStatus).length > 0) {
+      console.log("❄️ [한파 탭] 실시간 매핑 데이터:", disasterStatus);
+    }
+  }, [disasterStatus]);
 
   const handleTabClick = (tabId) =>
     setActiveTab((prev) => (prev === tabId ? null : tabId));
@@ -46,15 +47,16 @@ const Typhoon = () => {
   return (
     <div className="flex-1 flex flex-col min-h-0 gap-5 lg:gap-6">
       <div className="bg-white rounded-2xl p-4 lg:p-5 border border-gray-100 flex-1 flex flex-col min-h-0">
+        
         {/* 헤더 섹션 */}
         <div className="flex justify-between items-center mb-4 flex-shrink-0">
           <div className="flex items-center gap-2">
-            <h3 className="md:text-body-m-bold lg:text-title-m text-body-s-bold text-gray-900">
-              실시간 태풍정보
+            <h3 className="md:text-body-m-bold lg:text-title-m text-body-s-bold text-gray-900 font-bold">
+              실시간 한파정보
             </h3>
-            {/* 특보 현황 배지 */}
+            {/* 특보 발효 중일 때만 파란색 배지 노출 */}
             {Object.keys(disasterStatus).length > 0 ? (
-               <span className="rounded-xl font-bold bg-red-100 text-red-600 text-[10px] px-2.5 py-1 md:text-detail-s md:px-4 md:py-1.5">
+               <span className="rounded-xl font-bold bg-blue-100 text-blue-600 text-[10px] px-2.5 py-1 md:text-detail-s md:px-4 md:py-1.5">
                  특보 발효중
                </span>
             ) : (
@@ -63,27 +65,35 @@ const Typhoon = () => {
                </span>
             )}
           </div>
-          <p className="text-detail-xs md:text-detail-s text-gray-400">
-             {/* 오늘 날짜 표시 */}
-             {new Date().toISOString().slice(0, 10).replace(/-/g, '.')} 기준
-          </p>
+          
+          <div className="flex items-center gap-3">
+            <p className="text-detail-xs md:text-detail-s text-gray-400">
+              {new Date().toISOString().slice(0, 10).replace(/-/g, '.')} 기준
+            </p>
+            {/* 새로고침 버튼 (함수명 수정) */}
+            <button 
+              onClick={() => fetchColdWaveData()} 
+              className="px-2 py-1 border border-gray-300 rounded text-detail-s text-blue-600 hover:bg-gray-50 transition-colors"
+            >
+              새로고침
+            </button>
+          </div>
         </div>
 
         {/* 지도 영역 */}
         <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[400px] lg:min-h-0">
-          
           {isLoading ? (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-50/50 z-50">
-              로딩 중...
+              <span className="animate-pulse font-bold text-blue-500">실시간 데이터 수신 중...</span>
             </div>
           ) : (
             <CommonMap 
-              markers={[]} // 태풍 경로 마커가 있다면 여기에 (지금은 없음)
-              regionStatus={disasterStatus} // ★ 핵심: 지역별 색상 데이터 전달
+              markers={markers} // ✅ 여기에 마커 데이터를 넣어줍니다!
+              regionStatus={disasterStatus} 
             />
           )}
 
-          {/* 상단 탭 메뉴 (모바일 가로스크롤 / PC 세로) */}
+          {/* 탭 버튼 */}
           <div className="absolute top-3 left-0 right-0 px-3 lg:px-0 lg:top-5 lg:left-5 lg:right-auto flex lg:flex-col gap-2 z-20 overflow-x-auto no-scrollbar">
             {mapTabs.map((tab) => (
               <div key={tab.id} className="relative flex flex-col gap-2 flex-shrink-0 lg:flex-shrink">
@@ -105,11 +115,10 @@ const Typhoon = () => {
                   )}
                 </button>
 
-                {/* 재난안전시설 체크박스 그룹 */}
                 {tab.id === "재난안전시설" && activeTab === "재난안전시설" && (
                   <div className="absolute top-12 left-0 lg:static lg:mt-1">
                     <FacilityCheckGroup
-                      items={typhoonItems}
+                      items={coldWaveItems}
                       facilities={facilities}
                       onCheck={handleCheck}
                     />
@@ -119,14 +128,17 @@ const Typhoon = () => {
             ))}
           </div>
         </div>
-      </div>
 
-      {/* 하단 행동요령 */}
-      <div className="bg-white rounded-2xl p-5 lg:p-6 border border-gray-100 flex-shrink-0">
-        <ActionTipBox type="태풍" />
+        {/* 🔍 개발용 데이터 로그 뷰어 (콘솔을 보지 않아도 화면에서 즉시 확인 가능) */}
+        <div className="mt-4 p-4 bg-gray-900 rounded-lg overflow-auto max-h-[200px] border-l-4 border-green-500">
+          <p className="text-green-400 text-xs mb-2 font-mono font-bold">// 실시간 매핑 결과 (Mapping Table 적용됨)</p>
+          <pre className="text-white text-[10px] font-mono leading-relaxed">
+            {JSON.stringify(disasterStatus, null, 2)}
+          </pre>
+        </div>
       </div>
     </div>
   );
 };
 
-export default Typhoon;
+export default ColdWave;
