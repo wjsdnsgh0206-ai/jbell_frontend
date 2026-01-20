@@ -61,6 +61,8 @@ const FacilityList = () => {
         sortOrder: sortConfig.direction // 'ASC' 또는 'DESC'
       });
       
+      console.log(response)
+
       // key 경고 해결을 위해 id 추가
       const formattedList = (response.list || []).map(item => ({
         ...item,
