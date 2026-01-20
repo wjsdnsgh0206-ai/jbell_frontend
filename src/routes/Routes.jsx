@@ -19,6 +19,9 @@ import { shAdminRoutes } from "@/routes/admin/route-sh";
 import { mjAdminRoutes } from "@/routes/admin/route-mj";
 import { jhAdminRoutes } from "@/routes/admin/route-jh";
 import { bjAdminRoutes } from "@/routes/admin/route-bj";
+import { jyAdminRoutes } from "@/routes/admin/route-jy";
+import { ehAdminRoutes } from "@/routes/admin/route-eh";
+
 
 const AllRoutes = (props) => {
   // 1. 사용자 페이지 라우트 병합
@@ -35,10 +38,11 @@ const AllRoutes = (props) => {
   const allAdminRoutes = [
     // ...jyAdminRoutes,
     ...shAdminRoutes,
-    // ...ehAdminRoutes,
+    ...ehAdminRoutes,
     ...mjAdminRoutes,
     ...bjAdminRoutes,
     ...jhAdminRoutes,
+    ...jyAdminRoutes
   ];
 
   /* 2. 사이드바 종류별로 라우트 필터링.
@@ -116,7 +120,6 @@ const AllRoutes = (props) => {
           />
         ))}
       </Route>
-      myPageRoutes
       {/* --------------------------------------------------------- */}
       {/* 2. 마이페이지 레이아웃 그룹 */}
       {/* --------------------------------------------------------- */}

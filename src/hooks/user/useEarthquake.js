@@ -1,3 +1,4 @@
+// src/hooks/user/useEarthquake.js
 import { useState, useCallback, useMemo } from "react";
 import { XMLParser } from "fast-xml-parser";
 import { disasterModalService } from "@/services/api";
