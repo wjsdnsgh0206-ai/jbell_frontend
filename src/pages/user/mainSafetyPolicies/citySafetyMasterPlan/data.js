@@ -1,3 +1,4 @@
+// src/pages/user/mainSafetyPolicies/citySafetyMasterPlan/data.js
 export const citySafetyMasterPlanData = {
   // 1. 페이지 메타 정보
   meta: {

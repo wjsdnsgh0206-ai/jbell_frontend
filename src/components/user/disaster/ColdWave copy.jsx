@@ -1,20 +1,15 @@
-// src/components/user/disaster/Typhoon.jsx
+// src/components/user/disaster/ColdWave.jsx
 import React, { useState, useEffect } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
 import FacilityCheckGroup from "../modal/FacilityCheckGroup";
 import CommonMap from "@/components/user/modal/CommonMap"; // 공통 지도 엔진, 지도 컴포넌트 가정
-import useTyphoon from "@/hooks/user/useTyphoon"; // Hook 임포트
+import useColdWave from "@/hooks/user/useColdWave"; // Hook 임포트
 
-const Typhoon = () => {
+const ColdWave = () => {
   // Hook 사용: 로직은 다 저기에 숨겨져 있음
-  const { disasterStatus, isLoading, fetchTyphoonData } = useTyphoon();
+  const { disasterStatus, isLoading, fetchColdWaveData } = useColdWave();
 
-  // 태풍 관련 데이터 (예: 태풍 중심 위치, 예상 경로 지점들)
-  // const typhoonData = [
-  //   { lat: 34.5000, lng: 126.5000, title: "제1호 태풍 네파탁", content: "현재 위치: 서귀포 남쪽 약 300km 부근" },
-  // ];
-
-  const [activeTab, setActiveTab] = useState("태풍경로도");
+  const [activeTab, setActiveTab] = useState("한파경로도");
   const [facilities, setFacilities] = useState({
     shelter: true,
     hospital: false,
@@ -22,21 +17,28 @@ const Typhoon = () => {
   });
 
   const mapTabs = [
-    { id: "태풍 특보", label: "태풍 특보" },
-    { id: "태풍경로도", label: "태풍경로도" },
+    { id: "한파 특보", label: "한파 특보" },
     { id: "재난안전시설", label: "재난안전시설", hasArrow: true },
   ];
 
-  const typhoonItems = [
-    { id: "shelter", label: "대피소" },
+  const coldWaveItems = [
+    { id: "shelter", label: "한파쉼터" },
     { id: "hospital", label: "병원" },
     { id: "pharmacy", label: "약국" },
   ];
 
   // 컴포넌트 마운트 시 데이터 호출
   useEffect(() => {
-    fetchTyphoonData();
-  }, [fetchTyphoonData]);
+    fetchColdWaveData();
+  }, [fetchColdWaveData]);
+
+  // 데이터 변경 시마다 콘솔에 상세 로그 출력
+  useEffect(() => {
+    if (Object.keys(disasterStatus).length > 0) {
+      console.log("❄️ [한파 탭] 실시간 매핑 데이터 확인:");
+      console.table(disasterStatus); // 테이블 형태로 예쁘게 출력
+    }
+  }, [disasterStatus]);
 
   const handleTabClick = (tabId) =>
     setActiveTab((prev) => (prev === tabId ? null : tabId));
@@ -50,7 +52,7 @@ const Typhoon = () => {
         <div className="flex justify-between items-center mb-4 flex-shrink-0">
           <div className="flex items-center gap-2">
             <h3 className="md:text-body-m-bold lg:text-title-m text-body-s-bold text-gray-900">
-              실시간 태풍정보
+              실시간 한파정보
             </h3>
             {/* 특보 현황 배지 */}
             {Object.keys(disasterStatus).length > 0 ? (
@@ -78,7 +80,7 @@ const Typhoon = () => {
             </div>
           ) : (
             <CommonMap 
-              markers={[]} // 태풍 경로 마커가 있다면 여기에 (지금은 없음)
+              markers={[]} // 한파 경로 마커가 있다면 여기에 (지금은 없음)
               regionStatus={disasterStatus} // ★ 핵심: 지역별 색상 데이터 전달
             />
           )}
@@ -109,7 +111,7 @@ const Typhoon = () => {
                 {tab.id === "재난안전시설" && activeTab === "재난안전시설" && (
                   <div className="absolute top-12 left-0 lg:static lg:mt-1">
                     <FacilityCheckGroup
-                      items={typhoonItems}
+                      items={coldWaveItems}
                       facilities={facilities}
                       onCheck={handleCheck}
                     />
@@ -123,10 +125,10 @@ const Typhoon = () => {
 
       {/* 하단 행동요령 */}
       <div className="bg-white rounded-2xl p-5 lg:p-6 border border-gray-100 flex-shrink-0">
-        <ActionTipBox type="태풍" />
+        <ActionTipBox type="한파" />
       </div>
     </div>
   );
 };
 
-export default Typhoon;
+export default ColdWave;

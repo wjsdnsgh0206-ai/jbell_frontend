@@ -16,15 +16,31 @@ const UserFooter = () => {
     { text: "저작권정책", isHighlighted: false },
   ];
 
+  // 1. 기존 스크롤 함수 복사
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <footer className="w-full bg-graygray-10 border-t border-graygray-30">
       <div className="w-full max-w-screen-xl mx-auto flex flex-col gap-6 px-4 py-8 lg:px-8">
         
-        {/* 1. 로고 영역 */}
-        <Link to="/" className="inline-block w-fit">
+        {/* 2. Link 대신 일반 클릭 이벤트로 활용하거나, 
+               Link를 유지하고 싶다면 아래처럼 작성하세요 */}
+        <Link 
+          to="/" 
+          onClick={(e) => {
+            // 메인 페이지일 경우 페이지 이동 없이 스크롤만 올리려면 아래 주석 해제
+            // e.preventDefault(); 
+            scrollToTop();
+          }} 
+          className="inline-block w-fit"
+        >
           <img
-            // w-36(144px) ~ w-44(176px)로 반응형 대응
-            className="w-36 md:w-44 h-auto"
+            className="w-36 md:w-44 h-auto cursor-pointer"
             alt="전북안전누리 로고"
             src="src/assets/logo/jeonbuk_safety_nuri_watermark.svg"
           />
