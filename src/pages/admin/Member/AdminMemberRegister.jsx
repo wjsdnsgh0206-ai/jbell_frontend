@@ -225,7 +225,7 @@ const AdminMemberRegister = () => {
                     />
                     <ErrorText msg={errors.memberTelNum} />
 
-                    <label className="block font-bold text-[16px] mb-3 text-[#111]">회원 주소지역</label>
+                    <label className="block font-bold text-[16px] mb-3 text-[#111]">회원 주소</label>
                     <select
                         name="memberRegion"
                         value={memberForm.memberRegion}

@@ -68,7 +68,7 @@ const AdminMemberDetail = () => {
                                 { label: '아이디', name: 'memberId', value: formData.memberId, readOnly: true },
                                 { label: '이름', name: 'memberName', value: formData.memberName },
                                 { label: '전화번호', name: 'memberTelNum', value: formData.memberTelNum },
-                                { label: '주소지역', name: 'memberRegion', value: formData.memberRegion },
+                                { label: '주소', name: 'memberRegion', value: formData.memberRegion },
                                 { label: '등급', name: 'memberRole', value: formData.memberRole },
                             ].map((field) => (
                                 <div key={field.name} className="flex flex-col md:flex-row md:items-center border-b border-gray-100 pb-4 last:border-0">
@@ -140,7 +140,7 @@ const AdminMemberDetail = () => {
                                 isEdit ? 'bg-gray-500 text-white' : 'bg-indigo-600 text-white'
                                 }`}
                             >
-                                {isEdit ? '수정 취소' : '수정 모드'}
+                                {isEdit ? '수정 취소' : '수정하기'}
                             </button>
                         </div>
                     </div>
