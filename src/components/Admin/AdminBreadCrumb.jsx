@@ -8,6 +8,8 @@ const adminMap = {
   "realtime": "실시간 정보 관리",
   "realtimeDashboard": "대시보드",
   "accidentNews": "사고속보 관리",
+  "accidentNewsDetail": "사고속보 상세",
+  "accidentNewsAdd": "사고속보 등록",
   "disaster": "재난 관리",
   "contents": "콘텐츠 관리",
   "behavioralGuide": "행동요령 관리",
