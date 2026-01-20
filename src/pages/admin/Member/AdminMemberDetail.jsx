@@ -43,7 +43,7 @@ const AdminMemberDetail = () => {
         <div className="p-8 bg-gray-50 min-h-screen">
             <div className="max-w-4xl mx-auto">
                 <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-2xl font-bold text-gray-800">회원 상세 관리</h1>
+                    <h1 className="text-2xl font-bold text-gray-800">회원 상세 조회</h1>
                     
                 </div>
 
@@ -86,7 +86,40 @@ const AdminMemberDetail = () => {
                                     </div>
                                 </div>
                             ))}
+
+                                <label className="md:w-1/4 text-sm font-semibold text-gray-500">
+                                    휴면 계정 활성화 여부
+                                </label>
+                                <div className="md:w-3/4 flex items-center">
+                                    <button
+                                    type="button"
+                                    disabled={!isEdit}
+                                    onClick={() =>
+                                        isEdit &&
+                                        setFormData(prev => ({
+                                        ...prev,
+                                        memberActive: !prev.memberActive,
+                                        }))
+                                    }
+                                    className={`relative inline-flex h-7 w-14 rounded-full transition
+                                        ${formData.memberActive ? 'bg-green-500' : 'bg-gray-300'}
+                                        ${!isEdit && 'opacity-50 cursor-not-allowed'}
+                                    `}
+                                    >
+                                    <span
+                                        className={`inline-block w-6 h-6 bg-white rounded-full transform transition
+                                        ${formData.memberActive ? 'translate-x-7' : 'translate-x-1'}
+                                        `}
+                                    />
+                                    </button>
+                                    <span className="ml-3 text-sm font-medium">
+                                    {formData.memberActive ? '활성' : '휴면'}
+                                    </span>
+                                </div>
+                           
+
                         </div>
+
                         <div class="flex justify-center">
                             <button 
                                 onClick={() => setIsEdit(!isEdit)}
