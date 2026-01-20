@@ -15,8 +15,8 @@ const AdminDataTable = ({
   data = [], 
   selectedIds = [], 
   onSelectionChange, 
-  onRowClick, 
-  rowkey = 'id',
+  onRowClick,
+  rowKey = 'contentId'
 }) => {
 
   // [로직] 전체 선택/해제 핸들러
