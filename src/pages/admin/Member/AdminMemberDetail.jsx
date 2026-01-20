@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { useLocation, useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useParams, useNavigate, useOutletContext } from 'react-router-dom';
 
 const AdminMemberDetail = () => {
     const { memberId } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
+    const { setBreadcrumbTitle } = useOutletContext();
 
     // 수정 모드 상태 관리
     const [isEdit, setIsEdit] = useState(false);
@@ -12,6 +13,18 @@ const AdminMemberDetail = () => {
 
     // 수정 입력값 상태 관리
     const [formData, setFormData] = useState({ ...item });
+
+    // 2. 브레드크럼 설정을 위한 useEffect 추가
+    useEffect(() => {
+        if (item?.memberName) {
+            setBreadcrumbTitle(`${item.memberName} 회원 상세`);
+        } else {
+            setBreadcrumbTitle("회원 상세 조회");
+        }
+
+        // 컴포넌트 언마운트 시 제목 초기화
+        return () => setBreadcrumbTitle("");
+    }, [item, setBreadcrumbTitle]);
 
     if (!item) {
         return (
@@ -120,7 +133,7 @@ const AdminMemberDetail = () => {
 
                         </div>
 
-                        <div class="flex justify-center">
+                        <div className="flex justify-center">
                             <button 
                                 onClick={() => setIsEdit(!isEdit)}
                                 className={`px-5 py-2 rounded-lg font-medium transition ${
