@@ -246,7 +246,7 @@ export const disasterModalService = {
     });
     return response.data;
   },
-  
+
   /* -----------------------------
      [NEW] 특보코드조회 (getPwnCd) - 태풍/한파/호우 등
      params: warningType(2: 호우, 3:한파, 7:태풍), areaCode(선택)
@@ -255,9 +255,10 @@ export const disasterModalService = {
     const response = await kmaWarningApi.get("/getPwnCd", {
       params: {
         serviceKey: import.meta.env.VITE_API_KMA_WARNING_KEY, // .env에 키 추가 필요
-        numOfRows: 200, // 전북 전체 시군구를 커버하기 위해 넉넉히
+        numOfRows: 500, // 전북 전체 시군구를 커버하기 위해 넉넉히
         pageNo: 1,
         dataType: "JSON",
+        fromTmFc: "20260114", // 오늘 기준 6일 전까지만 조회 가능
         ...params, // warningType 등 넘어옴
       },
     });
