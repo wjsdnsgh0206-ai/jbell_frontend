@@ -172,7 +172,7 @@ export default FacilityUpdate;
 
 
 
-
+// 보류
 // import React, { useState } from 'react';
 
 // const FacilityForm = ({ initialData, isEdit = false }) => {
