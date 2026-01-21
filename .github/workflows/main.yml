@@ -46,6 +46,13 @@ jobs:
           ${{ secrets.ENV_PRODUCTION }}
           EOF
       - run : cat ./.env.production
+      - run : touch ./.env
+      - name: Create .env
+        run: |
+          cat << 'EOF' > .env
+          ${{ secrets.ENV_PRODUCTION }}
+          EOF
+      - run : cat ./.env
       - run : ls -al
 
       # 3. 의존성 설치 (yarn 또는 npm 중 선택)
