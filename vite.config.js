@@ -170,7 +170,7 @@ export default defineConfig(({ mode }) => {
 
         // 산불위험예보정보  api
         "/forestFireWarning-api": {
-          target: "http://apis.data.go.kr/1400377/forestPoint",
+          target: "https://apis.data.go.kr/1400377/forestPoint",
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/forestFireWarning-api/, ""),
         },
@@ -200,7 +200,7 @@ export default defineConfig(({ mode }) => {
 
         // 기상청 기상특보 조회서비스 (getPwnCd용)
         "/kma-warning-api": {
-          target: "http://apis.data.go.kr/1360000/WthrWrnInfoService",
+          target: "https://apis.data.go.kr/1360000/WthrWrnInfoService",
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/kma-warning-api/, ""),
         },
