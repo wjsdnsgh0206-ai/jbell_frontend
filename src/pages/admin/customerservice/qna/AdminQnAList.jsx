@@ -340,7 +340,7 @@ const AdminQnAList = () => {
             <div className="flex gap-2">
                <button 
                 onClick={handleDeleteSelected} 
-                className="px-6 h-12 bg-[#FF3B30] text-white rounded-md font-bold text-sm hover:bg-[#D63025] transition-all shadow-sm"
+                className="px-8 h-14 bg-[#FF3B30] text-white rounded-md font-bold text-sm hover:bg-[#D63025] transition-all shadow-sm"
               >
                 삭제
               </button>

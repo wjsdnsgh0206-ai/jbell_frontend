@@ -324,13 +324,13 @@ const AdminFAQList = () => {
             <div className="flex gap-2">
                <button 
                 onClick={handleDeleteSelected} 
-                className="px-6 h-12 bg-red-500 text-white rounded-md font-bold text-sm hover:bg-red-600 transition-all shadow-sm"
+                className="px-8 h-14 bg-red-500 text-white rounded-md font-bold text-sm hover:bg-red-600 transition-all shadow-sm"
               >
                 삭제
               </button>
               <button 
                 onClick={() => navigate('/admin/contents/FAQAdd')}
-                className="px-6 h-12 bg-blue-600 text-white rounded-md font-bold text-sm hover:bg-blue-700 transition-all shadow-sm flex items-center gap-2"
+                className="px-8 h-14 bg-blue-600 text-white rounded-md font-bold text-sm hover:bg-blue-700 transition-all shadow-sm"
               >
                 등록
               </button>
