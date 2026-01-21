@@ -10,6 +10,11 @@ export const AdminGroupCodeEdit = lazy(() => import("@/pages/admin/codeManagemen
 export const AdminSubCodeEdit = lazy(() => import("@/pages/admin/codeManagement/AdminSubCodeEdit"));
 export const AdminPressRelList = lazy(() => import("@/pages/admin/pressManagement/AdminPressRelList"));
 export const AdminPressRelAdd = lazy(() => import("@/pages/admin/pressManagement/AdminPressRelAdd"));
+export const AdminPressRelDetail = lazy(() => import("@/pages/admin/pressManagement/AdminPressRelDetail"));
+export const AdminPressRelEdit = lazy(() => import("@/pages/admin/pressManagement/AdminPressRelEdit"));
+export const AdminSafetyEduList = lazy(() => import("@/pages/admin/safetyEducation/AdminSafetyEduList"));
+export const AdminSafetyEduEdit = lazy(() => import("@/pages/admin/safetyEducation/AdminSafetyEduEdit"));
+
 
 
 export const shAdminRoutes = [
@@ -77,6 +82,35 @@ export const shAdminRoutes = [
     element: <AdminPressRelAdd />,
     nowPage: "보도자료등록",
   },
+
+  // 보도자료관리 상세페이지 (콘텐츠관리 그룹- 홍보/자료 관리)
+   {
+    path: "/admin/contents/pressRelDetail/:id", 
+    element: <AdminPressRelDetail />,
+    nowPage: "보도자료상세",
+  },
+
+   // 보도자료관리 수정페이지 (콘텐츠관리 그룹- 홍보/자료 관리)
+   {
+    path: "/admin/contents/pressRelEdit/:id", 
+    element: <AdminPressRelEdit />,
+    nowPage: "보도자료수정",
+  },
+
+  // 시민안전교육관리 목록페이지 (콘텐츠관리 그룹- 홍보/자료 관리)
+   {
+    path: "/admin/contents/safetyEduList", 
+    element: <AdminSafetyEduList />,
+    nowPage: "시민안전교육목록",
+  },
+
+  // 시민안전교육관리 수정페이지 (콘텐츠관리 그룹- 홍보/자료 관리)
+   {
+    path: "/admin/contents/safetyEduEdit", 
+    element: <AdminSafetyEduEdit />,
+    nowPage: "시민안전교육수정",
+  },
+
 
 
 ];

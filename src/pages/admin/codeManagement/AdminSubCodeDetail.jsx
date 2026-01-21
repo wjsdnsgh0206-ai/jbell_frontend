@@ -2,6 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData'; 
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
+import { Calendar } from 'lucide-react';
+
+//  토스트용 성공 아이콘 컴포넌트 
+const SuccessIcon = ({ fill = "#4ADE80" }) => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <circle cx="8" cy="8" r="8" fill={fill}/>
+    <path d="M11 6L7 10L5 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
 
 const AdminSubCodeDetail = () => {
   const { id } = useParams();
@@ -9,6 +18,10 @@ const AdminSubCodeDetail = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  // 토스트 상태 
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     const found = AdminCommonCodeData.find(item => item.id === parseInt(id));
@@ -32,12 +45,38 @@ const AdminSubCodeDetail = () => {
   if (!formData) return null;
 
   const handleDelete = () => {
+    setIsDeleting(true); 
     setIsDeleteModalOpen(false);
-    navigate('/admin/system/commonCodeList');
+
+    // 실제 데이터 삭제 (ID 매칭 시 주의: AdminCommonCodeData 구조에 따라 필터링)
+    const index = AdminCommonCodeData.findIndex(item => item.id === parseInt(id));
+    if (index !== -1) {
+      AdminCommonCodeData.splice(index, 1);
+    }
+
+    setShowToast(true);
+
+    setTimeout(() => {
+      setShowToast(false);
+      navigate('/admin/system/commonCodeList');
+    }, 1500);
   };
+
+  if (!formData) return null;
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
+
+      {/* 토스트 알림 UI */}
+      {showToast && (
+        <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500">
+          <div className="bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-gray-700">
+            <SuccessIcon />
+            <span className="font-bold text-[16px]">상세 코드가 삭제되었습니다.</span>
+          </div>
+        </div>
+      )}
+
       <main className="p-10 text-left">
         <h2 className="text-[32px] font-bold mt-2 mb-2 tracking-tight">공통 코드 관리</h2>
         
@@ -45,19 +84,22 @@ const AdminSubCodeDetail = () => {
         <div className="flex justify-end gap-2 mb-6 max-w-[1000px]">
           <button 
             onClick={() => navigate('/admin/system/commonCodeList')}
-            className="px-6 py-2 border border-gray-300 bg-white text-[#333] rounded-md font-bold text-[15px] hover:bg-gray-50 shadow-sm transition-all"
+            className="px-6 py-2 border border-gray-300 bg-white text-[#333] rounded-md font-bold text-[15px] hover:bg-gray-50 shadow-sm transition-all disabled:opacity-50"
+            disabled={isDeleting}
           >
             목록
           </button>
           <button 
             onClick={() => setIsDeleteModalOpen(true)}
-            className="px-6 py-2 bg-[#E1421F] text-white rounded-md font-bold text-[15px] hover:bg-[#c1381a] shadow-sm transition-all"
+            className="px-6 py-2 bg-[#E1421F] text-white rounded-md font-bold text-[15px] hover:bg-[#c1381a] shadow-sm transition-all disabled:opacity-50"
+            disabled={isDeleting}
           >
             삭제
           </button>
           <button 
             onClick={() => navigate(`/admin/system/subCodeEdit/${id}`)}
-            className="px-6 py-2 bg-[#2563EB] text-white rounded-md font-bold text-[15px] hover:bg-blue-700 shadow-sm transition-all"
+            className="px-6 py-2 bg-[#2563EB] text-white rounded-md font-bold text-[15px] hover:bg-blue-700 shadow-sm transition-all disabled:opacity-50"
+            disabled={isDeleting}
           >
             수정
           </button>
@@ -136,26 +178,25 @@ const AdminSubCodeDetail = () => {
             </div>
             </div>
 
-            {/* 날짜: 수직 정렬 유지 */}
-            <div className="pt-10 border-t border-gray-100 space-y-10">
-              <div className="max-w-[500px]">
-                <label className="block font-bold text-[16px] mb-3 text-[#111]">등록 일시</label>
-                <input 
-                  value={formData.date || ''}
-                  readOnly
-                  className="w-full bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] outline-none cursor-default"
-                />
+            {/* 7. 로그 정보 (수정됨: 수정 페이지 스타일과 통일) */}
+            <div className="pt-10 border-t border-gray-100 flex flex-col space-y-8">
+              <div className="flex flex-col gap-2">
+                <label className="text-[14px] font-bold text-gray-400">등록 일시</label>
+                <div className="flex items-center gap-2 text-[#999] font-medium px-1">
+                  <Calendar size={16} className="text-gray-300" /> 
+                  {formData.date}
+                </div>
               </div>
-              <div className="max-w-[500px]">
-                <label className="block font-bold text-[16px] mb-3 text-[#111]">수정 일시</label>
-                <input 
-                  value={formData.editDate || formData.date || ''}
-                  readOnly
-                  className="w-full bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] outline-none cursor-default"
-                />
+
+              <div className="flex flex-col gap-2">
+                <label className="text-[14px] font-bold text-gray-400">수정 일시</label>
+                <div className="flex items-center gap-2 text-[#999] font-medium px-1">
+                  <Calendar size={16} className="text-gray-300" /> 
+                  {formData.editDate || formData.date}
+                </div>
               </div>
             </div>
-          </div>
+          </div> 
         </section>
       </main>
 
@@ -164,7 +205,7 @@ const AdminSubCodeDetail = () => {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}
         title="상세 코드를 삭제하시겠습니까?"
-        message="삭제된 코드는 복구할 수 없습니다."
+        message="삭제된 데이터는 복구할 수 없으며 즉시 삭제됩니다."
         type="delete"
       />
     </div>

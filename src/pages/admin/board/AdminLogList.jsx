@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import BreadCrumb from '@/components/Admin/board/BreadCrumb';
+import AdminBreadcrumb from '@/components/admin/AdminBreadCrumb';
 
 const AdminLogList = () => {
     /* <================ 데이터 및 상태 관리 ================> */
@@ -49,7 +49,7 @@ const AdminLogList = () => {
     return (
         <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
             <div className="p-6 bg-gray-50 min-h-screen">
-                <BreadCrumb />
+                <AdminBreadcrumb />
                 <h1 className="text-2xl font-bold mb-6">로그 관리</h1>
 
                 {/* 검색 바 영역 */}

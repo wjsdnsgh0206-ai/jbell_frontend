@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
@@ -22,7 +22,9 @@ const AdminSubCodeAdd = () => {
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(true); 
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
   const [formData, setFormData] = useState({ 
     groupCodeId: '', 
@@ -34,18 +36,46 @@ const AdminSubCodeAdd = () => {
   
   const [errors, setErrors] = useState({ groupCodeId: false, subCodeId: false, subName: false });
 
-  // 페이지 이탈 방지 로직 @@
+  // 1. [변경] 이탈 방지 트리거 변수
+  const isDirty = useMemo(() => {
+    return !!(formData.groupCodeId || formData.subCodeId.trim() || formData.subName.trim() || formData.desc.trim());
+  }, [formData]);
+
+  // 2. 뒤로가기 시 실행될 함수 (useCallback으로 메모이제이션)
+const handlePopState = useCallback(() => {
+  if (isDirty) {
+    window.history.pushState(null, "", window.location.href);
+    setIsCancelModalOpen(true);
+  }
+}, [isDirty]);
+
+// 3. 브라우저 뒤로가기 버튼 차단 로직 (handlePopState 의존성 추가)
+useEffect(() => {
+  if (!isDirty) {
+    window.removeEventListener('popstate', handlePopState);
+    return;
+  }
+
+  window.history.pushState(null, "", window.location.href);
+  window.addEventListener('popstate', handlePopState);
+
+  return () => {
+    window.removeEventListener('popstate', handlePopState);
+  };
+}, [isDirty, handlePopState]);
+
+  // 페이지 이탈 방지 로직
+  // 4. [변경] 새로고침/탭 닫기 차단
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      // 그룹 선택, 상세코드 ID, 상세코드명 중 하나라도 입력된 경우
-      if (formData.groupCodeId || formData.subCodeId || formData.subName || formData.desc) {
+      if (isDirty) {
         e.preventDefault();
         e.returnValue = ""; 
       }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [formData]);
+  }, [isDirty]);
 
   // 상위 그룹 코드 옵션 추출
   const groupOptions = useMemo(() => {
@@ -53,21 +83,35 @@ const AdminSubCodeAdd = () => {
     return uniqueGroups.map(([code, name]) => ({ code, name }));
   }, []);
 
-  // 상세 코드 ID 중복 체크
+  // 상세 코드 ID 및 명칭 중복 체크 (수정됨)
   const checkDuplicate = useMemo(() => {
     const targetSubId = formData.subCodeId.trim().toUpperCase();
-    if (!targetSubId) return { id: false };
+    const targetSubName = formData.subName.trim();
+    const targetGroupId = formData.groupCodeId;
+
+    if (!targetSubId || !targetGroupId) return { id: false, name: false };
+
+    // 1. ID 중복 체크: 같은 그룹 내에서만
     const isIdDup = AdminCommonCodeData.some(item => 
-      item.subCode !== '-' && item.subCode.toUpperCase() === targetSubId
+      item.groupCode === targetGroupId && 
+      item.subCode !== '-' && 
+      item.subCode.toUpperCase() === targetSubId
     );
-    return { id: isIdDup };
-  }, [formData.subCodeId]);
+
+    // 2. 명칭 중복 체크: 같은 그룹 내에서만 (추가됨)
+    const isNameDup = AdminCommonCodeData.some(item => 
+      item.groupCode === targetGroupId && 
+      item.subCode !== '-' && 
+      item.subName.trim() === targetSubName
+    );
+
+    return { id: isIdDup, name: isNameDup };
+  }, [formData.subCodeId, formData.subName, formData.groupCodeId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     
     if (name === "subCodeId") {
-      // 영문 대문자, 숫자, 언더바만 허용 및 20자 제한
       const transformedValue = value.toUpperCase().replace(/[^A-Z0-9_]/g, "").slice(0, 20);
       setFormData(prev => ({ ...prev, [name]: transformedValue }));
       setErrors(prev => ({ ...prev, subCodeId: false }));
@@ -91,16 +135,34 @@ const AdminSubCodeAdd = () => {
     }
   };
 
+  // 5. [확인] 취소 실행 로직
+  const confirmCancel = () => {
+    window.removeEventListener('popstate', handlePopState); // 리스너 제거
+    setIsCancelModalOpen(false);
+    setToastMessage("등록이 취소되었습니다.");
+    setShowToast(true);
+    setTimeout(() => navigate('/admin/system/commonCodeList'), 1000);
+  };
+
+  const handleCancel = () => {
+    if (isDirty) {
+      setIsCancelModalOpen(true);
+    } else {
+      navigate(-1);
+    }
+  };
+
   const handleSave = () => {
     const newErrors = {
       groupCodeId: !formData.groupCodeId,
       subCodeId: !formData.subCodeId.trim(),
-      subName: !formData.subName.trim()
+      subName: !formData.subName.trim(),
     };
     setErrors(newErrors);
 
-    if (Object.values(newErrors).some(Boolean) || checkDuplicate.id) {
-      alert("필수 입력 사항을 모두 작성해주세요.");
+    // 중복 체크 조건에 이름 중복(checkDuplicate.name) 추가
+    if (Object.values(newErrors).some(Boolean) || checkDuplicate.id || checkDuplicate.name) {
+      alert("필수 입력 사항을 모두 확인해주세요.");
       return;
     }
     setIsModalOpen(true);
@@ -108,6 +170,9 @@ const AdminSubCodeAdd = () => {
 
   const handleConfirmSave = () => {
     setIsModalOpen(false);
+
+    // 저장 프로세스 시작 시 리스너 확실히 제거
+  window.removeEventListener('popstate', handlePopState);
     const selectedGroup = groupOptions.find(g => g.code === formData.groupCodeId);
 
     const newEntry = {
@@ -123,18 +188,19 @@ const AdminSubCodeAdd = () => {
     };
 
     AdminCommonCodeData.unshift(newEntry);
+    setToastMessage("상세코드가 성공적으로 등록되었습니다.");
     setShowToast(true);
-    setTimeout(() => navigate('/admin/system/commonCodeList'), 1500);
-  };
+   // replace: true 옵션으로 히스토리 관리
+  setTimeout(() => navigate('/admin/system/commonCodeList', { replace: true }), 1500);
+};
 
   return (
     <div className="relative flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
-      {/* 토스트 메시지 */}
       {showToast && (
         <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500 transform translate-y-0">
           <div className="bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-gray-700">
             <SuccessIcon fill="#4ADE80" />
-            <span className="font-bold text-[16px]">상세코드가 성공적으로 등록되었습니다.</span>
+            <span className="font-bold text-[16px]">{toastMessage}</span>
           </div>
         </div>
       )}
@@ -204,7 +270,7 @@ const AdminSubCodeAdd = () => {
                 autoComplete="off"
                 placeholder="예: 읽기 권한"
                 className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${
-                  errors.subName ? 'border-[#E15141] ring-1 ring-red-50' : 'border-gray-300 focus:border-[#2563EB]'
+                  errors.subName || checkDuplicate.name ? 'border-[#E15141] ring-1 ring-red-50' : 'border-gray-300 focus:border-[#2563EB]'
                 }`}
               />
               <div className="flex justify-between mt-2">
@@ -212,6 +278,12 @@ const AdminSubCodeAdd = () => {
                 <span className="text-[12px] text-gray-400 font-medium">{formData.subName.length} / 20</span>
               </div>
               {errors.subName && <div className="text-[#E15141] text-sm mt-3 flex items-center gap-2 font-medium"><ErrorIcon /> 상세 코드명을 입력해주세요</div>}
+              {/* 명칭 중복 경고 메시지 추가 */}
+              {formData.subName && checkDuplicate.name && (
+                <div className="text-[#E15141] text-sm mt-3 flex items-center gap-2 font-medium">
+                  <ErrorIcon /> 동일한 그룹 내에 이미 존재하는 상세 코드명입니다
+                </div>
+              )}
             </div>
 
             {/* 4. 상세 코드 설명 */}
@@ -263,23 +335,11 @@ const AdminSubCodeAdd = () => {
           </div>
         </section>
 
-        {/* 하단 버튼 구역 */}
-        <div className="flex justify-end gap-2 mt-12 max-w-[1000px]">
-          <button 
-            type="button" 
-            onClick={() => navigate(-1)} 
-            className="px-8 py-3.5 border border-gray-300 rounded-lg font-bold text-[16px] text-gray-500 bg-white hover:bg-gray-50 transition-all shadow-sm"
-          >
-            취소
-          </button>
-          <button 
-            type="button" 
-            onClick={handleSave} 
-            className="px-8 py-3.5 bg-[#2563EB] text-white rounded-lg font-bold text-[16px] hover:bg-blue-700 shadow-md transition-all"
-          >
-            저장
-          </button>
-        </div>
+        {/* 하단 버튼 구역 수정 */}
+      <div className="flex justify-end gap-2 mt-12 max-w-[1000px]">
+        <button type="button" onClick={handleCancel} className="px-8 py-3.5 border border-gray-300 rounded-lg font-bold text-[16px] text-gray-500 bg-white hover:bg-gray-50 transition-all shadow-sm">취소</button>
+        <button type="button" onClick={handleSave} className="px-8 py-3.5 bg-[#2563EB] text-white rounded-lg font-bold text-[16px] hover:bg-blue-700 shadow-md transition-all">저장</button>
+      </div>
       </main>
 
       {/* 확인 모달 */}
@@ -290,6 +350,16 @@ const AdminSubCodeAdd = () => {
         title="상세코드를 저장하시겠습니까?" 
         message="작성하신 내용이 즉시 저장됩니다"
         type="save"
+      />
+
+      {/* 취소 확인 모달 */}
+      <AdminConfirmModal 
+        isOpen={isCancelModalOpen} 
+        onClose={() => setIsCancelModalOpen(false)} 
+        onConfirm={confirmCancel} 
+        title="등록을 취소하시겠습니까?" 
+        message="작성 중인 내용이 저장되지 않고 목록으로 이동합니다." 
+        type="delete" 
       />
     </div>
   );
