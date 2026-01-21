@@ -1,8 +1,8 @@
 import { lazy } from "react";
-export const AdminBoardList = lazy(() => import("@/pages/admin/Board/AdminBoardList"));
-export const AdminLogList = lazy(() => import("@/pages/admin/Board/AdminLogList"));
-export const AdminMemberList = lazy(() => import("@/pages/admin/Member/AdminMemberList"));
-export const AdminMemberRegister = lazy(() => import("@/pages/admin/Member/AdminMemberRegister"));
+export const AdminBoardList = lazy(() => import("@/pages/admin/board/AdminBoardList"));
+export const AdminLogList = lazy(() => import("@/pages/admin/board/AdminLogList"));
+export const AdminMemberList = lazy(() => import("@/pages/admin/member/AdminMemberList"));
+export const AdminMemberRegister = lazy(() => import("@/pages/admin/member/AdminMemberRegister"));
 
 
 // ------ 라우트 페이지 경로 입력 파일 ------ //
