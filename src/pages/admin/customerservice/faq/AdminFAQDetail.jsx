@@ -28,8 +28,20 @@ const AdminFAQDetail = () => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
+    // [핵심 변경 사항] content가 문자열(JSON String)로 오면 객체로 변환
+    let parsedContent = item.content;
+
+    if (typeof item.content === 'string') {
+      try {
+        parsedContent = JSON.parse(item.content);
+      } catch (error) {
+        console.error("Content 파싱 실패:", error);
+        parsedContent = []; // 에러 발생 시 빈 배열로 초기화하여 렌더링 오류 방지
+      }
+    }
     return {
       ...item,
+      content: parsedContent, // 변환된 객체 배열 할당
       createdAt: item.createdAt || new Date().toISOString(),
       updatedAt: item.updatedAt || new Date().toISOString(),
     };
