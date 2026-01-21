@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAccidentNews } from '@/hooks/user/useAccidentNews';
 import { RefreshCw, ChevronDown, AlertCircle, MapPin, Clock } from 'lucide-react';
 import CommonMap from "@/components/user/modal/CommonMap"; 
 
 const AccidentNews = () => {
-  const { accidents, isLoading, refetch } = useAccidentNews();
+  // accidents 데이터가 없을 경우를 대비해 기본값 빈 배열 설정
+  const { accidents = [], isLoading, refetch } = useAccidentNews();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState({ label: '전체 보기', value: '전체' });
   
@@ -21,36 +22,52 @@ const AccidentNews = () => {
     { label: '기타 돌발', value: '기타돌발' }
   ];
 
-  const filteredData = accidents.filter(item => 
-    selectedOption.value === '전체' ? true : item.category === selectedOption.value
-  );
+  // 1. 데이터 필터링 및 고유 ID 부여
+  // API에서 오는 ID가 중복되거나 없을 경우를 대비해 index를 조합한 절대 고유 ID를 미리 생성
+  const filteredData = useMemo(() => {
+    const data = Array.isArray(accidents) ? accidents : [];
+    return data
+      .filter(item => selectedOption.value === '전체' ? true : item.category === selectedOption.value)
+      .map((item, idx) => ({
+        ...item,
+        // 기존 id가 공백이거나 중복되어도 idx 덕분에 무조건 고유해짐
+        uniqueId: `${item.id?.toString().trim() || 'no-id'}-${idx}`
+      }));
+  }, [accidents, selectedOption.value]);
 
-  const mapMarkers = filteredData.map(item => ({
-    lat: item.lat,
-    lng: item.lng,
-    id: item.id,
-    content: `
-      <div style="padding: 10px; min-width: 200px;">
-        <div style="color: #ef4444; font-weight: bold; margin-bottom: 5px;">[${item.type}] ${item.detailType}</div>
-        <div style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">${item.content}</div>
-        <div style="font-size: 12px; color: #64748b;">
-          📍 ${item.roadName} (${item.direction})<br/>
-          🚧 ${item.blockedLanes} ${item.blockType}<br/>
-          ⏰ ${item.displayDate} 시작
+  // 2. 지도 마커 데이터 생성
+  const mapMarkers = useMemo(() => {
+    return filteredData.map(item => ({
+      lat: item.lat,
+      lng: item.lng,
+      id: item.uniqueId, // CommonMap으로 전달되는 핵심 ID
+      content: `
+        <div style="padding: 10px; min-width: 200px; font-family: sans-serif;">
+          <div style="color: #ef4444; font-weight: bold; margin-bottom: 5px;">[${item.type || '알림'}] ${item.detailType || ''}</div>
+          <div style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">${item.content || '내용 없음'}</div>
+          <div style="font-size: 12px; color: #64748b;">
+            📍 ${item.roadName || ''} (${item.direction || ''})<br/>
+            🚧 ${item.blockedLanes || ''} ${item.blockType || ''}<br/>
+            ⏰ ${item.displayDate || ''} 시작
+          </div>
         </div>
-      </div>
-    `
-  }));
+      `
+    }));
+  }, [filteredData]);
 
   const handleItemClick = (item) => {
-    const newCenter = { lat: item.lat, lng: item.lng };
-    setActiveMarker({ id: item.id, lat: item.lat, lng: item.lng });
-    setMapConfig({ center: newCenter, level: 5 });
+    if (!item.lat || !item.lng) return;
+    
+    setActiveMarker({ id: item.uniqueId, lat: item.lat, lng: item.lng });
+    setMapConfig({ 
+      center: { lat: Number(item.lat), lng: Number(item.lng) }, 
+      level: 5 
+    });
   };
 
   return (
-    <div className="flex flex-col-reverse lg:flex-row gap-6 w-full p-0 bg-[#f8f9fb] lg:h-full min-h-0">
-      <section className="w-full lg:w-[320px] flex flex-col bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden text-black lg:h-full min-h-[560px]">
+    <div className="flex flex-col-reverse lg:flex-row gap-6 w-full p-0 bg-[#f8f9fb] lg:h-full min-h-0 text-black">
+      <section className="w-full lg:w-[320px] flex flex-col bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden lg:h-full min-h-[560px]">
         <header className="p-5 border-b border-gray-100 bg-white">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-bold flex items-center gap-2">
@@ -64,7 +81,7 @@ const AccidentNews = () => {
           <div className="relative z-50">
             <button 
               onClick={() => setIsOpen(!isOpen)}
-              className="w-full flex justify-between items-center p-3 border border-blue-400 rounded-lg text-sm font-bold shadow-sm"
+              className="w-full flex justify-between items-center p-3 border border-blue-400 rounded-lg text-sm font-bold shadow-sm bg-white"
             >
               {selectedOption.label}
               <ChevronDown size={18} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
@@ -94,14 +111,14 @@ const AccidentNews = () => {
           ) : filteredData.length > 0 ? (
             filteredData.map((item) => (
               <div 
-                key={item.id} 
+                key={item.uniqueId} // 절대 중복될 수 없는 키
                 onClick={() => handleItemClick(item)}
-                className={`bg-white rounded-lg border-2 transition-all ${activeMarker?.id === item.id ? 'border-blue-500 shadow-md scale-[1.01]' : 'border-transparent'}`}
+                className={`bg-white rounded-lg border-2 cursor-pointer transition-all ${activeMarker?.id === item.uniqueId ? 'border-blue-500 shadow-md scale-[1.01]' : 'border-transparent'}`}
               >
                 <div className="flex justify-between items-center px-4 py-2 bg-[#edf0f5]">
                   <div className="flex items-center gap-2">
                     <span className="text-xs px-2 py-0.5 rounded bg-white font-bold border border-gray-200">
-                      {item.roadType}
+                      {item.roadType || '정보'}
                     </span>
                     <span className={`font-bold text-sm ${item.category === '재난' ? 'text-[#e53935]' : 'text-blue-600'}`}>
                       {item.type}
@@ -114,22 +131,13 @@ const AccidentNews = () => {
                   <p className="text-[15px] font-bold text-[#333] mb-2 leading-tight">
                     {item.content}
                   </p>
-                  
-                  <div className="space-y-1 mt-3 pt-3 border-t border-gray-50">
-                    <div className="flex items-center gap-1.5 text-[12px] text-gray-600">
+                  <div className="space-y-1 mt-3 pt-3 border-t border-gray-50 text-[12px] text-gray-600">
+                    <div className="flex items-center gap-1.5">
                       <MapPin size={13} className="text-gray-400" />
                       <span className="font-semibold">{item.roadName}</span>
                       <span className="text-gray-400">|</span>
                       <span>{item.direction}</span>
                     </div>
-                    
-                    {(item.blockedLanes || item.blockType) && (
-                      <div className="flex items-center gap-1.5 text-[12px] text-orange-600 bg-orange-50 px-2 py-1 rounded">
-                        <span className="font-bold">통제:</span>
-                        <span>{item.blockedLanes} ({item.blockType})</span>
-                      </div>
-                    )}
-
                     {item.endDate && (
                       <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
                         <Clock size={12} />
