@@ -228,8 +228,129 @@
     @apply flex flex-col items-center justify-center;
   }
 
-  /* ============================================================
-   [관리자] Quill 에디터 스타일 통합 (리팩토링 완료)
+
+
+  
+ /*============================================================
+   [관리자] Quill 에디터 스타일 보정 @@
+   ============================================================ */
+/* 1. 기본 상태 */
+.custom-quill .ql-toolbar.ql-snow {
+  border: 1px solid #D1D5DB !important;
+  border-bottom: 1px solid #E5E7EB !important;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  background-color: #F9FAFB;
+  transition: border-color 0.2s;
+}
+
+.custom-quill .ql-container.ql-snow {
+  border: 1px solid #D1D5DB !important;
+  border-top: none !important;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  min-height: 400px !important;
+  transition: border-color 0.2s;
+}
+
+/* 2. 포커스 상태 (외곽선만 파랗게) */
+.custom-quill:focus-within .ql-toolbar.ql-snow {
+  border-color: #2563EB !important;
+  border-bottom-color: #E5E7EB !important; /* 내부선은 회색 유지 */
+}
+
+.custom-quill:focus-within .ql-container.ql-snow {
+  border-color: #2563EB !important;
+}
+
+
+
+/* [관리자] Quill 에디터 에러 상태 스타일 최종 수정 */
+
+/* 1. 에러 발생 시 전체 박스에 다른 입력창과 동일한 빨간색 테두리 부여 */
+.error-border .ql-toolbar.ql-snow,
+.error-border .ql-container.ql-snow {
+  border-color: #E15141 !important; /* 선명한 빨간색 */
+  border-width: 1.5px !important;   /* 다른 박스와 두께 맞춤 */
+}
+
+/* 2. 에러 상태 배경색 및 높이 고정 */
+.error-border .ql-toolbar.ql-snow {
+  background-color: #FFFFFF !important; /* 배경은 무조건 흰색 */
+  border-bottom: 1px solid #F3F4F6 !important; /* 툴바 아래 구분선 */
+}
+
+.error-border .ql-container.ql-snow {
+  min-height: 400px !important; /* 👈 여기서 높이가 줄어들지 않게 강제 고정 */
+  border-top: none !important;
+  background-color: #FFFFFF !important;
+}
+
+/* 3. 에러 시 미세한 외곽 광택 (다른 박스의 ring 효과와 일치) */
+.error-border {
+  box-shadow: 0 0 0 1px rgba(225, 81, 65, 0.05); 
+  
+}
+
+/*============================================================
+   [관리자] Quill 에디터 이미지 및 추가 보정 @@
+   ============================================================ */
+
+/* 1. 에디터 본문 내 이미지 스타일 (이게 있어야 이미지가 보입니다) */
+.ql-editor img {
+  max-width: 100%;   /* 에디터 가로폭을 넘지 않도록 설정 */
+  height: auto;      /* 이미지 비율 유지 */
+  display: block;    /* 이미지를 블록 요소로 취급하여 정렬 용이하게 함 */
+  margin: 15px 0;    /* 이미지 상하 여백 부여 */
+  border-radius: 4px; /* 이미지 모서리 살짝 둥글게 (선택사항) */
+}
+
+/* 2. 에디터 내부 텍스트 기본 폰트 크기 및 줄간격 조정 (가독성) */
+.ql-editor {
+  font-size: 16px;
+  line-height: 1.6;
+  padding: 20px !important;
+}
+
+/* 3. 이미지가 선택되었을 때의 스타일 (선택사항) */
+.ql-editor img.ql-selected {
+  outline: 2px solid #2563EB;
+}
+
+/* 4. 에디터가 비어있을 때 placeholder(내용을 입력해주세요) 위치 교정 */
+.ql-editor.ql-blank::before {
+  left: 20px !important;
+  font-style: normal !important;
+  color: #9CA3AF !important;
+}
+
+/* 상세페이지에서 ql-editor를 감싸는 부모 배경이 회색(#F9FAFB)인 경우를 대비 */
+.AdminPressRelDetail .ql-editor {
+    background-color: transparent !important;
+    padding: 0 !important; /* 이미 부모 div에서 p-8을 주고 있으므로 중복 패딩 제거 */
+}
+
+/* 상세페이지 본문 내의 리스트(글머리 기호) 위치 보정 */
+.ql-editor ul, .ql-editor ol {
+    padding-left: 1.5em !important;
+}
+
+/* 에디터 본문 내 이미지 반응형 처리 */
+.ql-editor img {
+  max-width: 100%; 
+  height: auto;
+  display: block;
+  margin: 15px 0;
+}
+
+/* 글로벌 CSS 또는 해당 컴포넌트 CSS */
+.ql-editor img {
+  max-width: 100%; /* 이미지가 본문 영역 밖으로 튀어나가는 것 방지 */
+  height: auto;
+}
+
+/* ============================================================
+   [관리자] 리스트 페이지 날짜 입력창(Date Input) 커스텀 @@
    ============================================================ */
 
   /* 1. 에디터 컨테이너 기본 폰트 */

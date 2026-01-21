@@ -130,21 +130,58 @@ const AdminCommonCodeList = () => {
   // 4. 테이블 컬럼 정의 (Table Columns)
   // ==================================================================================
   const columns = useMemo(() => [
-    { key: 'groupCode', header: '그룹코드ID', width: '10%', className: 'text-center font-mono' },
-    { key: 'groupName', header: '그룹명', width: '15%', className: 'text-center' },
-    { key: 'subCode', header: '상세코드ID', width: '10%', className: 'text-center font-mono' },
-    { key: 'subName', header: '상세명', width: '15%', className: 'text-center' },
+    { key: 'groupCode', header: '그룹코드ID', width: '150px', className: 'text-center' },
+    { key: 'groupName', header: '그룹코드명', width: '150px', className: 'text-center' },
+    { key: 'subCode', header: '상세코드ID', width: '150px', className: 'text-center' },
+    { key: 'subName', header: '상세코드명', width: '150px', className: 'text-center' },
     { 
       key: 'desc', 
-      header: '코드 설명', 
-      render: (text) => <div className="truncate max-w-[200px] text-left" title={text}>{text}</div> 
+      header: '코드 설명',
+      width: '300px', 
+      className: 'text-center py-4', 
+      render: (text) => (
+        <div className="flex justify-center items-center w-full min-h-[3rem]">
+          <div 
+            className="text-center leading-[1.5] break-all px-4" 
+            style={{
+              display: '-webkit-box',
+              WebkitLineClamp: '2', 
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              whiteSpace: 'normal',
+              wordBreak: 'keep-all' 
+            }}
+            title={text}
+          >
+            {text}
+          </div>
+        </div>
+      ) 
+},
+    { 
+      key: 'date', 
+      header: '등록일시', 
+      width: '150px', 
+      className: 'text-center text-graygray-50', 
+      render: (val) => {
+      if (!val) return "-";
+      const parts = val.toString().split(' '); 
+      return (
+        <div className="flex flex-col items-center justify-center leading-tight">
+          {parts.length > 0 ? (
+            parts.map((p, i) => <span key={i} className="block">{p}</span>)
+          ) : (
+            <span>{val}</span>
+          )}
+        </div>
+      );
+    }
     },
-    { key: 'date', header: '등록일시', width: '12%', className: 'text-center text-graygray-50' },
-    { key: 'order', header: '순서', width: '8%', className: 'text-center text-graygray-50' },
+    { key: 'order', header: '순서', width: '60px', className: 'text-center text-graygray-50' },
     { 
       key: 'visible', 
       header: '사용여부', 
-      width: '100px',
+      width: '80px',
       className: 'text-center',
       // 커스텀 렌더링: 사용여부를 시각적인 뱃지/토글 형태로 표시
       render: (visible) => (
@@ -264,7 +301,7 @@ const AdminCommonCodeList = () => {
   // 6. UI 렌더링
   // ==================================================================================
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
+    <div className="flex-1 flex flex-nowrap min-h-screen bg-admin-bg font-sans antialiased text-graygray-90 overflow-hidden">
       {/* 토스트 알림 UI */}
       {showToast && (
         <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[9999] transition-all duration-500">
@@ -275,8 +312,13 @@ const AdminCommonCodeList = () => {
         </div>
       )}
       
-      <main className="p-10">
-        <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight">공통코드 목록</h2>
+<main className="flex-1 min-w-0 p-10 overflow-x-auto">
+        
+        {/* [중요] 내부 컨테이너 너비 고정 */}
+        <div className="max-w-[1600px] mx-auto">
+          <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight">
+            공통코드 관리
+          </h2>
 
         {/* [A] 검색 영역 (SearchBox + Custom Filters) */}
         <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8 mb-8">
@@ -370,6 +412,7 @@ const AdminCommonCodeList = () => {
             onPageChange={setCurrentPage}
           />
         </section>
+        </div>
       </main>
 
       {/* [E] 확인/삭제 모달 */}

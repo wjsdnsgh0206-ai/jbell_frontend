@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { AdminCommonCodeData } from './AdminCommonCodeData';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
+import { Calendar } from 'lucide-react';
 
-// 아이콘 컴포넌트 (생략 없이 포함)
+// 아이콘 컴포넌트
 const SuccessIcon = ({ fill = "#2563EB" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="8" cy="8" r="8" fill={fill}/>
@@ -22,10 +23,17 @@ const AdminSubCodeEdit = () => {
   const { id } = useParams(); 
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
+  
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState(''); 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRegistered, setIsRegistered] = useState(true);
   const [originalName, setOriginalName] = useState('');
+
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [originalData, setOriginalData] = useState(null);
+  
+  const [currentGroupCode, setCurrentGroupCode] = useState('');
 
   const [formData, setFormData] = useState({
     parentGroupInfo: '', 
@@ -37,28 +45,19 @@ const AdminSubCodeEdit = () => {
     modDate: ''
   });
 
+  // 1. 데이터 초기 로딩 및 원본 저장
   useEffect(() => {
-    const found = AdminCommonCodeData.find(item => item.id === parseInt(id));
-    if (found) {
-      // 레이아웃의 breadcrumbTitle 상태를 업데이트 -> 브레드크럼이 즉시 바뀜
-      setBreadcrumbTitle(found.subName); 
-    }
-    
-    // 페이지를 나갈 때는 초기화 (Clean-up)
-    return () => setBreadcrumbTitle("");
-  }, [id, setBreadcrumbTitle]);
-
-  useEffect(() => {
-    // 1. 현재 ID에 해당하는 상세 데이터 찾기
     const detailData = AdminCommonCodeData.find(item => String(item.id) === String(id));
 
     if (detailData) {
-      // 2. 부모 그룹 정보 가져오기 (해당 groupCode를 가지면서 subCode가 '-'인 항목)
+      setBreadcrumbTitle(detailData.subName); 
+      setCurrentGroupCode(detailData.groupCode);
+
       const parentGroup = AdminCommonCodeData.find(
         item => item.groupCode === detailData.groupCode && item.subCode === '-'
       );
 
-      setFormData({
+      const initialForm = {
         parentGroupInfo: parentGroup 
           ? `${parentGroup.groupCode} (${parentGroup.groupName})` 
           : `${detailData.groupCode} (${detailData.groupName})`,
@@ -68,27 +67,95 @@ const AdminSubCodeEdit = () => {
         order: detailData.order || 1,
         regDate: detailData.date,
         modDate: detailData.editDate || detailData.date 
-      });
+      };
+
+      setFormData(initialForm);
+      setOriginalData({ ...initialForm, visible: detailData.visible }); 
       setOriginalName(detailData.subName);
       setIsRegistered(detailData.visible);
     }
-  }, [id]);
+  }, [id, setBreadcrumbTitle]);
 
-  // 상세 코드명 중복 체크 로직 (본인 제외)
+  // [변경] 변경 사항 감지 로직 (isDirty)
+  const isDirty = useMemo(() => {
+    if (!originalData) return false;
+    return (
+      formData.subCodeName !== originalData.subCodeName ||
+      formData.desc !== originalData.desc ||
+      formData.order !== originalData.order ||
+      isRegistered !== originalData.visible
+    );
+  }, [formData, originalData, isRegistered]);
+
+  // [변경] 뒤로가기 방지 핸들러
+  const handlePopState = useCallback(() => {
+    if (isDirty) {
+      window.history.pushState(null, "", window.location.href);
+      setIsCancelModalOpen(true);
+    }
+  }, [isDirty]);
+
+  // [변경] 브라우저 뒤로가기 버튼 차단 및 해제
+  useEffect(() => {
+  // 1. 페이지 진입 시 가짜 히스토리 하나 쌓기 (뒤로가기 방어용)
+  window.history.pushState(null, "", window.location.href);
+
+  // 2. 뒤로가기 핸들러 등록
+  window.addEventListener('popstate', handlePopState);
+  
+  // 3. 탭 닫기/새로고침 핸들러 등록
+  const handleBeforeUnload = (e) => {
+    if (isDirty) {
+      e.preventDefault();
+      e.returnValue = ''; 
+    }
+  };
+  window.addEventListener('beforeunload', handleBeforeUnload);
+
+  return () => {
+    // 페이지 나갈 때 모든 리스너 제거
+    window.removeEventListener('popstate', handlePopState);
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+  };
+}, [isDirty, handlePopState]); // isDirty가 바뀔 때마다 상태 최신화
+
+  // 2. 취소 버튼 핸들러
+const handleCancel = () => {
+  if (isDirty) {
+    setIsCancelModalOpen(true); 
+  } else {
+    // 변경 사항이 없으면 굳이 1초 기다릴 필요 없이 바로 상세 페이지로 보냅니다.
+    navigate(`/admin/system/subCodeDetail/${id}`, { replace: true });
+  }
+};
+
+  // 취소 확인 시
+  const confirmCancel = () => {
+    window.removeEventListener('popstate', handlePopState); // 리스너 제거 필수
+    setIsCancelModalOpen(false);
+    setToastMessage("수정이 취소되었습니다.");
+    setShowToast(true);
+    setTimeout(() => {
+      setShowToast(false);
+      navigate(`/admin/system/subCodeDetail/${id}`, { replace: true });
+    }, 1000); 
+  };
+
+  // 중복 체크 로직
   const checkDuplicateName = useMemo(() => {
     const currentInputName = formData.subCodeName.trim();
     if (!currentInputName || currentInputName === originalName.trim()) return false;
 
     return AdminCommonCodeData.some(item => 
+      item.groupCode === currentGroupCode && 
       item.subCode !== '-' && 
       String(item.id) !== String(id) && 
       item.subName.trim() === currentInputName
     );
-  }, [formData.subCodeName, originalName, id]);
+  }, [formData.subCodeName, originalName, id, currentGroupCode]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
     if (name === "order") {
       const val = value.replace(/[^0-9]/g, "");
       let numVal = val === "" ? "" : parseInt(val);
@@ -103,20 +170,60 @@ const AdminSubCodeEdit = () => {
     }
   };
 
+  const handleSave = () => {
+    if (!formData.subCodeName.trim()) {
+      alert("상세 코드명을 입력해주세요.");
+      return;
+    }
+    if (checkDuplicateName) {
+      alert("동일한 그룹 내에 이미 존재하는 상세 코드명입니다.");
+      return;
+    }
+    setIsModalOpen(true);
+  };
+
+  // [변경] 저장 확인 로직 수정
   const handleConfirmSave = () => {
     setIsModalOpen(false);
-    // 실제 데이터 반영 로직 생략 없이 (unshift 대신 findIndex 등을 통한 업데이트 시뮬레이션 가능)
+    window.removeEventListener('popstate', handlePopState); // 리스너 제거
+
+    const now = new Date();
+    const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+    const targetIndex = AdminCommonCodeData.findIndex(item => String(item.id) === String(id));
+    if (targetIndex !== -1) {
+      const finalName = formData.subCodeName.trim();
+      AdminCommonCodeData[targetIndex] = {
+        ...AdminCommonCodeData[targetIndex],
+        subName: finalName,
+        desc: formData.desc.trim(),
+        order: formData.order,
+        visible: isRegistered,
+        editDate: formattedDate 
+      };
+      setBreadcrumbTitle(finalName);
+    }
+
+    setToastMessage("상세코드가 성공적으로 수정되었습니다.");
     setShowToast(true);
-    setTimeout(() => navigate(-1), 1500); 
+    
+    // replace: true 옵션으로 상세 페이지로 이동
+    setTimeout(() => {
+      setShowToast(false);
+      navigate(`/admin/system/subCodeDetail/${id}`, { replace: true });
+    }, 1500);
   };
+
+  if (!formData.subCodeId || !originalData) return null;
 
   return (
     <div className="relative flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
-      {/* 토스트 메시지 */}
       {showToast && (
-        <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100] bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-gray-700">
-          <SuccessIcon fill="#4ADE80" />
-          <span className="font-bold text-[16px]">상세코드가 성공적으로 수정되었습니다.</span>
+        <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500">
+          <div className="bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-gray-700">
+            {!toastMessage.includes("취소") && <SuccessIcon fill="#4ADE80" />}
+            <span className="font-bold text-[16px]">{toastMessage}</span>
+          </div>
         </div>
       )}
 
@@ -127,21 +234,18 @@ const AdminSubCodeEdit = () => {
           <h3 className="text-[24px] font-extrabold mb-14 text-[#111] tracking-tight border-b-2 border-gray-100 pb-3">상세 코드 수정</h3>
           
           <div className="flex flex-col">
-            {/* 1. 그룹 정보 (수정 불가) */}
             <div className="mb-10 w-full max-w-[500px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">그룹 코드</label>
               <input value={formData.parentGroupInfo} readOnly className="w-full bg-[#F3F4F7] border border-gray-200 rounded-lg px-5 py-4 text-[#666] cursor-not-allowed outline-none font-medium" />
               <p className="text-[13px] text-gray-400 mt-3 font-medium">* 그룹 코드는 수정할 수 없습니다.</p>
             </div>
 
-            {/* 2. 상세 코드 ID (수정 불가) */}
             <div className="mb-10 w-full max-w-[500px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 ID</label>
               <input value={formData.subCodeId} readOnly className="w-full bg-[#F3F4F7] border border-gray-200 rounded-lg px-5 py-4 text-[#666] cursor-not-allowed outline-none font-medium" />
               <p className="text-[13px] text-gray-400 mt-3 font-medium">* 상세 코드 ID는 수정할 수 없습니다.</p>
             </div>
 
-            {/* 3. 상세 코드 명 (필수) */}
             <div className="mb-10 w-full max-w-[500px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 명 (필수)</label>
               <input 
@@ -163,7 +267,6 @@ const AdminSubCodeEdit = () => {
               </div>
             </div>
 
-            {/* 4. 상세 코드 설명 */}
             <div className="mb-10 w-full max-w-[600px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 설명</label>
               <textarea 
@@ -179,7 +282,6 @@ const AdminSubCodeEdit = () => {
               </div>
             </div>
 
-            {/* 5. 순서 */}
             <div className="mb-10 w-full">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">순서</label>
               <input 
@@ -193,7 +295,6 @@ const AdminSubCodeEdit = () => {
               <p className="text-[13px] text-gray-400 mt-3 font-medium">* 숫자가 낮을수록 상위에 위치합니다.</p>
             </div>
 
-            {/* 6. 사용 여부 */}
             <div className="mb-10 flex items-center gap-5 pt-2">
               <label className="font-bold text-[16px] text-[#111]">사용 여부</label>
               <div className="flex items-center gap-3">
@@ -208,34 +309,39 @@ const AdminSubCodeEdit = () => {
               </div>
             </div>
 
-            {/* 7. 일시 정보 (구분선 및 가이드 텍스트 포함) */}
-            <div className="pt-10 border-t border-gray-100 flex flex-col">
-              <div className="mb-10 w-full max-w-[500px]">
-                <label className="block font-bold text-[16px] mb-3 text-[#111]">등록 일시</label>
-                <input value={formData.regDate} readOnly className="w-full bg-[#F3F4F7] border border-gray-200 rounded-lg px-5 py-4 text-[#999] cursor-not-allowed font-medium outline-none" />
-                <p className="text-[13px] text-gray-400 mt-3 font-medium">* 등록 일시는 수정할 수 없습니다.</p>
+            <div className="pt-10 border-t border-gray-100 flex flex-col space-y-8">
+              <div className="flex flex-col gap-2">
+                <label className="text-[14px] font-bold text-gray-400">등록 일시</label>
+                <div className="flex items-center gap-2 text-[#999] font-medium px-1">
+                  <Calendar size={16} className="text-gray-300" /> 
+                  {formData.regDate}
+                </div>
+                <p className="text-[12px] text-gray-400 mt-1 font-medium pl-1">* 등록 일시는 수정할 수 없습니다.</p>
               </div>
-              <div className="w-full max-w-[500px]">
-                <label className="block font-bold text-[16px] mb-3 text-[#111]">수정 일시</label>
-                <input value={formData.modDate} readOnly className="w-full bg-[#F3F4F7] border border-gray-200 rounded-lg px-5 py-4 text-[#999] cursor-not-allowed font-medium outline-none" />
-                <p className="text-[13px] text-gray-400 mt-3 font-medium">* 수정 완료 후 최종 수정 일시가 자동으로 반영됩니다.</p>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-[14px] font-bold text-gray-400">수정 일시</label>
+                <div className="flex items-center gap-2 text-[#999] font-medium px-1">
+                  <Calendar size={16} className="text-gray-300" /> 
+                  {formData.modDate}
+                </div>
+                <p className="text-[12px] text-gray-400 mt-1 font-medium pl-1">* 수정 완료 시 최종 수정 일시가 자동으로 반영됩니다.</p>
               </div>
-            </div>
-          </div>
+            </div>          
+          </div> 
         </section>
 
-        {/* 하단 버튼 구역 */}
         <div className="flex justify-end gap-2 mt-12 max-w-[1000px]">
           <button 
             type="button" 
-            onClick={() => navigate(-1)} 
+            onClick={handleCancel}
             className="px-8 py-3.5 border border-gray-300 bg-white text-gray-500 rounded-lg font-bold text-[16px] hover:bg-gray-50 transition-colors shadow-sm"
           >
             취소
           </button>
           <button 
             type="button" 
-            onClick={() => setIsModalOpen(true)} 
+            onClick={handleSave} 
             className="px-8 py-3.5 bg-[#2563EB] text-white rounded-lg font-bold text-[16px] hover:bg-blue-700 shadow-md transition-colors"
           >
             저장
@@ -243,7 +349,6 @@ const AdminSubCodeEdit = () => {
         </div>
       </main>
 
-      {/* 확인 모달 */}
       <AdminConfirmModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
@@ -251,6 +356,14 @@ const AdminSubCodeEdit = () => {
         title="상세코드 내용을 수정하시겠습니까?" 
         message="작성하신 내용이 즉시 저장됩니다." 
         type="save" 
+      />
+      <AdminConfirmModal 
+  isOpen={isCancelModalOpen} 
+  onClose={() => setIsCancelModalOpen(false)} 
+  onConfirm={confirmCancel} 
+  title="수정을 취소하시겠습니까?" 
+        message="수정 중인 내용은 저장되지 않고 이전 페이지로 돌아갑니다." 
+        type="delete" 
       />
     </div>
   );
