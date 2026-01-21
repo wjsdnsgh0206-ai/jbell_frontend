@@ -6,7 +6,6 @@ const navigationItems = [
     children: [ // 하위 메뉴 추가
       { label: "지진", path: "/disaster/earthquake" },
       { label: "태풍", path: "/disaster/typhoon" },
-      { label: "호우", path: "/disaster/heavyRain" },
       { label: "홍수", path: "/disaster/flood" },
       { label: "산사태", path: "/disaster/landslide" },
       { label: "산불", path: "/disaster/forestFire" },

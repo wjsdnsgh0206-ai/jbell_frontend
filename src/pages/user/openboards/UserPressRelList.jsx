@@ -1,7 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ChevronDown } from 'lucide-react';
+
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 import BoardListSection from '@/components/shared/BoardListSection';
+import SearchBarTemplate from '@/components/shared/SearchBarTemplate';
 import { pressData } from './BoardData';
 
 // 보도자료 목록 페이지 //
@@ -9,18 +12,16 @@ import { pressData } from './BoardData';
 const UserPressRelList = () => {
   const navigate = useNavigate();
 
-  // --- 상태 관리 (State) --- //
+  // --- 상태 관리 ---
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 10; // 한 페이지당 보여줄 게시글 수
 
-  // 검색 상태 관리
   const [searchCategory, setSearchCategory] = useState('선택');
   const [searchTerm, setSearchTerm] = useState('');
   const [activeSearch, setActiveSearch] = useState({ category: '선택', term: '' });
 
-  // --- 데이터 전처리 로직 (Memoization) --- //
-
-  // 1. 중복 데이터 제거: 동일한 제목을 가진 데이터가 중복으로 들어오는 것을 방지
+  // --- 데이터 전처리 (Data Memoization) --- //
+  // 1. 중복 제거: 제목이 중복된 데이터가 있을 경우 하나만 남기고 필터링
   const cleanData = useMemo(() => {
     const seenTitles = new Set();
     return pressData.filter(item => {
@@ -30,15 +31,17 @@ const UserPressRelList = () => {
     });
   }, []);
 
-  // 2. 검색 필터링 로직: 확정된 검색 조건(activeSearch)에 맞춰 데이터 추출
+  // 2. 검색 필터링: activeSearch 상태에 따라 데이터를 필터링
   const filteredData = useMemo(() => {
-    let result = [...cleanData];
+    //  비공개(isPublic: false)인 보도자료는 사용자 페이지 목록에서 제외합니다.
+    let result = cleanData.filter(item => item.isPublic !== false);
+
     const { category, term } = activeSearch;
     const trimmedTerm = term.trim();
 
     if (trimmedTerm !== '') {
       result = result.filter(item => {
-        // '선택'일 경우 제목 + 내용 + 등록인(writer 혹은 author) 전체를 검사
+        // '선택' 카테고리일 경우 제목, 내용, 등록자(writer/author) 전체에서 검색
         if (category === '선택') {
           return (
             item.title?.includes(trimmedTerm) ||
@@ -46,7 +49,7 @@ const UserPressRelList = () => {
             (item.writer || item.author)?.includes(trimmedTerm)
           );
         }
-        // 특정 카테고리가 지정된 경우 해당 필드만 검사
+        // 특정 카테고리가 선택된 경우 해당 필드에서만 검색
         if (category === '제목') return item.title?.includes(trimmedTerm);
         if (category === '내용') return item.content?.includes(trimmedTerm);
         if (category === '등록인') return (item.writer || item.author)?.includes(trimmedTerm);
@@ -56,16 +59,17 @@ const UserPressRelList = () => {
     return result;
   }, [cleanData, activeSearch]);
 
-  // 3. 정렬 및 페이지네이션
+  // 3. 정렬 및 페이지네이션 로직
   const { currentItems, totalPages } = useMemo(() => {
-    // - 정렬: 최신 날짜(date)가 위로 오도록 내림차순 정렬
+    // - 최신 등록일 순으로 정렬
     const sorted = [...filteredData].sort((a, b) => new Date(b.date) - new Date(a.date));
+
     // - 페이지네이션 계산
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const paged = sorted.slice(indexOfFirstItem, indexOfLastItem);
 
-    // - 목록 번호 부여: 현재 페이지와 인덱스를 계산하여 순번(displayNo) 생성
+    // - 번호 표시 로직: 현재 페이지와 인덱스를 계산하여 순차적인 번호(displayNo) 부여
     const finalItems = paged.map((item, index) => ({
       ...item,
       displayNo: indexOfFirstItem + index + 1
@@ -79,12 +83,21 @@ const UserPressRelList = () => {
 
   // --- 이벤트 핸들러 (Event Handlers) --- //
 
-  // 검색 실행: 사용자가 입력한 값을 확정 상태로 업데이트하고 1페이지로 리셋
+  // 검색 버튼 클릭 시 호출: 현재 입력된 값들을 activeSearch에 저장하고 1페이지로 이동
   const handleSearch = () => {
     setActiveSearch({ category: searchCategory, term: searchTerm });
     setCurrentPage(1);
   };
-  // 상단 경로 안내 데이터
+
+  // 초기화 핸들러: 모든 검색 조건과 페이지를 초기 상태로 리셋
+  const handleReset = () => {
+    setSearchCategory('선택');
+    setSearchTerm('');
+    setActiveSearch({ category: '선택', term: '' });
+    setCurrentPage(1);
+  };
+
+  // 브레드크럼(경로 표시) 데이터
   const breadcrumbItems = [
     { label: "홈", path: "/", hasIcon: true },
     { label: "열린마당", path: "/userPressRelList", hasIcon: false },
@@ -93,60 +106,48 @@ const UserPressRelList = () => {
 
   return (
     <div className="w-full px-5 md:px-0">
-      {/* 상단 경로 안내 컴포넌트 */}
-      <PageBreadcrumb items={breadcrumbItems} />
       <main className="w-full">
-        <h1 className="text-heading-xl text-graygray-90 pb-10">보도자료</h1>
+        {/* 페이지 상단 경로 안내 */}
+        <PageBreadcrumb items={breadcrumbItems} />
+        <h1 className="text-heading-xl text-graygray-90 pb-20">보도자료</h1>
         
-        {/* --- 검색바 영역 (반응형: 모바일은 세로, 데스크탑은 가로) --- */}
-        <div className="bg-gray-50 border border-gray-200 p-4 md:p-6 rounded-lg mb-10 flex flex-col md:flex-row justify-center gap-3">
-          {/* 검색 카테고리 선택 */}
-          <div className="relative w-full md:w-32">
+        {/* --- 검색바 영역 --- */}
+        <SearchBarTemplate
+          keyword={searchTerm}
+          onKeywordChange={(e) => setSearchTerm(e.target.value)}
+          onSearch={handleSearch}
+          onReset={handleReset}
+          placeholder="검색어를 입력해주세요."
+        >
+          {/* 보도자료 전용 필터: 카테고리 선택 */}
+          <div className="relative w-full col-span-2 lg:col-span-1 lg:w-32">
             <select 
               value={searchCategory} 
               onChange={(e) => setSearchCategory(e.target.value)}
-              className="appearance-none border border-gray-300 rounded px-4 py-2 w-full bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-sm pr-10"
+              className="w-full h-14 px-4 pr-10 bg-white border border-graygray-30 rounded-lg text-body-s text-graygray-90 outline-none focus:border-secondary-50 cursor-pointer appearance-none"
             >
               <option value="선택">선택</option>
               <option value="제목">제목</option>
               <option value="내용">내용</option>
               <option value="등록인">등록인</option>
             </select>
-            {/* 커스텀 화살표 아이콘 아이콘 */}
             <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
-              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-              </svg>
+              <ChevronDown size={16} className="text-graygray-50" />
             </div>
           </div>
+        </SearchBarTemplate>
 
-          {/* 검색어 입력란 */}
-          <div className="relative w-full md:flex-1 md:max-w-lg">
-            <input 
-              type="text" 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              placeholder="검색어를 입력해주세요." 
-              className="w-full border border-gray-300 rounded px-4 py-2 pr-10 focus:ring-2 focus:ring-blue-500 text-sm bg-white outline-none"
-            />
-          </div>
-          {/* 검색 실행 버튼 */}
-          <button 
-            onClick={handleSearch}
-            className="w-full md:w-auto bg-blue-600 text-white px-8 py-2 rounded font-medium hover:bg-blue-700 transition active:scale-95 shadow-sm text-sm"
-          >
-            검색
-          </button>
+        {/* --- 리스트 테이블 및 페이지네이션 컴포넌트 --- */}
+        <div className="mt-2">
+          <BoardListSection 
+            items={currentItems}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            // 행 클릭 시 상세 페이지로 이동
+            onRowClick={(id) => navigate(`/userPressRelDetail/${id}`)}
+          />
         </div>
-        {/* --- BoardListSection 출력 --- */}
-        <BoardListSection 
-          items={currentItems}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-          onRowClick={(id) => navigate(`/userPressRelDetail/${id}`)}
-        />
       </main>
     </div>
   );

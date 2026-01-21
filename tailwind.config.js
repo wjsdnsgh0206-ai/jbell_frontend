@@ -51,6 +51,19 @@ export default {
         primary: {
           50: "var(--primary-50)", 
         },
+
+        // [관리자 전용 신규 토큰 연결]
+        admin: {
+          bg: "var(--admin-bg)",           // 전체 배경색
+          surface: "var(--admin-surface)", // 카드/박스 배경
+          border: "var(--admin-border)",   // 얇은 경계선
+          primary: "var(--admin-primary)", // 핵심 액션
+          primaryHover: "var(--admin-primary-hover)",
+          text: {
+            primary: "var(--admin-text-primary)",   // 진한 본문
+            secondary: "var(--admin-text-secondary)", // 라벨/보조
+          },
+        },
       },
       scale: {
         98: "0.98",
@@ -62,6 +75,7 @@ export default {
       // 3. 그림자 등 기타 유틸리티
       boxShadow: {
         1: "0px 0px 2px 0px rgba(0, 0, 0, 0.05), 0px 1px 2px 0px rgba(0, 0, 0, 0.05)",
+        adminCard: "0 1px 2px 0 rgba(0, 0, 0, 0.05)", // 깔끔한 카드 그림자
       },
     },
   },

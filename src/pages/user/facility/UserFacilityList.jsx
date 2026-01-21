@@ -1,10 +1,11 @@
+// src/pages/user/facility/UserFacilityList.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-// ChevronDown, RefreshCw, Search 제거 (SearchFilter 내부로 이동됨)
+import { ChevronDown } from 'lucide-react';
 
 import PageBreadcrumb from "@/components/shared/PageBreadcrumb";
 import FacilityListSection from "@/components/user/facility/FacilityListSection";
-import SearchBarTemplate from "@/components/shared/SearchBarTemplate"; // 새로 만든 컴포넌트 Import
+import SearchBarTemplate from "@/components/shared/SearchBarTemplate";
 import { getFacilityList, facilityPageConfig } from "./data"; 
 
 const UserFacilityList = () => {
@@ -68,14 +69,11 @@ const UserFacilityList = () => {
         
         <PageBreadcrumb items={meta.breadcrumbs} />
 
-        <header className="flex flex-col w-full gap-8 lg:gap-10 mb-16">
+        <header className="flex flex-col w-full gap-8 lg:gap-10 pb-20">
           <div className="flex flex-col gap-4">
             <h1 className="text-heading-xl text-graygray-90">
               {meta.title}
             </h1>
-            <p className="text-detail-m text-graygray-70">
-              최종 정보 수정일: {meta.lastUpdated}
-            </p>
           </div>
         </header>
 
@@ -93,7 +91,7 @@ const UserFacilityList = () => {
             <select 
               value={filters.facilityType}
               onChange={(e) => handleFilterChange('facilityType', e.target.value)}
-              className="w-full h-12 px-4 pr-8 bg-white border border-graygray-30 rounded-lg text-body-s text-graygray-90 outline-none focus:border-secondary-50 cursor-pointer appearance-none"
+              className="w-full lg:min-w-fit h-14 px-4 pr-10 bg-white border border-graygray-30 rounded-lg text-body-s text-graygray-90 outline-none focus:border-secondary-50 cursor-pointer appearance-none"
             >
               <option value="전체">시설유형 전체</option>
               {filterOptions.facilityTypes.map((type, idx) => (
@@ -101,20 +99,26 @@ const UserFacilityList = () => {
               ))}
             </select>
             {/* 화살표 아이콘 등은 필요 시 추가 */}
+            <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+              <ChevronDown className="w-4 h-4 text-graygray-50" />
+            </div>
           </div>
 
           {/* 필터 2: 시군구 */}
-          <div className="relative w-full lg:w-32">
+          <div className="relative w-full lg:w-auto">
             <select 
               value={filters.district}
               onChange={(e) => handleFilterChange('district', e.target.value)}
-              className="w-full h-12 px-4 pr-8 bg-white border border-graygray-30 rounded-lg text-body-s text-graygray-90 outline-none focus:border-secondary-50 cursor-pointer appearance-none"
+              className="w-full lg:min-w-fit h-14 px-4 pr-10 bg-white border border-graygray-30 rounded-lg text-body-s text-graygray-90 outline-none focus:border-secondary-50 cursor-pointer appearance-none"
             >
               <option value="전체">시군구 전체</option>
               {filterOptions.districts.map((district, idx) => (
                 district !== "전체" && <option key={idx} value={district}>{district}</option>
               ))}
             </select>
+            <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+              <ChevronDown className="w-4 h-4 text-graygray-50" />
+            </div>
           </div>
           
         </SearchBarTemplate>

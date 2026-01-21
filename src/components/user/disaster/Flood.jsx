@@ -1,163 +1,176 @@
 import React, { useState } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
-import WeatherBox from "../modal/WeatherBox";
-import DisasterMessageBox from "../modal/DisasterMessageBox";
 import FacilityCheckGroup from "../modal/FacilityCheckGroup";
+import MapControlBtn from "@/components/user/modal/MapControlBtn";
+import CommonMap from "@/components/user/modal/CommonMap"; 
+import FloodGeometryMap from "@/components/user/modal/FloodGeometryMap";
+import { useSluiceData } from "@/hooks/user/useSluiceData";
 
-/*
-  Flood 컴포넌트
-  > 작성자 : 최지영
-  > 컴포넌트 이름 : 재난사고속보 모달 - 홍수 메뉴
-  > 컴포넌트 설명 : 재난사고속보 모달 내부의 홍수 메뉴 컴포넌트로, 현재 홍수관련 내용을 표시함. 추후 api연동 필요.
-*/
+
 
 const Flood = () => {
-  // 현재 선택된 지도 탭 상태 (초기값 강수량)
-  const [activeTab, setActiveTab] = useState("강수량");
-
-  // === [추가] 체크박스 상태 관리 ===
-  const [facilities, setFacilities] = useState({
-    shelter: true,
-    hospital: false,
-    pharmacy: false,
+  const [activeTab, setActiveTab] = useState("침수흔적도");
+  const [facilities, setFacilities] = useState({ 
+    shelter: true, 
+    hospital: false, 
+    pharmacy: false 
   });
 
-  // 홍수 관련 탭 메뉴 구성
+  const { damData, loading, fetchDamData } = useSluiceData();
+
   const mapTabs = [
-    { id: "침수흔적도", label: "침수흔적도" }, // 초기값에 맞게 추가하거나 setActiveTab 기본값을 변경해야 해
-    { id: "수방시설물", label: "수방시설물" },
-    { id: "재난안전시설", label: "재난안전시설", hasArrow: true }, // ID를 "재난시설"로 유지
+    { id: "침수흔적도", label: "침수흔적도" },
+    { id: "댐수문", label: "댐수문" },
+    { id: "재난안전시설", label: "재난안전시설" },
   ];
 
-  // 재난안전시설 탭 데이터
-  const FloodItems = [
-    { id: "shelter", label: "이재민임시시설" },
+  const floodItems = [
+    { id: "shelter", label: "대피소" },
     { id: "hospital", label: "병원" },
     { id: "pharmacy", label: "약국" },
   ];
 
-  // === [추가] 탭 클릭 핸들러 (토글 로직) ===
   const handleTabClick = (tabId) => {
-    setActiveTab((prev) => (prev === tabId ? null : tabId));
+    setActiveTab(tabId);
+    if (tabId === "댐수문") {
+      fetchDamData();
+    }
   };
 
-  // === [추가] 체크박스 변경 핸들러 ===
   const handleCheck = (key) => {
-    setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
+    setFacilities(prev => ({ ...prev, [key]: !prev[key] }));
   };
+
+  const isDangerous = damData.some(dam => parseFloat(dam.storageRate) >= 90);
 
   return (
-    <div className="grid grid-cols-12 gap-5 lg:gap-6">
-      <div className="col-span-12 lg:col-span-8 flex flex-col gap-5 lg:gap-6">
-        <div className="bg-white rounded-xl p-5 sm:p-5 shadow-1 border border-graygray-10 h-[200px] min-h-[480px]">
-          {/* 헤더 섹션 */}
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
-            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-              <h3 className="text-body-l-bold sm:text-title-m font-black text-graygray-90 whitespace-nowrap">
-                실시간 홍수정보
-              </h3>
-              <span className="shrink-0 text-[10px] sm:text-detail-m px-2.5 py-1 bg-blue-50 border border-blue-100 rounded-full text-blue-600 font-bold leading-none">
-                실시간 데이터
+    <div className="flex-1 flex flex-col min-h-0 gap-5 lg:gap-6">
+      <div className="bg-white rounded-2xl p-4 lg:p-5 border border-gray-100 flex-1 flex flex-col min-h-0">
+        
+        {/* 헤더 영역 */}
+        <div className="flex justify-between items-center mb-4 flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <h3 className="md:text-body-m-bold lg:text-title-m text-body-s-bold text-gray-900">
+              실시간 홍수정보
+            </h3>
+            {damData.length > 0 && (
+              <span className={`rounded-xl font-bold text-center text-[10px] px-2.5 py-1 md:text-detail-s md:px-4 md:py-1.5 md:w-[80px] transition-colors ${
+                isDangerous ? "bg-red-100 text-red-600" : "bg-blue-100 text-blue-600"
+              }`}>
+                {isDangerous ? "위험" : "정상"}
               </span>
-            </div>
-            <p className="text-[10px] sm:text-detail-m text-graygray-30 font-medium tabular-nums">
-              2026.01.02 기준
-            </p>
+            )}
           </div>
-
-          {/* 지도 및 내부 사이드바 컨테이너 */}
-          <div className="relative h-[200px] sm:h-[384px] bg-secondary-5 rounded-xl border border-graygray-10 overflow-hidden shadow-inner">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-title-s sm:text-title-l font-black text-graygray-20 uppercase tracking-[0.2em] sm:tracking-[0.3em] opacity-50 px-4 text-center select-none">
-                Flood Map Area
-              </span>
-            </div>
-
-            {/* 지도 내부 사이드바 */}
-            <div className="absolute top-3 left-3 sm:top-5 sm:left-5 w-32 sm:w-40 flex flex-col gap-1.5 sm:gap-2 z-10">
-              {mapTabs.map((tab) => (
-                <div key={tab.id} className="flex flex-col gap-1.5">
-                  <button
-                    onClick={() => handleTabClick(tab.id)}
-                    className={`
-                      flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl text-[12px] sm:text-body-m font-black transition-all border
-                      ${
-                        activeTab === tab.id
-                          ? "bg-blue-600 text-white border-blue-600 shadow-blue shadow-lg translate-x-1"
-                          : "bg-white/95 backdrop-blur-sm text-graygray-60 border-graygray-10 hover:bg-white hover:translate-x-1 shadow-sm"
-                      }
-                    `}
-                  >
-                    <span className="truncate">{tab.label}</span>
-                    {tab.hasArrow && (
-                      <span
-                        className={`transition-transform duration-300 ${
-                          activeTab === tab.id ? "rotate-90" : ""
-                        }`}
-                      >
-                        <span className="text-[8px] sm:text-[10px]">▶</span>
-                      </span>
-                    )}
-                  </button>
-
-                  {/* 체크박스 그룹 표시 로직 - ID 매칭 확인 */}
-                  {tab.id === "재난안전시설" &&
-                    activeTab === "재난안전시설" && (
-                      <FacilityCheckGroup
-                        items={FloodItems}
-                        facilities={facilities}
-                        onCheck={handleCheck}
-                      />
-                    )}
-                </div>
-              ))}
-            </div>
-
-            {/* 정보 요약 창 */}
-            <div className="absolute top-3 right-3 sm:top-5 sm:right-5 bg-white/90 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl border border-graygray-10 shadow-xl z-10 animate-in fade-in zoom-in-95">
-              <div className="space-y-2">
-                <p className="text-[9px] sm:text-[10px] font-black text-graygray-40 uppercase tracking-widest">
-                  Current Data
-                </p>
-                <div className="flex items-center gap-2.5">
-                  <div className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-                  </div>
-                  <span className="text-detail-l sm:text-body-m font-bold text-graygray-80 whitespace-nowrap">
-                    전주천: <span className="text-blue-600">1.24m</span> (안정)
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* 지도 컨트롤 버튼 */}
-            <div className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 flex flex-col gap-1.5 z-10">
-              <button className="w-9 h-9 sm:w-10 sm:h-10 bg-white border border-graygray-10 rounded-xl shadow-1 flex items-center justify-center text-lg sm:text-xl font-bold text-graygray-60 hover:text-blue-600 transition-all active:scale-90">
-                +
-              </button>
-              <button className="w-9 h-9 sm:w-10 sm:h-10 bg-white border border-graygray-10 rounded-xl shadow-1 flex items-center justify-center text-lg sm:text-xl font-bold text-graygray-60 hover:text-blue-600 transition-all active:scale-90">
-                -
-              </button>
-            </div>
-          </div>
+          <p className="text-detail-xs md:text-detail-s text-gray-400">
+            {damData.length > 0 ? `${damData[0].time} 기준` : "지역별 상세 정보를 확인하세요"}
+          </p>
         </div>
 
-        <div className="bg-white h-[250px] rounded-xl p-6 shadow-1 border border-graygray-10">
-          <ActionTipBox type="홍수" />
+        {/* 지도 및 오버레이 영역 */}
+        <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[300px] md:min-h-[400px] lg:min-h-0">
+          
+          <div className="absolute inset-0 z-0">
+            {activeTab === "침수흔적도" ? (
+              <FloodGeometryMap />
+            ) : (
+              <CommonMap markers={[]} /> 
+            )}
+          </div>
+
+          {activeTab === "댐수문" && (
+            <div className="absolute inset-0 z-10 bg-black/10 backdrop-blur-[2px] p-4 pl-[120px] lg:pl-[180px] overflow-y-auto no-scrollbar">
+              <div className="flex flex-col gap-4 max-w-4xl">
+                <div className="bg-white/95 p-3 rounded-xl shadow-md border border-blue-200 self-start backdrop-blur-md">
+                  <p className="text-detail-s-bold text-blue-700 flex items-center gap-2">
+                    <span className="animate-pulse">🌊</span> 전북 및 전국 주요 댐 현황
+                  </p>
+                </div>
+
+                {loading ? (
+                  <div className="h-[200px] flex flex-col items-center justify-center bg-white/50 rounded-2xl">
+                    <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+                    <p className="text-gray-500 font-medium text-detail-s">데이터 로딩 중...</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {damData.map((dam, index) => (
+                      <div 
+                        key={`dam-${dam.damCode}-${index}`} 
+                        className={`bg-white p-5 rounded-2xl shadow-xl border-2 transition-all ${
+                          dam.region === '전북' ? 'border-blue-500 ring-4 ring-blue-50' : 'border-transparent'
+                        }`}
+                      >
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="flex flex-col">
+                            <div className="flex items-center gap-1.5">
+                              {dam.region === '전북' && <span className="bg-blue-600 text-white text-[9px] px-1.5 py-0.5 rounded font-bold">전북</span>}
+                              <h4 className="text-body-m-bold text-gray-900">{dam.name}</h4>
+                            </div>
+                            <span className="text-[10px] text-gray-400 mt-0.5">{dam.damCode}</span>
+                          </div>
+                          <div className="text-right">
+                             <span className={`text-[11px] px-2 py-1 rounded-lg font-bold inline-block ${
+                              parseFloat(dam.storageRate) >= 90 ? "bg-red-100 text-red-600" : "bg-blue-50 text-blue-600"
+                            }`}>
+                              저수율 {dam.storageRate}%
+                            </span>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 gap-2 mt-4">
+                          <div className="flex justify-between items-center text-detail-s p-2 bg-slate-50 rounded-lg">
+                            <span className="text-gray-500">현재수위</span>
+                            <span className="font-semibold text-gray-900">{dam.waterLevel} EL.m</span>
+                          </div>
+                          <div className="flex justify-between items-center text-detail-s p-2 bg-blue-50 rounded-lg border border-blue-100">
+                            <span className="text-blue-700 font-bold">현재 방류량</span>
+                            <span className="font-bold text-blue-700">{dam.discharge} ㎥/sec</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "재난안전시설" && (
+            <div className="absolute top-5 left-[120px] lg:left-[180px] z-20">
+              <FacilityCheckGroup 
+                items={floodItems} 
+                facilities={facilities} 
+                onCheck={handleCheck} 
+              />
+            </div>
+          )}
+
+          {/* 좌측 사이드 탭 버튼 */}
+          <div className="absolute top-5 left-3 lg:left-5 flex flex-col gap-3 z-30">
+            {mapTabs.map((tab, idx) => (
+              <button 
+                key={`tab-${tab.id}-${idx}`}
+                onClick={() => handleTabClick(tab.id)} 
+                className={`flex items-center justify-center px-3 py-2 lg:px-5 text-center lg:py-3 rounded-2xl lg:rounded-xl text-detail-s-bold lg:text-body-m transition-all border
+ border-gray-100 text-gray-600 ${
+                  activeTab === tab.id 
+                  ? "bg-blue-600 text-white border-blue-600 translate-x-1" 
+                  : "bg-white/95 backdrop-blur-md text-gray-600 border-gray-100 hover:bg-gray-50"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* <div className="absolute bottom-5 right-5 z-20">
+            <MapControlBtn />
+          </div> */}
         </div>
       </div>
 
-      {/* === 오른쪽 패널 === */}
-      <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 lg:gap-6 items-center lg:items-start">
-        <div className="w-full lg:max-w-[370px] h-[200px] bg-gradient-to-br from-[#62A1E9] to-[#4A90E2] rounded-xl p-5 lg:p-6 shadow-1 border border-white/30">
-          <WeatherBox />
-        </div>
-
-        {/* 재난문자 높이도 왼쪽과 맞추고 싶다면 같이 h-[480px] 정도로 조절 가능 */}
-        <div className="w-full max-w-[370px] h-[530px] bg-white rounded-xl shadow-1 border border-graygray-10 overflow-hidden flex flex-col">
-          <DisasterMessageBox />
-        </div>
+      {/* ✅ 수정 포인트: mb-10을 mb-0으로 변경하여 지진 탭과 동일하게 맞춤 */}
+      <div className="bg-white rounded-2xl p-5 border border-gray-100 flex-shrink-0 mb-0 lg:mb-0 shadow-sm">
+        <ActionTipBox type="호우·홍수" />
       </div>
     </div>
   );

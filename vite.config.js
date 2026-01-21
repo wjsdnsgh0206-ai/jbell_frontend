@@ -1,7 +1,8 @@
-import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react';
-import { fileURLToPath } from 'url';
-import path from 'path';
+// src/vite.config.js
+import { defineConfig, loadEnv } from "vite";
+import react from "@vitejs/plugin-react";
+import { fileURLToPath } from "url";
+import path from "path";
 import { createHtmlPlugin } from "vite-plugin-html";
 
 const filename = fileURLToPath(import.meta.url);
@@ -9,7 +10,6 @@ const dirname = path.dirname(filename);
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
-  console.log(env) // 터미널에 선언한 환경변수들이 보인다.
   return {
     plugins: [
       react(),
@@ -24,49 +24,187 @@ export default defineConfig(({ mode }) => {
     ],
     resolve: {
       alias: {
-        '@': path.resolve(dirname, './src'),
+        "@": path.resolve(dirname, "./src"),
       },
     },
-    server : {
-      proxy : {
+    server: {
+      proxy: {
         // /api로 시작하는 요청을 외부 API로 프록시
-        '/api': {
-          target: 'http://localhost:8080/api', // 외부 API 주소
+        "/api": {
+          target: "http://localhost:8080", // 외부 API 주소
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, ''),
-          
+          // rewrite: (path) => path.replace(/^\/api/, ''),
         },
         // 다른 외부 API가 있다면 추가
-        '/safety-api': {
-          target: 'https://www.safetydata.go.kr/V2/api',
+        "/safety-api": {
+          target: "https://www.safetydata.go.kr/V2/api",
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/safety-api/, ''),
+          rewrite: (path) => path.replace(/^\/safety-api/, ""),
           secure: false,
           configure: (proxy, options) => {
-            proxy.on('proxyReq', (proxyReq, req, res) => {
-              console.log('Proxy Request:', req.method, req.url);
+            proxy.on("proxyReq", (proxyReq, req, res) => {
+              console.log("Proxy Request:", req.method, req.url);
             });
-            proxy.on('proxyRes', (proxyRes, req, res) => {
-              console.log('Proxy Response:', proxyRes.statusCode, req.url);
+            proxy.on("proxyRes", (proxyRes, req, res) => {
+              console.log("Proxy Response:", proxyRes.statusCode, req.url);
             });
-          }
+          },
         },
-        '/weather-api': {
-          target : 'https://api.openweathermap.org/data/2.5/weather',
+        "/weather-api": {
+          target: "https://api.openweathermap.org/data/2.5",
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/weather-api/, ''),
+          rewrite: (path) => path.replace(/^\/weather-api/, ""),
           secure: false,
           configure: (proxy, options) => {
-            proxy.on('proxyReq', (proxyReq, req, res) => {
-              console.log('Proxy Request:', req.method, req.url);
+            proxy.on("proxyReq", (proxyReq, req, res) => {
+              console.log("Proxy Request:", req.method, req.url);
             });
-            proxy.on('proxyRes', (proxyRes, req, res) => {
-              console.log('Proxy Response:', proxyRes.statusCode, req.url);
+            proxy.on("proxyRes", (proxyRes, req, res) => {
+              console.log("Proxy Response:", proxyRes.statusCode, req.url);
             });
-          }
-        }
-      
-      }
-    }
-  }
+          },
+        },
+
+        // 재난문자 (속보) api
+        "/message-api": {
+          target: "https://www.safetydata.go.kr/V2/api",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/message-api/, ""),
+          secure: false,
+          configure: (proxy, options) => {
+            proxy.on("proxyReq", (proxyReq, req, res) => {
+              console.log("Proxy Request:", req.method, req.url);
+            });
+            proxy.on("proxyRes", (proxyRes, req, res) => {
+              console.log("Proxy Response:", proxyRes.statusCode, req.url);
+            });
+          },
+        },
+
+        // 지진 대피장소 api
+        "/earthquake-api": {
+          target: "https://www.safetydata.go.kr/V2/api",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/earthquake-api/, ""),
+          secure: false,
+          configure: (proxy, options) => {
+            proxy.on("proxyReq", (proxyReq, req, res) => {
+              console.log("Proxy Request:", req.method, req.url);
+            });
+            proxy.on("proxyRes", (proxyRes, req, res) => {
+              console.log("Proxy Response:", proxyRes.statusCode, req.url);
+            });
+          },
+        },
+
+        // 지진 진도 api
+        "/earthquakeLevel-api": {
+          target: "https://www.safetydata.go.kr/V2/api",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/earthquakeLevel-api/, ""),
+          secure: false,
+          configure: (proxy, options) => {
+            proxy.on("proxyReq", (proxyReq, req, res) => {
+              console.log("Proxy Request:", req.method, req.url);
+            });
+            proxy.on("proxyRes", (proxyRes, req, res) => {
+              console.log("Proxy Response:", proxyRes.statusCode, req.url);
+            });
+          },
+        },
+
+        // 호우홍수에서 활용되는 침수 흔적도 api
+        "/floodTrace-api": {
+          target: "https://www.safetydata.go.kr/V2/api",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/floodTrace-api/, ""),
+          secure: false,
+          configure: (proxy, options) => {
+            proxy.on("proxyReq", (proxyReq, req, res) => {
+              console.log("Proxy Request:", req.method, req.url);
+            });
+            proxy.on("proxyRes", (proxyRes, req, res) => {
+              console.log("Proxy Response:", proxyRes.statusCode, req.url);
+            });
+          },
+        },
+
+        // 호우홍수에서 활용되는 수문 api
+        "/sluice-api": {
+          target: "https://apis.data.go.kr/",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/sluice-api/, ""),
+          secure: false,
+          configure: (proxy, options) => {
+            proxy.on("proxyReq", (proxyReq, req, res) => {
+              console.log("Proxy Request:", req.method, req.url);
+            });
+            proxy.on("proxyRes", (proxyRes, req, res) => {
+              console.log("Proxy Response:", proxyRes.statusCode, req.url);
+            });
+          },
+        },
+
+        // 산사태에서 활용되는 산사태 위험 api
+        // "/landslideWarning-api": {
+        //   target: "https://www.safetydata.go.kr/V2/api",
+        //   changeOrigin: true,
+        //   rewrite: (path) => path.replace(/^\/landslideWarning-api/, ""),
+        //   secure: false,
+        //   configure: (proxy, options) => {
+        //     proxy.on("proxyReq", (proxyReq, req, res) => {
+        //       console.log("Proxy Request:", req.method, req.url);
+        //     });
+        //     proxy.on("proxyRes", (proxyRes, req, res) => {
+        //       console.log("Proxy Response:", proxyRes.statusCode, req.url);
+        //     });
+        //   },
+        // },
+
+        // 기상특보 api
+        "/weatherWarning-api": {
+          target: "https://www.safetydata.go.kr/V2/api",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/weatherWarning-api/, ""),
+        },
+
+        // 산불위험예보정보  api
+        "/forestFireWarning-api": {
+          target: "http://apis.data.go.kr/1400377/forestPoint",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/forestFireWarning-api/, ""),
+        },
+
+        // 산사태 예보발령 api
+        "/landSlideWarning-api": {
+          target: "https://apis.data.go.kr/1400000/forecastIssueService",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/landSlideWarning-api/, ""),
+        },
+
+        // 도로교통 정보 api
+
+      '/accidentNews-api': {
+        target: 'https://openapi.its.go.kr:9443',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/accidentNews-api/, ''),
+      },
+
+        // 🔹 기상청 지진 특보
+        "/kma-api": {
+          target: "https://apihub.kma.go.kr",
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/kma-api/, ""),
+        },
+
+        // 기상청 기상특보 조회서비스 (getPwnCd용)
+        "/kma-warning-api": {
+          target: "http://apis.data.go.kr/1360000/WthrWrnInfoService",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/kma-warning-api/, ""),
+        },
+      },
+    },
+  };
 });

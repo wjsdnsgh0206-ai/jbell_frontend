@@ -25,17 +25,17 @@
      1. Grayscale (Tertiary Button, Disabled, Text)
      - 버튼 Disabled, Tertiary 버튼의 배경/보더 색상을 단계별로 포함
      ========================================= */
-  --graygray-0:  #FFFFFF; /* Tertiary Default */
-  --graygray-5:  #F8F8F8; /* (기존 유지) */
-  --graygray-10: #F4F5F6; /* Tertiary Hover (New) */
-  --graygray-20: #E6E8EA; /* Tertiary Press / (기존 gray-10 대체) */
-  --graygray-30: #CDD1D5; /* Button Disabled (New) */
-  --graygray-40: #C6C6C6; /* (기존) */
-  --graygray-50: #8E8E8E; /* (기존) */
-  --graygray-60: #58616A; /* Tertiary Border (New) */
+  --graygray-0: #ffffff; /* Tertiary Default */
+  --graygray-5: #f8f8f8; /* (기존 유지) */
+  --graygray-10: #f4f5f6; /* Tertiary Hover (New) */
+  --graygray-20: #e6e8ea; /* Tertiary Press / (기존 gray-10 대체) */
+  --graygray-30: #cdd1d5; /* Button Disabled (New) */
+  --graygray-40: #c6c6c6; /* (기존) */
+  --graygray-50: #8e8e8e; /* (기존) */
+  --graygray-60: #58616a; /* Tertiary Border (New) */
   --graygray-70: #555555; /* (기존) */
-  --graygray-80: #2D2D2D; /* (기존) */
-  --graygray-90: #1D1D1D; /* (기존) */
+  --graygray-80: #2d2d2d; /* (기존) */
+  --graygray-90: #1d1d1d; /* (기존) */
 
   /* =========================================
      2. Blue Scale (Primary & Secondary Button)
@@ -43,28 +43,45 @@
      - 500: 브랜드 메인 (Secondary Border)
      - 600~800: Primary 버튼 (진한 톤)
      ========================================= */
-  --blue-50:  #ECF2FE; /* Secondary Default (New) */
-  --blue-100: #D8E5FD; /* Secondary Hover (New) */
-  --blue-200: #B1CEFB; /* Secondary Press (New) */
-  --blue-500: #256EF4; /* (기존) / Secondary Border */
-  --blue-600: #256EF4; /* Primary Default (New) */
-  --blue-700: #0B50D0; /* Primary Hover (New) */
+  --blue-50: #ecf2fe; /* Secondary Default (New) */
+  --blue-100: #d8e5fd; /* Secondary Hover (New) */
+  --blue-200: #b1cefb; /* Secondary Press (New) */
+  --blue-500: #256ef4; /* (기존) / Secondary Border */
+  --blue-600: #256ef4; /* Primary Default (New) */
+  --blue-700: #0b50d0; /* Primary Hover (New) */
   --blue-800: #083891; /* Primary Press (New) */
 
   /* =========================================
      3. Others (Orange, Green - 기존 유지)
      ========================================= */
-  --orange-50:  #FFF7ED;
-  --orange-200: #FED7AA;
-  --orange-600: #EA580C;
+  --orange-50: #fff7ed;
+  --orange-200: #fed7aa;
+  --orange-600: #ea580c;
 
-  --green-100: #DCFCE7;
-  --green-200: #BBF7D0;
-  --green-700: #15803D;
-  
+  --green-100: #dcfce7;
+  --green-200: #bbf7d0;
+  --green-700: #15803d;
+
+  /* =========================================
+      4. Admin Dedicated Tokens (관리자 전용)
+     ========================================= */
+  --admin-bg: #f4f7f9;
+  --admin-surface: #ffffff;
+  --admin-border: #e2e8f0;
+  --admin-primary: #1890ff;
+  --admin-primary-hover: #096dd9;
+  --admin-text-primary: #1f2937;
+  --admin-text-secondary: #6b7280;
+
+  /* Admin Sidebar 전용 (Ant Design 스타일 네이비) */
+  --admin-sidebar-bg: #001529;
+  --admin-sidebar-sub: #000c17;
+  --admin-sidebar-hover: #1e2d3d;
+  --admin-sidebar-active: #1890ff;
+
   /* Secondary (기존값 유지 혹은 Blue 스케일로 통합 권장) */
   /* 필요하다면 기존 --secondary-* 값들도 남겨둘 수 있습니다 */
-  --secondary-5: #EDF1F5;
+  --secondary-5: #edf1f5;
   --secondary-50: #003675;
   /* --- Typography Basics --- */
   --font-base: "Pretendard GOV", -apple-system, sans-serif;
@@ -143,7 +160,12 @@
     font-weight: 700;
     line-height: 150%;
   }
-
+  .text-body-l {
+    font-family: var(--font-base);
+    font-size: 19px;
+    font-weight: 400;
+    line-height: 150%;
+  }
   .text-body-m {
     font-family: var(--font-base);
     font-size: 17px;
@@ -180,7 +202,23 @@
     font-weight: 400;
     line-height: 150%;
   }
+  /* 1. 전체적인 스크롤바 스타일 커스텀 (사고 리스트, 재난문자 등) */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px; /* 스크롤바 너비를 얇게 */
+  }
 
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent; /* 트랙 배경은 투명하게 해서 경계면 삭제 */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #d1d5db; /* gray-300 정도의 연한 회색 */
+    border-radius: 20px; /* 둥글게 처리 */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #9ca3af; /* 호버 시 조금 더 진하게 */
+  }
   /* --- Utils --- */
   .flex-center {
     @apply flex items-center justify-center;
@@ -189,4 +227,295 @@
   .flex-col-center {
     @apply flex flex-col items-center justify-center;
   }
+
+
+
+  
+ /*============================================================
+   [관리자] Quill 에디터 스타일 보정 @@
+   ============================================================ */
+/* 1. 기본 상태 */
+.custom-quill .ql-toolbar.ql-snow {
+  border: 1px solid #D1D5DB !important;
+  border-bottom: 1px solid #E5E7EB !important;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  background-color: #F9FAFB;
+  transition: border-color 0.2s;
+}
+
+.custom-quill .ql-container.ql-snow {
+  border: 1px solid #D1D5DB !important;
+  border-top: none !important;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  min-height: 400px !important;
+  transition: border-color 0.2s;
+}
+
+/* 2. 포커스 상태 (외곽선만 파랗게) */
+.custom-quill:focus-within .ql-toolbar.ql-snow {
+  border-color: #2563EB !important;
+  border-bottom-color: #E5E7EB !important; /* 내부선은 회색 유지 */
+}
+
+.custom-quill:focus-within .ql-container.ql-snow {
+  border-color: #2563EB !important;
+}
+
+
+
+/* [관리자] Quill 에디터 에러 상태 스타일 최종 수정 */
+
+/* 1. 에러 발생 시 전체 박스에 다른 입력창과 동일한 빨간색 테두리 부여 */
+.error-border .ql-toolbar.ql-snow,
+.error-border .ql-container.ql-snow {
+  border-color: #E15141 !important; /* 선명한 빨간색 */
+  border-width: 1.5px !important;   /* 다른 박스와 두께 맞춤 */
+}
+
+/* 2. 에러 상태 배경색 및 높이 고정 */
+.error-border .ql-toolbar.ql-snow {
+  background-color: #FFFFFF !important; /* 배경은 무조건 흰색 */
+  border-bottom: 1px solid #F3F4F6 !important; /* 툴바 아래 구분선 */
+}
+
+.error-border .ql-container.ql-snow {
+  min-height: 400px !important; /* 👈 여기서 높이가 줄어들지 않게 강제 고정 */
+  border-top: none !important;
+  background-color: #FFFFFF !important;
+}
+
+/* 3. 에러 시 미세한 외곽 광택 (다른 박스의 ring 효과와 일치) */
+.error-border {
+  box-shadow: 0 0 0 1px rgba(225, 81, 65, 0.05); 
+  
+}
+
+/*============================================================
+   [관리자] Quill 에디터 이미지 및 추가 보정 @@
+   ============================================================ */
+
+/* 1. 에디터 본문 내 이미지 스타일 (이게 있어야 이미지가 보입니다) */
+.ql-editor img {
+  max-width: 100%;   /* 에디터 가로폭을 넘지 않도록 설정 */
+  height: auto;      /* 이미지 비율 유지 */
+  display: block;    /* 이미지를 블록 요소로 취급하여 정렬 용이하게 함 */
+  margin: 15px 0;    /* 이미지 상하 여백 부여 */
+  border-radius: 4px; /* 이미지 모서리 살짝 둥글게 (선택사항) */
+}
+
+/* 2. 에디터 내부 텍스트 기본 폰트 크기 및 줄간격 조정 (가독성) */
+.ql-editor {
+  font-size: 16px;
+  line-height: 1.6;
+  padding: 20px !important;
+}
+
+/* 3. 이미지가 선택되었을 때의 스타일 (선택사항) */
+.ql-editor img.ql-selected {
+  outline: 2px solid #2563EB;
+}
+
+/* 4. 에디터가 비어있을 때 placeholder(내용을 입력해주세요) 위치 교정 */
+.ql-editor.ql-blank::before {
+  left: 20px !important;
+  font-style: normal !important;
+  color: #9CA3AF !important;
+}
+
+/* 상세페이지에서 ql-editor를 감싸는 부모 배경이 회색(#F9FAFB)인 경우를 대비 */
+.AdminPressRelDetail .ql-editor {
+    background-color: transparent !important;
+    padding: 0 !important; /* 이미 부모 div에서 p-8을 주고 있으므로 중복 패딩 제거 */
+}
+
+/* 상세페이지 본문 내의 리스트(글머리 기호) 위치 보정 */
+.ql-editor ul, .ql-editor ol {
+    padding-left: 1.5em !important;
+}
+
+/* 에디터 본문 내 이미지 반응형 처리 */
+.ql-editor img {
+  max-width: 100%; 
+  height: auto;
+  display: block;
+  margin: 15px 0;
+}
+
+/* 글로벌 CSS 또는 해당 컴포넌트 CSS */
+.ql-editor img {
+  max-width: 100%; /* 이미지가 본문 영역 밖으로 튀어나가는 것 방지 */
+  height: auto;
+}
+
+/* ============================================================
+   [관리자] 리스트 페이지 날짜 입력창(Date Input) 커스텀 @@
+   ============================================================ */
+
+  /* 1. 에디터 컨테이너 기본 폰트 */
+  .ql-container {
+    font-family: 'Pretendard_GOV', sans-serif !important;
+    font-size: 17px !important; 
+  }
+
+  /* 2. 툴바 스타일 (상단 버튼 영역) */
+  .ql-toolbar.ql-snow {
+    border: 1px solid #D1D5DB !important;
+    border-bottom: none !important;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    background-color: #F9FAFB;
+    padding: 12px !important;
+  }
+
+  /* 툴바 아이콘 및 드롭다운 크기 */
+  .ql-snow .ql-picker-label::before,
+  .ql-snow .ql-picker-item::before {
+    font-size: 15px !important;
+  }
+
+  /* 3. 에디터 컨테이너 (테두리 및 높이 제어) */
+  .ql-container.ql-snow {
+    border: 1px solid #D1D5DB !important;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    background-color: #fff;
+    /* ★ 잘림 방지 핵심: 고정 높이 대신 최소 높이 사용 */
+    min-height: 400px !important; 
+    height: auto !important; 
+  }
+
+  /* 에디터 본문 영역 (입력 시) */
+  .ql-editor {
+    min-height: 400px !important;
+    height: auto !important;
+    font-size: 17px !important;     /* ★ 기본 크기 17px */
+    line-height: 1.8 !important;    /* 줄 간격 넉넉하게 */
+    color: #111;
+    padding: 20px !important;
+  }
+
+  /* Quill 내부 p태그 스타일 (문단 입력 시 적용) */
+  .ql-editor p {
+    font-size: 17px !important;     /* ★ p태그도 17px 강제 적용 */
+    line-height: 1.8 !important;
+    margin-bottom: 10px !important; /* 문단 간 간격 살짝 추가 */
+  }
+
+  /* 포커스 시 파란색 보더 */
+  .ql-container.ql-snow:focus-within,
+  .ql-toolbar.ql-snow:focus-within {
+    border-color: #2563EB !important;
+  }
+
+  /* 에디터 하단 여백 (레이아웃 잘림 방지) */
+  .quill {
+    margin-bottom: 50px !important; 
+  }
+
+  /* ============================================================
+    [상세 보기 모드] (.view-mode-container 내부일 때)
+    ============================================================ */
+
+  /* 상세 보기 박스 (Input 디자인 모방) */
+  .view-mode-container {
+    min-height: 3.5rem; /* h-14 */
+    padding: 0.75rem 1.25rem; /* px-5 */
+    border-radius: 0.5rem;
+    background-color: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    color: #6B7280;
+  }
+
+  /* 상세 보기 시 Quill 내부 테두리/배경 제거 */
+  .view-mode-container .ql-container.ql-snow {
+    border: none !important;
+    background-color: transparent !important;
+    min-height: auto !important;
+  }
+
+  /* 상세 보기 시 텍스트 스타일 (input 디자인 내부) */
+  .view-mode-container .ql-editor,
+  .view-mode-container .ql-editor p {
+    font-size: 17px !important;     /* ★ 상세 보기 시에도 17px로 통일 */
+    line-height: 1.6 !important;
+    color: inherit !important;
+    padding: 0 !important;
+  }
+  /* [관리자] Quill 에디터 에러 상태 스타일 최종 수정 */
+
+  /* 1. 에러 발생 시 전체 박스에 다른 입력창과 동일한 빨간색 테두리 부여 */
+  .error-border .ql-toolbar.ql-snow,
+  .error-border .ql-container.ql-snow {
+    border-color: #E15141 !important; /* 선명한 빨간색 */
+    border-width: 1.5px !important;   /* 다른 박스와 두께 맞춤 */
+  }
+
+  /* 2. 에러 상태 배경색 및 높이 고정 */
+  .error-border .ql-toolbar.ql-snow {
+    background-color: #FFFFFF !important; /* 배경은 무조건 흰색 */
+    border-bottom: 1px solid #F3F4F6 !important; /* 툴바 아래 구분선 */
+  }
+
+  .error-border .ql-container.ql-snow {
+    min-height: 400px !important; /* 👈 여기서 높이가 줄어들지 않게 강제 고정 */
+    border-top: none !important;
+    background-color: #FFFFFF !important;
+  }
+
+  /* 3. 에러 시 미세한 외곽 광택 (다른 박스의 ring 효과와 일치) */
+  .error-border {
+    box-shadow: 0 0 0 1px rgba(225, 81, 65, 0.05); 
+  }
+
+  /* ============================================================
+    [관리자] 리스트 페이지 날짜 입력창(Date Input) 커스텀 @@
+    ============================================================ */
+
+  /* 1. 날짜 입력창 부모 컨테이너 */
+  .custom-date-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 140px; /* 아이콘과 텍스트가 넉넉히 들어가는 크기 */
+  }
+
+  /* 2. 실제 날짜 텍스트 스타일 */
+  .custom-date-input {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    width: 100% !important;
+    font-family: 'Pretendard_GOV', sans-serif;
+    font-size: 14px;
+    color: #58616a;
+    padding: 0 !important;
+    cursor: default; /* 텍스트 위에서는 기본 커서 */
+  }
+
+  /* 3. 브라우저 기본 달력 아이콘 숨기기 및 아이콘 영역만 클릭 가능하게 설정 */
+  .custom-date-input::-webkit-calendar-picker-indicator {
+    position: absolute;
+    right: 0;           /* Lucide Calendar 아이콘이 위치할 오른쪽 끝 */
+    top: 0;
+    width: 24px;        /* 클릭 가능한 영역을 아이콘 크기 정도로 제한 */
+    height: 100%;
+    background: transparent;
+    color: transparent;
+    cursor: pointer;    /* 아이콘 위에만 손가락 커서 */
+    z-index: 10;
+  }
+
+  /* 4. 호버 효과 (아이콘에 마우스 올렸을 때만 파란색 강조를 원하시면 아래 유지) */
+  .custom-date-container:hover .custom-date-icon {
+    color: #2563EB !important;
+    transition: all 0.2s;
+  }
+
+  .custom-date-container:hover .custom-date-input {
+    color: #111111 !important;
+  }
+
 }

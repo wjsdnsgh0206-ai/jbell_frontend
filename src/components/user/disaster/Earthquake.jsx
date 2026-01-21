@@ -1,130 +1,96 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
-import WeatherBox from "../modal/WeatherBox";
-import DisasterMessageBox from "../modal/DisasterMessageBox";
 import FacilityCheckGroup from "../modal/FacilityCheckGroup";
+import MapControlBtn from "@/components/user/modal/MapControlBtn";
+import CommonMap from "@/components/user/modal/CommonMap";
+import useEarthquake from "@/hooks/user/useEarthquake";
 
 const Earthquake = () => {
-  const [activeTab, setActiveTab] = useState("기상특보");
+  const { 
+    eqMarkers, 
+    levelMarkers, 
+    fetchEarthquakeData, 
+    fetchEarthquakeLevel, 
+    clearMarkers, 
+    isLoading,
+    getMapCenter,    // 훅에서 가져온 중심점 계산 함수
+    selectedMarker 
+  } = useEarthquake();
 
-  const [facilities, setFacilities] = useState({
-    shelter: true,
-    hospital: false,
-    pharmacy: false,
-  });
+  const [activeTab, setActiveTab] = useState("지진특보");
+  const [facilities, setFacilities] = useState({ shelter: false, hospital: false, pharmacy: false });
 
-  const mapTabs = [
-    { id: "기상특보", label: "기상특보" },
-    { id: "지진특보", label: "지진특보" },
-    { id: "진도정보조회", label: "진도정보조회" },
-    { id: "재난안전시설", label: "재난안전시설", hasArrow: true },
-  ];
+  useEffect(() => {
+    if (activeTab === "지진특보") fetchEarthquakeData();
+    else if (activeTab === "진도정보조회") fetchEarthquakeLevel();
+    else clearMarkers();
+  }, [activeTab, fetchEarthquakeData, fetchEarthquakeLevel, clearMarkers]);
 
-  // 재난안전시설 탭 데이터
-  const EarthquakeItems = [
-    { id: "shelter", label: "지진옥외대피장소" },
-    { id: "hospital", label: "병원" },
-    { id: "pharmacy", label: "약국" },
-  ];
-
-  const handleTabClick = (tabId) => {
-    setActiveTab((prev) => (prev === tabId ? null : tabId));
-  };
-
-  const handleCheck = (key) => {
-    setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+  const displayMarkers = useMemo(() => {
+    if (activeTab === "지진특보") return eqMarkers;
+    if (activeTab === "진도정보조회") return levelMarkers;
+    return [];
+  }, [activeTab, eqMarkers, levelMarkers]);
 
   return (
-    <div className="grid grid-cols-12 gap-5 lg:gap-6">
-      <div className="col-span-12 lg:col-span-8 flex flex-col gap-5 lg:gap-6">
-        <div className="bg-white rounded-xl p-5 sm:p-5 shadow-1 border border-graygray-10 h-[200px] min-h-[480px]">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
-            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-              <h3 className="text-body-l-bold sm:text-title-m font-black text-graygray-90 whitespace-nowrap">
-                실시간 지진정보
-              </h3>
-              <span className="shrink-0 text-[10px] sm:text-detail-m px-2.5 py-1 bg-secondary-5 border border-graygray-10 rounded-full text-graygray-50 font-bold leading-none">
-                특보없음
-              </span>
-            </div>
-            <p className="text-[10px] sm:text-detail-m text-graygray-30 font-medium tabular-nums">
-              2026.01.02 기준
-            </p>
-          </div>
-
-          <div className="relative h-[200px] sm:h-[384px] bg-secondary-5 rounded-xl border border-graygray-10 overflow-hidden shadow-inner">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-title-s sm:text-title-l font-black text-graygray-20 uppercase tracking-[0.2em] sm:tracking-[0.3em] opacity-50 px-4 text-center">
-                Earthquake Map
-              </span>
-            </div>
-
-            <div className="absolute top-3 left-3 sm:top-5 sm:left-5 w-36 sm:w-48 flex flex-col gap-2 z-10">
-              {mapTabs.map((tab) => (
-                <div key={tab.id} className="flex flex-col gap-1.5">
-                  <button
-                    onClick={() => handleTabClick(tab.id)}
-                    className={`
-                      flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl text-[12px] sm:text-body-m font-black transition-all border
-                      ${
-                        activeTab === tab.id
-                          ? "bg-blue-600 text-white border-blue-600 shadow-blue shadow-lg translate-x-1"
-                          : "bg-white/95 backdrop-blur-sm text-graygray-60 border-graygray-10 hover:bg-white hover:translate-x-1 shadow-sm"
-                      }
-                    `}
-                  >
-                    <span className="truncate">{tab.label}</span>
-                    {tab.hasArrow && (
-                      <span
-                        className={`transition-transform duration-300 ${
-                          activeTab === tab.id ? "rotate-90" : ""
-                        }`}
-                      >
-                        <span className="text-[8px] sm:text-[10px]">▶</span>
-                      </span>
-                    )}
-                  </button>
-
-                  {/* 분리된 체크박스 컴포넌트 적용 */}
-                  {tab.id === "재난안전시설" &&
-                    activeTab === "재난안전시설" && (
-                      <FacilityCheckGroup
-                        items={EarthquakeItems}
-                        facilities={facilities}
-                        onCheck={handleCheck}
-                      />
-                    )}
-                </div>
-              ))}
-            </div>
-
-            <div className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 flex flex-col gap-1.5 z-10">
-              <button className="w-9 h-9 sm:w-10 sm:h-10 bg-white border border-graygray-10 rounded-xl shadow-1 flex items-center justify-center text-lg sm:text-xl font-bold text-graygray-60 hover:text-blue-600 transition-all active:scale-90">
-                +
-              </button>
-              <button className="w-9 h-9 sm:w-10 sm:h-10 bg-white border border-graygray-10 rounded-xl shadow-1 flex items-center justify-center text-lg sm:text-xl font-bold text-graygray-60 hover:text-blue-600 transition-all active:scale-90">
-                -
-              </button>
-            </div>
-          </div>
+    <div className="flex-1 flex flex-col gap-6 w-full h-full lg:min-h-0">
+      
+      <div className="bg-white rounded-2xl p-4 lg:p-5 border border-gray-100 flex flex-col lg:flex-1 min-h-0">
+        <div className="flex justify-between items-center mb-3 flex-shrink-0">
+          <h3 className="font-bold text-gray-900 text-[16px] md:text-[20px]">실시간 지진정보</h3>
+          <span className={`rounded-xl font-bold text-[10px] px-2.5 py-1 ${displayMarkers.length > 0 ? "bg-red-100 text-red-600" : "bg-gray-100 text-gray-500"}`}>
+            {isLoading ? "조회 중..." : displayMarkers.length > 0 ? "특보발령" : "특보없음"}
+          </span>
         </div>
 
-        <div className="bg-white h-[250px] rounded-xl p-6 shadow-1 border border-graygray-10">
-          {" "}
-          <ActionTipBox type="지진" />
+
+        
+
+        <div className="relative w-full h-[280px] md:h-[350px] lg:h-full lg:flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden">
+          
+          <CommonMap 
+            markers={displayMarkers} 
+            center={getMapCenter(activeTab)} 
+            level={8}
+            selectedMarker={activeTab === "지진특보" ? selectedMarker : null} 
+          />
+          
+          {!isLoading && displayMarkers.length === 0 && (
+            <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none pl-[120px] lg:pl-[180px]">
+              <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-gray-200 shadow-lg mx-4 pointer-events-auto">
+                <p className="text-gray-600 text-[11px] md:text-sm font-semibold text-center">
+                  최근 전북 지역의 {activeTab} 데이터가 없습니다.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* ✅ 좌측 사이드 탭 버튼: 스타일 가이드 적용 */}
+          <div className="absolute top-5 left-3 lg:left-5 flex flex-col gap-3 z-20">
+            {["지진특보", "진도정보조회", "재난안전시설"].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex items-center justify-center px-3 py-2 lg:px-5 text-center lg:py-3 rounded-2xl lg:rounded-xl text-detail-s-bold lg:text-body-m transition-all border
+                    bg-blue-600 border-blue-600 shadow-md ${
+                  activeTab === tab 
+                    ? "bg-blue-600 text-white border-blue-600 translate-x-1" 
+                    : "bg-white/95 backdrop-blur-md text-gray-600 border-gray-100 hover:bg-gray-50"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          {/* <div className="absolute bottom-4 right-4 z-20 scale-90 md:scale-100">
+            <MapControlBtn />
+          </div> */}
         </div>
       </div>
-      {/* === 오른쪽 패널 === */}
-      <div className="col-span-12 lg:col-span-4 flex flex-col gap-5 lg:gap-6 items-center lg:items-start">
-        <div className="w-full lg:max-w-[370px] h-[200px] bg-gradient-to-br from-[#62A1E9] to-[#4A90E2] rounded-xl p-5 lg:p-6 shadow-1 border border-white/30">
-          <WeatherBox />
-        </div>
 
-        {/* 재난문자 높이도 왼쪽과 맞추고 싶다면 같이 h-[480px] 정도로 조절 가능 */}
-        <div className="w-full max-w-[370px] h-[530px] bg-white rounded-xl shadow-1 border border-graygray-10 overflow-hidden flex flex-col">
-          <DisasterMessageBox />
-        </div>
+      <div className="bg-white rounded-2xl p-5 border border-gray-100 flex-shrink-0 mb-0 lg:mb-0 shadow-sm">
+        <ActionTipBox type="지진" />
       </div>
     </div>
   );
