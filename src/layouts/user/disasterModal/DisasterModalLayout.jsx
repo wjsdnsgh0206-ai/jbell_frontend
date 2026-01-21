@@ -1,3 +1,4 @@
+// src/layouts/user/disasterModal/DisasterModalLayout.jsx
 import React, { Suspense, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import WeatherBox from "@/components/user/modal/WeatherBox";
@@ -18,6 +19,7 @@ const DisasterModalLayout = () => {
     landSlide: "산사태",
     typhoon: "태풍",
     forestFire: "산불",
+    coldWave: "한파",
   };
 
   // 현재 URL 경로의 마지막 부분 추출 (예: accident, earthquake 등)
@@ -31,6 +33,7 @@ const DisasterModalLayout = () => {
     { label: "산사태", path: "/disaster/landSlide" },
     { label: "태풍", path: "/disaster/typhoon" },
     { label: "산불", path: "/disaster/forestFire" },
+    { label: "한파", path: "/disaster/coldWave" },
   ];
 
   return (
@@ -104,8 +107,8 @@ const DisasterModalLayout = () => {
 
           {/* 콘텐츠 바디 */}
           <div className="flex-1 overflow-y-auto lg:overflow-hidden p-4 md:p-8 flex flex-col min-h-0">
-            <div className="flex flex-col lg:flex-row gap-6 h-full min-h-0">
-              <main className="w-full lg:flex-[1.6] flex flex-col min-h-[600px] lg:min-h-0 order-1">
+            <div className="flex flex-col lg:flex-row gap-6 lg:h-full min-h-0">
+              <main className="w-full lg:flex-[1.6] flex flex-col lg:h-full min-h-[600px] lg:min-h-0 order-1">
                 <Suspense
                   fallback={
                     <div className="p-10 text-gray-400">로딩 중...</div>
@@ -146,14 +149,19 @@ const DisasterModalLayout = () => {
                         : "max-h-0 lg:max-h-[300px]"
                     } transition-all duration-300 overflow-hidden`}
                   >
-                    <div className="p-5 h-[200px]">
+                    <div className="p-5 h-[220px] grid">
                       <WeatherBox />
                     </div>
                   </div>
                 </div>
 
+                {/* ✅ 모바일 순서: (행동요령은 메인 컨텐츠에서 표시) → 날씨박스 → 재난문자박스 */}
+                <div className="lg:hidden">
+                  <DisasterMessageBox />
+                </div>
+
                 {/* 하단 박스 영역: 분기 처리 로직 수정 */}
-                <div className="flex-1 min-h-[400px] lg:min-h-0 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+                <div className="hidden lg:flex flex-1 min-h-[400px] lg:min-h-0 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex-col">
                   {/* currentPath를 사용하여 분기 처리 (사고속보 경로인 accident일 때) */}
                   {currentPath === "accident" ? (
                     <DisasterMessageBox />

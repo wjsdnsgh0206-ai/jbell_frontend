@@ -4,3 +4,4 @@ export { default as Flood } from "./Flood";
 export { default as LandSlide } from "./LandSlide";
 export { default as Typhoon } from "./Typhoon";
 export { default as ForestFire } from "./ForestFire";
+export { default as ColdWave } from "./ColdWave";

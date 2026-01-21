@@ -1,14 +1,18 @@
-import React, { useState } from "react";
+// src/components/user/disaster/Typhoon.jsx
+import React, { useState, useEffect } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
 import FacilityCheckGroup from "../modal/FacilityCheckGroup";
-import MapControlBtn from "@/components/user/modal/MapControlBtn";
-import CommonMap from "@/components/user/modal/CommonMap"; // 공통 지도 엔진
+import CommonMap from "@/components/user/modal/CommonMap"; // 공통 지도 엔진, 지도 컴포넌트 가정
+import useTyphoon from "@/hooks/user/useTyphoon"; // Hook 임포트
 
 const Typhoon = () => {
+  // Hook 사용: 로직은 다 저기에 숨겨져 있음
+  const { disasterStatus, isLoading, fetchTyphoonData } = useTyphoon();
+
   // 태풍 관련 데이터 (예: 태풍 중심 위치, 예상 경로 지점들)
-  const typhoonData = [
-    { lat: 34.5000, lng: 126.5000, title: "제1호 태풍 네파탁", content: "현재 위치: 서귀포 남쪽 약 300km 부근" },
-  ];
+  // const typhoonData = [
+  //   { lat: 34.5000, lng: 126.5000, title: "제1호 태풍 네파탁", content: "현재 위치: 서귀포 남쪽 약 300km 부근" },
+  // ];
 
   const [activeTab, setActiveTab] = useState("태풍경로도");
   const [facilities, setFacilities] = useState({
@@ -18,6 +22,7 @@ const Typhoon = () => {
   });
 
   const mapTabs = [
+    { id: "태풍 특보", label: "태풍 특보" },
     { id: "태풍경로도", label: "태풍경로도" },
     { id: "재난안전시설", label: "재난안전시설", hasArrow: true },
   ];
@@ -27,6 +32,11 @@ const Typhoon = () => {
     { id: "hospital", label: "병원" },
     { id: "pharmacy", label: "약국" },
   ];
+
+  // 컴포넌트 마운트 시 데이터 호출
+  useEffect(() => {
+    fetchTyphoonData();
+  }, [fetchTyphoonData]);
 
   const handleTabClick = (tabId) =>
     setActiveTab((prev) => (prev === tabId ? null : tabId));
@@ -42,18 +52,36 @@ const Typhoon = () => {
             <h3 className="md:text-body-m-bold lg:text-title-m text-body-s-bold text-gray-900">
               실시간 태풍정보
             </h3>
-            <span className="rounded-xl font-bold bg-gray-100 text-gray-500 text-center text-[10px] px-2.5 py-1 md:text-detail-s md:px-4 md:py-1.5 md:w-[80px]">
-              특보없음
-            </span>
+            {/* 특보 현황 배지 */}
+            {Object.keys(disasterStatus).length > 0 ? (
+               <span className="rounded-xl font-bold bg-red-100 text-red-600 text-[10px] px-2.5 py-1 md:text-detail-s md:px-4 md:py-1.5">
+                 특보 발효중
+               </span>
+            ) : (
+               <span className="rounded-xl font-bold bg-gray-100 text-gray-500 text-[10px] px-2.5 py-1 md:text-detail-s md:px-4 md:py-1.5">
+                 특보없음
+               </span>
+            )}
           </div>
-          <p className="text-detail-xs md:text-detail-s text-gray-400">2026.01.09 기준</p>
+          <p className="text-detail-xs md:text-detail-s text-gray-400">
+             {/* 오늘 날짜 표시 */}
+             {new Date().toISOString().slice(0, 10).replace(/-/g, '.')} 기준
+          </p>
         </div>
 
         {/* 지도 영역 */}
         <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[400px] lg:min-h-0">
           
-          {/* 공통 지도 컴포넌트 삽입 */}
-          <CommonMap markers={typhoonData} />
+          {isLoading ? (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-50/50 z-50">
+              로딩 중...
+            </div>
+          ) : (
+            <CommonMap 
+              markers={[]} // 태풍 경로 마커가 있다면 여기에 (지금은 없음)
+              regionStatus={disasterStatus} // ★ 핵심: 지역별 색상 데이터 전달
+            />
+          )}
 
           {/* 상단 탭 메뉴 (모바일 가로스크롤 / PC 세로) */}
           <div className="absolute top-3 left-0 right-0 px-3 lg:px-0 lg:top-5 lg:left-5 lg:right-auto flex lg:flex-col gap-2 z-20 overflow-x-auto no-scrollbar">
@@ -89,20 +117,6 @@ const Typhoon = () => {
                 )}
               </div>
             ))}
-          </div>
-
-          {/* 정보 요약창 (태풍 중심 기압 및 명칭) */}
-          <div className="absolute bottom-4 right-4 lg:top-5 lg:right-5 lg:bottom-auto bg-white/90 backdrop-blur-md p-4 rounded-2xl border border-gray-100 shadow-xl z-10 min-w-[160px]">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative h-2 w-2 rounded-full bg-red-500"></span>
-              </span>
-              <span className="text-detail-l lg:text-body-m font-bold text-gray-800">965 hPa</span>
-            </div>
-            <div className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-detail-s lg:text-body-s-bold text-center">
-              제1호 태풍 네파탁
-            </div>
           </div>
         </div>
       </div>

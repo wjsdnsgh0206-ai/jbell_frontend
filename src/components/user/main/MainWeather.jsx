@@ -1,9 +1,9 @@
-// src/components/MainWeather.jsx
 import React from "react";
 import useWeather from "@/hooks/user/useWeather";
 
 const MainWeather = () => {
-  const { weather, address, isLoading, error, getWeatherDesc } = useWeather();
+  // 훅에서 dust 데이터도 함께 가져와
+  const { weather, dust, address, isLoading, error, getWeatherDesc } = useWeather();
 
   if (isLoading) {
     return (
@@ -20,6 +20,17 @@ const MainWeather = () => {
       </div>
     );
   }
+
+  // 미세먼지 데이터 및 등급 계산 (데이터가 있을 때만 실행)
+  const pm10 = dust?.list[0].components.pm10;
+  const pm2_5 = dust?.list[0].components.pm2_5;
+
+  const getDustStatus = (val) => {
+    if (val <= 30) return "좋음";
+    if (val <= 80) return "보통";
+    if (val <= 150) return "나쁨";
+    return "매우나쁨";
+  };
 
   return (
     <div className="flex flex-col gap-6 w-full h-full">
@@ -55,14 +66,25 @@ const MainWeather = () => {
           </div>
         </div>
 
+        {/* 미세먼지 포함 상세 그리드 영역 */}
         <div className="grid grid-cols-1 gap-2.5 relative z-10">
           {[
-            { label: "습도", value: `${weather.main.humidity}%`, barColor: "bg-white", percent: `${weather.main.humidity}%` },
-            { label: "풍속", value: `${weather.wind.speed}m/s`, barColor: "bg-amber-200", percent: `${Math.min(weather.wind.speed * 10, 100)}%` }
+            { 
+              label: "미세먼지", 
+              value: pm10 ? `${Math.floor(pm10)}㎍/㎥ (${getDustStatus(pm10)})` : "정보 없음", 
+              barColor: pm10 > 80 ? "bg-amber-300" : "bg-emerald-300", 
+              percent: `${Math.min((pm10 / 150) * 100, 100)}%` 
+            },
+            { 
+              label: "습도", 
+              value: `${weather.main.humidity}%`, 
+              barColor: "bg-white", 
+              percent: `${weather.main.humidity}%` 
+            },
           ].map((item, i) => (
             <div key={i} className="bg-white/10 backdrop-blur-md p-3.5 rounded-xl border border-white/20">
               <div className="flex justify-between text-detail-m font-bold mb-2 text-white">
-                <span>{item.label} <span className="ml-1 opacity-80">{item.value}</span></span>
+                <span>{item.label} <span className="ml-1 opacity-80 font-normal">{item.value}</span></span>
               </div>
               <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
                 <div className={`${item.barColor} h-full transition-all duration-700`} style={{ width: item.percent }} />
@@ -72,7 +94,7 @@ const MainWeather = () => {
         </div>
       </div>
       
-      {/* 하단 경보 카드는 필요시 여기에 그대로 유지 */}
+      {/* 하단 경보 카드 (기존 유지) */}
       <div className="bg-white border-l-4 border-l-orange-500 border border-graygray-10 rounded-[24px] p-4 flex items-center gap-4 shadow-1 hover:translate-y-[-2px] transition-all">
         <div className="bg-orange-500 text-white w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 font-bold shadow-md">
           <span className="text-[9px] opacity-80 leading-none mb-0.5">LV</span>

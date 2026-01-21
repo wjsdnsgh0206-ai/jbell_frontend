@@ -1,3 +1,4 @@
+// src/vite.config.js
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import { fileURLToPath } from "url";
@@ -50,7 +51,7 @@ export default defineConfig(({ mode }) => {
           },
         },
         "/weather-api": {
-          target: "https://api.openweathermap.org/data/2.5/weather",
+          target: "https://api.openweathermap.org/data/2.5",
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/weather-api/, ""),
           secure: false,
@@ -181,12 +182,27 @@ export default defineConfig(({ mode }) => {
           rewrite: (path) => path.replace(/^\/landSlideWarning-api/, ""),
         },
 
+        // 도로교통 정보 api
+
+      '/accidentNews-api': {
+        target: 'https://openapi.its.go.kr:9443',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/accidentNews-api/, ''),
+      },
+
         // 🔹 기상청 지진 특보
         "/kma-api": {
           target: "https://apihub.kma.go.kr",
           changeOrigin: true,
           secure: false,
           rewrite: (path) => path.replace(/^\/kma-api/, ""),
+        },
+
+        // 기상청 기상특보 조회서비스 (getPwnCd용)
+        "/kma-warning-api": {
+          target: "http://apis.data.go.kr/1360000/WthrWrnInfoService",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/kma-warning-api/, ""),
         },
       },
     },
