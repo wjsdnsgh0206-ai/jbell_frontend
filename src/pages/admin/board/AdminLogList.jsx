@@ -4,6 +4,7 @@ import AdminSearchBox from '@/components/admin/AdminSearchBox'; // ★ 공용 �
 import AdminDataTable from '@/components/admin/AdminDataTable';
 import AdminPagination from '@/components/admin/AdminPagination';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
+import AdminBreadcrumb from '@/components/admin/AdminBreadCrumb';
 
 const AdminLogList = () => {
     
@@ -137,7 +138,7 @@ const AdminLogList = () => {
     return (
         <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
             <div className="p-6 bg-gray-50 min-h-screen">
-                
+                <AdminBreadcrumb />
                 <h1 className="text-2xl font-bold mb-6">로그 관리</h1>
 
             {/* 검색 바 영역: AdminSearchBox 적용 */}

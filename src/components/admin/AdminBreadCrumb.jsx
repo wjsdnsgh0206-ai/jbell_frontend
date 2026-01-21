@@ -6,8 +6,13 @@ import { GoHomeFill } from "react-icons/go";
 // 고정 메뉴 매핑 (ID를 제외한 정적 경로들)
 const adminMap = {
   "realtime": "실시간 정보 관리",
-  "accidentNews": "사고속보 관리",
-  "disaster": "재난 관리",
+  "realtimeDashboard": "대시보드",
+  "accidentNewsList": "사고속보 관리",
+  "accidentNewsDetail": "사고속보 상세",
+  "accidentNewsAdd": "사고속보 등록",
+  "disasterManagementList":"재난 관리",
+  "disasterManagementDetail": "재난 상세",
+  "disasterManagementAdd": "재난 등록",
   "contents": "콘텐츠 관리",
   "behavioralGuide": "행동요령 관리",
   "behavioralGuideList": "행동요령 목록",
@@ -26,6 +31,7 @@ const adminMap = {
   "stormAndFloodInsurance": "풍수해 안전보험 관리",
   "pressRelList": "보도자료 목록",
   "pressRelAdd": "보도자료 등록",
+<<<<<<< HEAD:src/components/Admin/AdminBreadCrumb.jsx
   "adminBoardList": "공지사항 관리",  
   "adminBoardDetail": "공지사항 상세",
   "adminBoardRegister": "공지사항 등록",
@@ -36,10 +42,16 @@ const adminMap = {
   "adminMemberDetail": "회원 상세 정보 조회",
   "adminMemberRegister": "회원 등록",
   "adminMemberEdit": "회원 수정",  
+=======
+>>>>>>> develop:src/components/admin/AdminBreadCrumb.jsx
   "pressRelDetail": "보도자료 상세",
   "pressRelEdit": "보도자료 수정",
   "safetyEduList": "시민안전교육 목록",
   "safetyEduEdit": "시민안전교육 수정",
+<<<<<<< HEAD:src/components/Admin/AdminBreadCrumb.jsx
+=======
+
+>>>>>>> develop:src/components/admin/AdminBreadCrumb.jsx
 };
 
 /**
