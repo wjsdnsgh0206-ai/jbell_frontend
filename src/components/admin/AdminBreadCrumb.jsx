@@ -24,6 +24,12 @@ const adminMap = {
   "groupCodeEdit": "공통 코드 수정",
   "subCodeDetail": "상세 코드 상세",
   "subCodeEdit": "상세 코드 수정",
+  "FAQList": "FAQ목록",
+  "FAQDetail": "FAQ 상세정보",
+  "FAQAdd": "FAQ 신규등록",
+  "QnAList": "1:1 목록",
+  "QnADetail": "1:1 상세정보",
+
   "behavioralGuideDetail": "행동요령 상세",
   "citySafetyMasterPlan": "도시안전기본계획 관리",
   "disasterSafetyPolicy": "재난별 안전정책 관리",
