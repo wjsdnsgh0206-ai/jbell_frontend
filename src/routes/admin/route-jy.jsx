@@ -4,13 +4,13 @@ import { lazy } from 'react';
 
 export const RealTimeDashboard = lazy(() => import("@/pages/admin/realtime/RealTimeDashboard"));
 // export const BehavioralGuideDetail = lazy(() => import("@/pages/admin/contents/behavioralGuide/BehavioralGuideDetail"));
-export const AccidentNews = lazy(() => import("@/pages/admin/realtime/accidentNewsList"));
+export const AccidentNews = lazy(() => import("@/pages/admin/realtime/AccidentNewsList"));
 // export const Disaster = lazy(() => import("@/pages/admin/realtime/Disaster"));
-export const AccidentNewsDetail = lazy(() => import("@/pages/admin/realtime/accidentNewsDetail"));
-export const AccidentNewsAdd = lazy(() => import("@/pages/admin/realtime/accidentNewsAdd"));
-export const DisasterManagementList = lazy(() => import("@/pages/admin/realtime/disasterManagementList"));
-export const DisasterManagementDetail = lazy(() => import("@/pages/admin/realtime/disasterManagementDetail"));
-export const DisasterManagementAdd = lazy(() => import("@/pages/admin/realtime/disasterManagementAdd"));
+export const AccidentNewsDetail = lazy(() => import("@/pages/admin/realtime/AccidentNewsDetail"));
+export const AccidentNewsAdd = lazy(() => import("@/pages/admin/realtime/AccidentNewsAdd"));
+export const DisasterManagementList = lazy(() => import("@/pages/admin/realtime/DisasterManagementList"));
+export const DisasterManagementDetail = lazy(() => import("@/pages/admin/realtime/DisasterManagementDetail"));
+export const DisasterManagementAdd = lazy(() => import("@/pages/admin/realtime/DisasterManagementAdd"));
 
 
 export const jyAdminRoutes = [
