@@ -17,21 +17,16 @@ export const useAccidentNews = () => {
       }
       const rawItems = Array.isArray(rawData) ? rawData : [rawData];
 
-      // 1. 오늘 날짜 구하기 (YYYYMMDD 형식)
       const now = new Date();
       const todayStr = now.getFullYear() + 
                        String(now.getMonth() + 1).padStart(2, '0') + 
                        String(now.getDate()).padStart(2, '0');
 
-      // 2. 필터링 및 가공
       const formattedData = rawItems
-        .filter(item => {
-          // startDate의 앞 8자리가 오늘 날짜와 일치하는 것만 필터링
-          const itemDate = String(item.startDate || "");
-          return itemDate.startsWith(todayStr);
-        })
+        .filter(item => String(item.startDate || "").startsWith(todayStr))
         .map((item, index) => {
-          const rawDate = String(item.startDate || "");
+          const rawStart = String(item.startDate || "");
+          const rawEnd = String(item.endDate || "");
           const type = String(item.eventType || "");
           
           let category = "기타돌발";
@@ -39,28 +34,41 @@ export const useAccidentNews = () => {
           else if (/(공사|작업|보수)/.test(type)) category = "공사";
 
           return {
-            id: item.eventId || `acc-${index}`,
+            id: item.linkId || item.eventId || `acc-${index}`, // 고유 ID로 linkId 사용
             category,
             type: type || "알 수 없음",
-            content: item.message || item.eventText || "상세 정보 없음",
-            _rawDateNum: Number(rawDate) || 0, 
-            displayDate: rawDate.length >= 12 
-              ? `${rawDate.substring(0, 4)}.${rawDate.substring(4, 6)}.${rawDate.substring(6, 8)} ${rawDate.substring(8, 10)}:${rawDate.substring(10, 12)}`
+            detailType: item.eventDetailType || "", // 세부 유형 (ex: 추돌사고, 포장공사 등)
+            content: item.message || "상세 정보 없음",
+            
+            // 날짜 관련
+            _rawDateNum: Number(rawStart) || 0, 
+            displayDate: rawStart.length >= 12 
+              ? `${rawStart.substring(4, 6)}.${rawStart.substring(6, 8)} ${rawStart.substring(8, 10)}:${rawStart.substring(10, 12)}`
               : "시간 정보 없음",
-            detailDate: rawDate.length >= 12
-              ? `${rawDate.substring(0, 4)}년 ${rawDate.substring(4, 6)}월 ${rawDate.substring(6, 8)}일 ${rawDate.substring(8, 10)}시 ${rawDate.substring(10, 12)}분`
+            fullDate: rawStart.length >= 12
+              ? `${rawStart.substring(0, 4)}년 ${rawStart.substring(4, 6)}월 ${rawStart.substring(6, 8)}일 ${rawStart.substring(8, 10)}시 ${rawStart.substring(10, 12)}분`
               : "정보 없음",
+            endDate: rawEnd.length >= 12 
+              ? `${rawEnd.substring(8, 10)}:${rawEnd.substring(10, 12)}`
+              : null,
+
+            // 도로 및 위치 정보
             roadName: item.roadName || "도로명 미상",
-            lat: item.coordY, 
-            lng: item.coordX
+            roadNo: item.roadNo ? `${item.roadNo}번선` : "",
+            roadType: item.type || "", // 도로 유형 (고속도로/국도 등)
+            direction: item.roadDrcType || "", // 도로 방향
+            
+            // 통제 정보
+            blockType: item.lanesBlockType || "", // 차단 통제 유형
+            blockedLanes: item.lanesBlocked || "", // 차단 차로 (ex: 1차로, 전차로)
+            
+            lat: Number(item.coordY), 
+            lng: Number(item.coordX)
           };
         });
 
-      // 3. 최신순 정렬 후 상위 30건만 추출
       formattedData.sort((a, b) => b._rawDateNum - a._rawDateNum);
-      const limitedData = formattedData.slice(0, 30); // 딱 30개만 자르기
-      
-      setAccidents(limitedData);
+      setAccidents(formattedData.slice(0, 30));
     } catch (error) {
       console.error("데이터 로드 실패:", error);
       setAccidents([]);
