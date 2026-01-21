@@ -364,7 +364,7 @@ const handleResultClick = (item) => {
 
                           // 1. 기존 마커 지우기
                           markers.forEach(marker => marker.setMap(null));
-                          markers = [];
+                          setMarkers([]);
 
                           // 2. 새로운 마커 찍기
                           facilityData.forEach(item => {

@@ -37,11 +37,20 @@ const adminMap = {
   "stormAndFloodInsurance": "풍수해 안전보험 관리",
   "pressRelList": "보도자료 목록",
   "pressRelAdd": "보도자료 등록",
+  "adminBoardList": "공지사항 관리",  
+  "adminBoardDetail": "공지사항 상세",
+  "adminBoardRegister": "공지사항 등록",
+  "adminBoardEdit": "공지사항 수정",
+  "adminLogList": "로그 관리",
+  "member": "회원 관리",
+  "adminMemberList": "회원 조회",
+  "adminMemberDetail": "회원 상세 정보 조회",
+  "adminMemberRegister": "회원 등록",
+  "adminMemberEdit": "회원 수정",  
   "pressRelDetail": "보도자료 상세",
   "pressRelEdit": "보도자료 수정",
   "safetyEduList": "시민안전교육 목록",
   "safetyEduEdit": "시민안전교육 수정",
-
 };
 
 /**

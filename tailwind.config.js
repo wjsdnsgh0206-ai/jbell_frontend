@@ -24,6 +24,7 @@ export default {
           90: "var(--graygray-90)",
         },
         red: {
+          400: '#FF003E',
           500: '#FF3B30',
           600: '#D63025',
         },

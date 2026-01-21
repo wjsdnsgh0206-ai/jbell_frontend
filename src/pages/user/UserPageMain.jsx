@@ -4,7 +4,7 @@ import { MainActionGuide, MainWeather, MainStatistics, MainDisaster, MainBoard }
 /*
   UserPageMain 컴포넌트
   > 작성자 : 최지영
-  > 컴포넌트 설명 : 사용자 메인 페이지 레이아웃. 
+  > 컴포넌트 설명 : 재난사고속보 모달창 레이아웃. 
   > 반응형 가이드 : 
     - 웹(lg 이상): 기존 1200px 중앙 정렬 유지
     - 모바일: 세로 배치 및 터치 친화적 간격 적용

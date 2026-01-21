@@ -47,8 +47,8 @@ export const ADMIN_MENU_DATA = {
     },
     {
       title: "로그 관리",
-      path: "/admin/system/logList",
-      isAvailable: false,
+      path: "/admin/system/adminLogList",
+      isAvailable: true,
       items: [],
     },
   ],
@@ -79,8 +79,8 @@ export const ADMIN_MENU_DATA = {
       isAvailable: true,
       items: [
         { name: "보도자료 관리", path: "/admin/contents/pressRelList" },
+        { name: "공지사항 관리", path: "/admin/contents/adminBoardList" },
         { name: "시민안전교육 관리", path: "/admin/contents/safetyEduList" },
-
       ],
     },
     {
@@ -94,18 +94,15 @@ export const ADMIN_MENU_DATA = {
       ]
     },
   ],
-
-  // [회원 관리] 그룹: URL이 /admin/member/... 일 때 활성화 (팀원 추가 영역)
-  member: [ 
-    /* 예시:
-      {
-        title: "사용자 정보 관리",
-        isAvailable: true,
-        items: [
-          { name: "회원 목록", path: "/admin/user/userList" },
-          { name: "탈퇴 회원", path: "/admin/user/deletedUser" }
-        ],
-      }
-    */
-  ],
+  member: [
+  {
+    title: "회원 관리",
+    path: "/admin/member/adminMemberList",
+    isAvailable: true,
+    items: [
+      { name: "회원 조회", path: "/admin/member/adminMemberList" },
+      { name: "회원 등록", path: "/admin/member/adminMemberRegister" },
+    ],
+  }
+],
 };
