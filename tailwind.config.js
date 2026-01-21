@@ -23,6 +23,10 @@ export default {
           80: "var(--graygray-80)",
           90: "var(--graygray-90)",
         },
+        red: {
+          500: '#FF3B30',
+          600: '#D63025',
+        },
         orange: {
           50: "var(--orange-50)",
           200: "var(--orange-200)",

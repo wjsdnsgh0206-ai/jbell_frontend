@@ -85,9 +85,13 @@ export const ADMIN_MENU_DATA = {
     },
     {
       title: "고객센터",
-      path: "/admin/contents/logList",
-      isAvailable: false,
-      items: [],
+      path: "/admin/contents/FAQList",
+      isAvailable: true,
+      items: [
+        {name: "FAQ관리목록", path: "/admin/contents/FAQList"},
+        {name: "FAQ관리등록", path: "/admin/contents/FAQAdd"},
+        {name: "QnA관리목록", path: "/admin/contents/QnAList"},
+      ]
     },
   ],
 
