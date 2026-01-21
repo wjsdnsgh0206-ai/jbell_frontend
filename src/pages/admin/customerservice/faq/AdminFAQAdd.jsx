@@ -37,7 +37,6 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.title.trim()) return alert('제목을 입력해주세요.');
-    if (!formData.content.trim()) return alert('내용을 입력해주세요.');
     if (!formData.author.trim()) return alert('작성자를 입력해주세요.');
     if (!formData.content.trim()) return alert('내용을 입력해주세요.');
 
@@ -51,7 +50,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
     };
 
     // 저장 로직 호출
-    if (onSave) onSave(formData);
+    if (onSave) onSave(finalData);
     
     alert('FAQ가 정상적으로 등록되었습니다.');
 
