@@ -165,42 +165,6 @@ const QnAFormPage = () => {
                 <span className="text-secondary-50 font-bold">{formData.content.length}</span> / 1000자
               </div>
             </div>
-
-            {/* 4. 파일 첨부 */}
-            <div>
-              <label className="block text-title-m font-bold text-graygray-90 mb-3">
-                첨부파일
-              </label>
-              <div className="flex items-center gap-4">
-                <label className="cursor-pointer px-5 py-3 border border-graygray-30 rounded-lg bg-white text-graygray-70 hover:bg-graygray-5 transition-colors text-body-m font-medium shadow-sm">
-                  파일 선택
-                  <input 
-                    type="file" 
-                    className="hidden" 
-                    onChange={handleFileChange}
-                    ref={fileInputRef}
-                  />
-                </label>
-               {/* 파일 존재 여부에 따른 조건부 렌더링 */}
-                {formData.file ? (
-                  <div className="flex items-center gap-2 bg-graygray-5 px-3 py-1.5 rounded border border-graygray-10">
-                    <span className="text-body-s text-graygray-90">{formData.file}</span>
-                    <button 
-                      type="button" 
-                      onClick={handleFileDelete}
-                      className="text-graygray-50 hover:text-red-500 transition-colors"
-                      aria-label="파일 삭제"
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                ) : (
-                  <span className="text-body-s text-graygray-50">
-                    선택된 파일 없음 (최대 10MB)
-                  </span>
-                )}
-              </div>
-            </div>
           </div>
         </div>
 

@@ -24,6 +24,12 @@ const adminMap = {
   "groupCodeEdit": "공통 코드 수정",
   "subCodeDetail": "상세 코드 상세",
   "subCodeEdit": "상세 코드 수정",
+  "FAQList": "FAQ목록",
+  "FAQDetail": "FAQ 상세정보",
+  "FAQAdd": "FAQ 신규등록",
+  "QnAList": "1:1 목록",
+  "QnADetail": "1:1 상세정보",
+
   "behavioralGuideDetail": "행동요령 상세",
   "citySafetyMasterPlan": "도시안전기본계획 관리",
   "disasterSafetyPolicy": "재난별 안전정책 관리",
@@ -31,11 +37,20 @@ const adminMap = {
   "stormAndFloodInsurance": "풍수해 안전보험 관리",
   "pressRelList": "보도자료 목록",
   "pressRelAdd": "보도자료 등록",
+  "adminBoardList": "공지사항 관리",  
+  "adminBoardDetail": "공지사항 상세",
+  "adminBoardRegister": "공지사항 등록",
+  "adminBoardEdit": "공지사항 수정",
+  "adminLogList": "로그 관리",
+  "member": "회원 관리",
+  "adminMemberList": "회원 조회",
+  "adminMemberDetail": "회원 상세 정보 조회",
+  "adminMemberRegister": "회원 등록",
+  "adminMemberEdit": "회원 수정",  
   "pressRelDetail": "보도자료 상세",
   "pressRelEdit": "보도자료 수정",
   "safetyEduList": "시민안전교육 목록",
   "safetyEduEdit": "시민안전교육 수정",
-
 };
 
 /**
