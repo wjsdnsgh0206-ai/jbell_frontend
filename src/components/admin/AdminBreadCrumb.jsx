@@ -6,8 +6,13 @@ import { GoHomeFill } from "react-icons/go";
 // 고정 메뉴 매핑 (ID를 제외한 정적 경로들)
 const adminMap = {
   "realtime": "실시간 정보 관리",
-  "accidentNews": "사고속보 관리",
-  "disaster": "재난 관리",
+  "realtimeDashboard": "대시보드",
+  "accidentNewsList": "사고속보 관리",
+  "accidentNewsDetail": "사고속보 상세",
+  "accidentNewsAdd": "사고속보 등록",
+  "disasterManagementList":"재난 관리",
+  "disasterManagementDetail": "재난 상세",
+  "disasterManagementAdd": "재난 등록",
   "contents": "콘텐츠 관리",
   "behavioralGuide": "행동요령 관리",
   "behavioralGuideList": "행동요령 목록",
