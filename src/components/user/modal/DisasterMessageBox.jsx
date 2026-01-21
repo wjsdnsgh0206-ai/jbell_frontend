@@ -13,7 +13,7 @@ const DisasterMessage = () => {
     const fetchDisasterMessages = async () => {
       if (!DISASTER_API_KEY) {
         console.error("환경 변수 VITE_API_DISATER_TEXT_MESSAGE_KEY가 설정되지 않았습니다.");
-        setIsLoading(false);
+        setIsFalse(false);
         return;
       }
 
@@ -38,25 +38,36 @@ const DisasterMessage = () => {
         const formattedData = rawData.map((item, index) => {
           const content = item.MSG_CN || "내용 없음";
           const regDt = item.CRT_DT || "";
-          
-          // [수정 포인트] DST_SE_NM(재난구분명) 가져오기
           const disasterCategory = item.DST_SE_NM || "알림";
 
-          // 재난구분명이나 내용을 기반으로 태그 색상 결정을 위한 type 설정
+          // [수정 포인트] 타입 결정 로직 정교화 및 우선순위 조정
           let type = "주의";
-          if (disasterCategory.includes("화재") || content.includes("화재")) type = "화재";
-          else if (
+
+          // 1. 기상 (한파, 대설, 호우, 강풍 등) - '한파' 키워드 명시적 추가
+          if (
             disasterCategory.includes("대설") || disasterCategory.includes("호우") || 
-            disasterCategory.includes("기상") || content.includes("눈") || content.includes("비")
-          ) type = "기상";
+            disasterCategory.includes("기상") || disasterCategory.includes("한파") ||
+            disasterCategory.includes("강풍") || disasterCategory.includes("건조") ||
+            content.includes("눈") || content.includes("비") || 
+            content.includes("한파") || content.includes("추위") || content.includes("특보")
+          ) {
+            type = "기상";
+          } 
+          // 2. 화재
+          else if (disasterCategory.includes("화재") || content.includes("화재")) {
+            type = "화재";
+          }
+          // 3. 교통
           else if (
             disasterCategory.includes("교통") || content.includes("교통") || 
-            content.includes("결빙") || content.includes("사고")
-          ) type = "교통";
+            content.includes("결빙") || content.includes("사고") || content.includes("통제")
+          ) {
+            type = "교통";
+          }
 
           return {
             id: item.SN || `msg-${index}`,
-            category: disasterCategory, // DST_SE_NM 저장
+            category: disasterCategory,
             time: regDt.includes(" ") ? regDt.split(" ")[1].substring(0, 5) : "00:00",
             content: content,
             type: type,
@@ -103,7 +114,6 @@ const DisasterMessage = () => {
             >
               <div className="flex justify-between items-center mb-2">
                 <div className="flex items-center gap-2">
-                  {/* [수정 포인트] "전북" 대신 msg.category (DST_SE_NM) 표시 */}
                   <span className="text-[11px] md:text-detail-s-bold text-gray-700 font-bold">
                     {msg.category}
                   </span>
