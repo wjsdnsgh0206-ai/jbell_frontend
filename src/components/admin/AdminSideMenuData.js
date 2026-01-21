@@ -12,16 +12,18 @@ export const ADMIN_MENU_DATA = {
     {
       title: "대시보드",
       path: "/admin/realtime/realtimeDashboard",
-      isAvailable: false, // 하위메뉴가 없으니 false 처리
-      items: [],
+      isAvailable: true,
+      items: [
+        { name: "대시보드", path: "/admin/realtime/realtimeDashboard" },
+      ],
     },
     {
       title: "재난사고속보 관리",
-      path: "/admin/realtime/accidentNews",
+      path: "/admin/realtime/accidentNewsList",
       isAvailable: true,
       items: [
-        { name: "사고속보 관리", path: "/admin/realtime/accidentNews" },
-        { name: "재난 관리", path: "/admin/realtime/disaster" },
+        { name: "사고속보 관리", path: "/admin/realtime/accidentNewsList"},
+        { name: "재난 관리", path: "/admin/realtime/disasterManagementList" },
       ],
     },
   ],
@@ -83,9 +85,13 @@ export const ADMIN_MENU_DATA = {
     },
     {
       title: "고객센터",
-      path: "/admin/contents/logList",
-      isAvailable: false,
-      items: [],
+      path: "/admin/contents/FAQList",
+      isAvailable: true,
+      items: [
+        {name: "FAQ관리목록", path: "/admin/contents/FAQList"},
+        {name: "FAQ관리등록", path: "/admin/contents/FAQAdd"},
+        {name: "QnA관리목록", path: "/admin/contents/QnAList"},
+      ]
     },
   ],
 
