@@ -2,6 +2,8 @@
 name: React CI with Yarn
 
 on:
+  push:
+    branches: [ "main" ]
    # master 브랜치를 대상으로 하는 PR이 있을 때
   pull_request:
     branches: [ "main" ]
@@ -44,6 +46,7 @@ jobs:
           ${{ secrets.ENV_PRODUCTION }}
           EOF
       - run : cat ./.env.production
+      - run : ls -al
 
       # 3. 의존성 설치 (yarn 또는 npm 중 선택)
       - name: Install Dependencies
