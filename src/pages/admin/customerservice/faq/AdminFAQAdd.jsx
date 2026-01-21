@@ -13,6 +13,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
   const [formData, setFormData] = useState({
     category: '회원/계정',
     title: '',
+    author: '',
     content: '',
     status: true, // true: 사용(공개)
     order: 1,     // 기본 노출 순서
@@ -36,6 +37,8 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.title.trim()) return alert('제목을 입력해주세요.');
+    if (!formData.content.trim()) return alert('내용을 입력해주세요.');
+    if (!formData.author.trim()) return alert('작성자를 입력해주세요.');
     if (!formData.content.trim()) return alert('내용을 입력해주세요.');
 
     // [데이터 구조 변환] String -> JSON Block Array
@@ -115,6 +118,23 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
                             min="1"
                         />
                         <span className="ml-2 text-xs text-gray-400">* 숫자가 낮을수록 상단에 노출됩니다.</span>
+                        </td>
+                    </tr>
+
+                    {/* 2. 작성자 */}
+                    <tr>
+                        <th className="px-4 py-3 bg-graygray-5 border-b border-gray-300 font-semibold text-gray-700">
+                        작성자 <span className="text-red-500">*</span>
+                        </th>
+                        <td colSpan="3" className="px-4 py-3 border-b border-gray-300">
+                        <input
+                            type="text"
+                            name="author"
+                            value={formData.author}
+                            onChange={handleChange}
+                            placeholder="작성자를 입력해주세요."
+                            className="h-9 w-full max-w-[300px] border border-gray-300 rounded-sm px-3 focus:border-blue-500 focus:outline-none"
+                        />
                         </td>
                     </tr>
 
