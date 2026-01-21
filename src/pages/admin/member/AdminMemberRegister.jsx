@@ -5,6 +5,8 @@ import { userService } from '../../../services/api';
 const AdminMemberRegister = () => {
     const navigate = useNavigate();
     
+    /** <================================================ 상태 관리 ================================================> **/
+
     const [memberForm, setMemberForm] = useState({
         memberId: '', 
         memberPw: '', 
@@ -16,6 +18,10 @@ const AdminMemberRegister = () => {
 
     const [errors, setErrors] = useState({});
     const [isIdVerified, setIsIdVerified] = useState(false);
+
+    /** <================================================ 상태 관리 ================================================> **/
+    //
+    /** <================================================ handle ================================================> **/
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -39,6 +45,8 @@ const AdminMemberRegister = () => {
         }
     };
 
+    /** <================================================ handle ================================================> **/
+
     // [기능 수정] 아이디 중복 확인 API 연동 (SignupForm 로직 이식)
     const checkIdDuplication = async () => {
     const idRegex = /^[a-zA-Z0-9]{8,12}$/;
@@ -53,29 +61,32 @@ const AdminMemberRegister = () => {
         return;
     }
     
-    try {
-        // 현재 백엔드: 중복이 아니면 success(false)를 보냄
+     try {
         const result = await userService.checkId(memberForm.memberId);
         
-        // 백엔드 응답이 false일 때가 "중복 아님(사용 가능)"인 상태임
         if (result === false) {
             alert("사용 가능한 아이디입니다.");
             setIsIdVerified(true);
             setErrors(prev => ({ ...prev, memberId: "" }));
         } else {
-            // 혹시나 true가 오면 중복으로 처리
             alert("이미 사용 중인 아이디입니다.");
             setIsIdVerified(false);
         }
     } catch (error) {
-        // 백엔드에서 409 에러를 던지면 catch로 들어옴
+        console.error("ID Check Error:", error);
+        
+        // ✅ 네트워크 에러 처리 추가
+        if (error.message === 'Network Error') {
+            alert("서버에 연결할 수 없습니다. 백엔드 서버를 확인해주세요.");
+            return; // ← 여기서 함수 종료!
+        }
+        
         if (error.response && error.response.status === 409) {
             alert(error.response.data?.message || "이미 사용 중인 아이디입니다.");
         } else {
             alert("중복 확인 중 오류가 발생했습니다.");
         }
         setIsIdVerified(false);
-        console.error("ID Check Error:", error);
     }
 };
 
@@ -214,7 +225,7 @@ const AdminMemberRegister = () => {
                     />
                     <ErrorText msg={errors.memberTelNum} />
 
-                    <label className="block font-bold text-[16px] mb-3 text-[#111]">회원 주소지역</label>
+                    <label className="block font-bold text-[16px] mb-3 text-[#111]">회원 주소</label>
                     <select
                         name="memberRegion"
                         value={memberForm.memberRegion}
