@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import AdminBreadcrumb from '@/components/Admin/AdminBreadcrumb';
+import AdminBreadcrumb from '@/components/admin/AdminBreadcrumb';
 
 const AdminLogList = () => {
     /* <================ 데이터 및 상태 관리 ================> */
