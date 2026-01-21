@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logo from "@/assets/logo/jeonbuk_safety_nuri_watermark.svg";
 
 const UserFooter = () => {
   const teamMembers = [
@@ -42,7 +43,7 @@ const UserFooter = () => {
           <img
             className="w-36 md:w-44 h-auto cursor-pointer"
             alt="전북안전누리 로고"
-            src="src/assets/logo/jeonbuk_safety_nuri_watermark.svg"
+            src={logo}
           />
         </Link>
 
