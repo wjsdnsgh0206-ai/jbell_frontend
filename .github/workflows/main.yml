@@ -38,7 +38,11 @@ jobs:
        # 이용하여서 설정 파일을 생성해줌 (github에 commit 되는게 아님!)
        # 현재 팀프로젝트의 디렉토리가 존재할시 아래와 같이 디렉토리명 추가 (없는 경우 - run : touch ./.env.production 작성)
       - run : touch ./.env.production
-      - run : echo "${{ secrets.ENV_PRODUCTION }}" > ./.env.production
+      - name: Create .env.production
+        run: |
+          cat << 'EOF' > .env.production
+          ${{ secrets.ENV_PRODUCTION }}
+          EOF
       - run : cat ./.env.production
 
       # 3. 의존성 설치 (yarn 또는 npm 중 선택)
