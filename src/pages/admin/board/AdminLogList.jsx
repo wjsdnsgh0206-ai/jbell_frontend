@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useOutletContext } from 'react-router-dom';
+
 // import BreadCrumb from '@/components/Admin/board/BreadCrumb';
 import AdminSearchBox from '@/components/admin/AdminSearchBox'; // ★ 공용 컴포넌트 임포트
 import AdminDataTable from '@/components/admin/AdminDataTable';
@@ -11,6 +13,13 @@ const AdminLogList = () => {
     const [selectedIds, setSelectedIds] = useState([]); // AdminDataTable
     const [currentPage, setCurrentPage] = useState(1);  // AdminPaigination
     const itemsPerPage = 10;
+
+    const { setBreadcrumbTitle } = useOutletContext();  // Breadcrumb...
+
+    useEffect(() => {
+    setBreadcrumbTitle('');
+    }, [setBreadcrumbTitle]);
+
 
     
     /* <================ 데이터 및 상태 관리 ================> */
@@ -46,24 +55,28 @@ const AdminLogList = () => {
         {
             key: 'logId',
             header: '로그인 ID',
+            className: 'text-left',
             render: (value) => (
             <span className="text-blue-600 font-medium">{value}</span>
             )
         },
         {
             key: 'logIp',
-            header: '로그인 IP'
+            header: '로그인 IP',
+            className: 'text-left'
         },
         {
             key: 'loggedDate',
-            header: '발생일자'
+            header: '발생일자',
+            className: 'text-left'
         },
         {
             key: 'logSOF',
             header: '성공/실패',
+            className: 'text-left',
             render: (value) => (
             <span
-                className={`px-2 py-1 rounded text-xs ${
+                className={`px-2 py-1 rounded text-xs inline-block ${
                 value === '성공'
                     ? 'bg-green-100 text-green-700'
                     : 'bg-red-100 text-red-700'
@@ -138,7 +151,7 @@ const AdminLogList = () => {
     return (
         <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
             <div className="p-6 bg-gray-50 min-h-screen">
-                <AdminBreadcrumb />
+                
                 <h1 className="text-2xl font-bold mb-6">로그 관리</h1>
 
             {/* 검색 바 영역: AdminSearchBox 적용 */}
