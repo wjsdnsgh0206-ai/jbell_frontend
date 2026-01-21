@@ -1,0 +1,113 @@
+# 워크플로우 이름: GitHub Actions 탭에서 표시되는 이름
+name: React CI with Yarn
+
+on:
+   # master 브랜치를 대상으로 하는 PR이 있을 때
+  pull_request:
+    branches: [ "main" ]
+    # PR이 "닫혔을 때(closed)" 트리거
+    # - merged 되었든, 그냥 닫혔든 둘 다 포함
+    # - 만약 "머지될 때만" 실행하고 싶으면 조건 추가가 필요함 (예: if: github.event.pull_request.merged == true)
+    types: [closed]
+
+jobs:
+  # job ID: build
+  build:
+    # GitHub에서 제공하는 Ubuntu 최신 버전 VM에서 실행
+    runs-on: ubuntu-latest
+
+    # 이 job이 리포지토리(contents)에 대해 가지는 권한 설정
+    permissions:
+      contents: read   # 코드 읽기만 가능 (보안상 최소 권한)
+
+    steps:
+      # 1. 리포지토리 소스 코드 체크아웃
+      - name: Checkout source Code
+        uses: actions/checkout@v4
+        # 현재 리포지토리의 코드를 runner(가상 머신)에 내려받는다.
+
+      # 2. Node.js 설정
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24   # 사용할 Node.js 버전 (예: 18, 20, 22, 24 등)
+          cache: 'yarn'      # yarn 캐시를 활성화해서 node_modules 설치 속도 향상
+          # → yarn.lock 기준으로 의존성 캐시 관리
+
+      # 3. 의존성 설치 (yarn 또는 npm 중 선택)
+      - name: Install Dependencies
+        run: |
+          # 현재 프로젝트 루트에 yarn.lock 파일이 존재하는지 확인
+          if [ -f yarn.lock ]; then
+            # yarn.lock 이 있다면 yarn 기반 프로젝트로 판단
+            # --frozen-lockfile : yarn.lock 내용 그대로 설치 (lockfile과 package.json 불일치 시 에러)
+            yarn install --frozen-lockfile
+          else
+            # yarn.lock 이 없다면 npm 기반 프로젝트로 판단
+            # npm ci : package-lock.json 기반으로 클린 설치, CI 환경에서 권장
+            npm ci
+          fi
+
+      # 4. Vite 빌드 실행 (yarn 또는 npm 중 선택)
+      - name: Vite Build with Yarn
+        run: |
+          # 마찬가지로 yarn.lock 존재 여부에 따라 빌드 명령 선택
+          if [ -f yarn.lock ]; then
+            # yarn 프로젝트
+            yarn build
+          else
+            # npm 프로젝트
+            npm run build
+          fi
+        # 이 단계에서 Vite 설정에 따라 기본적으로 dist/ 디렉터리에 빌드 결과물이 생성된다고 가정
+        # (예: vite.config.js에서 build.outDir = 'dist')
+
+      # 5. dist 디렉토리를 tar.gz 파일로 아카이브
+      - name: Archive dist
+        run: |
+          # tar:
+          #   -c : 새로운 아카이브 생성
+          #   -z : gzip 압축
+          #   -f : 파일 이름 지정 (dist.tar.gz)
+          #   -C dist . : dist 디렉토리 안으로 들어가서, 그 안의 내용을 기준으로 압축
+          # 결과: dist.tar.gz 파일 하나가 현재 작업 디렉토리에 생성됨
+          tar -czf dist.tar.gz -C dist .
+
+      # 6. 빌드 결과(아카이브)를 GitHub Artifacts에 업로드
+      #    - 나중에 다운로드해서 디버깅하거나, 히스토리 확인용으로 쓸 수 있음
+      - name: Upload artifact (for debugging / history)
+        uses: actions/upload-artifact@v4
+        with:
+          name: front-dist        # GitHub Actions UI에서 보이는 아티팩트 이름
+          path: dist.tar.gz       # 업로드할 파일 경로
+          retention-days: 7       # 아티팩트 보관 기간 (일 단위). 7일 후 자동 삭제
+
+      # 7. dist 폴더 내용을 원격 서버(OCI 등)로 복사 (배포)
+      - name: Transfer dist directory to the Server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          # 접속할 원격 서버의 IP 또는 도메인
+          host: ${{ secrets.OCI_HOST }}
+
+          # SSH 접속 계정 (예: ubuntu, opc 등)
+          username: ${{ secrets.OCI_USER }}
+
+          # SSH 개인키 (pem 파일 내용 전체를 GitHub Secrets에 넣어두고 사용)
+          key: ${{ secrets.KSMARTDEV }}
+
+          # 로컬에서 보낼 소스 경로
+          #   - dist 폴더 안의 모든 파일
+          #   - Actions runner 기준 상대경로
+          source: "dist/*"
+
+          # 원격 서버에서 파일을 저장할 경로
+          #   - 예: /home/teamproject/front 또는 /var/www/front 등
+          #   - GitHub Secrets로 관리해서 레포지토리에는 노출되지 않도록 처리
+          target: "${{ secrets.OCI_DEPLOY_PATH }}/"
+
+          # 기존 파일 덮어쓰기를 허용할지 여부
+          #   - true : 같은 이름의 파일이 있으면 덮어씀
+          #   - false : 기본값은 false (에러가 날 수도 있음)
+          overwrite: true
+
+          strip_components: 1
