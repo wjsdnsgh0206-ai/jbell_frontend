@@ -5,7 +5,7 @@ const TIMEOUT = 10000;
 
 // axios 인스턴스 생성
 const apiClient = axios.create({
-  baseURL: isProduction ? REAL_API_URL : '/api',
+  baseURL: '/api',
   timeout: TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
