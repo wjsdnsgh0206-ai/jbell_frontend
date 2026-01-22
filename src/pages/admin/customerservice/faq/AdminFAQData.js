@@ -51,7 +51,7 @@ export const AdminFAQData = [
     faqDisplayOrder: 1 
   },
   { 
-    faqId: 4, 
+    faqId: 10, 
     faqCategory: '회원/계정', 
     faqTitle: '회원 탈퇴는 어디서 하나요?', 
     faqContent: [
@@ -71,7 +71,7 @@ export const AdminFAQData = [
     faqDisplayOrder: 10 
   },
   { 
-    faqId: 9, 
+    faqId: 7, 
     faqCategory: '회원/계정', 
     faqTitle: '개명으로 인한 이름 변경 요청', 
     faqContent: [
@@ -109,7 +109,7 @@ export const AdminFAQData = [
     faqDisplayOrder: 2 
   },
   {
-    faqId: 6,
+    faqId: 4,
     faqCategory: '결제/환불',
     faqTitle: '환불 규정이 궁금합니다.',
     faqContent: [
@@ -149,7 +149,7 @@ export const AdminFAQData = [
     faqDisplayOrder: 3 
   },
   { 
-    faqId: 8, 
+    faqId: 6, 
     faqCategory: '이용문의', 
     faqTitle: '모바일 앱 설치가 안됩니다.', 
     faqContent: [
@@ -193,7 +193,7 @@ export const AdminFAQData = [
     faqDisplayOrder: 5 
   },
   { 
-    faqId: 10, 
+    faqId: 8, 
     faqCategory: '시스템', 
     faqTitle: '화면이 깨져서 보입니다.', 
     faqContent:[
@@ -210,7 +210,7 @@ export const AdminFAQData = [
 
   // 5. 기타
   { 
-    faqId: 7, 
+    faqId: 12, 
     faqCategory: '기타', 
     faqTitle: '제휴 문의는 어떻게 하나요?', 
     faqContent: [
@@ -223,10 +223,10 @@ export const AdminFAQData = [
     faqUpdatedAt: '2024-12-28 16:45:00',
     faqViewCount: 40, 
     faqVisibleYn: false, 
-    faqDisplayOrder: 99 
+    faqDisplayOrder: 12 
   },
   { 
-    faqId: 11, 
+    faqId: 9, 
     faqCategory: '기타', 
     faqTitle: '페이지네이션 테스트용 데이터 1', 
     faqContent: [{ type: 'text', value: '페이지네이션 기능을 테스트하기 위한 임시 데이터입니다.' }],
@@ -238,7 +238,7 @@ export const AdminFAQData = [
     faqDisplayOrder: 9 
   },
   { 
-    faqId: 12, 
+    faqId: 11, 
     faqCategory: '기타', 
     faqTitle: '페이지네이션 테스트용 데이터 2', 
     faqContent: [{ type: 'text', value: '페이지네이션 기능을 테스트하기 위한 임시 데이터입니다.' }],
