@@ -50,33 +50,41 @@ const FacilityList = () => {
   // ==================================================================================
   // 2. 데이터 페칭 로직 (API 연동)
   // ==================================================================================
-  const fetchFacilities = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await facilityService.getFacilityList({
-        fcltNm: appliedKeyword,     // 시설명 검색어
-        roadNmAddr: appliedKeyword, // 주소 검색어 (통합검색)
-        page: currentPage,
-        sortKey: sortConfig.key,    // 예: 'reg_dt'
-        sortOrder: sortConfig.direction // 'ASC' 또는 'DESC'
-      });
-      
-      console.log(response)
+ const fetchFacilities = useCallback(async () => {
+  setIsLoading(true);
+  try {
+    // 1. API 호출
+    const response = await facilityService.getFacilityList({
+      fcltNm: appliedKeyword,
+      roadNmAddr: appliedKeyword,
+      page: currentPage,
+      sortKey: sortConfig.key,
+      sortOrder: sortConfig.direction
+    });
+    
+    console.log("백엔드 응답:", response); // 구조 확인용
 
-      // key 경고 해결을 위해 id 추가
-      const formattedList = (response.list || []).map(item => ({
+    // 2. 데이터 추출 경로 수정 (ApiResponse 구조에 맞게)
+    // response.data가 실제 FacilityListResponse 객체입니다.
+    const resultData = response.data; 
+
+    if (resultData) {
+      // response.list -> resultData.items로 변경
+      const formattedList = (resultData.items || []).map(item => ({
         ...item,
         id: item.fcltId 
       }));
 
       setFacility(formattedList);
-      setTotalCount(response.totalCount || 0);
-    } catch (error) {
-      console.error("데이터 로드 실패:", error);
-    } finally {
-      setIsLoading(false);
+      // response.totalCount -> resultData.totalCount로 변경
+      setTotalCount(resultData.totalCount || 0);
     }
-  }, [appliedKeyword, currentPage, sortConfig]);
+  } catch (error) {
+    console.error("데이터 로드 실패:", error);
+  } finally {
+    setIsLoading(false);
+  }
+}, [appliedKeyword, currentPage, sortConfig]);
 
 
    useEffect(() => {
@@ -122,7 +130,7 @@ const FacilityList = () => {
     width: '80px',
     render: (_, row) => (
       <button 
-        onClick={() => navigate(`/admin/facility/detail/${row.fcltId}`)} 
+        onClick={() => navigate(`/admin/facility/facilityDetail/${row.fcltId}`)} 
         className="border border-admin-border px-3 py-1 rounded hover:bg-gray-50 whitespace-nowrap text-body-s"
       >
         보기
@@ -186,29 +194,58 @@ const FacilityList = () => {
 };
 
 
-  // ======================================================================================================
-   // [삭제] 핸들러
-  const handleDeleteSelected = () => {
-    if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
-    const allNames = getAllSelectedItemsList();
+ // 선택된 항목들의 이름 목록 가져오기 (메시지 표시용)
+const getAllSelectedItemsList = () => {
+  // guides -> facility 로 변경
+  const selectedItems = facility.filter(item => selectedIds.includes(item.fcltId)); 
+  // item.title -> item.fcltNm (시설명) 으로 변경
+  return selectedItems.map(item => item.fcltNm).join(", ");
+};
 
-    setModalConfig({
-      title: '선택 항목 삭제',
-      message: (
-        <div className="flex flex-col gap-2 text-left">
-          <p>선택하신 <span className="text-red-600 font-bold">[{allNames}]</span> 항목을 정말 삭제하시겠습니까?</p>
-          <p className="text-body-s text-graygray-50">* 삭제된 데이터는 복구할 수 없습니다.</p>
-        </div>
-      ),
-      type: 'delete',
-      onConfirm: () => {
-        setFacility(prev => prev.filter(c => !selectedIds.includes(c.id)));
-        setSelectedIds([]);
-        setIsModalOpen(false);
+// [삭제] 핸들러 - 백엔드 연동 버전
+const handleDeleteSelected = () => {
+  if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
+  
+  const allNames = getAllSelectedItemsList();
+
+  setModalConfig({
+    title: '선택 항목 삭제',
+    message: (
+      <div className="flex flex-col gap-2 text-left">
+        <p>선택하신 <span className="text-red-600 font-bold">[{allNames}]</span> 항목을 정말 삭제하시겠습니까?</p>
+        <p className="text-body-s text-gray-500">* 삭제된 데이터는 복구할 수 없습니다.</p>
+      </div>
+    ),
+    type: 'delete',
+    onConfirm: async () => {
+      try {
+        // 1. 백엔드 API 호출 (DELETE /api/facility/delete)
+        // selectedIds는 이미 [1, 2, 3] 형태의 배열이므로 그대로 전달합니다.
+        const response = await facilityService.deleteFacilities(selectedIds);
+        
+        if (response.status === 'SUCCESS') {
+          // 2. 모달 닫기
+          setIsModalOpen(false);
+          
+          // 3. 알림창 표시
+          alert("성공적으로 삭제되었습니다.");
+          
+          // 4. 상태 업데이트
+          // 삭제 후 현재 페이지의 데이터가 모두 사라질 수 있으므로, 
+          // 데이터를 다시 페칭하거나 현재 리스트에서 필터링합니다.
+          setSelectedIds([]); // 선택 초기화
+          fetchFacilities();  // 목록 재조회 (페이징/카운트 갱신을 위해 권장)
+        } else {
+          alert("삭제 실패: " + response.message);
+        }
+      } catch (error) {
+        console.error("삭제 요청 중 오류 발생:", error);
+        alert("서버 통신 중 오류가 발생했습니다.");
       }
-    });
-    setIsModalOpen(true);
-  };
+    }
+  });
+  setIsModalOpen(true);
+};
 
 
   
@@ -258,6 +295,12 @@ const FacilityList = () => {
             </div>
                 
             <div className="flex gap-2">
+              <button 
+                onClick={handleDeleteSelected} 
+                className="px-8 h-14 bg-[#FF003E] text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm"
+              >
+                삭제
+              </button>
               <button onClick={() => navigate('/admin/facility/facilityAdd')} className="px-8 h-14 bg-admin-primary text-white rounded-md hover:opacity-90 font-bold shadow-sm">
                 등록
               </button>

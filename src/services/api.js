@@ -56,12 +56,52 @@ export const shelterService = {
 };
 
 export const facilityService = {
-  // 백엔드 리스트 호출 (최대 1000개씩 조회)
+  // 백엔드 리스트 호출 (최대 30개씩 조회)
   getFacilityList: async (params) => {
     // params: { ctpvNm, sggNm, fcltNm, page }
     const response = await api.get("/facility/list", { params });
     return response.data; // Flux는 JSON 배열 형태로 들어옵니다.
   },
+  // 2. 시설 상세 조회
+  getFacilityDetail: async (fcltId) => {
+    // fcltId: 시설 고유 번호
+    const response = await api.get(`/facility/${fcltId}`);
+    return response.data;
+  },
+
+  // 3. 신규 시설 등록
+  addFacility: async (formData) => {
+    // formData: FacilityDTO 구조의 객체
+    const response = await api.post("/facility/add", formData);
+    return response.data;
+  },
+
+  // 4. 시설 정보 수정
+  updateFacility: async (formData) => {
+    // formData: fcltId를 포함한 수정 데이터 객체
+    const response = await api.put("/facility/update", formData);
+    return response.data;
+  },
+
+  // 5. 시설 삭제 (단건 및 다건 선택 삭제 통합)
+  deleteFacilities: async (ids) => {
+    try {
+      // DELETE 메서드는 body 데이터를 'data' 속성에 담아서 보내야 합니다.
+      const response = await axios.delete('/api/facility/delete', { 
+        data: ids 
+      });
+      return response.data;
+    } catch (error) {
+      console.error("API 삭제 요청 에러:", error);
+      throw error;
+    }
+  },
+
+  // 6. 외부 API 데이터 동기화 (선택 사항)
+  syncFacilities: async () => {
+    const response = await api.get("/facility/sync");
+    return response.data;
+  }
 };
 
 /* =========================================================
