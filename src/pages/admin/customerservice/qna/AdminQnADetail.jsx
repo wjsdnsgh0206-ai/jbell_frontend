@@ -25,7 +25,7 @@ const AdminQnADetail = () => {
 
     // URL 파라미터 id는 문자열이므로 숫자로 변환하여 비교
     const targetId = Number(id);
-    const foundData = AdminQnAData.find((item) => item.id === targetId);
+    const foundData = AdminQnAData.find((item) => item.qnaId === targetId);
 
     if (foundData) {
       setInquiry(foundData);
@@ -56,21 +56,22 @@ const AdminQnADetail = () => {
     }
 
     const newAnswer = {
+      qnaAnswerId: Date.now(), // 임시 ID 생성
       content: answerInput,
-      author: '통합관리자', // 현재 로그인한 관리자 ID
-      date: new Date().toLocaleString('ko-KR', { 
+      userId: 'admin_master',
+      createdAt: new Date().toLocaleString('ko-KR', { 
         year: 'numeric', 
         month: '2-digit', 
         day: '2-digit', 
         hour: '2-digit', 
         minute: '2-digit',
         hour12: false 
-      }).replace(/\. /g, '-').replace('.', '') // 포맷 단순화 예시
+      }).replace(/\. /g, '-').replace('.', '') // YYYY-MM-DD HH:mm 형식 매칭
     };
 
     setInquiry((prev) => ({
       ...prev,
-      status: 'ANSWERED', // 답변 등록 시 상태 변경
+      status: '답변완료',
       answer: newAnswer
     }));
     setAnswerMode('VIEW');
@@ -82,7 +83,7 @@ const AdminQnADetail = () => {
     if (window.confirm('등록된 답변을 삭제하시겠습니까?\n문의 상태가 [답변대기]로 변경됩니다.')) {
       setInquiry((prev) => ({
         ...prev,
-        status: 'WAITING',
+        status: '답변대기',
         answer: null
       }));
       setAnswerInput('');
@@ -107,7 +108,7 @@ const AdminQnADetail = () => {
   // 데이터 로딩 중일 때 표시
   if (!inquiry) {
     return (
-      <div className="flex-1 flex flex-col min-h-screen bg-[#F5F7FB] font-sans antialiased text-gray-900 justify-center items-center">
+      <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-gray-900 justify-center items-center">
         <div className="text-gray-500">데이터를 불러오는 중입니다...</div>
       </div>
     );
@@ -115,7 +116,7 @@ const AdminQnADetail = () => {
 
   return (
     // 전체 레이아웃 (배경색, 폰트)
-    <div className="flex-1 flex flex-col min-h-screen bg-[#F5F7FB] font-sans antialiased text-gray-900">
+    <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-gray-900">
       <main className="p-10">
         
         {/* 1. Header Area */}
@@ -132,38 +133,38 @@ const AdminQnADetail = () => {
             <div className="border-t-2 border-gray-800 mb-8">
                 {/* Row 1: Title & Status */}
                 <div className="flex border-b border-gray-200">
-                <div className="w-32 bg-[#f8f9fa] px-4 py-3 text-sm font-semibold text-gray-600 flex items-center">
+                <div className="w-32 bg-graygray-5 px-4 py-3 text-sm font-semibold text-gray-600 flex items-center">
                     제목
                 </div>
                 <div className="flex-1 px-4 py-3 text-sm font-medium text-gray-900 flex items-center justify-between">
                     <span>
-                    <span className="text-gray-500 mr-2">[{inquiry.type}]</span>
+                    <span className="text-gray-500 mr-2">[{inquiry.categoryName}]</span>
                     {inquiry.title}
                     </span>
                     <span className={cn(
                     "px-2 py-0.5 text-xs font-bold rounded-sm border",
-                    inquiry.status === 'WAITING' 
+                    inquiry.status === '답변대기' 
                         ? "bg-gray-100 text-gray-600 border-gray-200" 
                         : "bg-blue-100 text-blue-700 border-blue-200"
                     )}>
-                    {inquiry.status === 'WAITING' ? '답변대기' : '답변완료'}
+                    {inquiry.status}
                     </span>
                 </div>
                 </div>
 
                 {/* Row 2: Metadata */}
                 <div className="flex border-b border-gray-200 flex-wrap sm:flex-nowrap">
-                <div className="w-32 bg-[#f8f9fa] px-4 py-3 text-sm font-semibold text-gray-600 flex items-center border-b sm:border-b-0 border-gray-200">
+                <div className="w-32 bg-graygray-5 px-4 py-3 text-sm font-semibold text-gray-600 flex items-center border-b sm:border-b-0 border-gray-200">
                     작성자
                 </div>
                 <div className="flex-1 px-4 py-3 text-sm text-gray-700 border-b sm:border-b-0 border-r-0 sm:border-r border-gray-200">
-                    {inquiry.author}
+                    {inquiry.userName}
                 </div>
-                <div className="w-32 bg-[#f8f9fa] px-4 py-3 text-sm font-semibold text-gray-600 flex items-center border-b sm:border-b-0 border-gray-200">
+                <div className="w-32 bg-graygray-5 px-4 py-3 text-sm font-semibold text-gray-600 flex items-center border-b sm:border-b-0 border-gray-200">
                     등록일시
                 </div>
                 <div className="flex-1 px-4 py-3 text-sm text-gray-700">
-                    {inquiry.date}
+                    {inquiry.createdAt}
                 </div>
                 </div>
 
@@ -222,9 +223,9 @@ const AdminQnADetail = () => {
                     {/* 답변 메타 정보 */}
                     <div className="flex justify-between items-center bg-gray-50 px-4 py-2 border-b border-gray-200">
                         <div className="flex items-center gap-3 text-xs">
-                        <span className="font-bold text-gray-700">답변자: {inquiry.answer.author}</span>
+                        <span className="font-bold text-gray-700">답변자: {inquiry.answer.userId}</span>
                         <span className="text-gray-400">|</span>
-                        <span className="text-gray-500">{inquiry.answer.date}</span>
+                        <span className="text-gray-500">{inquiry.answer.createdAt}</span>
                         </div>
                         <div className="flex gap-1">
                         <button 
