@@ -45,7 +45,7 @@ const AdminLogList = () => {
     const [filteredLogList, setFilteredLogList] = useState(logData);
 
     const columns = [
-          {
+        {
             key: 'no',
             header: '번호',
             className: 'text-center',

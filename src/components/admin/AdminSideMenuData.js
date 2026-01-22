@@ -49,7 +49,9 @@ export const ADMIN_MENU_DATA = {
       title: "로그 관리",
       path: "/admin/system/adminLogList",
       isAvailable: true,
-      items: [],
+      items: [
+        // { name: "시스템 보안 운영 분석", path: "/admin/system/adminSysOpAnalysis" }
+      ],
     },
   ],
   contents: [
