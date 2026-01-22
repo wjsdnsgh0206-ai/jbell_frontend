@@ -12,7 +12,6 @@ export const DisasterManagementList = lazy(() => import("@/pages/admin/realtime/
 export const DisasterManagementDetail = lazy(() => import("@/pages/admin/realtime/DisasterManagementDetail"));
 export const DisasterManagementAdd = lazy(() => import("@/pages/admin/realtime/DisasterManagementAdd"));
 
-
 export const jyAdminRoutes = [
   // URL 계층화: /admin/대분류/소분류+행위
   
