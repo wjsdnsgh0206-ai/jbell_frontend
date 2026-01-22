@@ -23,8 +23,13 @@ const FacilityList = () => {
 
   // [상태] 필터 및 검색
   const [selectedType, setSelectedType] = useState("all"); 
-  const [searchParams, setSearchParams] = useState({ keyword: '' });
+  const [searchParams, setSearchParams] = useState({ fcltNm: '', sggNm: '', roadNmAddr: '' });
   const [appliedKeyword, setAppliedKeyword] = useState('');
+  const [appliedParams, setAppliedParams] = useState({
+    fcltNm: '',
+    sggNm: '',
+    roadNmAddr: ''
+  });
 
   // [상태] 정렬 (기본값: 등록일 내림차순)
   const [sortConfig, setSortConfig] = useState({ key: 'reg_dt', direction: 'DESC' });
@@ -53,30 +58,28 @@ const FacilityList = () => {
  const fetchFacilities = useCallback(async () => {
   setIsLoading(true);
   try {
-    // 1. API 호출
     const response = await facilityService.getFacilityList({
-      fcltNm: appliedKeyword,
-      roadNmAddr: appliedKeyword,
+      // 적용된(Applied) 검색 조건들을 보냄
+      fcltNm: appliedParams.fcltNm,
+      sggNm: appliedParams.sggNm,
+      roadNmAddr: appliedParams.roadNmAddr,
+      
       page: currentPage,
+      limit: itemsPerPage, // 추가
+      offset: (currentPage - 1) * itemsPerPage, // 백엔드 LIMIT/OFFSET용
       sortKey: sortConfig.key,
       sortOrder: sortConfig.direction
     });
-    
-    console.log("백엔드 응답:", response); // 구조 확인용
 
-    // 2. 데이터 추출 경로 수정 (ApiResponse 구조에 맞게)
-    // response.data가 실제 FacilityListResponse 객체입니다.
+    console.log("백엔드 요청 파라미터:", appliedParams);
+
     const resultData = response.data; 
-
     if (resultData) {
-      // response.list -> resultData.items로 변경
       const formattedList = (resultData.items || []).map(item => ({
         ...item,
         id: item.fcltId 
       }));
-
       setFacility(formattedList);
-      // response.totalCount -> resultData.totalCount로 변경
       setTotalCount(resultData.totalCount || 0);
     }
   } catch (error) {
@@ -84,8 +87,7 @@ const FacilityList = () => {
   } finally {
     setIsLoading(false);
   }
-}, [appliedKeyword, currentPage, sortConfig]);
-
+}, [appliedParams, currentPage, sortConfig]); // appliedParams를 의존성에 추가
 
    useEffect(() => {
     fetchFacilities();
@@ -144,10 +146,9 @@ const FacilityList = () => {
   // ==================================================================================
   // [A] 검색 실행 핸들러
   const handleSearch = () => {
-    // 검색 시 1페이지로 리셋하고, 입력된 키워드를 적용함
-    setAppliedKeyword(searchParams.keyword);
-    setCurrentPage(1);
-  };
+  setAppliedParams({ ...searchParams }); // 입력된 값들을 적용용 상태로 복사
+  setCurrentPage(1);
+};
 
   // [B] 정렬 변경 핸들러 (오름차순/내림차순)
   const handleSortChange = (e) => {
@@ -157,9 +158,9 @@ const FacilityList = () => {
   };
 
   const handleReset = () => {
-    setSearchParams({ keyword: '' });
-    setAppliedKeyword('');
-    setSelectedType("all");
+    const resetValues = { fcltNm: '', sggNm: '', roadNmAddr: '' };
+    setSearchParams(resetValues);
+    setAppliedParams(resetValues); // 적용된 값도 초기화
     setSortConfig({ key: 'reg_dt', direction: 'DESC' });
     setCurrentPage(1);
   };
@@ -262,22 +263,63 @@ const handleDeleteSelected = () => {
             setSearchParams={setSearchParams} 
             onSearch={handleSearch}
             onReset={handleReset}
+            showDefaultInput={false}
           >
-            {/* 백엔드 정렬 셀렉트 박스 */}
-            <div className="relative w-full md:w-64">
-            <select 
-              value={`${sortConfig.key}-${sortConfig.direction}`} 
-              onChange={handleSortChange} 
-              className="w-full appearance-none h-14 pl-5 pr-10 text-body-m border border-admin-border rounded-md bg-white outline-none focus:border-admin-primary transition-all cursor-pointer"
-            >
-              <option value="reg_dt-DESC">등록일 최신순 (내림차순)</option>
-              <option value="reg_dt-ASC">등록일 오래된순 (오름차순)</option>
-              <option value="fclt_nm-ASC">시설명 가나다순 (오름차순)</option>
-              <option value="fclt_nm-DESC">시설명 역순 (내림차순)</option>
-              <option value="sgg_nm-ASC">지역명 (가나다순)</option>
-            </select>
-            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
-          </div>
+            {/* 1. 시설명 검색 */}
+            <div className="flex flex-col gap-2 flex-1 pb-[26px]">
+              <label className="text-sm font-bold text-gray-600">시설명</label>
+              <input 
+                type="text"
+                name="fcltNm" // 백엔드 #{fcltNm}과 매칭
+                value={searchParams.fcltNm}
+                onChange={(e) => setSearchParams({...searchParams, fcltNm: e.target.value})}
+                placeholder="시설명을 입력하세요"
+                className="w-full h-14 pl-5 pr-12 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary placeholder:text-gray-400 focus:border-admin-primary outline-none transition-all"
+              />
+            </div>
+
+            {/* 2. 시군구 검색 (Select 또는 Input) */}
+            <div className="flex flex-col gap-2 w-full md:w-48 pb-[26px]">
+              <label className="text-sm font-bold text-gray-600">시군구</label>
+              <input 
+                type="text"
+                name="sggNm" // 백엔드 #{sggNm}과 매칭
+                value={searchParams.sggNm}
+                onChange={(e) => setSearchParams({...searchParams, sggNm: e.target.value})}
+                placeholder="예: 전주시"
+                className="w-full h-14 pl-5 pr-12 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary placeholder:text-gray-400 focus:border-admin-primary outline-none transition-all"
+              />
+            </div>
+
+            {/* 3. 도로명 주소 검색 */}
+            <div className="flex flex-col gap-2 flex-[1.5] pb-[26px]">
+              <label className="text-sm font-bold text-gray-600">도로명 주소</label>
+              <input 
+                type="text"
+                name="roadNmAddr" // 백엔드 #{roadNmAddr}과 매칭
+                value={searchParams.roadNmAddr}
+                onChange={(e) => setSearchParams({...searchParams, roadNmAddr: e.target.value})}
+                placeholder="도로명 또는 지번 주소 입력"
+                className="w-full h-14 pl-5 pr-12 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary placeholder:text-gray-400 focus:border-admin-primary outline-none transition-all"
+              />
+            </div>
+
+            {/* 정렬 셀렉트 박스 (기존 코드 유지) */}
+            <div className="flex flex-col gap-2 w-full md:w-64 pb-[26px]">
+              <label className="text-sm font-bold text-gray-600">정렬 기준</label>
+              <div className="relative">
+                <select 
+                  value={`${sortConfig.key}-${sortConfig.direction}`} 
+                  onChange={handleSortChange} 
+                  className="w-full appearance-none h-14 pl-5 pr-10 border border-admin-border rounded-md bg-white outline-none focus:border-admin-primary cursor-pointer"
+                >
+                  <option value="reg_dt-DESC">등록일 최신순</option>
+                  <option value="fclt_nm-ASC">시설명 가나다순</option>
+                  <option value="sgg_nm-ASC">지역명 가나다순</option>
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
+              </div>
+            </div>
           </AdminSearchBox>
         </section>
 
