@@ -11,12 +11,18 @@ import { lazy } from 'react';
 // ========================
 
 const RealTimeDashboard = lazy(() => import("@/pages/admin/realtime/dashboard/RealTimeDashboard"));
+
 const AccidentNews = lazy(() => import("@/pages/admin/realtime/accidentNews/AccidentNewsList"));
 const AccidentNewsDetail = lazy(() => import("@/pages/admin/realtime/accidentNews/AccidentNewsDetail"));
 const AccidentNewsAdd = lazy(() => import("@/pages/admin/realtime/accidentNews/AccidentNewsAdd"));
+
 const DisasterManagementList = lazy(() => import("@/pages/admin/realtime/disasterManagement/DisasterManagementList"));
 const DisasterManagementDetail = lazy(() => import("@/pages/admin/realtime/disasterManagement/DisasterManagementDetail"));
 const DisasterManagementAdd = lazy(() => import("@/pages/admin/realtime/disasterManagement/DisasterManagementAdd"));
+
+const DisasterEventManagementList = lazy(() => import("@/pages/admin/realtime/disasterEventManagement/DisasterEventManagementList"));
+
+
 
 export const jyAdminRoutes = [
   // URL 계층화: /admin/대분류/소분류+행위
@@ -64,6 +70,14 @@ export const jyAdminRoutes = [
     path: "/admin/realtime/disasterManagementAdd",
     element: <DisasterManagementAdd/>,
     nowPage: "재난관리 등록",
+  },
+  // ========================
+  // 관리자 재난발생관리 페이지
+  // ========================
+  {
+    path: "/admin/realtime/disasterEventManagementList",
+    element: <DisasterEventManagementList/>,
+    nowPage: "재난발생 관리 목록",
   }
 ];
 

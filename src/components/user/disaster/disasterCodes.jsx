@@ -21,7 +21,7 @@ export const JEONBUK_CODE_MAP = {
 
 // 2. 특보 종류 코드 (파라미터용)
 export const DISASTER_TYPE_CODE = {
-  COLD_WAVE: "2", // 호우 (목표 기능)
+  HEAVYRAIN: "2", // 호우 (목표 기능) -- 추후 
   COLD_WAVE: "3", // 한파 (현재 테스트용)
   TYPHOON: "7",   // 태풍 (목표 기능)
 };

@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
+// ====================
+// 시간 선택 필터
+// ====================
 const TimeRangeSelectorSection = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState("최근 24시간");
   const options = ["최근 24시간", "1일", "3일", "7일", "30일"];
 
   return (
-    <div className="absolute top-[54px] right-[50px] z-50">
+    <div className="relative">
       <button 
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-300 rounded-lg shadow-sm min-w-[150px] justify-between hover:border-gray-400 transition-colors"

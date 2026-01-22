@@ -256,7 +256,7 @@ export const disasterModalService = {
         numOfRows: 500, // 전북 전체 시군구를 커버하기 위해 넉넉히
         pageNo: 1,
         dataType: "JSON",
-        fromTmFc: "20260114", // 오늘 기준 6일 전까지만 조회 가능
+        fromTmFc: "20260119", // 오늘 기준 6일 전까지만 조회 가능
         ...params, // warningType 등 넘어옴
       },
     });

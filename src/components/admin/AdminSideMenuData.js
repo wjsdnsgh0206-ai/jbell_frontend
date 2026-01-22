@@ -24,6 +24,7 @@ export const ADMIN_MENU_DATA = {
       items: [
         { name: "사고속보 관리", path: "/admin/realtime/accidentNewsList"},
         { name: "재난 관리", path: "/admin/realtime/disasterManagementList" },
+        { name: "재난 발생 관리", path: "/admin/realtime/disasterEventManagementList" },
       ],
     },
   ],
