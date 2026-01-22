@@ -3,9 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
-
-// [데이터]
-import { AdminFAQData } from './AdminFAQData';
+import { faqService } from '@/services/api';
 
 // [공통 컴포넌트]
 import AdminDataTable from '@/components/admin/AdminDataTable';
@@ -23,7 +21,8 @@ const AdminFAQList = () => {
   // ==================================================================================
   // 1. 상태 관리 (State Management)
   // ==================================================================================
-  const [faqs, setFaqs] = useState(AdminFAQData);     // 전체 데이터
+  const [faqs, setFaqs] = useState([]); // 초기값 빈 배열로 변경
+  const [loading, setLoading] = useState(true); // 로딩 상태 추가
   const [selectedIds, setSelectedIds] = useState([]); // 선택된 행 ID
   const [currentPage, setCurrentPage] = useState(1);  // 현재 페이지
   const itemsPerPage = 10;                            // 페이지당 항목 수
@@ -35,6 +34,72 @@ const AdminFAQList = () => {
   // [검색 상태]
   const [searchParams, setSearchParams] = useState({ keyword: '' });
   const [appliedKeyword, setAppliedKeyword] = useState('');
+
+  // [API 호출] FAQ 목록 조회
+  const fetchFaqs = async () => {
+    try {
+      setLoading(true);
+      // 서비스 함수 호출
+      const response = await faqService.getFaqList();
+      
+      // response 구조: { status: "SUCCESS", data: [...] }
+      if (response && response.data) {
+        setFaqs(response.data);
+      }
+    } catch (error) {
+      console.error("목록 로드 실패:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // [API 호출] 일괄 공개/비공개 변경
+  const handleBatchStatus = async (statusBoolean) => {
+    if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
+    const statusText = statusBoolean ? '공개' : '비공개';
+    
+    if (confirm(`선택한 ${selectedIds.length}개를 ${statusText}로 변경하시겠습니까?`)) {
+      try {
+        const payload = {
+            faqIds: selectedIds, 
+            visibleYn: statusBoolean ? "Y" : "N"
+        };
+        // [수정] 서비스 함수 호출
+        await faqService.updateFaqStatus(payload);
+        
+        alert('상태가 변경되었습니다.');
+        fetchFaqs();
+        setSelectedIds([]);
+      } catch (error) {
+        console.error("상태 변경 실패:", error);
+        alert("오류가 발생했습니다.");
+      }
+    }
+  };
+
+   // [API 호출] 일괄 삭제 (백엔드 FaqBulkDelete DTO 대응)
+  const handleDeleteSelected = async () => {
+    if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
+
+    if (confirm(`선택한 ${selectedIds.length}개를 삭제하시겠습니까?`)) {
+      try {
+        const payload = { faqIds: selectedIds }; 
+        // [수정] 서비스 함수 호출
+        await faqService.deleteFaq(payload);
+        
+        alert("삭제되었습니다.");
+        fetchFaqs();
+        setSelectedIds([]);
+      } catch (error) {
+        console.error("삭제 실패:", error);
+        alert("삭제 중 오류가 발생했습니다.");
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchFaqs();
+  }, []);
 
   // ==================================================================================
   // 2. 필터링 로직 (Filtering Logic)
@@ -212,33 +277,13 @@ const AdminFAQList = () => {
   };
 
   // 개별 상태 토글
-  const handleToggleStatus = (id) => {
-    setFaqs(prev => prev.map(item => 
-      item.faqId === id ? { ...item, faqVisibleYn: !item.faqVisibleYn } : item
-    ));
-  };
-
-  // 일괄 상태 변경
-  const handleBatchStatus = (newStatus) => {
-    if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
-    
-    if (confirm(`선택한 ${selectedIds.length}개 항목을 일괄 ${newStatus ? '공개' : '비공개'} 처리하시겠습니까?`)) {
-      setFaqs(prev => prev.map(item => 
-        selectedIds.includes(item.faqId) ? { ...item, faqVisibleYn: newStatus } : item
-      ));
-      setSelectedIds([]);
-    }
-  };
-
-  // 일괄 삭제
-  const handleDeleteSelected = () => {
-    if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
-
-    if (confirm(`선택한 ${selectedIds.length}개 항목을 정말 삭제하시겠습니까?\n(삭제된 데이터는 복구할 수 없습니다.)`)) {
-      setFaqs(prev => prev.filter(item => !selectedIds.includes(item.faqId)));
-      setSelectedIds([]);
-    }
-  };
+  const handleToggleStatus = (targetFaqId) => {
+  setFaqs(prev => prev.map(item => 
+    item.faqId === targetFaqId 
+      ? { ...item, faqVisibleYn: item.faqVisibleYn === 'Y' ? 'N' : 'Y' } 
+      : item
+  ));
+};
 
   // ==================================================================================
   // 5. UI 렌더링
@@ -353,6 +398,7 @@ const AdminFAQList = () => {
             data={currentData}
             selectedIds={selectedIds}
             onSelectionChange={setSelectedIds}
+            rowKey="faqId"
           />
 
           {/* Pagination */}

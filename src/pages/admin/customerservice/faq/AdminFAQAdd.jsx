@@ -2,15 +2,17 @@
 
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Save, X} from 'lucide-react';
+import { Save, X } from 'lucide-react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import { faqService } from '@/services/api';
 
 /**
  * FAQ 신규 등록 전용 컴포넌트
  */
-const FaqRegisterPage = ({ onCancel, onSave }) => {
+const FaqRegisterPage = ({ onCancel }) => {
     const navigate = useNavigate();
+
   // 폼 상태 관리 (초기값 설정)
   const [formData, setFormData] = useState({
     category: '회원/계정',
@@ -32,10 +34,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
 
   // 에디터 전용 핸들러 (Quill은 value를 직접 반환)
   const handleEditorChange = (value) => {
-    setFormData((prev) => ({
-      ...prev,
-      content: value
-    }));
+    setFormData((prev) => ({ ...prev, content: value }));
   };
 
   // 라디오 버튼 핸들러 (상태값)
@@ -63,30 +62,41 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
     'color', 'background',
   ];
 
-  // 저장 핸들러
-  const handleSubmit = (e) => {
+  // [API 호출] 등록
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // 유효성 검사
     if (!formData.title.trim()) return alert('제목을 입력해주세요.');
     if (!formData.author.trim()) return alert('작성자를 입력해주세요.');
+    
+    // 에디터 태그 제거 후 빈 값 체크
     const plainText = formData.content.replace(/<[^>]+>/g, '').trim();
     if (!plainText && !formData.content.includes('<img')) return alert('내용을 입력해주세요.');
 
-    // [데이터 구조 변환] String -> JSON Block Array
-    // 에디터 사용 시 content는 HTML 문자열이 됩니다.
-    const finalData = {
-        ...formData,
-        content: [
-            { type: 'text', value: formData.content } // type을 'html'로 명시하거나 기존대로 'text' 유지 가능
+    // 전송 데이터 구성
+    const payload = {
+        faqCategory: formData.category,
+        faqTitle: formData.title,
+        faqWrite: formData.author,
+        faqDisplayOrder: Number(formData.order), // 숫자 변환
+        faqVisibleYn: formData.status ? "Y" : "N", // Boolean -> String 변환
+        // 백엔드 Service에서 List<Map>을 JSON String으로 변환하므로 객체 배열로 전송
+        faqContent: [
+            { type: 'text', value: formData.content } 
         ]
     };
 
-    // 저장 로직 호출
-    if (onSave) onSave(finalData);
-    
-    alert('FAQ가 정상적으로 등록되었습니다.');
-
-    navigate(-1);
+    try {
+        await faqService.createFaq(payload);
+        alert('FAQ가 정상적으로 등록되었습니다.');
+        navigate('/admin/contents/FAQList'); // 목록 페이지로 이동
+    } catch (error) {
+        console.error("등록 실패:", error);
+        alert("등록 중 오류가 발생했습니다.");
+    }
   };
+
     // 취소 버튼 핸들러
     const handleCancelClick = () => {
     if (onCancel) {
@@ -116,7 +126,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
                     <tbody>
                     {/* 카테고리 & 노출순서 */}
                     <tr>
-                        <th className="w-[140px] px-4 py-3 bg-graygray-5 border-b border-gray-300 font-semibold text-gray-700">
+                        <th className="w-[140px] px-4 py-3 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
                         분류 <span className="text-red-500">*</span>
                         </th>
                         <td className="px-4 py-3 border-b border-gray-300">
@@ -135,7 +145,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
                         </td>
                         
                         {/* 2단 레이아웃: 노출 순서 */}
-                        <th className="w-[140px] px-4 py-3 bg-graygray-5 border-b border-gray-300 font-semibold text-gray-700 border-l border-gray-200">
+                        <th className="w-[140px] px-4 py-3 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700 border-l border-gray-200">
                         노출 순서
                         </th>
                         <td className="px-4 py-3 border-b border-gray-300">
@@ -153,7 +163,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
 
                     {/* 2. 작성자 */}
                     <tr>
-                        <th className="px-4 py-3 bg-graygray-5 border-b border-gray-300 font-semibold text-gray-700">
+                        <th className="px-4 py-3 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
                         작성자 <span className="text-red-500">*</span>
                         </th>
                         <td colSpan="3" className="px-4 py-3 border-b border-gray-300">
@@ -170,7 +180,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
 
                     {/* 제목 */}
                     <tr>
-                        <th className="px-4 py-3 bg-graygray-5 border-b border-gray-300 font-semibold text-gray-700">
+                        <th className="px-4 py-3 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
                         제목 <span className="text-red-500">*</span>
                         </th>
                         <td colSpan="3" className="px-4 py-3 border-b border-gray-300">
@@ -187,7 +197,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
 
                     {/* 사용 여부 (Radio Style) */}
                     <tr>
-                        <th className="px-4 py-3 bg-graygray-5 border-b border-gray-300 font-semibold text-gray-700">
+                        <th className="px-4 py-3 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
                         사용 여부 <span className="text-red-500">*</span>
                         </th>
                         <td colSpan="3" className="px-4 py-3 border-b border-gray-300">
@@ -218,11 +228,10 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
 
                     {/* 본문 (Editor Mockup) */}
                     <tr>
-                        <th className="px-4 py-3 bg-graygray-5 border-b border-gray-300 font-semibold text-gray-700 align-top pt-4">
+                        <th className="px-4 py-3 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700 align-top pt-4">
                         내용 <span className="text-red-500">*</span>
                         </th>
                         <td colSpan="3" className="px-4 py-3 border-b border-gray-300">
-                            {/* Tailwind 스타일 커스터마이징을 위한 클래스 추가 */}
                             <div className="bg-white">
                                 <ReactQuill
                                     theme="snow"
@@ -230,7 +239,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
                                     onChange={handleEditorChange}
                                     modules={modules}
                                     formats={formats}
-                                    className="h-[400px] mb-12" // 툴바 포함 높이 확보 및 하단 여백(mb-12) 필수
+                                    className="h-[400px] mb-12"
                                     placeholder="답변 내용을 입력해주세요."
                                 />
                             </div>
