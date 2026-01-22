@@ -1,16 +1,22 @@
-// src/routes/admin/route-sh.jsx
 import { lazy } from 'react';
-// import RealtimeDashboard from '@/pages/admin/realtime/RealtimeDashboard';
 
-export const RealTimeDashboard = lazy(() => import("@/pages/admin/realtime/RealTimeDashboard"));
-// export const BehavioralGuideDetail = lazy(() => import("@/pages/admin/contents/behavioralGuide/BehavioralGuideDetail"));
-export const AccidentNews = lazy(() => import("@/pages/admin/realtime/AccidentNewsList"));
-// export const Disaster = lazy(() => import("@/pages/admin/realtime/Disaster"));
-export const AccidentNewsDetail = lazy(() => import("@/pages/admin/realtime/AccidentNewsDetail"));
-export const AccidentNewsAdd = lazy(() => import("@/pages/admin/realtime/AccidentNewsAdd"));
-export const DisasterManagementList = lazy(() => import("@/pages/admin/realtime/DisasterManagementList"));
-export const DisasterManagementDetail = lazy(() => import("@/pages/admin/realtime/DisasterManagementDetail"));
-export const DisasterManagementAdd = lazy(() => import("@/pages/admin/realtime/DisasterManagementAdd"));
+// ======================================
+// 관리자 메인 페이지 라우터 정리 - 최지영
+// ======================================
+
+// ⭐ ========================
+// 코드 수정 20260122 오전 11:40
+// 주요 수정 사항 : lazy로 파일 import하는 코드에 export 제거. 
+// 제거 이유 : 컴포넌트와 데이터가 섞여서 함께 export되어 경고 메시지가 뜸. 이를 해결하기 위해 데이터만 export하는 방식으로 수정. 
+// ========================
+
+const RealTimeDashboard = lazy(() => import("@/pages/admin/realtime/RealTimeDashboard"));
+const AccidentNews = lazy(() => import("@/pages/admin/realtime/accidentNews/AccidentNewsList"));
+const AccidentNewsDetail = lazy(() => import("@/pages/admin/realtime/accidentNews/AccidentNewsDetail"));
+const AccidentNewsAdd = lazy(() => import("@/pages/admin/realtime/accidentNews/AccidentNewsAdd"));
+const DisasterManagementList = lazy(() => import("@/pages/admin/realtime/disasterManagement/DisasterManagementList"));
+const DisasterManagementDetail = lazy(() => import("@/pages/admin/realtime/disasterManagement/DisasterManagementDetail"));
+const DisasterManagementAdd = lazy(() => import("@/pages/admin/realtime/disasterManagement/DisasterManagementAdd"));
 
 export const jyAdminRoutes = [
   // URL 계층화: /admin/대분류/소분류+행위
