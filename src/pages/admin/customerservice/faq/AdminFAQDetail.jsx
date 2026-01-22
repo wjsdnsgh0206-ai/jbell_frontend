@@ -2,11 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  Edit2, Trash2, List, Eye, EyeOff, Clock, 
-  User, Calendar, CheckCircle, AlertCircle, Save, X 
-} from 'lucide-react';
+import { Edit2, Trash2, List, Eye, EyeOff, Clock, User, Calendar, CheckCircle, AlertCircle, Save, X } from 'lucide-react';
 import { AdminFAQData, FAQ_CATEGORIES } from './AdminFAQData';
+import { faqService } from '@/services/api';
 
 const cn = (...classes) => classes.filter(Boolean).join(' ');
 
@@ -14,48 +12,90 @@ const AdminFAQDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   
-  // 데이터 초기화: content를 빈 배열로 설정
-  const normalizeData = (item) => {
-    if (!item) return {
+  // 초기 상태 설정
+  const [data, setData] = useState({
       faqId: 0,
       faqCategory: '기타',
       faqTitle: '',
-      faqContent: [], // JSON 배열 초기화
-      faqWrite: '관리자',
+      faqContent: [], 
+      faqWrite: '',
       faqViewCount: 0,
-      faqVisibleYn: false,
-      faqCreatedAt: new Date().toISOString(),
-      faqUpdatedAt: new Date().toISOString(),
-    };
-    // [핵심 변경 사항] content가 문자열(JSON String)로 오면 객체로 변환
-    let parsedContent = item.faqContent;
-
-    if (typeof item.faqContent === 'string') {
-      try {
-        parsedContent = JSON.parse(item.faqContent);
-      } catch (error) {
-        console.error("Content 파싱 실패:", error);
-        parsedContent = []; // 에러 발생 시 빈 배열로 초기화하여 렌더링 오류 방지
-      }
-    }
-    return {
-      ...item,
-      faqContent: parsedContent, // 변환된 객체 배열 할당
-      faqCreatedAt: item.faqCreatedAt || new Date().toISOString(),
-      faqUpdatedAt: item.faqUpdatedAt || new Date().toISOString(),
-    };
-  };
-
-  const [data, setData] = useState(normalizeData(null));
+      faqVisibleYn: 'N', // 백엔드 DTO 타입이 String ("Y"/"N") 인지 Boolean 인지 확인 필요.
+                        // 파일상 FaqList는 String "Y"/"N" 주석이 있고, 
+                        // DTO에는 String faqVisibleYn으로 되어 있음.
+  });
   const [isEditing, setIsEditing] = useState(false);
 
+  // [API 호출] 상세 조회
   useEffect(() => {
     if (id) {
-        const found = AdminFAQData.find(item => item.faqId === parseInt(id, 10));
-        setData(normalizeData(found));
+      // 서비스 함수 호출
+      faqService.getFaqDetail(id)
+        .then(res => {
+          const item = res.data; // res.data가 실제 DTO 내용
+          
+          let parsedContent = [];
+          if (item.faqContent) {
+             if (typeof item.faqContent === 'string') {
+                 try {
+                   parsedContent = JSON.parse(item.faqContent);
+                 } catch (e) {
+                   parsedContent = [{ type: 'text', value: item.faqContent }];
+                 }
+             } else {
+                 parsedContent = item.faqContent;
+             }
+          }
+          setData({ ...item, faqContent: parsedContent || [] });
+        })
+        .catch(err => {
+            console.error(err);
+            alert("데이터 조회 실패");
+            navigate('/admin/contents/FAQList');
+        });
     }
-  }, [id]);
+  }, [id, navigate]);
 
+  // [API 호출] 수정 저장
+  const handleSave = async () => {
+    // ... 유효성 검사 유지
+    if (window.confirm('저장하시겠습니까?')) {
+        try {
+            const payload = {
+                faqId: data.faqId,
+                faqCategory: data.faqCategory,
+                faqVisibleYn: data.faqVisibleYn,
+                faqContent: data.faqContent
+            };
+            
+            // [수정] 서비스 함수 호출
+            await faqService.updateFaq(data.faqId, payload);
+            
+            alert('저장되었습니다.');
+            setIsEditing(false);
+        } catch (error) {
+            console.error("수정 실패:", error);
+            alert("수정 중 오류가 발생했습니다.");
+        }
+    }
+  };
+
+   // [API 호출] 삭제
+  const handleDelete = async () => {
+    if (window.confirm('삭제하시겠습니까?')) {
+        try {
+            // [수정] 서비스 함수 호출
+            await faqService.deleteFaq({ faqId: [data.faqId] });
+            
+            alert('삭제되었습니다.');
+            navigate('/admin/contents/FAQList');
+        } catch (error) {
+            alert("삭제 실패");
+        }
+    }
+  };
+
+  // 입력 핸들러
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setData((prev) => ({ ...prev, [name]: value }));
@@ -87,24 +127,6 @@ const AdminFAQDetail = () => {
     const action = newStatus ? '공개' : '비공개';
     if (window.confirm(`[${action}] 상태로 변경하시겠습니까?`)) {
       setData(prev => ({ ...prev, faqVisibleYn: newStatus }));
-    }
-  };
-
-  const handleDelete = () => {
-    if (window.confirm('정말 삭제하시겠습니까?')) {
-      alert('삭제되었습니다.');
-      navigate('/admin/contents/FAQList');
-    }
-  };
-
-  const handleSave = () => {
-    if (!data.faqTitle.trim()) return alert('제목을 입력해주세요.');
-    if (window.confirm('저장하시겠습니까?')) {
-      const now = new Date().toISOString();
-      const updatedData = { ...data, faqUpdatedAt: now };
-      setData(updatedData);
-      setIsEditing(false);
-      alert('저장되었습니다.');
     }
   };
 
