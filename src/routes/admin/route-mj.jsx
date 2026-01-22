@@ -2,12 +2,18 @@ import { lazy } from "react";
 import AdminMemberEdit from "../../pages/admin/member/AdminMemberEdit";
 import AdminMemberDetail from "../../pages/admin/member/AdminMemberDetail";
 import AdminBoardManagement from "../../pages/admin/board/AdminBoardManagement";
-export const AdminBoardList = lazy(() => import("@/pages/admin/board/AdminBoardList"));
-// export const AdminBoardManagement = lazy(() => import("@/pages/admin/board/AdminBoardManagement"));
-export const AdminBoardDetail = lazy(() => import("@/pages/admin/board/AdminBoardDetail"));
-export const AdminLogList = lazy(() => import("@/pages/admin/board/AdminLogList"));
-export const AdminMemberList = lazy(() => import("@/pages/admin/member/AdminMemberList"));
-export const AdminMemberRegister = lazy(() => import("@/pages/admin/member/AdminMemberRegister"));
+
+// ⭐ ========================
+// 코드 수정 20260122 오전 11:40
+// 주요 수정 사항 : lazy로 파일 import하는 코드에 export 제거. 
+// 제거 이유 : 컴포넌트와 데이터가 섞여서 함께 export되어 경고 메시지가 뜸. 이를 해결하기 위해 데이터만 export하는 방식으로 수정. 
+// ========================
+
+const AdminBoardList = lazy(() => import("@/pages/admin/board/AdminBoardList"));
+const AdminBoardDetail = lazy(() => import("@/pages/admin/board/AdminBoardDetail"));
+const AdminLogList = lazy(() => import("@/pages/admin/board/AdminLogList"));
+const AdminMemberList = lazy(() => import("@/pages/admin/member/AdminMemberList"));
+const AdminMemberRegister = lazy(() => import("@/pages/admin/member/AdminMemberRegister"));
 
 // ------ 라우트 페이지 경로 입력 파일 ------ //
 // Routes.jsx에서 이 파일을 불러와서 Route를 생성함.
