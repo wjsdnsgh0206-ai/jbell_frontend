@@ -17,23 +17,22 @@ const AdminFAQDetail = () => {
   // 데이터 초기화: content를 빈 배열로 설정
   const normalizeData = (item) => {
     if (!item) return {
-      id: 0,
-      category: '기타',
-      title: '',
-      content: [], // JSON 배열 초기화
-      author: '관리자',
-      date: new Date().toISOString().substring(0, 10), 
-      views: 0,
-      status: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      faqId: 0,
+      faqCategory: '기타',
+      faqTitle: '',
+      faqContent: [], // JSON 배열 초기화
+      faqWrite: '관리자',
+      faqViewCount: 0,
+      faqVisibleYn: false,
+      faqCreatedAt: new Date().toISOString(),
+      faqUpdatedAt: new Date().toISOString(),
     };
     // [핵심 변경 사항] content가 문자열(JSON String)로 오면 객체로 변환
-    let parsedContent = item.content;
+    let parsedContent = item.faqContent;
 
-    if (typeof item.content === 'string') {
+    if (typeof item.faqContent === 'string') {
       try {
-        parsedContent = JSON.parse(item.content);
+        parsedContent = JSON.parse(item.faqContent);
       } catch (error) {
         console.error("Content 파싱 실패:", error);
         parsedContent = []; // 에러 발생 시 빈 배열로 초기화하여 렌더링 오류 방지
@@ -41,9 +40,9 @@ const AdminFAQDetail = () => {
     }
     return {
       ...item,
-      content: parsedContent, // 변환된 객체 배열 할당
-      createdAt: item.createdAt || new Date().toISOString(),
-      updatedAt: item.updatedAt || new Date().toISOString(),
+      faqContent: parsedContent, // 변환된 객체 배열 할당
+      faqCreatedAt: item.faqCreatedAt || new Date().toISOString(),
+      faqUpdatedAt: item.faqUpdatedAt || new Date().toISOString(),
     };
   };
 
@@ -52,7 +51,7 @@ const AdminFAQDetail = () => {
 
   useEffect(() => {
     if (id) {
-        const found = AdminFAQData.find(item => item.id === parseInt(id, 10));
+        const found = AdminFAQData.find(item => item.faqId === parseInt(id, 10));
         setData(normalizeData(found));
     }
   }, [id]);
@@ -68,13 +67,13 @@ const AdminFAQDetail = () => {
   const handleContentChange = (e) => {
     // 수정 시에는 모든 내용을 하나의 텍스트 블록으로 덮어씀 (간소화)
     const newContent = [{ type: 'text', value: e.target.value }];
-    setData(prev => ({ ...prev, content: newContent }));
+    setData(prev => ({ ...prev, faqContent: newContent }));
   };
 
   // 편집 모드일 때 보여줄 텍스트 추출 함수
   const getEditableContentString = () => {
-    if (Array.isArray(data.content)) {
-      return data.content.map(block => {
+    if (Array.isArray(data.faqContent)) {
+      return data.faqContent.map(block => {
         if (block.type === 'text' || block.type === 'note') return block.value;
         if (block.type === 'list') return block.items.join('\n');
         return '';
@@ -84,10 +83,10 @@ const AdminFAQDetail = () => {
   };
 
   const handleToggleStatus = () => {
-    const newStatus = !data.status;
+    const newStatus = !data.faqVisibleYn;
     const action = newStatus ? '공개' : '비공개';
     if (window.confirm(`[${action}] 상태로 변경하시겠습니까?`)) {
-      setData(prev => ({ ...prev, status: newStatus }));
+      setData(prev => ({ ...prev, faqVisibleYn: newStatus }));
     }
   };
 
@@ -99,10 +98,10 @@ const AdminFAQDetail = () => {
   };
 
   const handleSave = () => {
-    if (!data.title.trim()) return alert('제목을 입력해주세요.');
+    if (!data.faqTitle.trim()) return alert('제목을 입력해주세요.');
     if (window.confirm('저장하시겠습니까?')) {
       const now = new Date().toISOString();
-      const updatedData = { ...data, updatedAt: now };
+      const updatedData = { ...data, faqUpdatedAt: now };
       setData(updatedData);
       setIsEditing(false);
       alert('저장되었습니다.');
@@ -176,12 +175,12 @@ const AdminFAQDetail = () => {
                 
                 <span className={cn(
                     "px-3 py-1 text-sm font-medium rounded-full border flex items-center gap-1.5 bg-white shadow-sm",
-                    data.status 
+                    data.faqVisibleYn 
                         ? "text-blue-600 border-blue-100" 
                         : "text-gray-500 border-gray-200"
                 )}>
-                    {data.status ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-                    {data.status ? '사용 중 (공개)' : '미사용 (비공개)'}
+                    {data.faqVisibleYn ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                    {data.faqVisibleYn ? '사용 중 (공개)' : '미사용 (비공개)'}
                 </span>
             </div>
         </div>
@@ -197,8 +196,8 @@ const AdminFAQDetail = () => {
                     <div className="mb-4">
                         {isEditing ? (
                             <select
-                                name="category"
-                                value={data.category}
+                                name="faqCategory"
+                                value={data.faqCategory}
                                 onChange={handleInputChange}
                                 className="h-9 px-3 text-sm border border-gray-300 rounded focus:border-blue-500 outline-none bg-white min-w-[140px]"
                             >
@@ -206,7 +205,7 @@ const AdminFAQDetail = () => {
                             </select>
                         ) : (
                             <span className="inline-block px-3 py-1 text-xs font-bold text-slate-600 bg-slate-100 rounded border border-slate-200">
-                                {data.category}
+                                {data.faqCategory}
                             </span>
                         )}
                     </div>
@@ -218,15 +217,15 @@ const AdminFAQDetail = () => {
                             {isEditing ? (
                                 <input
                                     type="text"
-                                    name="title"
-                                    value={data.title}
+                                    name="faqTitle"
+                                    value={data.faqTitle}
                                     onChange={handleInputChange}
                                     className="w-full text-2xl font-bold text-gray-900 border-b border-gray-300 focus:border-blue-500 outline-none pb-2 bg-transparent placeholder-gray-300"
                                     placeholder="질문 제목을 입력해주세요"
                                 />
                             ) : (
                                 <h3 className="text-2xl font-bold text-gray-900 leading-snug">
-                                    {data.title}
+                                    {data.faqTitle}
                                 </h3>
                             )}
                         </div>
@@ -245,7 +244,7 @@ const AdminFAQDetail = () => {
                                 />
                             ) : (
                                 <div className="text-gray-700 leading-loose text-base">
-                                    {renderContent(data.content)}
+                                    {renderContent(data.faqContent)}
                                 </div>
                             )}
                         </div>
@@ -306,19 +305,19 @@ const AdminFAQDetail = () => {
                     <ul className="space-y-5 text-sm text-gray-600">
                         <li className="flex justify-between items-center">
                             <span className="flex items-center gap-2 text-gray-500"><User size={15}/> 작성자</span> 
-                            <span className="font-medium text-gray-900">{data.author}</span>
+                            <span className="font-medium text-gray-900">{data.faqWrite}</span>
                         </li>
                         <li className="flex justify-between items-center">
                             <span className="flex items-center gap-2 text-gray-500"><Calendar size={15}/> 등록일</span> 
-                            <span className="font-medium text-gray-900">{String(data.createdAt).substring(0,10)}</span>
+                            <span className="font-medium text-gray-900">{String(data.faqCreatedAt).substring(0,10)}</span>
                         </li>
                         <li className="flex justify-between items-center">
                             <span className="flex items-center gap-2 text-gray-500"><Clock size={15}/> 수정일</span> 
-                            <span className="font-medium text-gray-900">{String(data.updatedAt).substring(0,10)}</span>
+                            <span className="font-medium text-gray-900">{String(data.faqUpdatedAt).substring(0,10)}</span>
                         </li>
                         <li className="flex justify-between items-center">
                             <span className="flex items-center gap-2 text-gray-500"><Eye size={15}/> 조회수</span> 
-                            <span className="font-medium text-gray-900">{data.views.toLocaleString()}</span>
+                            <span className="font-medium text-gray-900">{data.faqViewCount.toLocaleString()}</span>
                         </li>
                     </ul>
                 </div>
@@ -329,8 +328,8 @@ const AdminFAQDetail = () => {
                         onClick={handleToggleStatus} 
                         className="w-full h-12 bg-white border border-gray-300 rounded-md text-sm font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 flex justify-center items-center gap-2 shadow-sm transition-all"
                     >
-                        {data.status ? <EyeOff size={16}/> : <Eye size={16}/>}
-                        {data.status ? '비공개로 전환' : '공개로 전환'}
+                        {data.faqVisibleYn ? <EyeOff size={16}/> : <Eye size={16}/>}
+                        {data.faqVisibleYn ? '비공개로 전환' : '공개로 전환'}
                     </button>
                 </div>
             </div>

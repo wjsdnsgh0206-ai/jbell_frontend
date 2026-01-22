@@ -1,8 +1,10 @@
 //src/pages/admin/customerservice/faq/AdminFAQAdd.jsx
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Save, X, RotateCcw, ChevronRight, Bold,Italic, Underline, List, Link as LinkIcon, Image as ImageIcon, } from 'lucide-react';
+import { Save, X} from 'lucide-react';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 /**
  * FAQ 신규 등록 전용 컴포넌트
@@ -28,24 +30,53 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
     }));
   };
 
+  // 에디터 전용 핸들러 (Quill은 value를 직접 반환)
+  const handleEditorChange = (value) => {
+    setFormData((prev) => ({
+      ...prev,
+      content: value
+    }));
+  };
+
   // 라디오 버튼 핸들러 (상태값)
   const handleStatusChange = (val) => {
     setFormData((prev) => ({ ...prev, status: val }));
   };
+
+  // 툴바 설정 (useMemo로 최적화하여 리렌더링 시 오동작 방지)
+  const modules = useMemo(() => ({
+    toolbar: [
+      [{ header: [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'], // 텍스트 스타일
+      [{ list: 'ordered' }, { list: 'bullet' }], // 리스트
+      ['link', 'image'], // 링크, 이미지
+      [{ color: [] }, { background: [] }], // 색상
+      ['clean'], // 서식 지우기
+    ],
+  }), []);
+
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet',
+    'link', 'image',
+    'color', 'background',
+  ];
 
   // 저장 핸들러
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.title.trim()) return alert('제목을 입력해주세요.');
     if (!formData.author.trim()) return alert('작성자를 입력해주세요.');
-    if (!formData.content.trim()) return alert('내용을 입력해주세요.');
+    const plainText = formData.content.replace(/<[^>]+>/g, '').trim();
+    if (!plainText && !formData.content.includes('<img')) return alert('내용을 입력해주세요.');
 
     // [데이터 구조 변환] String -> JSON Block Array
-    // 실제로는 에디터가 필요하지만, 여기선 전체 텍스트를 하나의 'text' 블록으로 저장
+    // 에디터 사용 시 content는 HTML 문자열이 됩니다.
     const finalData = {
         ...formData,
         content: [
-            { type: 'text', value: formData.content }
+            { type: 'text', value: formData.content } // type을 'html'로 명시하거나 기존대로 'text' 유지 가능
         ]
     };
 
@@ -191,26 +222,18 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
                         내용 <span className="text-red-500">*</span>
                         </th>
                         <td colSpan="3" className="px-4 py-3 border-b border-gray-300">
-                        {/* Editor UI Frame */}
-                        <div className="border border-gray-300 rounded-sm overflow-hidden">
-                            {/* Toolbar */}
-                            <div className="bg-gray-50 border-b border-gray-300 px-3 py-2 flex gap-1">
-                                <button type="button" className="p-1.5 hover:bg-gray-200 rounded text-gray-600"><Bold className="w-4 h-4"/></button>
-                                <button type="button" className="p-1.5 hover:bg-gray-200 rounded text-gray-600"><Italic className="w-4 h-4"/></button>
-                                <button type="button" className="p-1.5 hover:bg-gray-200 rounded text-gray-600"><Underline className="w-4 h-4"/></button>
-                                <button type="button" className="p-1.5 hover:bg-gray-200 rounded text-gray-600"><List className="w-4 h-4"/></button>
-                                <button type="button" className="p-1.5 hover:bg-gray-200 rounded text-gray-600"><LinkIcon className="w-4 h-4"/></button>
-                                <button type="button" className="p-1.5 hover:bg-gray-200 rounded text-gray-600"><ImageIcon className="w-4 h-4"/></button>
+                            {/* Tailwind 스타일 커스터마이징을 위한 클래스 추가 */}
+                            <div className="bg-white">
+                                <ReactQuill
+                                    theme="snow"
+                                    value={formData.content}
+                                    onChange={handleEditorChange}
+                                    modules={modules}
+                                    formats={formats}
+                                    className="h-[400px] mb-12" // 툴바 포함 높이 확보 및 하단 여백(mb-12) 필수
+                                    placeholder="답변 내용을 입력해주세요."
+                                />
                             </div>
-                            {/* Text Area */}
-                            <textarea
-                                name="content"
-                                value={formData.content}
-                                onChange={handleChange}
-                                className="w-full h-64 p-4 text-sm focus:outline-none resize-y placeholder-gray-400"
-                                placeholder="답변 내용을 입력해주세요. (저장 시 텍스트 블록으로 자동 변환됩니다)"
-                            />
-                        </div>
                         </td>
                     </tr>
                     </tbody>
