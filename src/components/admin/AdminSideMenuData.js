@@ -50,7 +50,7 @@ export const ADMIN_MENU_DATA = {
       path: "/admin/system/adminLogList",
       isAvailable: true,
       items: [
-        // { name: "시스템 보안 운영 분석", path: "/admin/system/adminSysOpAnalysis" }
+        { name: "시스템 보안 운영 분석", path: "/admin/system/adminSysOpAnalysis" }
       ],
     },
   ],

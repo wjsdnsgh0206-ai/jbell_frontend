@@ -55,7 +55,7 @@ const AdminLogList = () => {
         {
             key: 'logId',
             header: '로그인 ID',
-            className: 'text-left',
+            className: 'text-center',
             render: (value) => (
             <span className="text-blue-600 font-medium">{value}</span>
             )
@@ -63,17 +63,17 @@ const AdminLogList = () => {
         {
             key: 'logIp',
             header: '로그인 IP',
-            className: 'text-left'
+            className: 'text-center'
         },
         {
             key: 'loggedDate',
             header: '발생일자',
-            className: 'text-left'
+            className: 'text-center'
         },
         {
             key: 'logSOF',
             header: '성공/실패',
-            className: 'text-left',
+            className: 'text-center',
             render: (value) => (
             <span
                 className={`px-2 py-1 rounded text-xs inline-block ${
