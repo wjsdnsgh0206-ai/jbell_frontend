@@ -4,8 +4,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 
-// [데이터]
-import { AdminQnAData } from './AdminQnAData';
+// [API 서비스]
+import { qnaService } from '@/services/api';
 
 // [공통 컴포넌트]
 import AdminDataTable from '@/components/admin/AdminDataTable';
@@ -24,7 +24,8 @@ const AdminQnAList = () => {
   // ==================================================================================
   // 1. 상태 관리 (State Management)
   // ==================================================================================
-  const [inquiries, setInquiries] = useState(AdminQnAData); // 전체 데이터
+  const [inquiries, setInquiries] = useState([]); // 전체 데이터
+  const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState([]);       // 선택된 행 ID
   const [currentPage, setCurrentPage] = useState(1);        // 현재 페이지
   const itemsPerPage = 10;                                  // 페이지당 항목 수
@@ -37,157 +38,71 @@ const AdminQnAList = () => {
     dateStart: '',
     dateEnd: ''
   });
+  const [appliedFilters, setAppliedFilters] = useState(searchParams);   // [실제 적용된 검색 필터 (검색 버튼 클릭 시 업데이트)]
 
-  // [실제 적용된 검색 필터 (검색 버튼 클릭 시 업데이트)]
-  const [appliedFilters, setAppliedFilters] = useState(searchParams);
+  // 데이터 불러오기 (API 연동)
+  const fetchQnaList = async () => {
+    try {
+      setLoading(true);
+      const data = await qnaService.getQnaList();
+      // 백엔드에서 최신순 정렬해서 주지만, 혹시 모르니 프론트에서도 정렬 가능
+      setInquiries(data); 
+    } catch (error) {
+      console.error("QnA 목록 조회 실패:", error);
+      alert("데이터를 불러오는데 실패했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // ==================================================================================
-  // 최신 글 3개 ID 계산 로직
-  // ==================================================================================
+  useEffect(() => {
+    fetchQnaList();
+  }, []);
+
+  // 최신 글 3개 ID 계산
   const recentIds = useMemo(() => {
+    if (!inquiries.length) return [];
+    // createdAt 문자열 비교
     const sorted = [...inquiries].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     return sorted.slice(0, 3).map(item => item.qnaId);
   }, [inquiries]);
 
-  // ==================================================================================
-  // 2. 필터링 로직
-  // ==================================================================================
+  // 필터링 로직 (기존 유지, 날짜 비교 등)
   const filteredData = useMemo(() => {
     const { status, category, keyword, dateStart, dateEnd } = appliedFilters;
     const lowerKeyword = keyword.replace(/\s+/g, "").toLowerCase();
 
     return inquiries.filter((item) => {
-      // 1. 상태 필터
+      // 상태 필터
       if (status !== 'ALL' && item.status !== status) return false;
-      
-      // 2. 유형 필터
+      // 유형 필터
       if (category !== 'ALL' && item.categoryName !== category) return false;
-
-      // 3. 날짜 필터 (YYYY-MM-DD 비교)
+      // 날짜 필터
       if (dateStart || dateEnd) {
-          const itemDate = item.createdAt.substring(0, 10); 
+          const itemDate = item.createdAt ? item.createdAt.substring(0, 10) : "";
           if (dateStart && itemDate < dateStart) return false;
           if (dateEnd && itemDate > dateEnd) return false;
       }
-
-      // 4. 키워드 검색 (제목 + 작성자)
+      // 키워드 검색
       if (lowerKeyword) {
-          const matchTitle = item.title.replace(/\s+/g, "").toLowerCase().includes(lowerKeyword);
-          const matchAuthor = item.userName.replace(/\s+/g, "").toLowerCase().includes(lowerKeyword);
+          const title = item.title || "";
+          const user = item.userName || "";
+          const matchTitle = title.replace(/\s+/g, "").toLowerCase().includes(lowerKeyword);
+          const matchAuthor = user.replace(/\s+/g, "").toLowerCase().includes(lowerKeyword);
           if (!matchTitle && !matchAuthor) return false;
       }
-
       return true;
-    }).sort((a, b) => b.qnaId - a.qnaId); // 최신순 정렬
+    });
   }, [inquiries, appliedFilters]);
 
-  // 현재 페이지 데이터 슬라이싱
+  // 페이지네이션
   const currentData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     return filteredData.slice(startIndex, startIndex + itemsPerPage);
   }, [currentPage, filteredData, itemsPerPage]);
 
   // ==================================================================================
-  // 3. 테이블 컬럼 정의 (Table Columns)
-  // ==================================================================================
-  const columns = useMemo(() => [
-    { 
-      key: 'no', 
-      header: '번호', 
-      width: '80px', 
-      className: 'text-center text-gray-500',
-      render: (_, row) => row.qnaId // qnaId 렌더링
-    },
-    { 
-      key: 'status', 
-      header: '상태', 
-      width: '100px', 
-      className: 'text-center',
-      render: (status) => {
-        let badgeClass = "";
-
-        switch (status) {
-          case '답변대기':
-            badgeClass = "bg-gray-50 text-gray-500 border-gray-200";
-            break;
-          case '답변 처리중':
-            badgeClass = "bg-orange-50 text-orange-600 border-orange-200";
-            break;
-          case '답변완료':
-            badgeClass = "bg-blue-50 text-blue-600 border-blue-100";
-            break;
-          default:
-            badgeClass = "bg-gray-50 text-gray-500 border-gray-200";
-        }
-
-        return (
-          <span className={cn(
-            "inline-block px-2 py-1 text-xs font-bold rounded-sm min-w-[70px] border text-center",
-            badgeClass
-          )}>
-            {status}
-          </span>
-        );
-      }
-    },
-    { 
-      key: 'categoryName', 
-      header: '문의유형', 
-      width: '140px', 
-      className: 'text-center text-gray-600' 
-    },
-    { 
-      key: 'title', 
-      header: '제목', 
-      render: (title, row) => (
-        <div 
-          className="flex items-center gap-2 cursor-pointer hover:text-blue-600 hover:underline"
-          onClick={() => navigate(`/admin/contents/QnADetail/${row.qnaId}`)}
-        >
-          <span className="truncate max-w-[400px] text-gray-900">{title}</span>
-         {/* 최신 글 3개에 N 뱃지 표시 */}
-          {recentIds.includes(row.qnaId) && (
-            <span className="inline-flex items-center justify-center w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex-shrink-0">
-              N
-            </span>
-          )}
-        </div>
-      )
-    },
-    { 
-      key: 'userName', 
-      header: '작성자', 
-      width: '100px', 
-      className: 'text-center text-gray-600' 
-    },
-    { 
-      key: 'createdAt', 
-      header: '등록일', 
-      width: '120px', 
-      className: 'text-center text-gray-500',
-      render: (date) => date.substring(0, 10) // YYYY-MM-DD만 표시
-    },
-    {
-      key: 'actions',
-      header: '상세',
-      width: '80px',
-      className: 'text-center',
-      render: (_, row) => (
-        <button 
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/admin/contents/QnADetail/${row.qnaId}`);
-          }}
-          className="border border-gray-300 text-graygray-70 rounded px-3 py-1 text-[12px] font-bold bg-white hover:bg-gray-50 hover:text-blue-600 hover:border-blue-300 transition-all"
-        >
-          조회
-        </button>
-      )
-    }
-  ], [navigate, recentIds]);
-
-  // ==================================================================================
-  // 4. 이벤트 핸들러 (Event Handlers)
+  // 이벤트 핸들러 (Event Handlers)
   // ==================================================================================
   
   // 검색 실행
@@ -198,13 +113,7 @@ const AdminQnAList = () => {
 
   // 초기화
   const handleReset = () => {
-    const initialParams = {
-      keyword: '',
-      status: 'ALL',
-      type: 'ALL',
-      dateStart: '',
-      dateEnd: ''
-    };
+    const initialParams = { keyword: '', status: 'ALL', category: 'ALL', dateStart: '', dateEnd: '' };
     setSearchParams(initialParams);
     setAppliedFilters(initialParams);
     setCurrentPage(1);
@@ -219,26 +128,85 @@ const AdminQnAList = () => {
   // 선택 즉시 리스트 갱신
   const handleImmediateChange = (e) => {
     const { name, value } = e.target;
-    
-    // 1. UI 상태 업데이트
     setSearchParams(prev => ({ ...prev, [name]: value }));
-    
-    // 2. 필터 로직 상태 업데이트 (즉시 반영)
     setAppliedFilters(prev => ({ ...prev, [name]: value }));
-    
-    // 3. 페이지 초기화
     setCurrentPage(1);
   };
 
-  // 일괄 삭제
-  const handleDeleteSelected = () => {
+  // 일괄 삭제 API 연동
+  const handleDeleteSelected = async () => {
     if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
 
-    if (confirm(`선택한 ${selectedIds.length}개 문의를 영구 삭제하시겠습니까?`)) {
-      setInquiries(prev => prev.filter(item => !selectedIds.includes(item.qnaId)));
-      setSelectedIds([]);
+    if (window.confirm(`선택한 ${selectedIds.length}개 문의를 영구 삭제하시겠습니까?`)) {
+      try {
+        await qnaService.deleteQna(selectedIds);
+        alert("삭제되었습니다.");
+        setSelectedIds([]);
+        fetchQnaList(); // 목록 새로고침
+      } catch (error) {
+        console.error("삭제 실패:", error);
+        alert("삭제 중 오류가 발생했습니다.");
+      }
     }
   };
+
+  // ==================================================================================
+  // 테이블 컬럼 정의 (Table Columns)
+  // ==================================================================================
+  const columns = useMemo(() => [
+    { 
+      key: 'no', header: '번호', width: '80px', className: 'text-center text-gray-500',
+      render: (_, row) => row.qnaId 
+    },
+    { 
+      key: 'status', header: '상태', width: '100px', className: 'text-center',
+      render: (status) => {
+        let badgeClass = "bg-gray-50 text-gray-500 border-gray-200";
+        if (status === '답변 처리중') badgeClass = "bg-orange-50 text-orange-600 border-orange-200";
+        else if (status === '답변완료') badgeClass = "bg-blue-50 text-blue-600 border-blue-100";
+        
+        return (
+          <span className={cn("inline-block px-2 py-1 text-xs font-bold rounded-sm min-w-[70px] border text-center", badgeClass)}>
+            {status}
+          </span>
+        );
+      }
+    },
+    { key: 'categoryName', header: '문의유형', width: '140px', className: 'text-center text-gray-600' },
+    { 
+      key: 'title', header: '제목', 
+      render: (title, row) => (
+        <div 
+          className="flex items-center gap-2 cursor-pointer hover:text-blue-600 hover:underline"
+          onClick={() => navigate(`/admin/contents/QnADetail/${row.qnaId}`)}
+        >
+          <span className="truncate max-w-[400px] text-gray-900">{title}</span>
+          {recentIds.includes(row.qnaId) && (
+            <span className="inline-flex items-center justify-center w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex-shrink-0">N</span>
+          )}
+        </div>
+      )
+    },
+    { key: 'userName', header: '작성자', width: '100px', className: 'text-center text-gray-600' },
+    { 
+      key: 'createdAt', header: '등록일', width: '120px', className: 'text-center text-gray-500',
+      render: (date) => date ? date.substring(0, 10) : '-' 
+    },
+    {
+      key: 'actions', header: '상세', width: '80px', className: 'text-center',
+      render: (_, row) => (
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/admin/contents/QnADetail/${row.qnaId}`);
+          }}
+          className="border border-gray-300 text-gray-700 rounded px-3 py-1 text-[12px] font-bold bg-white hover:bg-gray-50 hover:text-blue-600 hover:border-blue-300 transition-all"
+        >
+          조회
+        </button>
+      )
+    }
+  ], [navigate, recentIds]);
 
   // ==================================================================================
   // 5. UI 렌더링
@@ -246,63 +214,28 @@ const AdminQnAList = () => {
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-gray-900">
       <main className="p-10">
-        
-        {/* Title */}
         <div className="mb-10">
             <h2 className="text-3xl font-bold text-gray-900 tracking-tight">1:1 문의 목록</h2>
         </div>
 
-        {/* [A] 검색 영역 (White Card) */}
+        {/* 검색 영역 */}
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-8 mb-8">
-          <AdminSearchBox 
-            searchParams={searchParams}
-            setSearchParams={setSearchParams}
-            onSearch={handleSearch}
-            onReset={handleReset}
-          >
-            {/* 1. 날짜 범위 선택 */}
+          <AdminSearchBox searchParams={searchParams} setSearchParams={setSearchParams} onSearch={handleSearch} onReset={handleReset}>
             <div className="flex items-center gap-2">
-              <input 
-                type="date" 
-                name="dateStart"
-                value={searchParams.dateStart}
-                onChange={handleChange}
-                className="h-14 px-3 text-sm border border-gray-300 rounded-md bg-white text-gray-700 focus:border-blue-500 outline-none transition-all"
-              />
+              <input type="date" name="dateStart" value={searchParams.dateStart} onChange={handleChange} className="h-14 px-3 text-sm border border-gray-300 rounded-md outline-none" />
               <span className="text-gray-400">~</span>
-              <input 
-                type="date" 
-                name="dateEnd"
-                value={searchParams.dateEnd}
-                onChange={handleChange}
-                className="h-14 px-3 text-sm border border-gray-300 rounded-md bg-white text-gray-700 focus:border-blue-500 outline-none transition-all"
-              />
+              <input type="date" name="dateEnd" value={searchParams.dateEnd} onChange={handleChange} className="h-14 px-3 text-sm border border-gray-300 rounded-md outline-none" />
             </div>
-
-            {/* 2. 답변 상태 필터 */}
             <div className="relative w-full md:w-40">
-              <select 
-                name="status"
-                value={searchParams.status} 
-                onChange={handleImmediateChange}
-                className="w-full appearance-none h-14 pl-5 pr-8 text-sm border border-gray-300 rounded-md bg-white text-gray-700 focus:border-blue-500 outline-none transition-all cursor-pointer"
-              >
+              <select name="status" value={searchParams.status} onChange={handleImmediateChange} className="w-full appearance-none h-14 pl-5 pr-8 text-sm border border-gray-300 rounded-md outline-none cursor-pointer">
                 <option value="ALL">상태(전체)</option>
                 <option value="답변대기">답변대기</option>
-                <option value="답변 처리중">답변처리중</option>
                 <option value="답변완료">답변완료</option>
               </select>
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
             </div>
-
-            {/* 3. 문의 유형 필터 */}
             <div className="relative w-full md:w-48">
-              <select 
-                name="category"
-                value={searchParams.category}
-                onChange={handleImmediateChange}
-                className="w-full appearance-none h-14 pl-5 pr-8 text-sm border border-gray-300 rounded-md bg-white text-gray-700 focus:border-blue-500 outline-none transition-all cursor-pointer"
-              >
+              <select name="category" value={searchParams.category} onChange={handleImmediateChange} className="w-full appearance-none h-14 pl-5 pr-8 text-sm border border-gray-300 rounded-md outline-none cursor-pointer">
                 <option value="ALL">문의유형(전체)</option>
                 <option value="계정 및 회원정보">계정 및 회원정보</option>
                 <option value="시스템 및 장애">시스템 및 장애</option>
@@ -315,52 +248,36 @@ const AdminQnAList = () => {
           </AdminSearchBox>
         </section>
 
-        {/* [B] 리스트 영역 (White Card) */}
+        {/* 리스트 영역 */}
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
-          
-          {/* Action Bar */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            
-            {/* 좌측: 카운트 & 정보 */}
             <div className="flex items-center gap-6">
               <span className="text-sm font-bold text-gray-700">
-                {selectedIds.length > 0 ? (
-                  <span className="text-blue-600">{selectedIds.length}개 선택됨</span>
-                ) : (
-                  `전체 ${filteredData.length}건`
-                )}
+                {selectedIds.length > 0 ? <span className="text-blue-600">{selectedIds.length}개 선택됨</span> : `전체 ${filteredData.length}건`}
               </span>
             </div>
-
-            {/* 우측: 버튼 그룹 */}
-            <div className="flex gap-2">
-               <button 
-                onClick={handleDeleteSelected} 
-                className="px-8 h-14 bg-red-400 text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm"
-              >
-                삭제
-              </button>
-            </div>
+            <button onClick={handleDeleteSelected} className="px-8 h-14 bg-red-400 text-white rounded-md font-bold hover:opacity-90 shadow-sm">
+              삭제
+            </button>
           </div>
 
-          {/* Table */}
-          <AdminDataTable 
-            columns={columns}
-            data={currentData}
-            selectedIds={selectedIds}
-            onSelectionChange={setSelectedIds}
-            onRowClick={(row) => navigate(`/admin/contents/QnADetail/${row.qnaId}`)}
-          />
-
-          {/* Pagination */}
-          <div className="mt-8">
-            <AdminPagination 
-                totalItems={filteredData.length}
-                itemCountPerPage={itemsPerPage}
-                currentPage={currentPage}
-                onPageChange={setCurrentPage}
-            />
-          </div>
+          {loading ? (
+             <div className="text-center py-20 text-gray-500">데이터를 불러오는 중입니다...</div>
+          ) : (
+            <>
+              <AdminDataTable 
+                columns={columns} 
+                data={currentData} 
+                selectedIds={selectedIds} 
+                onSelectionChange={setSelectedIds} 
+                rowKey="qnaId"
+                onRowClick={(row) => navigate(`/admin/contents/QnADetail/${row.qnaId}`)} 
+              />
+              <div className="mt-8">
+                <AdminPagination totalItems={filteredData.length} itemCountPerPage={itemsPerPage} currentPage={currentPage} onPageChange={setCurrentPage} />
+              </div>
+            </>
+          )}
         </section>
       </main>
     </div>
