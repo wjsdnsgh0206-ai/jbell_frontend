@@ -19,7 +19,8 @@ const AdminSearchBox = ({
   setSearchParams,     
   onSearch,            
   onReset,             
-  children             
+  children,
+  showDefaultInput = true
 }) => {
   
   // 엔터키 입력 시 검색 실행
@@ -61,6 +62,7 @@ const AdminSearchBox = ({
         )}
 
         {/* [C] 검색어 입력창: 모든 검색박스에 공통으로 들어가는 입력 영역 */}
+        {showDefaultInput && (
         <div className="relative flex-1 min-w-[240px]">
           <input
             type="text"
@@ -83,6 +85,7 @@ const AdminSearchBox = ({
           {/* 돋보기 아이콘 (데코레이션) */}
           <Search className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
         </div>
+        )}
       </div>
 
       {/* 2. 우측: 액션 버튼 영역 (검색 / 초기화) */}

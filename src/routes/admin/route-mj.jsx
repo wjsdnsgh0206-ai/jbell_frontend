@@ -1,9 +1,13 @@
 import { lazy } from "react";
-export const AdminBoardList = lazy(() => import("@/pages/admin/Board/AdminBoardList"));
-export const AdminLogList = lazy(() => import("@/pages/admin/Board/AdminLogList"));
-export const AdminMemberList = lazy(() => import("@/pages/admin/Member/AdminMemberList"));
-export const AdminMemberRegister = lazy(() => import("@/pages/admin/Member/AdminMemberRegister"));
-
+import AdminMemberEdit from "../../pages/admin/member/AdminMemberEdit";
+import AdminMemberDetail from "../../pages/admin/member/AdminMemberDetail";
+import AdminBoardManagement from "../../pages/admin/board/AdminBoardManagement";
+export const AdminBoardList = lazy(() => import("@/pages/admin/board/AdminBoardList"));
+// export const AdminBoardManagement = lazy(() => import("@/pages/admin/board/AdminBoardManagement"));
+export const AdminBoardDetail = lazy(() => import("@/pages/admin/board/AdminBoardDetail"));
+export const AdminLogList = lazy(() => import("@/pages/admin/board/AdminLogList"));
+export const AdminMemberList = lazy(() => import("@/pages/admin/member/AdminMemberList"));
+export const AdminMemberRegister = lazy(() => import("@/pages/admin/member/AdminMemberRegister"));
 
 // ------ 라우트 페이지 경로 입력 파일 ------ //
 // Routes.jsx에서 이 파일을 불러와서 Route를 생성함.
@@ -33,6 +37,21 @@ const mjAdminRoutes = [
             nowPage: "공지사항",
       },
       {
+            path: "/admin/contents/adminBoardDetail/:boardId", 
+            element: <AdminBoardDetail />,
+            nowPage: "공지사항 상세보기",
+      },
+      {
+            path: "/admin/contents/adminBoardRegister", 
+            element: <AdminBoardManagement />,
+            nowPage: "공지사항 등록",
+      },
+      {
+            path: "/admin/contents/adminBoardEdit/:boardId", 
+            element: <AdminBoardManagement />,
+            nowPage: "공지사항 수정",
+      },
+      {
             path: "/admin/system/adminLogList", 
             element: <AdminLogList />,
             nowPage: "로그 관리",
@@ -43,13 +62,18 @@ const mjAdminRoutes = [
             nowPage: "회원 조회",
       },
       {
+            path: "/admin/member/adminMemberDetail/:memberId", 
+            element: <AdminMemberDetail />,
+            nowPage: "회원 상세 정보 조회",
+      },
+      {
             path: "/admin/member/adminMemberRegister", 
             element: <AdminMemberRegister />,
             nowPage: "회원 등록",
       },
       {
-            path: "/admin/member/adminMemberEdit", 
-            element: <AdminMemberRegister />,
+            path: "/admin/member/adminMemberEdit/:memberId", 
+            element: <AdminMemberEdit />,
             nowPage: "회원 수정",
       },
 

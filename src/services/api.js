@@ -1,6 +1,6 @@
 // src/services/api.js
 import axios from "axios";
-import { JEONBUK_CODE_MAP } from "@/components/user/disaster/disasterCodes"
+import { JEONBUK_CODE_MAP } from "@/components/user/disaster/disasterCodes";
 
 // 1. 기본 백엔드 인스턴스 (8080 서버용)
 const api = axios.create({
@@ -19,9 +19,11 @@ const kmaApi = axios.create({ baseURL: "/kma-api/api" }); // 기상청 지진·�
 const sluiceApi = axios.create({ baseURL: "/sluice-api" }); // 댐수문 api
 const landSlideWarningApi = axios.create({ baseURL: "/landSlideWarning-api" });
 const weatherWarningApi = axios.create({ baseURL: "/weatherWarning-api" }); // 기상특보 api
-const forestFireWarningApi = axios.create({ baseURL: "/forestFireWarning-api"}); // 산불위험예보정보 api
+const forestFireWarningApi = axios.create({
+  baseURL: "/forestFireWarning-api",
+}); // 산불위험예보정보 api
 const kmaWarningApi = axios.create({ baseURL: "/kma-warning-api" });
-const accidentNewsApi = axios.create({ baseURL: "/accidentNews-api"}); // 도로교통 정보 api
+const accidentNewsApi = axios.create({ baseURL: "/accidentNews-api" }); // 도로교통 정보 api
 
 export const userService = {
   // 유저 정보 가져오기 (기존 8080 서버)
@@ -33,15 +35,15 @@ export const userService = {
   // 회원가입
   signup: async (userData) => {
     // Vite 프록시 설정에 의해 /api/auth/signup -> http://localhost:8080/api/auth/signup으로 전달됩니다.
-    const response = await api.post('/auth/signup', userData);
+    const response = await api.post("/auth/signup", userData);
     return response.data;
   },
 
   checkId: async (userId) => {
     // try-catch를 여기서 하지 않고 호출하는 곳(Component)에서 처리하도록 내보냅니다.
-    const response = await api.get('/auth/checkid', { params: { userId } });
+    const response = await api.get("/auth/checkid", { params: { userId } });
     // 정상 응답(200)일 때 서버 응답의 data 필드(false)를 반환
-    return response.data.data; 
+    return response.data.data;
   },
 };
 
@@ -54,21 +56,102 @@ export const shelterService = {
 };
 
 export const facilityService = {
-  // 백엔드 리스트 호출 (최대 1000개씩 조회)
+  // 백엔드 리스트 호출 (최대 30개씩 조회)
   getFacilityList: async (params) => {
     // params: { ctpvNm, sggNm, fcltNm, page }
-    const response = await api.get('/facility/list', { params });
+    const response = await api.get("/facility/list", { params });
     return response.data; // Flux는 JSON 배열 형태로 들어옵니다.
   },
+  // 2. 시설 상세 조회
+  getFacilityDetail: async (fcltId) => {
+    // fcltId: 시설 고유 번호
+    const response = await api.get(`/facility/${fcltId}`);
+    return response.data;
+  },
+
+  // 3. 신규 시설 등록
+  addFacility: async (formData) => {
+    // formData: FacilityDTO 구조의 객체
+    const response = await api.post("/facility/add", formData);
+    return response.data;
+  },
+
+  // 4. 시설 정보 수정
+  updateFacility: async (formData) => {
+    // formData: fcltId를 포함한 수정 데이터 객체
+    const response = await api.put("/facility/update", formData);
+    return response.data;
+  },
+
+  // 5. 시설 삭제 (단건 및 다건 선택 삭제 통합)
+  deleteFacilities: async (ids) => {
+    try {
+      // DELETE 메서드는 body 데이터를 'data' 속성에 담아서 보내야 합니다.
+      const response = await axios.delete('/api/facility/delete', { 
+        data: ids 
+      });
+      return response.data;
+    } catch (error) {
+      console.error("API 삭제 요청 에러:", error);
+      throw error;
+    }
+  },
+
+  // 6. 외부 API 데이터 동기화 (선택 사항)
+  syncFacilities: async () => {
+    const response = await api.get("/facility/sync");
+    return response.data;
+  }
 };
 
+/* =========================================================
+   FAQ 관리 API (Admin) - 추가된 부분
+========================================================= */
+export const faqService = {
+  // 1. 목록 조회
+  getFaqList: async () => {
+    // GET /api/admin/faqlist
+    const response = await api.get("/admin/faqlist");
+    return response.data;
+  },
 
+  // 2. 상세 조회
+  getFaqDetail: async (faqId) => {
+    // GET /api/admin/faqdetail/{faqId}
+    const response = await api.get(`/admin/faqdetail/${faqId}`);
+    return response.data;
+  },
 
+  // 3. 신규 등록
+  createFaq: async (payload) => {
+    // POST /api/admin/faqadd
+    const response = await api.post("/admin/faqadd", payload);
+    return response.data;
+  },
 
+  // 4. 수정
+  updateFaq: async (faqId, payload) => {
+    // PUT /api/admin/faqdetail/{faqId}
+    const response = await api.put(`/admin/faqdetail/${faqId}`, payload);
+    return response.data;
+  },
 
+  // 5. 공개/비공개 일괄 변경
+  updateFaqStatus: async (payload) => {
+    // PUT /api/admin/faqstatus
+    // payload: { faqIds: [1,2], visibleYn: "Y" }
+    const response = await api.put("/admin/faqstatus", payload);
+    return response.data;
+  },
 
-
-
+  // 6. 삭제 (단일 및 일괄)
+  deleteFaq: async (payload) => {
+    // POST /api/admin/faqdelete
+    // payload: { faqId: [1,2] } (백엔드 DTO 변수명이 faqId 리스트임)
+    const response = await api.post("/admin/faqdelete", payload);
+    return response.data;
+  }
+};
 
 /* =========================================================
    날씨 관련 API - 최지영 * 건드리지 말 것 *
@@ -83,10 +166,8 @@ export const weatherService = {
   getWeatherDust: async (params) => {
     const response = await weatherApi.get("/air_pollution", { params });
     return response.data;
-  }
-}
-
-
+  },
+};
 
 /* =========================================================
    재난 · 지진 관련 API - 최지영 * 건드리지 말 것 *
@@ -181,7 +262,7 @@ export const disasterModalService = {
           eddt: params.eddt,
           _type: "json",
         },
-      }
+      },
     );
     return response.data;
   },
@@ -196,53 +277,59 @@ export const disasterModalService = {
         ...params,
       },
     });
-    return response.data; 
+    return response.data;
   },
 
   /* -----------------------------
     산불위험예보정보  api
 ----------------------------- */
-// 시도별 산불위험지수 조회
+  // 시도별 산불위험지수 조회
   getForestFireWarning: async (params) => {
-    const response = await forestFireWarningApi.get('/forestPointListSidoSearch', {
-      params: {
-        serviceKey: import.meta.env.VITE_FOREST_SERVICE_KEY,
-        numOfRows: 20, // 전국 시도 데이터 포함을 위해 20건
-        pageNo: 1,
-        _type: 'json', // JSON으로 요청
-        excludeForecast: 0,
-        ...params
-      }
-    });
+    const response = await forestFireWarningApi.get(
+      "/forestPointListSidoSearch",
+      {
+        params: {
+          serviceKey: import.meta.env.VITE_FOREST_SERVICE_KEY,
+          numOfRows: 20, // 전국 시도 데이터 포함을 위해 20건
+          pageNo: 1,
+          _type: "json", // JSON으로 요청
+          excludeForecast: 0,
+          ...params,
+        },
+      },
+    );
     return response.data;
   },
-  
+
   /* -----------------------------
     산사태 예보발령 api
 ----------------------------- */
 
   getLandSlideWarning: async (params) => {
-      const response = await landSlideWarningApi.get('/forecastIssueList', {
-        params: {
-          serviceKey: import.meta.env.VITE_LANDSLIDE_WARNING_SERVICE_KEY,
-          pageNo: params.pageNo || 1,
-          numOfRows: params.numOfRows || 10,
-          _type: 'json', // JSON으로 받기 위해 설정
-          ...params
-        }
-      });
-      return response.data;
+    const response = await landSlideWarningApi.get("/forecastIssueList", {
+      params: {
+        serviceKey: import.meta.env.VITE_LANDSLIDE_WARNING_SERVICE_KEY,
+        pageNo: params.pageNo || 1,
+        numOfRows: params.numOfRows || 10,
+        _type: "json", // JSON으로 받기 위해 설정
+        ...params,
+      },
+    });
+    return response.data;
   },
 
+  /* -----------------------------
+    사고속보(도로관련) api
+----------------------------- */
   getAccidentNews: async (params) => {
-    const response = await accidentNewsApi.get('/eventInfo', {
+    const response = await accidentNewsApi.get("/eventInfo", {
       params: {
         apiKey: import.meta.env.VITE_API_DISATER_ACCIDENTNEWS_KEY,
-        type: params?.type || 'all',       // 도로 유형 (기본값: 전체)
-        eventType: params?.eventType || 'all', // 이벤트 유형 (기본값: 전체)
-        getType: 'json',                   // 결과 형식 (JSON 고정)
-        ...params,                         // 추가적인 파라미터(minX, minY 등) 대응
-      }
+        type: params?.type || "all", // 도로 유형 (기본값: 전체)
+        eventType: params?.eventType || "all", // 이벤트 유형 (기본값: 전체)
+        getType: "json", // 결과 형식 (JSON 고정)
+        ...params, // 추가적인 파라미터(minX, minY 등) 대응
+      },
     });
     return response.data;
   },

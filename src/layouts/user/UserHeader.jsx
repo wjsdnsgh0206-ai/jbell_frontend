@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import navigationItems from '@/routes/user/navigationItems';
 import { useState, useEffect } from "react";
+import logo from "@/assets/logo/jeonbuk_safety_nuri_watermark.svg";
 import { Menu, X, ChevronRight, ChevronDown, User, LogOut, LogIn, UserPlus } from 'lucide-react';
 
 
@@ -55,7 +56,7 @@ const UserHeader = () => {
             // [수정] lg -> xl로 breakpoint 변경하여 로고 크기 대응
             className="w-[140px] sm:w-[160px] xl:w-[200px] h-auto"
             alt="전북안전누리 로고"
-            src="src/assets/logo/jeonbuk_safety_nuri_watermark.svg"
+            src={logo}
           />
         </Link>
         

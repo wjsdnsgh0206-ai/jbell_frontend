@@ -8,9 +8,9 @@ import AdminConfirmModal from "@/components/admin/AdminConfirmModal";
 
 // 개별 섹션 컴포넌트들
 // (파일이 없다면 에러가 날 수 있으니, 파일명을 확인해줘!)
-import { QuickMenu } from "@/components/Admin/realtime/QuickMenu";
-import { MessageBoard } from "@/components/Admin/realtime/MessageBoard";
-import { TimeFilter } from "@/components/Admin/realtime/TimeFilter";
+import { QuickMenu } from "@/components/admin/realtime/QuickMenu";
+import { MessageBoard } from "@/components/admin/realtime/MessageBoard";
+import { TimeFilter } from "@/components/admin/realtime/TimeFilter";
 
 // 이미지가 없는 경우를 대비해 간단한 원형 아이콘 컴포넌트 생성
 const DummyIcon = ({ color = "#ccc" }) => (

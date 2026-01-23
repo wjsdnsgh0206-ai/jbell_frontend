@@ -170,7 +170,7 @@ export default defineConfig(({ mode }) => {
 
         // 산불위험예보정보  api
         "/forestFireWarning-api": {
-          target: "http://apis.data.go.kr/1400377/forestPoint",
+          target: "https://apis.data.go.kr/1400377/forestPoint",
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/forestFireWarning-api/, ""),
         },
@@ -182,13 +182,13 @@ export default defineConfig(({ mode }) => {
           rewrite: (path) => path.replace(/^\/landSlideWarning-api/, ""),
         },
 
-        // 도로교통 정보 api
-
-      '/accidentNews-api': {
-        target: 'https://openapi.its.go.kr:9443',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/accidentNews-api/, ''),
-      },
+        // 도로교통(돌발상황정보) api
+        // api 발급받은 사이트 https://www.its.go.kr/opendata/opendataList
+        '/accidentNews-api': {
+          target: 'https://openapi.its.go.kr:9443',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/accidentNews-api/, ''),
+        },
 
         // 🔹 기상청 지진 특보
         "/kma-api": {
@@ -200,7 +200,7 @@ export default defineConfig(({ mode }) => {
 
         // 기상청 기상특보 조회서비스 (getPwnCd용)
         "/kma-warning-api": {
-          target: "http://apis.data.go.kr/1360000/WthrWrnInfoService",
+          target: "https://apis.data.go.kr/1360000/WthrWrnInfoService",
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/kma-warning-api/, ""),
         },
