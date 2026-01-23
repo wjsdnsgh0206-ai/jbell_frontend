@@ -162,7 +162,7 @@ const AdminCommonCodeList = () => {
       key: 'date', 
       header: '등록일시', 
       width: '150px', 
-      className: 'text-center text-graygray-50', 
+      className: 'text-center', 
       render: (val) => {
       if (!val) return "-";
       const parts = val.toString().split(' '); 
@@ -177,7 +177,7 @@ const AdminCommonCodeList = () => {
       );
     }
     },
-    { key: 'order', header: '순서', width: '60px', className: 'text-center text-graygray-50' },
+    { key: 'order', header: '순서', width: '60px', className: 'text-center' },
     { 
       key: 'visible', 
       header: '사용여부', 
@@ -402,6 +402,7 @@ const AdminCommonCodeList = () => {
             data={currentData}
             selectedIds={selectedIds}
             onSelectionChange={setSelectedIds}
+            rowkey='id'
           />
 
           {/* [D] 페이지네이션 (AdminPagination) */}

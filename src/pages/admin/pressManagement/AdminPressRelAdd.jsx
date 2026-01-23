@@ -63,7 +63,7 @@ const AdminPressRelAdd = () => {
     mgmtId: '', 
     regType: '직접등록',
     title: '',
-    source: '전북안전대책본부',
+    source: '', // [수정] 기본값 제거하여 placeholder가 보이게 함
     sourceUrl: '',
     author: '관리자',
     isPublic: true,
@@ -101,10 +101,11 @@ const AdminPressRelAdd = () => {
     };
   }, [formData.files]);
 
-  // 페이지 이탈 방지
+  // [수정] 페이지 이탈 방지 (브라우저 뒤로가기 시 모달창 방지 위해 window 이벤트는 새로고침 방지용으로만 사용)
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      if (formData.title || formData.content || formData.mgmtId) {
+      const isDirty = formData.title.trim() || formData.content.replace(/<(.|\n)*?>/g, '').trim() || formData.mgmtId.trim();
+      if (isDirty) {
         e.preventDefault();
         e.returnValue = ""; 
       }
@@ -193,29 +194,54 @@ const AdminPressRelAdd = () => {
 
   const addFiles = (newFiles) => {
     if (!newFiles || newFiles.length === 0) return;
+    
+    // 허용 확장자 및 제약 조건 정의
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'pdf', 'hwp', 'docx', 'xlsx', 'zip'];
     const MAX_FILE_COUNT = 5;
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; 
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
     const currentFiles = formData.files || [];
     const incomingFiles = Array.from(newFiles);
 
-    if (currentFiles.length + incomingFiles.length > MAX_FILE_COUNT) {
-      alert(`파일은 최대 ${MAX_FILE_COUNT}개까지만 등록 가능합니다.`);
-      return;
+    const validFiles = [];
+
+    // for...of 문으로 순차적 검증
+    for (const file of incomingFiles) {
+      
+      // 1. 중복 체크 (파일명+확장자 일치 여부)
+      const isDuplicate = currentFiles.some(existingFile => existingFile.name === file.name);
+      if (isDuplicate) {
+        alert(`"${file.name}"은(는) 이미 추가된 파일입니다.`);
+        continue; 
+      }
+
+      // 2. 전체 개수 체크 (기존 + 새로 추가될 파일)
+      if (currentFiles.length + validFiles.length >= MAX_FILE_COUNT) {
+        alert(`파일은 최대 ${MAX_FILE_COUNT}개까지만 등록 가능합니다.`);
+        break; 
+      }
+
+      // 3. 확장자 체크
+      const fileExt = file.name.split('.').pop().toLowerCase();
+      if (!allowedExtensions.includes(fileExt)) {
+        alert(`${file.name}은(는) 허용되지 않는 파일 형식입니다.\n(허용: JPG, PNG, PDF, HWP, DOCX, XLSX, ZIP)`);
+        continue; 
+      }
+
+      // 4. 용량 체크
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`${file.name}의 용량이 너무 큽니다. (최대 10MB)`);
+        continue;
+      }
+
+      // 검증 통과한 파일 객체 생성
+      validFiles.push({
+        name: file.name,
+        url: URL.createObjectURL(file), 
+        size: formatBytes(file.size)
+      });
     }
 
-    const validFiles = [];
-    incomingFiles.forEach(file => {
-      if (file.size <= MAX_FILE_SIZE) {
-        validFiles.push({
-          name: file.name,
-          url: URL.createObjectURL(file), 
-          size: formatBytes(file.size)
-        });
-      } else {
-        alert(`${file.name}의 용량이 너무 큽니다. (최대 10MB)`);
-      }
-    });
-
+    // 유효한 파일이 있을 때만 상태 업데이트 및 토스트 알림
     if (validFiles.length > 0) {
       setFormData(prev => ({ ...prev, files: [...prev.files, ...validFiles] }));
       setToastMessage(`${validFiles.length}개의 파일이 추가되었습니다.`);
@@ -361,10 +387,11 @@ const handleCancel = () => {
                 value={formData.source}
                 onChange={handleChange}
                 maxLength={20}
+                placeholder="예: 행정안전부, 전북안전대책본부" // placeholder 추가
                 className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${errors.source ? 'border-[#E15141] ring-1 ring-red-50' : 'border-gray-300 focus:border-[#2563EB]'}`}
               />
               <div className="flex justify-between mt-2 px-1 text-[13px]">
-                <span>{errors.source && <span className="text-[#E15141] flex items-center gap-1 font-medium"><ErrorIcon /> 출처 입력 필수</span>}</span>
+                <span>{errors.source && <span className="text-[#E15141] flex items-center gap-1 font-medium"><ErrorIcon /> 출처를 입력해주세요</span>}</span>
                 <span className={formData.source.length >= 20 ? 'text-red-500 font-bold' : 'text-gray-400'}>{formData.source.length} / 20자</span>
               </div>
             </div>
@@ -381,21 +408,30 @@ const handleCancel = () => {
               />
             </div>
 
-            <div className="mb-10 w-full text-left">
-              <label className="block font-bold text-[16px] mb-3 text-[#111]">내용 (필수)</label>
-              <div className={`bg-white rounded-lg overflow-hidden ${errors.content ? 'custom-quill error-border' : 'custom-quill'}`}> 
-                <ReactQuill 
-                  ref={quillRef}
-                  theme="snow" 
-                  value={formData.content} 
-                  onChange={handleEditorChange} 
-                  modules={modules}
-                  formats={allFormats}
-                  placeholder="내용을 입력해주세요." 
-                />
-              </div>
-              {errors.content && <div className="text-[#E15141] text-[13px] flex items-center gap-1.5 font-medium mt-2 px-1"><ErrorIcon />내용을 입력해주세요</div>}
-            </div>
+            {/* 등록 페이지 내용 부분 - 수정 페이지와 동일한 구조로 변경 */}
+<div className="mb-10 w-full text-left">
+  <label className="block font-bold text-[16px] mb-3 text-[#111]">내용 (필수)</label>
+  
+  {/* mb-[-40px] 대신 공통 클래스 custom-quill-wrapper 적용 */}
+  <div className={`custom-quill-wrapper ${errors.content ? 'error-border' : ''}`}> 
+    <ReactQuill 
+      ref={quillRef}
+      theme="snow" 
+      value={formData.content} 
+      onChange={handleEditorChange} 
+      modules={modules}
+      formats={allFormats}
+      placeholder="내용을 입력해주세요."
+      className="custom-quill bg-white" 
+    />
+  </div>
+  
+  {errors.content && (
+    <div className="text-[#E15141] text-[13px] flex items-center gap-1.5 font-medium mt-2 px-1">
+      <ErrorIcon />내용을 입력해주세요
+    </div>
+  )}
+</div>
 
             <div className="mb-10 w-full">
               <label className="block font-bold text-[16px] mb-3">첨부파일</label>
@@ -407,7 +443,16 @@ const handleCancel = () => {
                 <label className="flex flex-col items-center cursor-pointer w-full">
                   <Paperclip className="text-gray-400 group-hover:text-[#2563EB] mb-3" size={32} />
                   <span className="text-[16px] font-bold text-gray-600">파일을 마우스로 끌어오거나 클릭하세요</span>
-                  <input type="file" multiple className="hidden" onChange={(e) => addFiles(e.target.files)} />
+                  <input 
+  type="file" 
+  multiple 
+  className="hidden" 
+  accept=".jpg,.jpeg,.png,.webp,.pdf,.hwp,.docx,.xlsx,.zip" 
+  onChange={(e) => {
+    addFiles(e.target.files);
+    e.target.value = ''; // "중복" 알람
+  }} 
+/>
                 </label>
               </div>
               <div className="flex flex-col gap-3 mt-4">
@@ -448,7 +493,6 @@ const handleCancel = () => {
 
         {/* 하단 버튼 구역 */}
 <div className="flex justify-end gap-2 mt-12 max-w-[1000px]">
-  {/* onClick을 handleCancel로 변경 */}
   <button type="button" onClick={handleCancel} className="px-8 py-3.5 border border-gray-300 rounded-lg font-bold text-[16px] text-gray-500 bg-white hover:bg-gray-50">취소</button>
   <button type="button" onClick={handleSave} className="px-8 py-3.5 bg-[#2563EB] text-white rounded-lg font-bold text-[16px] hover:bg-blue-700">저장</button>
 </div>
