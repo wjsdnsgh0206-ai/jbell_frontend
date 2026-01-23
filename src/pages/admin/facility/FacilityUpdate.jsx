@@ -6,6 +6,7 @@ import { facilityService } from '@/services/api';
 const FacilityUpdate = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  // 추가
 
   const [formData, setFormData] = useState({
     fcltId: '',

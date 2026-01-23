@@ -5,7 +5,8 @@ import AdminBoardManagement from "../../pages/admin/board/AdminBoardManagement";
 export const AdminBoardList = lazy(() => import("@/pages/admin/board/AdminBoardList"));
 // export const AdminBoardManagement = lazy(() => import("@/pages/admin/board/AdminBoardManagement"));
 export const AdminBoardDetail = lazy(() => import("@/pages/admin/board/AdminBoardDetail"));
-export const AdminLogList = lazy(() => import("@/pages/admin/board/AdminLogList"));
+export const AdminLogList = lazy(() => import("@/pages/admin/log/AdminLogList"));
+export const AdminSysOpAnalysis = lazy(() => import("@/pages/admin/log/AdminSysOpAnalysis"));
 export const AdminMemberList = lazy(() => import("@/pages/admin/member/AdminMemberList"));
 export const AdminMemberRegister = lazy(() => import("@/pages/admin/member/AdminMemberRegister"));
 
@@ -55,6 +56,11 @@ const mjAdminRoutes = [
             path: "/admin/system/adminLogList", 
             element: <AdminLogList />,
             nowPage: "로그 관리",
+      },
+      {
+            path: "/admin/system/adminSysOpAnalysis", 
+            element: <AdminSysOpAnalysis />,
+            nowPage: "시스템 운영/보안 분석",
       },
       {
             path: "/admin/member/adminMemberList", 

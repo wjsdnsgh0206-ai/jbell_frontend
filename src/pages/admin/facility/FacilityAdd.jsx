@@ -5,6 +5,7 @@ import { facilityService } from '@/services/api';
 
 const FacilityAdd = () => {
   const navigate = useNavigate();
+  // 수정
 
   // 1. 백엔드 FacilityDTO 필드명과 100% 일치시킴
   const [formData, setFormData] = useState({
