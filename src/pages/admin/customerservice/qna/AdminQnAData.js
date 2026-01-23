@@ -17,34 +17,34 @@
  */
 
 export const AdminQnAData = [
-  // 1. 시스템 및 장애 (답변 대기, 파일 있음 - 상세 페이지 예시 데이터와 매칭)
+  // 1. 시스템 및 장애 (답변 대기)
   {
-    qnaId: 10,                          // <id property="qnaId" column="inquiry_id" />
+    qnaId: 1,                          // <id property="qnaId" column="inquiry_id" />
     status: '답변대기',                  // <result property="status" column="answer_status"/>
-    categoryName: '시스템 및 장애',       // <result property="categoryName" column="category_name"/>
+    categoryName: '시스템 및 장애', /*SYS_ERR */       // <result property="categoryName" column="category_name"/>
     title: '로그인이 갑자기 되지 않습니다.', // <result property="title" column="title"/>
     content: `안녕하세요.\n오늘 오후 2시경부터 로그인을 시도했는데 계속해서 '서버 연결 실패' 메시지가 뜹니다.\n\n크롬과 엣지 브라우저 모두 동일한 현상입니다.\n확인 부탁드립니다.`, // <result property="content" column="question_content"/>
     userName: '김철수',                 // <result property="userName" column="user_name"/>
-    userId: 'user_10',                 // <result property="userId" column="user_id"/>
+    userId: 'chulsoo52',                 // <result property="userId" column="user_id"/>
     createdAt: '2025-01-09 14:30:00',  // <result property="createdAt" column="created_at"/>
     isVisible: 'Y',                    // <result property="isVisible" column="visible_yn"/>
     answer: null                       // 답변 없음
   },
 
-  // 2. 계정 및 회원정보 (답변 완료, 파일 없음)
+  // 2. 계정 및 회원정보 (답변 완료)
   {
-    qnaId: 9,
+    qnaId: 2,
     status: '답변완료',
-    categoryName: '계정 및 회원정보',
+    categoryName: '계정 및 회원정보', /* ACC_MGMT */
     title: '비밀번호 변경 방법을 모르겠습니다.',
     content: '마이페이지 어디에서 비밀번호를 변경해야 하나요?\n메뉴를 못 찾겠습니다.',
     userName: '이영희',
-    userId: 'user_09',
+    userId: 'younghee21',
     createdAt: '2025-01-09 10:15:00',
     isVisible: 'N', // 비공개글 예시
     // QnaAnswerMapper.xml - selectAnswerById / selectAnswerByQnaId 기준
     answer: {
-      qnaAnswerId: 101,                  // <id property="qnaAnswerId" column="answer_id"/>
+      qnaAnswerId: 1,                  // <id property="qnaAnswerId" column="answer_id"/>
       content: '안녕하세요. 관리자입니다.\n마이페이지 > [회원정보 수정] 메뉴 하단에서 비밀번호 변경이 가능합니다.\n이용에 참고 부탁드립니다.', // <result property="content" column="answer_content"/>
       userId: 'admin_master',            // <result property="userId" column="user_id"/> (답변 작성자)
       createdAt: '2025-01-09 11:00:00'   // <result property="createdAt" column="created_at"/>
@@ -53,13 +53,13 @@ export const AdminQnAData = [
 
   // 3. 기능 제안 (답변 대기, 파일 없음)
   {
-    qnaId: 8,
+    qnaId: 3,
     status: '답변 처리중',
-    categoryName: '기능 제안 및 개선',
+    categoryName: '기능 제안 및 개선',/* SUGG_IMP */
     title: '모바일 화면에서 버튼이 잘려 보입니다.',
     content: '아이폰 13 mini 사용 중입니다.\n메인 화면 하단 "더보기" 버튼이 화면 밖으로 나가서 누를 수가 없네요.\n수정 부탁드립니다.',
     userName: '박민수',
-    userId: 'user_08',
+    userId: 'minsoo34',
     createdAt: '2025-01-08 16:40:00',
     isVisible: 'Y',
     answer: null
@@ -67,70 +67,69 @@ export const AdminQnAData = [
 
   // 4. 기능 제안 (답변 완료)
   {
-    qnaId: 7,
+    qnaId: 4,
     status: '답변완료',
-    categoryName: '기능 제안 및 개선',
+    categoryName: '기능 제안 및 개선', /* SUGG_IMP */
     title: '다크 모드 기능 추가 건의합니다.',
     content: '야간에 사용할 때 눈이 너무 아픕니다.\n다크 모드 지원 계획이 있으신가요?',
     userName: '최지은',
-    userId: 'user_07',
+    userId: 'jieun56',
     createdAt: '2025-01-08 09:20:00',
     isVisible: 'Y',
     answer: {
-      qnaAnswerId: 102,
+      qnaAnswerId: 2,
       content: '소중한 의견 감사합니다.\n현재 다크 모드는 개발 로드맵에 포함되어 있으며, 올 상반기 내 적용 예정입니다.\n조금만 기다려 주시면 감사하겠습니다.',
-      userId: 'dev_lead',
+      userId: 'dev_lea  ',
       createdAt: '2025-01-08 10:30:00'
     }
   },
 
   // 5. 기타 (답변 완료)
   {
-    qnaId: 6,
+    qnaId: 5,
     status: '답변완료',
-    categoryName: '기타',
+    categoryName: '기타', /* ETC_INQ */
     title: '회원 탈퇴 처리가 안 됩니다.',
     content: '탈퇴 버튼을 눌렀는데 반응이 없습니다.\n강제 탈퇴 처리 해주세요.',
     userName: '정준호',
-    userId: 'user_06',
+    userId: 'junho77',
     createdAt: '2025-01-07 13:00:00',
     isVisible: 'N',
     answer: {
-      qnaAnswerId: 103,
+      qnaAnswerId: 3,
       content: '불편을 드려 죄송합니다.\n시스템 일시 오류로 확인되어 현재는 정상적으로 처리가 가능합니다.\n다시 시도해 보시고 안 되시면 재문의 부탁드립니다.',
       userId: 'cs_team',
       createdAt: '2025-01-07 14:10:00'
     }
   },
 
-  // 6. 시스템 및 장애 (답변 대기, 파일 있음)
+  // 6. 시스템 및 장애 (답변 대기)
   {
-    qnaId: 5,
+    qnaId: 6,
     status: '답변 처리중',
-    categoryName: '시스템 및 장애',
+    categoryName: '시스템 및 장애', /*SYS_ERR */
     title: '첨부파일 업로드 시 오류 발생',
     content: '게시글 작성 시 PDF 파일이 올라가지 않습니다.\n용량은 5MB 미만입니다.',
     userName: '강서연',
-    userId: 'user_05',
+    userId: 'seoyeon18',
     createdAt: '2025-01-07 11:20:00',
     isVisible: 'Y',
-    files: [{ name: 'error_log.pdf', size: '4.5MB' }],
     answer: null
   },
 
   // 7. 계정 및 회원정보 (답변 완료)
   {
-    qnaId: 4,
+    qnaId: 7,
     status: '답변완료',
-    categoryName: '계정 및 회원정보',
+    categoryName: '계정 및 회원정보', /* ACC_MGMT */
     title: '아이디 찾기 결과가 나오지 않아요.',
     content: '가입했던 이메일과 전화번호를 입력했는데 정보가 없다고 나옵니다.',
-    userName: '윤동주',
-    userId: 'user_04',
+    userName: '윤가람',
+    userId: 'garam63',
     createdAt: '2025-01-06 15:45:00',
     isVisible: 'Y',
     answer: {
-      qnaAnswerId: 104,
+      qnaAnswerId: 4,
       content: '안녕하세요.\n입력하신 정보로 조회가 되지 않는 경우, 가입 시 오타가 있었거나 탈퇴된 계정일 수 있습니다.\n고객센터 유선 문의(1588-0000) 주시면 상세 확인 도와드리겠습니다.',
       userId: 'oper_team',
       createdAt: '2025-01-06 16:00:00'
@@ -139,17 +138,17 @@ export const AdminQnAData = [
 
   // 8. 결제 및 서비스 이용 (답변 완료)
   {
-    qnaId: 3,
+    qnaId: 8,
     status: '답변완료',
-    categoryName: '결제 및 서비스 이용',
+    categoryName: '결제 및 서비스 이용', /* PAY_SERV */
     title: '결제 내역 영수증 출력 문의',
     content: '법인 카드로 결제했습니다.\n증빙용 영수증은 어디서 뽑나요?',
-    userName: '한석봉',
-    userId: 'user_03',
+    userName: '한지우',
+    userId: 'jiwoo45',
     createdAt: '2025-01-05 09:10:00',
     isVisible: 'Y',
     answer: {
-      qnaAnswerId: 105,
+      qnaAnswerId: 5,
       content: '결제 영수증은 [마이페이지] > [결제 내역] > [상세보기]에서 출력 가능합니다.',
       userId: 'cs_team',
       createdAt: '2025-01-06 09:00:00'
@@ -158,17 +157,17 @@ export const AdminQnAData = [
 
   // 9. 기능 제안 및 개선 (답변 완료)
   {
-    qnaId: 2,
+    qnaId: 9,
     status: '답변완료',
-    categoryName: '기능 제안 및 개선',
+    categoryName: '기능 제안 및 개선', /* SUGG_IMP */
     title: '알림 설정 기능을 세분화해주세요.',
     content: '광고성 알림만 끄고 싶은데 전체 알림을 꺼야 하네요.\n설정 분리 부탁드립니다.',
-    userName: '심사임당',
-    userId: 'user_02',
+    userName: '심주희',
+    userId: 'juhee29',
     createdAt: '2025-01-04 20:30:00',
     isVisible: 'Y',
     answer: {
-      qnaAnswerId: 106,
+      qnaAnswerId: 6,
       content: '좋은 의견 감사합니다. 다음 앱 업데이트(v2.1)에 알림 세분화 기능이 반영될 예정입니다.',
       userId: 'planner_01',
       createdAt: '2025-01-04 21:00:00'
@@ -177,13 +176,13 @@ export const AdminQnAData = [
 
   // 10. 기타 (답변 대기)
   {
-    qnaId: 1,
+    qnaId: 10,
     status: '답변대기',
-    categoryName: '기타',
+    categoryName: '기타', /* ETC_INQ */
     title: '개인정보 처리방침 관련 문의',
     content: '회원 탈퇴 시 개인정보 보관 기간이 정확히 며칠인가요?',
-    userName: '장영실',
-    userId: 'user_01',
+    userName: '장호영',
+    userId: 'hoyoung88',
     createdAt: '2025-01-03 14:00:00',
     isVisible: 'Y',
     answer: null
