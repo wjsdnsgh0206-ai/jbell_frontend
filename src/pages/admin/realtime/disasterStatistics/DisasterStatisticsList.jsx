@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { Search, Calendar, Download, ChevronDown, TrendingUp, TrendingDown, ArrowUp, ArrowDown } from "lucide-react";
 
 /**
