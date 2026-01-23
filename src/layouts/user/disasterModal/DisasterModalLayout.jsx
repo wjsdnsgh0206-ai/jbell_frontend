@@ -191,7 +191,7 @@ const DisasterModalLayout = () => {
                   <img
                     className="w-[40px] sm:w-[40px]"
                     alt="전북안전누리 로고"
-                    src="/src/assets/logo/jeonbuk_safety_nuri_watermark_noText.png"
+                    src={jeonbuk}
                   />
                   <h1 className="text-heading-m">전북안전누리</h1>
                 </div>

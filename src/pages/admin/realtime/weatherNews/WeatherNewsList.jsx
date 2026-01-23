@@ -1,8 +1,8 @@
-'use no memo';
+"use no memo";
 
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, RotateCcw, Calendar, Search } from "lucide-react";
 
 // [공통 컴포넌트]
 import AdminDataTable from "@/components/admin/AdminDataTable";
@@ -17,11 +17,15 @@ const WeatherNewsList = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
 
+  // ==================================================================================
+  // 1. 상태 관리
+  // ==================================================================================
   const [weatherNews, setWeatherNews] = useState(initialWeatherData);
   const [selectedIds, setSelectedIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  // 기존 속성명 유지: filters
   const [filters, setFilters] = useState({
     newsType: "전체",
     region: "전체",
@@ -30,6 +34,9 @@ const WeatherNewsList = () => {
     endDate: "2026-12-31",
   });
 
+  // AdminSearchBox용 키워드 상태
+  const [searchParams, setSearchParams] = useState({ keyword: '' });
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState({ title: "", message: "", type: "confirm", onConfirm: () => {} });
 
@@ -37,6 +44,9 @@ const WeatherNewsList = () => {
     if (setBreadcrumbTitle) setBreadcrumbTitle("기상 특보 관리");
   }, [setBreadcrumbTitle]);
 
+  // ==================================================================================
+  // 2. 필터링 로직 (기존 속성명 및 로직 유지)
+  // ==================================================================================
   const filteredData = useMemo(() => {
     return weatherNews.filter((item) => {
       const matchType = filters.newsType === "전체" || item.type.includes(filters.newsType);
@@ -44,22 +54,44 @@ const WeatherNewsList = () => {
       const matchLevel = filters.level === "전체" || item.level === filters.level;
       const itemDate = item.dateTime.split(" ")[0];
       const matchDate = itemDate >= filters.startDate && itemDate <= filters.endDate;
-      return matchType && matchRegion && matchLevel && matchDate;
+      
+      // 검색어 필터링 추가
+      const keyword = searchParams.keyword.trim().toLowerCase();
+      const matchKeyword = !keyword || item.title.toLowerCase().includes(keyword) || item.content.toLowerCase().includes(keyword);
+
+      return matchType && matchRegion && matchLevel && matchDate && matchKeyword;
     });
-  }, [weatherNews, filters]);
+  }, [weatherNews, filters, searchParams.keyword]);
 
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     return filteredData.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredData, currentPage]);
 
-  // 선택된 항목들의 타이틀 목록 가져오기 (메시지용)
+  // ==================================================================================
+  // 3. 핸들러
+  // ==================================================================================
+  const handleSearch = () => {
+    setCurrentPage(1);
+  };
+
+  const handleReset = () => {
+    setFilters({ 
+      newsType: "전체", 
+      region: "전체", 
+      level: "전체", 
+      startDate: "2023-10-10", 
+      endDate: "2026-12-31" 
+    });
+    setSearchParams({ keyword: '' });
+    setCurrentPage(1);
+  };
+
   const getAllSelectedItemsList = () => {
     const selectedItems = weatherNews.filter(item => selectedIds.includes(item.id));
     return selectedItems.map(item => item.title.substring(0, 10) + "...").join(", ");
   };
 
-  // [추가] 일괄 노출/비노출 핸들러
   const handleBatchStatus = (status) => {
     if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
     const allNames = getAllSelectedItemsList();
@@ -118,12 +150,6 @@ const WeatherNewsList = () => {
     setIsModalOpen(true);
   };
 
-  const handleSearch = () => setCurrentPage(1);
-  const handleReset = () => {
-    setFilters({ newsType: "전체", region: "전체", level: "전체", startDate: "2023-10-10", endDate: "2026-12-31" });
-    setCurrentPage(1);
-  };
-
   const goDetail = useCallback((id) => {
     navigate(`/admin/realtime/weatherNewsDetail/${id}`);
   }, [navigate]);
@@ -152,54 +178,110 @@ const WeatherNewsList = () => {
     }
   ], [goDetail]);
 
+  // ==================================================================================
+  // 4. UI 렌더링
+  // ==================================================================================
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
       <main className="p-10">
         <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight font-bold">기상 특보 관리</h2>
 
-        <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8 mb-8">
-          <AdminSearchBox searchParams={filters} setSearchParams={setFilters} onSearch={handleSearch} onReset={handleReset} showKeywordInput={false}>
-            <div className="flex items-center gap-4 flex-1">
-              <div className="relative w-40">
-                <select value={filters.newsType} onChange={(e) => setFilters({ ...filters, newsType: e.target.value })} className="w-full appearance-none h-14 pl-5 pr-10 text-body-m border border-admin-border rounded-md bg-white outline-none cursor-pointer">
-                  <option value="전체">특보 유형</option>
-                  {["한파", "건조", "호우", "폭염", "강풍", "대설"].map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
-              </div>
-              <div className="relative w-40">
-                <select value={filters.region} onChange={(e) => setFilters({ ...filters, region: e.target.value })} className="w-full appearance-none h-14 pl-5 pr-10 text-body-m border border-admin-border rounded-md bg-white outline-none cursor-pointer">
-                  <option value="전체">지역 전체</option>
-                  {["전주시", "서울", "경기도"].map(r => <option key={r} value={r}>{r}</option>)}
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
-              </div>
-              <div className="relative w-40">
-                <select value={filters.level} onChange={(e) => setFilters({ ...filters, level: e.target.value })} className="w-full appearance-none h-14 pl-5 pr-10 text-body-m border border-admin-border rounded-md bg-white outline-none cursor-pointer font-bold text-admin-primary">
-                  <option value="전체">경보 수준</option>
-                  {["위험", "주의", "보통"].map(l => <option key={l} value={l}>{l}</option>)}
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
-              </div>
-              <div className="flex items-center gap-2 ml-auto">
-                <div className="flex items-center border border-admin-border rounded-md bg-white h-14 px-4">
-                  <input type="date" value={filters.startDate} onChange={(e) => setFilters({ ...filters, startDate: e.target.value })} className="outline-none text-body-m bg-transparent cursor-pointer" />
-                  <span className="mx-2 text-gray-400">~</span>
-                  <input type="date" value={filters.endDate} onChange={(e) => setFilters({ ...filters, endDate: e.target.value })} className="outline-none text-body-m bg-transparent cursor-pointer" />
+        {/* [A] 검색 영역: AdminSearchBox 사용 (보도자료 UI 스타일 그대로) */}
+        <section className="bg-admin-surface border border-admin-border rounded-xl p-8 mb-8">
+          <AdminSearchBox 
+            searchParams={searchParams} 
+            setSearchParams={setSearchParams} 
+            onSearch={handleSearch}
+            onReset={handleReset}
+          >
+            {/* 특보 유형 */}
+            <div className="relative w-full md:w-40">
+              <select 
+                value={filters.newsType} 
+                onChange={(e) => {
+                  setFilters({ ...filters, newsType: e.target.value });
+                  setCurrentPage(1);
+                }} 
+                className="w-full appearance-none h-14 pl-5 pr-8 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary focus:border-admin-primary outline-none transition-all cursor-pointer"
+              >
+                <option value="전체">특보 유형 전체</option>
+                {["한파", "건조", "호우", "폭염", "강풍", "대설"].map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
+            </div>
+
+            {/* 지역 선택 */}
+            <div className="relative w-full md:w-40">
+              <select 
+                value={filters.region} 
+                onChange={(e) => {
+                  setFilters({ ...filters, region: e.target.value });
+                  setCurrentPage(1);
+                }} 
+                className="w-full appearance-none h-14 pl-5 pr-8 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary focus:border-admin-primary outline-none transition-all cursor-pointer"
+              >
+                <option value="전체">지역 전체</option>
+                {["전주시", "서울", "경기도"].map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
+            </div>
+
+            {/* 경보 수준 */}
+            <div className="relative w-full md:w-40">
+              <select 
+                value={filters.level} 
+                onChange={(e) => {
+                  setFilters({ ...filters, level: e.target.value });
+                  setCurrentPage(1);
+                }} 
+                className="w-full appearance-none h-14 pl-5 pr-8 text-body-m border border-admin-border rounded-md bg-white text-admin-primary font-bold focus:border-admin-primary outline-none transition-all cursor-pointer"
+              >
+                <option value="전체">수준 전체</option>
+                {["위험", "주의", "보통"].map(l => <option key={l} value={l}>{l}</option>)}
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
+            </div>
+
+            {/* 발효 일시 기간 필터 */}
+            <div className="flex items-center border border-admin-border rounded-md px-4 h-14 bg-white focus-within:border-admin-primary transition-all shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="group relative flex items-center w-[130px]">
+                  <input 
+                    type="date" 
+                    value={filters.startDate} 
+                    onChange={(e) => {
+                      setFilters({ ...filters, startDate: e.target.value });
+                      setCurrentPage(1);
+                    }} 
+                    className="custom-date-input w-full outline-none bg-transparent pr-7 cursor-pointer text-body-m" 
+                  />
+                  <Calendar size={16} className="absolute right-0 text-graygray-30 transition-colors group-hover:text-admin-primary pointer-events-none" />
+                </div>
+                <span className="text-graygray-30 mx-1">-</span>
+                <div className="group relative flex items-center w-[130px]">
+                  <input 
+                    type="date" 
+                    value={filters.endDate} 
+                    onChange={(e) => {
+                      setFilters({ ...filters, endDate: e.target.value });
+                      setCurrentPage(1);
+                    }} 
+                    className="custom-date-input w-full outline-none bg-transparent pr-7 cursor-pointer text-body-m" 
+                  />
+                  <Calendar size={16} className="absolute right-0 text-graygray-30 transition-colors group-hover:text-admin-primary pointer-events-none" />
                 </div>
               </div>
             </div>
           </AdminSearchBox>
         </section>
 
+        {/* [B] 리스트 영역 */}
         <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8">
           <div className="flex justify-between items-end mb-6">
             <div className="flex items-center gap-4">
               <span className="text-body-m-bold text-admin-text-secondary">
                 {selectedIds.length > 0 ? <span className="text-admin-primary">{selectedIds.length}개 선택됨</span> : `전체 ${filteredData.length}건`}
               </span>
-
-              {/* [수정] 일괄 노출/비노출 UI 추가 */}
               <div className="flex items-center ml-4 gap-4">
                 <button onClick={() => handleBatchStatus(true)} className="flex items-center gap-2 group cursor-pointer">
                   <div className="w-5 h-5 rounded-full border-2 border-[#2563EB] flex items-center justify-center group-hover:bg-blue-50 transition-all">
@@ -226,7 +308,7 @@ const WeatherNewsList = () => {
           <AdminDataTable columns={columns} data={paginatedData} selectedIds={selectedIds} onSelectionChange={setSelectedIds} rowKey="id" />
 
           <div className="mt-10">
-            <AdminPagination currentPage={currentPage} totalItems={filteredData.length} itemsPerPage={itemsPerPage} onPageChange={setCurrentPage} />
+            <AdminPagination currentPage={currentPage} totalItems={filteredData.length} itemCountPerPage={itemsPerPage} onPageChange={setCurrentPage} />
           </div>
         </section>
       </main>
