@@ -4,6 +4,7 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import WeatherBox from "@/components/user/modal/WeatherBox";
 import DisasterMessageBox from "@/components/user/modal/DisasterMessageBox";
 import WeatherWarningBox from "@/components/user/modal/WeatherWarningBox";
+import jeonbuk from "@/assets/logo/jeonbuk_safety_nuri_watermark_noText.png";
 
 const DisasterModalLayout = () => {
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ const DisasterModalLayout = () => {
             <img
               className="w-[40px] sm:w-[40px] h-auto"
               alt="전북안전누리 로고"
-              src="/src/assets/logo/jeonbuk_safety_nuri_watermark_noText.png"
+              src={jeonbuk}
             />
             <h1 className="text-heading-m py-4">전북안전누리</h1>
           </div>
@@ -190,7 +191,7 @@ const DisasterModalLayout = () => {
                   <img
                     className="w-[40px] sm:w-[40px]"
                     alt="전북안전누리 로고"
-                    src="/src/assets/logo/jeonbuk_safety_nuri_watermark_noText.png"
+                    src={jeonbuk}
                   />
                   <h1 className="text-heading-m">전북안전누리</h1>
                 </div>
