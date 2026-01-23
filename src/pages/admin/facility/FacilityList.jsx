@@ -23,8 +23,13 @@ const FacilityList = () => {
 
   // [상태] 필터 및 검색
   const [selectedType, setSelectedType] = useState("all"); 
-  const [searchParams, setSearchParams] = useState({ keyword: '' });
+  const [searchParams, setSearchParams] = useState({ fcltNm: '', sggNm: '', roadNmAddr: '' });
   const [appliedKeyword, setAppliedKeyword] = useState('');
+  const [appliedParams, setAppliedParams] = useState({
+    fcltNm: '',
+    sggNm: '',
+    roadNmAddr: ''
+  });
 
   // [상태] 정렬 (기본값: 등록일 내림차순)
   const [sortConfig, setSortConfig] = useState({ key: 'reg_dt', direction: 'DESC' });
@@ -50,34 +55,39 @@ const FacilityList = () => {
   // ==================================================================================
   // 2. 데이터 페칭 로직 (API 연동)
   // ==================================================================================
-  const fetchFacilities = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await facilityService.getFacilityList({
-        fcltNm: appliedKeyword,     // 시설명 검색어
-        roadNmAddr: appliedKeyword, // 주소 검색어 (통합검색)
-        page: currentPage,
-        sortKey: sortConfig.key,    // 예: 'reg_dt'
-        sortOrder: sortConfig.direction // 'ASC' 또는 'DESC'
-      });
+ const fetchFacilities = useCallback(async () => {
+  setIsLoading(true);
+  try {
+    const response = await facilityService.getFacilityList({
+      // 적용된(Applied) 검색 조건들을 보냄
+      fcltNm: appliedParams.fcltNm,
+      sggNm: appliedParams.sggNm,
+      roadNmAddr: appliedParams.roadNmAddr,
       
-      console.log(response)
+      page: currentPage,
+      limit: itemsPerPage, // 추가
+      offset: (currentPage - 1) * itemsPerPage, // 백엔드 LIMIT/OFFSET용
+      sortKey: sortConfig.key,
+      sortOrder: sortConfig.direction
+    });
 
-      // key 경고 해결을 위해 id 추가
-      const formattedList = (response.list || []).map(item => ({
+    console.log("백엔드 요청 파라미터:", appliedParams);
+
+    const resultData = response.data; 
+    if (resultData) {
+      const formattedList = (resultData.items || []).map(item => ({
         ...item,
         id: item.fcltId 
       }));
-
       setFacility(formattedList);
-      setTotalCount(response.totalCount || 0);
-    } catch (error) {
-      console.error("데이터 로드 실패:", error);
-    } finally {
-      setIsLoading(false);
+      setTotalCount(resultData.totalCount || 0);
     }
-  }, [appliedKeyword, currentPage, sortConfig]);
-
+  } catch (error) {
+    console.error("데이터 로드 실패:", error);
+  } finally {
+    setIsLoading(false);
+  }
+}, [appliedParams, currentPage, sortConfig]); // appliedParams를 의존성에 추가
 
    useEffect(() => {
     fetchFacilities();
@@ -122,7 +132,7 @@ const FacilityList = () => {
     width: '80px',
     render: (_, row) => (
       <button 
-        onClick={() => navigate(`/admin/facility/detail/${row.fcltId}`)} 
+        onClick={() => navigate(`/admin/facility/facilityDetail/${row.fcltId}`)} 
         className="border border-admin-border px-3 py-1 rounded hover:bg-gray-50 whitespace-nowrap text-body-s"
       >
         보기
@@ -136,10 +146,9 @@ const FacilityList = () => {
   // ==================================================================================
   // [A] 검색 실행 핸들러
   const handleSearch = () => {
-    // 검색 시 1페이지로 리셋하고, 입력된 키워드를 적용함
-    setAppliedKeyword(searchParams.keyword);
-    setCurrentPage(1);
-  };
+  setAppliedParams({ ...searchParams }); // 입력된 값들을 적용용 상태로 복사
+  setCurrentPage(1);
+};
 
   // [B] 정렬 변경 핸들러 (오름차순/내림차순)
   const handleSortChange = (e) => {
@@ -149,9 +158,9 @@ const FacilityList = () => {
   };
 
   const handleReset = () => {
-    setSearchParams({ keyword: '' });
-    setAppliedKeyword('');
-    setSelectedType("all");
+    const resetValues = { fcltNm: '', sggNm: '', roadNmAddr: '' };
+    setSearchParams(resetValues);
+    setAppliedParams(resetValues); // 적용된 값도 초기화
     setSortConfig({ key: 'reg_dt', direction: 'DESC' });
     setCurrentPage(1);
   };
@@ -186,29 +195,58 @@ const FacilityList = () => {
 };
 
 
-  // ======================================================================================================
-   // [삭제] 핸들러
-  const handleDeleteSelected = () => {
-    if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
-    const allNames = getAllSelectedItemsList();
+ // 선택된 항목들의 이름 목록 가져오기 (메시지 표시용)
+const getAllSelectedItemsList = () => {
+  // guides -> facility 로 변경
+  const selectedItems = facility.filter(item => selectedIds.includes(item.fcltId)); 
+  // item.title -> item.fcltNm (시설명) 으로 변경
+  return selectedItems.map(item => item.fcltNm).join(", ");
+};
 
-    setModalConfig({
-      title: '선택 항목 삭제',
-      message: (
-        <div className="flex flex-col gap-2 text-left">
-          <p>선택하신 <span className="text-red-600 font-bold">[{allNames}]</span> 항목을 정말 삭제하시겠습니까?</p>
-          <p className="text-body-s text-graygray-50">* 삭제된 데이터는 복구할 수 없습니다.</p>
-        </div>
-      ),
-      type: 'delete',
-      onConfirm: () => {
-        setFacility(prev => prev.filter(c => !selectedIds.includes(c.id)));
-        setSelectedIds([]);
-        setIsModalOpen(false);
+// [삭제] 핸들러 - 백엔드 연동 버전
+const handleDeleteSelected = () => {
+  if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
+  
+  const allNames = getAllSelectedItemsList();
+
+  setModalConfig({
+    title: '선택 항목 삭제',
+    message: (
+      <div className="flex flex-col gap-2 text-left">
+        <p>선택하신 <span className="text-red-600 font-bold">[{allNames}]</span> 항목을 정말 삭제하시겠습니까?</p>
+        <p className="text-body-s text-gray-500">* 삭제된 데이터는 복구할 수 없습니다.</p>
+      </div>
+    ),
+    type: 'delete',
+    onConfirm: async () => {
+      try {
+        // 1. 백엔드 API 호출 (DELETE /api/facility/delete)
+        // selectedIds는 이미 [1, 2, 3] 형태의 배열이므로 그대로 전달합니다.
+        const response = await facilityService.deleteFacilities(selectedIds);
+        
+        if (response.status === 'SUCCESS') {
+          // 2. 모달 닫기
+          setIsModalOpen(false);
+          
+          // 3. 알림창 표시
+          alert("성공적으로 삭제되었습니다.");
+          
+          // 4. 상태 업데이트
+          // 삭제 후 현재 페이지의 데이터가 모두 사라질 수 있으므로, 
+          // 데이터를 다시 페칭하거나 현재 리스트에서 필터링합니다.
+          setSelectedIds([]); // 선택 초기화
+          fetchFacilities();  // 목록 재조회 (페이징/카운트 갱신을 위해 권장)
+        } else {
+          alert("삭제 실패: " + response.message);
+        }
+      } catch (error) {
+        console.error("삭제 요청 중 오류 발생:", error);
+        alert("서버 통신 중 오류가 발생했습니다.");
       }
-    });
-    setIsModalOpen(true);
-  };
+    }
+  });
+  setIsModalOpen(true);
+};
 
 
   
@@ -225,22 +263,63 @@ const FacilityList = () => {
             setSearchParams={setSearchParams} 
             onSearch={handleSearch}
             onReset={handleReset}
+            showDefaultInput={false}
           >
-            {/* 백엔드 정렬 셀렉트 박스 */}
-            <div className="relative w-full md:w-64">
-            <select 
-              value={`${sortConfig.key}-${sortConfig.direction}`} 
-              onChange={handleSortChange} 
-              className="w-full appearance-none h-14 pl-5 pr-10 text-body-m border border-admin-border rounded-md bg-white outline-none focus:border-admin-primary transition-all cursor-pointer"
-            >
-              <option value="reg_dt-DESC">등록일 최신순 (내림차순)</option>
-              <option value="reg_dt-ASC">등록일 오래된순 (오름차순)</option>
-              <option value="fclt_nm-ASC">시설명 가나다순 (오름차순)</option>
-              <option value="fclt_nm-DESC">시설명 역순 (내림차순)</option>
-              <option value="sgg_nm-ASC">지역명 (가나다순)</option>
-            </select>
-            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
-          </div>
+            {/* 1. 시설명 검색 */}
+            <div className="flex flex-col gap-2 flex-1 pb-[26px]">
+              <label className="text-sm font-bold text-gray-600">시설명</label>
+              <input 
+                type="text"
+                name="fcltNm" // 백엔드 #{fcltNm}과 매칭
+                value={searchParams.fcltNm}
+                onChange={(e) => setSearchParams({...searchParams, fcltNm: e.target.value})}
+                placeholder="시설명을 입력하세요"
+                className="w-full h-14 pl-5 pr-12 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary placeholder:text-gray-400 focus:border-admin-primary outline-none transition-all"
+              />
+            </div>
+
+            {/* 2. 시군구 검색 (Select 또는 Input) */}
+            <div className="flex flex-col gap-2 w-full md:w-48 pb-[26px]">
+              <label className="text-sm font-bold text-gray-600">시군구</label>
+              <input 
+                type="text"
+                name="sggNm" // 백엔드 #{sggNm}과 매칭
+                value={searchParams.sggNm}
+                onChange={(e) => setSearchParams({...searchParams, sggNm: e.target.value})}
+                placeholder="예: 전주시"
+                className="w-full h-14 pl-5 pr-12 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary placeholder:text-gray-400 focus:border-admin-primary outline-none transition-all"
+              />
+            </div>
+
+            {/* 3. 도로명 주소 검색 */}
+            <div className="flex flex-col gap-2 flex-[1.5] pb-[26px]">
+              <label className="text-sm font-bold text-gray-600">도로명 주소</label>
+              <input 
+                type="text"
+                name="roadNmAddr" // 백엔드 #{roadNmAddr}과 매칭
+                value={searchParams.roadNmAddr}
+                onChange={(e) => setSearchParams({...searchParams, roadNmAddr: e.target.value})}
+                placeholder="도로명 또는 지번 주소 입력"
+                className="w-full h-14 pl-5 pr-12 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary placeholder:text-gray-400 focus:border-admin-primary outline-none transition-all"
+              />
+            </div>
+
+            {/* 정렬 셀렉트 박스 (기존 코드 유지) */}
+            <div className="flex flex-col gap-2 w-full md:w-64 pb-[26px]">
+              <label className="text-sm font-bold text-gray-600">정렬 기준</label>
+              <div className="relative">
+                <select 
+                  value={`${sortConfig.key}-${sortConfig.direction}`} 
+                  onChange={handleSortChange} 
+                  className="w-full appearance-none h-14 pl-5 pr-10 border border-admin-border rounded-md bg-white outline-none focus:border-admin-primary cursor-pointer"
+                >
+                  <option value="reg_dt-DESC">등록일 최신순</option>
+                  <option value="fclt_nm-ASC">시설명 가나다순</option>
+                  <option value="sgg_nm-ASC">지역명 가나다순</option>
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
+              </div>
+            </div>
           </AdminSearchBox>
         </section>
 
@@ -258,6 +337,12 @@ const FacilityList = () => {
             </div>
                 
             <div className="flex gap-2">
+              <button 
+                onClick={handleDeleteSelected} 
+                className="px-8 h-14 bg-[#FF003E] text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm"
+              >
+                삭제
+              </button>
               <button onClick={() => navigate('/admin/facility/facilityAdd')} className="px-8 h-14 bg-admin-primary text-white rounded-md hover:opacity-90 font-bold shadow-sm">
                 등록
               </button>

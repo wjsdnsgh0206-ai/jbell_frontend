@@ -3,9 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
-
-// [데이터]
-import { AdminFAQData } from './AdminFAQData';
+import { faqService } from '@/services/api';
 
 // [공통 컴포넌트]
 import AdminDataTable from '@/components/admin/AdminDataTable';
@@ -23,7 +21,8 @@ const AdminFAQList = () => {
   // ==================================================================================
   // 1. 상태 관리 (State Management)
   // ==================================================================================
-  const [faqs, setFaqs] = useState(AdminFAQData);     // 전체 데이터
+  const [faqs, setFaqs] = useState([]); // 초기값 빈 배열로 변경
+  const [loading, setLoading] = useState(true); // 로딩 상태 추가
   const [selectedIds, setSelectedIds] = useState([]); // 선택된 행 ID
   const [currentPage, setCurrentPage] = useState(1);  // 현재 페이지
   const itemsPerPage = 10;                            // 페이지당 항목 수
@@ -36,13 +35,79 @@ const AdminFAQList = () => {
   const [searchParams, setSearchParams] = useState({ keyword: '' });
   const [appliedKeyword, setAppliedKeyword] = useState('');
 
+  // [API 호출] FAQ 목록 조회
+  const fetchFaqs = async () => {
+    try {
+      setLoading(true);
+      // 서비스 함수 호출
+      const response = await faqService.getFaqList();
+      
+      // response 구조: { status: "SUCCESS", data: [...] }
+      if (response && response.data) {
+        setFaqs(response.data);
+      }
+    } catch (error) {
+      console.error("목록 로드 실패:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // [API 호출] 일괄 공개/비공개 변경
+  const handleBatchStatus = async (statusBoolean) => {
+    if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
+    const statusText = statusBoolean ? '공개' : '비공개';
+    
+    if (confirm(`선택한 ${selectedIds.length}개를 ${statusText}로 변경하시겠습니까?`)) {
+      try {
+        const payload = {
+            faqIds: selectedIds, 
+            visibleYn: statusBoolean ? "Y" : "N"
+        };
+        // [수정] 서비스 함수 호출
+        await faqService.updateFaqStatus(payload);
+        
+        alert('상태가 변경되었습니다.');
+        fetchFaqs();
+        setSelectedIds([]);
+      } catch (error) {
+        console.error("상태 변경 실패:", error);
+        alert("오류가 발생했습니다.");
+      }
+    }
+  };
+
+   // [API 호출] 일괄 삭제 (백엔드 FaqBulkDelete DTO 대응)
+  const handleDeleteSelected = async () => {
+    if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
+
+    if (confirm(`선택한 ${selectedIds.length}개를 삭제하시겠습니까?`)) {
+      try {
+        const payload = { faqIds: selectedIds }; 
+        // [수정] 서비스 함수 호출
+        await faqService.deleteFaq(payload);
+        
+        alert("삭제되었습니다.");
+        fetchFaqs();
+        setSelectedIds([]);
+      } catch (error) {
+        console.error("삭제 실패:", error);
+        alert("삭제 중 오류가 발생했습니다.");
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchFaqs();
+  }, []);
+
   // ==================================================================================
   // 2. 필터링 로직 (Filtering Logic)
   // ==================================================================================
 
   // [옵션 생성] 데이터에서 중복되지 않는 '카테고리' 목록 추출
   const categoryOptions = useMemo(() => {
-    const categories = faqs.map(f => f.category);
+    const categories = faqs.map(f => f.faqCategory);
     const uniqueCategories = [...new Set(categories)];
     return [{ value: "all", label: "전체 카테고리" }, ...uniqueCategories.map(c => ({ value: c, label: c }))];
   }, [faqs]);
@@ -53,20 +118,20 @@ const AdminFAQList = () => {
 
     return faqs.filter(item => {
       // 1. 카테고리 필터
-      const isCategoryMatch = selectedCategory === "all" || item.category === selectedCategory;
+      const isCategoryMatch = selectedCategory === "all" || item.faqCategory === selectedCategory;
 
       // 2. 상태 필터 (all, Y, N)
       const isStatusMatch = 
         selectedStatus === "all" ? true :
-        selectedStatus === "Y" ? item.status === true :
+        selectedStatus === "Y" ? item.faqVisibleYn === true :
         item.status === false;
 
       if (!searchTerm) return isCategoryMatch && isStatusMatch;
 
       // 3. 검색어 필터 (JSON Content 내부 텍스트 추출)
       let contentText = "";
-      if (Array.isArray(item.content)) {
-        contentText = item.content.map(block => {
+      if (Array.isArray(item.faqContent)) {
+        contentText = item.faqContent.map(block => {
             if (block.type === 'text' || block.type === 'note') return block.value;
             if (block.type === 'list') return block.items.join(" ");
             if (block.type === 'table') {
@@ -79,7 +144,7 @@ const AdminFAQList = () => {
       }
 
       // 제목, 내용(추출된 텍스트), 작성자 통합 검색
-      const targetString = [item.title, contentText, item.author]
+      const targetString = [item.faqTitle, contentText, item.faqWrite]
         .join("")
         .replace(/\s+/g, "")
         .toLowerCase();
@@ -87,8 +152,8 @@ const AdminFAQList = () => {
       return isCategoryMatch && isStatusMatch && targetString.includes(searchTerm);
     }).sort((a, b) => {
       // 4. 정렬 (Order 오름차순 -> ID 내림차순)
-      if (a.order !== b.order) return (a.order || 999) - (b.order || 999);
-      return b.id - a.id;
+      if (a.faqDisplayOrder !== b.faqDisplayOrder) return (a.faqDisplayOrder || 999) - (b.faqDisplayOrder || 999);
+      return b.faqId - a.faqId;
     });
   }, [faqs, appliedKeyword, selectedCategory, selectedStatus]);
 
@@ -103,18 +168,18 @@ const AdminFAQList = () => {
   // ==================================================================================
   const columns = useMemo(() => [
     { 
-      key: 'id', // 실제로는 계산된 번호를 보여주기 위해 render 사용 권장
+      key: 'faqId', // 실제로는 계산된 번호를 보여주기 위해 render 사용 권장
       header: '번호', 
       width: '60px', 
       className: 'text-center text-gray-500',
       render: (_, row) => {
         // 전체 데이터 기준 역순 번호 or 현재 페이지 기준 순번 등 선택 가능
         // 여기서는 데이터의 고유 ID 혹은 리스트 인덱스 사용
-        return row.id; 
+        return row.faqId; 
       }
     },
     { 
-      key: 'category', 
+      key: 'faqCategory', 
       header: '분류', 
       width: '100px', 
       className: 'text-center',
@@ -125,19 +190,29 @@ const AdminFAQList = () => {
       )
     },
     { 
-      key: 'title', 
+      key: 'faqTitle', 
       header: '질문(Q)', 
       render: (title, row) => (
-        <div className="flex items-center cursor-pointer hover:text-blue-600" onClick={() => navigate(`/admin/contents/FAQDetail/${row.id}`)}>
+        <div className="flex items-center cursor-pointer hover:text-blue-600" onClick={() => navigate(`/admin/contents/FAQDetail/${row.faqId}`)}>
           <span className="font-bold text-blue-600 mr-2">Q.</span>
           <span className="font-medium text-gray-900 truncate max-w-[400px]">{title}</span>
         </div>
       )
     },
-    { key: 'author', header: '작성자', width: '100px', className: 'text-center text-gray-600' },
-    { key: 'date', header: '수정일', width: '120px', className: 'text-center text-gray-500' },
+    { key: 'faqWrite', header: '작성자', width: '100px', className: 'text-center text-gray-600' },
     { 
-      key: 'status', 
+      key: 'faqUpdatedAt', 
+      header: '수정일', 
+      width: '120px', 
+      className: 'text-center text-gray-500',
+      // 날짜 포맷팅: YYYY-MM-DD (공백 기준 split 혹은 slice 사용)
+      render: (date) => {
+        if (!date) return '-';
+        return date.split(' ')[0]; // '2025-01-02 15:30:00' -> '2025-01-02'
+      }
+    },
+    { 
+      key: 'faqVisibleYn', 
       header: '사용여부', 
       width: '100px',
       className: 'text-center',
@@ -147,7 +222,7 @@ const AdminFAQList = () => {
           className="flex justify-center cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
-            handleToggleStatus(row.id);
+            handleToggleStatus(row.faqId);
           }}
         >
           <div className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-200 ${status ? 'bg-blue-600' : 'bg-gray-300'}`}>
@@ -157,7 +232,7 @@ const AdminFAQList = () => {
       )
     },
     { 
-      key: 'views', 
+      key: 'faqViewCount', 
       header: '조회수', 
       width: '80px', 
       className: 'text-center text-gray-600',
@@ -172,7 +247,7 @@ const AdminFAQList = () => {
         <button 
           onClick={(e) => {
             e.stopPropagation();
-            navigate(`/admin/contents/FAQDetail/${row.id}`); // 상세/수정 페이지 이동
+            navigate(`/admin/contents/FAQDetail/${row.faqId}`); // 상세/수정 페이지 이동
           }}
           className="border border-gray-300 text-graygray-70 rounded px-3 py-1 text-[12px] font-bold bg-white hover:bg-gray-50 hover:text-blue-600 hover:border-blue-300 transition-all"
         >
@@ -202,33 +277,13 @@ const AdminFAQList = () => {
   };
 
   // 개별 상태 토글
-  const handleToggleStatus = (id) => {
-    setFaqs(prev => prev.map(item => 
-      item.id === id ? { ...item, status: !item.status } : item
-    ));
-  };
-
-  // 일괄 상태 변경
-  const handleBatchStatus = (newStatus) => {
-    if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
-    
-    if (confirm(`선택한 ${selectedIds.length}개 항목을 일괄 ${newStatus ? '공개' : '비공개'} 처리하시겠습니까?`)) {
-      setFaqs(prev => prev.map(item => 
-        selectedIds.includes(item.id) ? { ...item, status: newStatus } : item
-      ));
-      setSelectedIds([]);
-    }
-  };
-
-  // 일괄 삭제
-  const handleDeleteSelected = () => {
-    if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
-
-    if (confirm(`선택한 ${selectedIds.length}개 항목을 정말 삭제하시겠습니까?\n(삭제된 데이터는 복구할 수 없습니다.)`)) {
-      setFaqs(prev => prev.filter(item => !selectedIds.includes(item.id)));
-      setSelectedIds([]);
-    }
-  };
+  const handleToggleStatus = (targetFaqId) => {
+  setFaqs(prev => prev.map(item => 
+    item.faqId === targetFaqId 
+      ? { ...item, faqVisibleYn: item.faqVisibleYn === 'Y' ? 'N' : 'Y' } 
+      : item
+  ));
+};
 
   // ==================================================================================
   // 5. UI 렌더링
@@ -343,6 +398,7 @@ const AdminFAQList = () => {
             data={currentData}
             selectedIds={selectedIds}
             onSelectionChange={setSelectedIds}
+            rowKey="faqId"
           />
 
           {/* Pagination */}
