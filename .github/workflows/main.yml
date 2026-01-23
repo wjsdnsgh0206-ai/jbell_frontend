@@ -102,7 +102,16 @@ jobs:
           name: front-dist        # GitHub Actions UI에서 보이는 아티팩트 이름
           path: dist.tar.gz       # 업로드할 파일 경로
           retention-days: 7       # 아티팩트 보관 기간 (일 단위). 7일 후 자동 삭제
-
+      - name: Rename jar and restart service
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.OCI_HOST }}
+          username: ${{ secrets.OCI_USER }}
+          key: ${{ secrets.KSMARTDEV }}
+          script: |
+              cd ${{ secrets.OCI_DEPLOY_PATH }}
+              sudo rm -rf ${{ secrets.OCI_DEPLOY_PATH }}/*
+              
       # 7. dist 폴더 내용을 원격 서버(OCI 등)로 복사 (배포)
       - name: Transfer dist directory to the Server
         uses: appleboy/scp-action@v0.1.7
