@@ -24,7 +24,7 @@ const AdminLogList = () => {
     
     /* <================ 데이터 및 상태 관리 ================> */
     const logData = Array(10).fill(null).map((_, i) => ({
-        logId: `kimgoogle${12345 + i}`,
+        logId: `kimgoogleuser${i + 1}`,
         logIp: '192.168.0.1',
         loggedDate: '2026-01-14', // 날짜 필터링 비교를 위해 포맷을 YYYY-MM-DD로 가정 (화면엔 변환해서 보여줌)
         logSOF: i % 2 === 0 ? '실패' : '성공',

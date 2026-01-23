@@ -7,7 +7,7 @@
  */
 export const ADMIN_MENU_DATA = {
   // [시스템 관리] 그룹: URL이 /admin/system/... 일 때 활성화
-  // --- 실시간 정보관리 🐹 최지영 ---
+  // --- 실시간 정보관리 최지영 ---
   realtime: [
     {
       title: "대시보드",
