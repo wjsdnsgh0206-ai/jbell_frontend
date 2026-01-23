@@ -63,6 +63,11 @@ const mjAdminRoutes = [
             nowPage: "로그 관리",
       },
       {
+            path: "/admin/system/adminSysOpAnalysis", 
+            element: <AdminSysOpAnalysis />,
+            nowPage: "시스템 운영/보안 분석",
+      },
+      {
             path: "/admin/member/adminMemberList", 
             element: <AdminMemberList />,
             nowPage: "회원 조회",

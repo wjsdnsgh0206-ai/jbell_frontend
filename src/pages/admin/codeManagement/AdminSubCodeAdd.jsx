@@ -233,58 +233,74 @@ useEffect(() => {
                   <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1L6 6L11 1" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </div>
               </div>
-              {errors.groupCodeId && <div className="text-[#E15141] text-sm mt-3 flex items-center gap-2 font-medium"><ErrorIcon /> 그룹코드를 선택해주세요</div>}
+              {errors.groupCodeId && <div className="text-[#E15141] text-sm mt-3 flex items-center gap-2 font-medium"><ErrorIcon /> 그룹코드를 선택해주세요.</div>}
             </div>
 
             {/* 2. 상세 코드 ID (필수) */}
-            <div className="mb-10 w-full max-w-[500px]">
-              <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 ID (필수)</label>
-              <input 
-                name="subCodeId"
-                value={formData.subCodeId}
-                onChange={handleChange}
-                autoComplete="off"
-                placeholder="예: AUTH_READ (영문 대문자, 숫자, _만 가능)"
-                className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${
-                  errors.subCodeId || checkDuplicate.id ? 'border-[#E15141] ring-1 ring-red-50' : 'border-gray-300 focus:border-[#2563EB]'
-                }`}
-              />
-              <div className="flex justify-between mt-2">
-                <p className="text-[13px] text-gray-400 font-medium">* 영문 대문자, 숫자, 언더바(_)만 사용 가능</p>
-                <span className="text-[12px] text-gray-400 font-medium">{formData.subCodeId.length} / 20</span>
-              </div>
-              {formData.subCodeId && (
-                <div className={`text-sm mt-3 flex items-center gap-2 font-medium ${checkDuplicate.id ? 'text-[#E15141]' : 'text-[#2563EB]'}`}>
-                  {checkDuplicate.id ? <><ErrorIcon /> 이미 존재하는 코드 ID입니다</> : <><SuccessIcon /> 사용 가능한 코드 ID입니다</>}
-                </div>
-              )}
-            </div>
+<div className="mb-10 w-full max-w-[500px]">
+  <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 ID (필수)</label>
+  <input 
+    name="subCodeId"
+    value={formData.subCodeId}
+    onChange={handleChange}
+    autoComplete="off"
+    placeholder="예: AUTH_READ (영문 대문자, 숫자, _만 가능)"
+    className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${
+      errors.subCodeId || checkDuplicate.id ? 'border-[#E15141] ring-1 ring-red-50' : 'border-gray-300 focus:border-[#2563EB]'
+    }`}
+  />
+  <div className="flex justify-between items-start mt-2">
+    <div className="flex-1 min-h-[20px]">
+      {checkDuplicate.id ? (
+        <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium">
+          <ErrorIcon /> 이미 존재하는 코드 ID입니다.
+        </div>
+      ) : errors.subCodeId ? (
+        <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium">
+          <ErrorIcon /> 상세 코드 ID를 입력해주세요.
+        </div>
+      ) : (
+        <p className="text-[13px] text-gray-400 font-medium">* 영문 대문자, 숫자, 언더바(_)만 사용 가능</p>
+      )}
+    </div>
+    <span className="text-[12px] text-gray-400 font-medium ml-4 shrink-0">
+      {formData.subCodeId.length} / 20
+    </span>
+  </div>
+</div>
 
-            {/* 3. 상세 코드명 (필수) */}
-            <div className="mb-10 w-full max-w-[500px]">
-              <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드명 (필수)</label>
-              <input 
-                name="subName"
-                value={formData.subName}
-                onChange={handleChange}
-                autoComplete="off"
-                placeholder="예: 읽기 권한"
-                className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${
-                  errors.subName || checkDuplicate.name ? 'border-[#E15141] ring-1 ring-red-50' : 'border-gray-300 focus:border-[#2563EB]'
-                }`}
-              />
-              <div className="flex justify-between mt-2">
-                <p className="text-[13px] text-gray-400 font-medium">* 최대 20자까지 입력 가능</p>
-                <span className="text-[12px] text-gray-400 font-medium">{formData.subName.length} / 20</span>
-              </div>
-              {errors.subName && <div className="text-[#E15141] text-sm mt-3 flex items-center gap-2 font-medium"><ErrorIcon /> 상세 코드명을 입력해주세요</div>}
-              {/* 명칭 중복 경고 메시지 추가 */}
-              {formData.subName && checkDuplicate.name && (
-                <div className="text-[#E15141] text-sm mt-3 flex items-center gap-2 font-medium">
-                  <ErrorIcon /> 동일한 그룹 내에 이미 존재하는 상세 코드명입니다
-                </div>
-              )}
-            </div>
+{/* 3. 상세 코드명 (필수) */}
+<div className="mb-10 w-full max-w-[500px]">
+  <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드명 (필수)</label>
+  <input 
+    name="subName"
+    value={formData.subName}
+    onChange={handleChange}
+    autoComplete="off"
+    placeholder="예: 읽기 권한"
+    className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${
+      errors.subName || checkDuplicate.name ? 'border-[#E15141] ring-1 ring-red-50' : 'border-gray-300 focus:border-[#2563EB]'
+    }`}
+  />
+  <div className="flex justify-between items-start mt-2">
+    <div className="flex-1 min-h-[20px]">
+      {checkDuplicate.name ? (
+        <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium">
+          <ErrorIcon /> 동일 그룹 내에 이미 존재하는 명칭입니다.
+        </div>
+      ) : errors.subName ? (
+        <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium">
+          <ErrorIcon /> 상세 코드명을 입력해주세요.
+        </div>
+      ) : (
+        <p className="text-[13px] text-gray-400 font-medium">* 최대 20자까지 입력 가능</p>
+      )}
+    </div>
+    <span className="text-[12px] text-gray-400 font-medium ml-4 shrink-0">
+      {formData.subName.length} / 20
+    </span>
+  </div>
+</div>
 
             {/* 4. 상세 코드 설명 */}
             <div className="mb-10 w-full max-w-[600px]">

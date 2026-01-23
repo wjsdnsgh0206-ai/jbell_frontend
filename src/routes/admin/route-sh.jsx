@@ -21,6 +21,7 @@ const AdminPressRelEdit = lazy(() => import("@/pages/admin/pressManagement/Admin
 const AdminSafetyEduList = lazy(() => import("@/pages/admin/safetyEducation/AdminSafetyEduList"));
 const AdminSafetyEduEdit = lazy(() => import("@/pages/admin/safetyEducation/AdminSafetyEduEdit"));
 
+
 export const shAdminRoutes = [
   // 공통코드관리 목록페이지 (시스템 관리 그룹)
   // URL 계층화: /admin/대분류/소분류+행위
@@ -107,10 +108,24 @@ export const shAdminRoutes = [
     element: <AdminSafetyEduList />,
     nowPage: "시민안전교육목록",
   },
+  
+  // 시민안전교육관리 등록페이지 (콘텐츠관리 그룹- 홍보/자료 관리)
+   {
+    path: "/admin/contents/safetyEduAdd", 
+    element: <AdminSafetyEduAdd />,
+    nowPage: "시민안전교육등록",
+  },
+  
+  // 시민안전교육관리 상세페이지 (콘텐츠관리 그룹- 홍보/자료 관리)
+   {
+    path: "/admin/contents/safetyEduDetail/:id", 
+    element: <AdminSafetyEduDetail />,
+    nowPage: "시민안전교육상세",
+  },
 
   // 시민안전교육관리 수정페이지 (콘텐츠관리 그룹- 홍보/자료 관리)
    {
-    path: "/admin/contents/safetyEduEdit", 
+    path: "/admin/contents/safetyEduEdit/:id", 
     element: <AdminSafetyEduEdit />,
     nowPage: "시민안전교육수정",
   },

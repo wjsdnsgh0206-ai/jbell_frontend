@@ -131,7 +131,7 @@ const AdminPressRelDetail = () => {
             {/* 제목 */}
             <div className="flex flex-col">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">제목</label>
-              <div className="w-full bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#111] font-bold text-[18px]">
+              <div className="w-full bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] font-medium">
                 {formData.title}
               </div>
             </div>
@@ -164,17 +164,19 @@ const AdminPressRelDetail = () => {
               )}
             </div>
 
-{/* 수정된 내용 출력 영역 */}
+{/* [최종 해결] 내용 출력 영역 */}
 <div className="flex flex-col">
   <label className="block font-bold text-[16px] mb-3 text-[#111]">내용</label>
-  <div className="w-full bg-[#F9FAFB] border border-gray-200 rounded-xl p-8 min-h-[300px] text-[#333] overflow-y-auto">
-    {/* Quill 테마를 적용하기 위해 ql-container와 ql-snow 클래스가 필수입니다 */}
-    <div className="ql-container ql-snow" style={{ border: 'none' }}>
-  <div 
-    className="ql-editor" //  이 클래스가 있어야 CSS 설정이 먹힙니다.
-    dangerouslySetInnerHTML={{ __html: formData.content }} 
-  />
-</div>
+  {/* 1. view-mode-container를 제거하여 CSS 충돌 방지 
+      2. h-auto를 통해 내용 길이에 따라 박스가 유연하게 늘어남
+  */}
+  <div className="w-full bg-[#F9FAFB] border border-gray-200 rounded-xl min-h-[400px] h-auto shadow-sm overflow-hidden">
+    <div className="ql-snow !border-none">
+      <div 
+        className="ql-editor !p-10 !leading-relaxed text-[17px] text-[#333]" 
+        dangerouslySetInnerHTML={{ __html: formData.content }} 
+      />
+    </div>
   </div>
 </div>
 
