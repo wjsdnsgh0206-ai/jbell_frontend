@@ -100,9 +100,20 @@ export const ADMIN_MENU_DATA = {
     path: "/admin/member/adminMemberList",
     isAvailable: true,
     items: [
-      { name: "회원 조회", path: "/admin/member/adminMemberList" },
-      { name: "회원 등록", path: "/admin/member/adminMemberRegister" },
-    ],
-  }
-],
+        { name: "회원 조회", path: "/admin/member/adminMemberList" },
+        { name: "회원 등록", path: "/admin/member/adminMemberRegister" },
+      ],
+    },
+  ],
+  facility: [
+    {
+    title: "시설 관리",
+    path: "/admin/facility/facilityList",
+    isAvailable: true,
+    items: [
+        { name: "시설 목록 조회", path: "/admin/facility/facilityList" },
+        { name: "시설 등록", path: "/admin/facility/facilityAdd" },
+      ],
+    },
+  ],
 };
