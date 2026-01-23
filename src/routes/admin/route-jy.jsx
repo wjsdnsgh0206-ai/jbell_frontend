@@ -12,7 +12,7 @@ import { lazy } from 'react';
 
 const RealTimeDashboard = lazy(() => import("@/pages/admin/realtime/dashboard/RealTimeDashboard"));
 
-const AccidentNews = lazy(() => import("@/pages/admin/realtime/accidentNews/AccidentNewsList"));
+const AccidentNewsList = lazy(() => import("@/pages/admin/realtime/accidentNews/AccidentNewsList"));
 const AccidentNewsDetail = lazy(() => import("@/pages/admin/realtime/accidentNews/AccidentNewsDetail"));
 const AccidentNewsAdd = lazy(() => import("@/pages/admin/realtime/accidentNews/AccidentNewsAdd"));
 
@@ -21,8 +21,12 @@ const DisasterManagementDetail = lazy(() => import("@/pages/admin/realtime/disas
 const DisasterManagementAdd = lazy(() => import("@/pages/admin/realtime/disasterManagement/DisasterManagementAdd"));
 
 const DisasterEventManagementList = lazy(() => import("@/pages/admin/realtime/disasterEventManagement/DisasterEventManagementList"));
+const DisasterEventManagementDetail = lazy(() => import("@/pages/admin/realtime/disasterEventManagement/DisasterEventManagementDetail"));
+const DisasterEventManagementAdd = lazy(() => import("@/pages/admin/realtime/disasterEventManagement/DisasterEventManagementAdd"));
 
-
+const WeatherNewsList = lazy(() => import("@/pages/admin/realtime/weatherNews/WeatherNewsList"));
+const WeatherNewsDetail = lazy(() => import("@/pages/admin/realtime/weatherNews/WeatherNewsDetail"));
+const WeatherNewsAdd = lazy(() => import("@/pages/admin/realtime/weatherNews/WeatherNewsAdd"));
 
 export const jyAdminRoutes = [
   // URL 계층화: /admin/대분류/소분류+행위
@@ -40,7 +44,7 @@ export const jyAdminRoutes = [
   // ========================
   {
     path: "/admin/realtime/accidentNewsList", 
-    element: <AccidentNews/>,
+    element: <AccidentNewsList/>,
     nowPage: "사고속보 목록",
   },
   {
@@ -78,6 +82,34 @@ export const jyAdminRoutes = [
     path: "/admin/realtime/disasterEventManagementList",
     element: <DisasterEventManagementList/>,
     nowPage: "재난발생 관리 목록",
+  },
+  {
+    path: "/admin/realtime/disasterEventManagementDetail/:id",
+    element: <DisasterEventManagementDetail/>,
+    nowPage: "재난발생 관리 상세",
+  },
+  {
+    path: "/admin/realtime/disasterEventManagementAdd",
+    element: <DisasterEventManagementAdd />,
+    nowPage: "재난발생 관리 등록",
+  },
+  // ========================
+  // 관리자 기상특보관리 페이지
+  // ========================
+  {
+    path: "/admin/realtime/weatherNewsList",
+    element: <WeatherNewsList/>,
+    nowPage: "기상특보 관리 목록",
+  },
+  {
+    path: "/admin/realtime/weatherNewsDetail/:id",
+    element: <WeatherNewsDetail/>,
+    nowPage: "기상특보 관리 상세",
+  },
+  {
+    path: "/admin/realtime/weatherNewsAdd",
+    element: <WeatherNewsAdd/>,
+    nowPage: "기상특보 관리 등록",
   }
 ];
 

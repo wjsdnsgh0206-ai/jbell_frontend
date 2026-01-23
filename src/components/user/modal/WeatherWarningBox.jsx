@@ -20,7 +20,7 @@ const WeatherWarningBox = ({ disasterType }) => {
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
           <div className="bg-red-500 w-2 h-2 rounded-full animate-pulse" />
-          <h3 className="text-lg font-bold text-gray-800">기상청 실시간 특보</h3>
+          <h3 className="text-lg font-bold text-gray-800">실시간 특보</h3>
         </div>
         <button 
           onClick={refetch}

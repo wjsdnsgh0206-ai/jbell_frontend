@@ -14,6 +14,12 @@ const adminMap = {
   "disasterManagementDetail": "재난 상세",
   "disasterManagementAdd": "재난 등록",
   "disasterEventManagementList": "재난 발생 관리",
+  "disasterEventManagementDetail": "재난 발생 관리 상세",
+  "disasterEventManagementAdd": "재난 발생 관리 등록",
+  "weatherNewsList": "기상특보 관리",
+  "weatherNewsDetail": "기상특보 관리 상세",
+  "weatherNewsAdd": "기상특보 관리 등록",
+  
   "contents": "콘텐츠 관리",
   "behavioralGuide": "행동요령 관리",
   "behavioralGuideList": "행동요령 목록",

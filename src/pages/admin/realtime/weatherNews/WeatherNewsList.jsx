@@ -1,8 +1,8 @@
-"use no memo";
+'use no memo';
 
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { ChevronDown, RotateCcw, Search } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 // [공통 컴포넌트]
 import AdminDataTable from "@/components/admin/AdminDataTable";
@@ -11,64 +11,55 @@ import AdminSearchBox from "@/components/admin/AdminSearchBox";
 import AdminConfirmModal from "@/components/admin/AdminConfirmModal";
 
 // [데이터 임포트]
-import { initialDisasters } from "./DisasterEventData";
+import { initialWeatherData } from "./WeatherNewsData";
 
-const DisasterEventManagementList = () => {
+const WeatherNewsList = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
 
-  // 1. 상태 관리
-  const [disasters, setDisasters] = useState(initialDisasters);
+  const [weatherNews, setWeatherNews] = useState(initialWeatherData);
   const [selectedIds, setSelectedIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   const [filters, setFilters] = useState({
-    disasterType: "전체",
+    newsType: "전체",
     region: "전체",
-    status: "전체",
+    level: "전체",
     startDate: "2023-10-10",
     endDate: "2026-12-31",
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalConfig, setModalConfig] = useState({
-    title: "",
-    message: "",
-    type: "confirm",
-    onConfirm: () => {},
-  });
+  const [modalConfig, setModalConfig] = useState({ title: "", message: "", type: "confirm", onConfirm: () => {} });
 
   useEffect(() => {
-    if (setBreadcrumbTitle) setBreadcrumbTitle("재난 발생 관리");
+    if (setBreadcrumbTitle) setBreadcrumbTitle("기상 특보 관리");
   }, [setBreadcrumbTitle]);
 
-  // [필터링 로직]
   const filteredData = useMemo(() => {
-    return disasters.filter((item) => {
-      const matchType = filters.disasterType === "전체" || item.type === filters.disasterType;
-      const matchRegion = filters.region === "전체" || item.region.includes(filters.region);
-      const matchStatus = filters.status === "전체" || item.status === filters.status;
+    return weatherNews.filter((item) => {
+      const matchType = filters.newsType === "전체" || item.type.includes(filters.newsType);
+      const matchRegion = filters.region === "전체" || item.content.includes(filters.region);
+      const matchLevel = filters.level === "전체" || item.level === filters.level;
       const itemDate = item.dateTime.split(" ")[0];
       const matchDate = itemDate >= filters.startDate && itemDate <= filters.endDate;
-
-      return matchType && matchRegion && matchStatus && matchDate;
+      return matchType && matchRegion && matchLevel && matchDate;
     });
-  }, [disasters, filters]);
+  }, [weatherNews, filters]);
 
-  // [페이지네이션 로직]
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     return filteredData.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredData, currentPage]);
 
-  // [핸들러] 선택된 항목 이름 목록 가져오기 (메시지용)
+  // 선택된 항목들의 타이틀 목록 가져오기 (메시지용)
   const getAllSelectedItemsList = () => {
-    const selectedItems = disasters.filter(item => selectedIds.includes(item.id));
-    return selectedItems.map(item => item.content.substring(0, 10) + "...").join(", ");
+    const selectedItems = weatherNews.filter(item => selectedIds.includes(item.id));
+    return selectedItems.map(item => item.title.substring(0, 10) + "...").join(", ");
   };
 
-  // [핸들러] 일괄 상태 변경
+  // [추가] 일괄 노출/비노출 핸들러
   const handleBatchStatus = (status) => {
     if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
     const allNames = getAllSelectedItemsList();
@@ -83,7 +74,7 @@ const DisasterEventManagementList = () => {
       ),
       type: status ? 'confirm' : 'delete',
       onConfirm: () => {
-        setDisasters(prev => prev.map(item => selectedIds.includes(item.id) ? { ...item, isVisible: status } : item));
+        setWeatherNews(prev => prev.map(item => selectedIds.includes(item.id) ? { ...item, isVisible: status } : item));
         setSelectedIds([]); 
         setIsModalOpen(false);
       }
@@ -91,26 +82,20 @@ const DisasterEventManagementList = () => {
     setIsModalOpen(true);
   };
 
-  // [핸들러] 개별 노출 토글
   const handleToggleVisible = (id, currentStatus) => {
     const nextStatus = !currentStatus;
     setModalConfig({
       title: "노출 상태 변경",
-      message: (
-        <div className="flex flex-col gap-2 text-left">
-          <p>해당 항목의 상태를 <span className={`font-bold ${nextStatus ? 'text-admin-primary' : 'text-gray-500'}`}>[{nextStatus ? '노출' : '비노출'}]</span>로 변경하시겠습니까?</p>
-        </div>
-      ),
+      message: <p>해당 항목의 상태를 [{nextStatus ? "노출" : "비노출"}]로 변경하시겠습니까?</p>,
       type: nextStatus ? "confirm" : "delete",
       onConfirm: () => {
-        setDisasters((prev) => prev.map((item) => item.id === id ? { ...item, isVisible: nextStatus } : item));
+        setWeatherNews(prev => prev.map(item => item.id === id ? { ...item, isVisible: nextStatus } : item));
         setIsModalOpen(false);
       },
     });
     setIsModalOpen(true);
   };
 
-  // [핸들러] 선택 삭제
   const handleDeleteSelected = () => {
     if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
     const allNames = getAllSelectedItemsList();
@@ -125,7 +110,7 @@ const DisasterEventManagementList = () => {
       ),
       type: 'delete',
       onConfirm: () => {
-        setDisasters(prev => prev.filter(item => !selectedIds.includes(item.id)));
+        setWeatherNews(prev => prev.filter(item => !selectedIds.includes(item.id)));
         setSelectedIds([]);
         setIsModalOpen(false);
       }
@@ -135,29 +120,21 @@ const DisasterEventManagementList = () => {
 
   const handleSearch = () => setCurrentPage(1);
   const handleReset = () => {
-    setFilters({ disasterType: "전체", region: "전체", status: "전체", startDate: "2023-10-10", endDate: "2026-12-31" });
+    setFilters({ newsType: "전체", region: "전체", level: "전체", startDate: "2023-10-10", endDate: "2026-12-31" });
     setCurrentPage(1);
   };
 
   const goDetail = useCallback((id) => {
-    navigate(`/admin/realtime/disasterEventManagementDetail/${id}`);
+    navigate(`/admin/realtime/weatherNewsDetail/${id}`);
   }, [navigate]);
 
   const columns = useMemo(() => [
-    { key: "serialNumber", header: "재난일련번호", width: "160px", className: "text-center" },
-    { key: "type", header: "유형", width: "100px", className: "text-center" },
-    { key: "region", header: "발생 지역", width: "180px", className: "text-left" },
-    { key: "content", header: "내용", className: "text-left whitespace-pre-wrap" },
-    { key: "dateTime", header: "발생 일시", width: "180px", className: "text-center" },
-    {
-      key: "status", header: "상태", width: "100px", className: "text-center",
-      render: (val) => (
-        <span className={`px-2 py-1 rounded text-[11px] font-bold border ${val === "진행중" ? "bg-red-50 text-red-600 border-red-100" : "bg-gray-100 text-gray-600 border-gray-200"}`}>
-          {val}
-        </span>
-      ),
-    },
-    {
+    { key: "id", header: "ID", width: "180px", className: "text-center" },
+    { key: "level", header: "경보수준", width: "100px", className: "text-center" },
+    { key: "type", header: "특보유형", width: "120px", className: "text-center" },
+    { key: "title", header: "특보내용", width: "400px", className: "text-left px-4" },
+    { key: "dateTime", header: "발효일시", width: "180px", className: "text-center text-gray-500" },
+    { 
       key: "isVisible", header: "노출여부", width: "100px",
       render: (visible, row) => (
         <div className="flex justify-center">
@@ -165,47 +142,45 @@ const DisasterEventManagementList = () => {
             <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${visible ? "translate-x-6" : "translate-x-0"}`} />
           </button>
         </div>
-      ),
+      )
     },
-    {
-      key: "actions", header: "상세", width: "80px", className: "text-center",
+    { 
+      key: "actions", header: "상세", width: "80px", className: "text-center", 
       render: (_, row) => (
-        <button onClick={() => goDetail(row.id)} className="border border-gray-300 rounded px-3 py-1 text-sm hover:bg-blue-100 transition-colors">보기</button>
-      ),
-    },
+        <button onClick={() => goDetail(row.id)} className="border border-gray-300 rounded px-3 py-1 text-sm hover:bg-gray-100 transition-colors font-normal">보기</button> 
+      )
+    }
   ], [goDetail]);
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
       <main className="p-10">
-        <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight font-bold">재난 발생 관리</h2>
+        <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight font-bold">기상 특보 관리</h2>
 
         <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8 mb-8">
           <AdminSearchBox searchParams={filters} setSearchParams={setFilters} onSearch={handleSearch} onReset={handleReset} showKeywordInput={false}>
             <div className="flex items-center gap-4 flex-1">
               <div className="relative w-40">
-                <select value={filters.disasterType} onChange={(e) => setFilters({ ...filters, disasterType: e.target.value })} className="w-full appearance-none h-14 pl-5 pr-10 text-body-m border border-admin-border rounded-md bg-white outline-none cursor-pointer">
-                  <option value="전체">재난 유형</option>
-                  {["지진", "호우홍수", "산사태", "태풍", "산불", "한파"].map(t => <option key={t} value={t}>{t}</option>)}
+                <select value={filters.newsType} onChange={(e) => setFilters({ ...filters, newsType: e.target.value })} className="w-full appearance-none h-14 pl-5 pr-10 text-body-m border border-admin-border rounded-md bg-white outline-none cursor-pointer">
+                  <option value="전체">특보 유형</option>
+                  {["한파", "건조", "호우", "폭염", "강풍", "대설"].map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
               </div>
               <div className="relative w-40">
                 <select value={filters.region} onChange={(e) => setFilters({ ...filters, region: e.target.value })} className="w-full appearance-none h-14 pl-5 pr-10 text-body-m border border-admin-border rounded-md bg-white outline-none cursor-pointer">
                   <option value="전체">지역 전체</option>
-                  <option value="전주시">전주시</option>
+                  {["전주시", "서울", "경기도"].map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
               </div>
-              <div className="relative w-30">
-                <select value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })} className="w-full appearance-none h-14 pl-5 pr-10 text-body-m border border-admin-border rounded-md bg-white outline-none cursor-pointer font-bold text-admin-primary">
-                  <option value="전체">상태</option>
-                  <option value="진행중">진행중</option>
-                  <option value="종료">종료</option>
+              <div className="relative w-40">
+                <select value={filters.level} onChange={(e) => setFilters({ ...filters, level: e.target.value })} className="w-full appearance-none h-14 pl-5 pr-10 text-body-m border border-admin-border rounded-md bg-white outline-none cursor-pointer font-bold text-admin-primary">
+                  <option value="전체">경보 수준</option>
+                  {["위험", "주의", "보통"].map(l => <option key={l} value={l}>{l}</option>)}
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
               </div>
-
               <div className="flex items-center gap-2 ml-auto">
                 <div className="flex items-center border border-admin-border rounded-md bg-white h-14 px-4">
                   <input type="date" value={filters.startDate} onChange={(e) => setFilters({ ...filters, startDate: e.target.value })} className="outline-none text-body-m bg-transparent cursor-pointer" />
@@ -224,7 +199,7 @@ const DisasterEventManagementList = () => {
                 {selectedIds.length > 0 ? <span className="text-admin-primary">{selectedIds.length}개 선택됨</span> : `전체 ${filteredData.length}건`}
               </span>
 
-              {/* 일괄 노출/비노출 컨트롤 */}
+              {/* [수정] 일괄 노출/비노출 UI 추가 */}
               <div className="flex items-center ml-4 gap-4">
                 <button onClick={() => handleBatchStatus(true)} className="flex items-center gap-2 group cursor-pointer">
                   <div className="w-5 h-5 rounded-full border-2 border-[#2563EB] flex items-center justify-center group-hover:bg-blue-50 transition-all">
@@ -244,7 +219,7 @@ const DisasterEventManagementList = () => {
 
             <div className="flex gap-2">
               <button onClick={handleDeleteSelected} className="px-8 h-14 bg-[#FF003E] text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm">삭제</button>
-              <button onClick={() => navigate("/admin/realtime/disasterEventManagementAdd")} className="px-8 h-14 bg-admin-primary text-white rounded-md font-bold hover:opacity-90 transition-all shadow-sm">등록</button>
+              <button onClick={() => navigate("/admin/realtime/weatherNewsAdd")} className="px-8 h-14 bg-admin-primary text-white rounded-md font-bold hover:opacity-90 transition-all shadow-sm">등록</button>
             </div>
           </div>
 
@@ -261,4 +236,4 @@ const DisasterEventManagementList = () => {
   );
 };
 
-export default DisasterEventManagementList;
+export default WeatherNewsList;
