@@ -2,171 +2,190 @@
 
 /**
  * [관리자] 1:1 문의(QnA) 관리 더미 데이터
- * * [데이터 구조 규칙]
- * 1. id: 고유 식별자 (Number) - 라우팅 및 Key용
- * 2. no: 문의 번호 (Number) - 화면 표시용
- * 3. type: 문의 유형 (계정 및 회원정보, 시스템 및 장애, 결제 및 서비스 이용, 기능 제안 및 개선, 기타)
- * 4. title: 문의 제목
- * 5. content: 문의 본문 내용
- * 6. author: 작성자 이름
- * 7. date: 등록 일시 (YYYY-MM-DD HH:mm)
- * 8. status: 'WAITING' (답변대기) | 'PROCESSING' (답변처리중) | 'ANSWERED' (답변완료)
- * 9. files: 첨부파일 배열 [{ name, size }]
- * 10. answer: 답변 객체 (null 또는 { content, author, date })
+ * * [데이터 구조 매핑 가이드]
+ * XML Mapper 파일(QnaMapper.xml, QnaAnswerMapper.xml)의 ResultMap 기준
+ * 1. qnaId        (inquiry.inquiry_id)      : 문의 고유 ID (PK)
+ * 2. status       (inquiry.answer_status)   : 답변 상태 (답변대기, 답변완료 등)
+ * 3. categoryName (code_item.category_name) : 문의 유형 (JOIN된 코드명)
+ * 4. title        (inquiry.title)           : 문의 제목
+ * 5. content      (inquiry.question_content): 문의 내용
+ * 6. userName     (user.user_name)          : 작성자 이름
+ * 7. userId       (inquiry.user_id)         : 작성자 ID
+ * 8. createdAt    (inquiry.created_at)      : 등록 일시
+ * 9. isVisible    (inquiry.visible_yn)      : 공개 여부 (Y/N)
+ * 10. answer      (inquiry_answer table)    : 답변 객체 (QnaAnswerMapper 기준)
  */
 
 export const AdminQnAData = [
   // 1. 시스템 및 장애 (답변 대기, 파일 있음 - 상세 페이지 예시 데이터와 매칭)
   {
-    id: 10,
-    no: 10,
-    type: '시스템 및 장애',
-    title: '로그인이 갑자기 되지 않습니다.',
-    content: `안녕하세요.\n오늘 오후 2시경부터 로그인을 시도했는데 계속해서 '서버 연결 실패' 메시지가 뜹니다.\n\n크롬과 엣지 브라우저 모두 동일한 현상입니다.\n확인 부탁드립니다.`,
-    author: '김철수',
-    date: '2025-01-09 14:30',
-    status: 'WAITING',
-    answer: null
+    qnaId: 10,                          // <id property="qnaId" column="inquiry_id" />
+    status: '답변대기',                  // <result property="status" column="answer_status"/>
+    categoryName: '시스템 및 장애',       // <result property="categoryName" column="category_name"/>
+    title: '로그인이 갑자기 되지 않습니다.', // <result property="title" column="title"/>
+    content: `안녕하세요.\n오늘 오후 2시경부터 로그인을 시도했는데 계속해서 '서버 연결 실패' 메시지가 뜹니다.\n\n크롬과 엣지 브라우저 모두 동일한 현상입니다.\n확인 부탁드립니다.`, // <result property="content" column="question_content"/>
+    userName: '김철수',                 // <result property="userName" column="user_name"/>
+    userId: 'user_10',                 // <result property="userId" column="user_id"/>
+    createdAt: '2025-01-09 14:30:00',  // <result property="createdAt" column="created_at"/>
+    isVisible: 'Y',                    // <result property="isVisible" column="visible_yn"/>
+    answer: null                       // 답변 없음
   },
 
   // 2. 계정 및 회원정보 (답변 완료, 파일 없음)
   {
-    id: 9,
-    no: 9,
-    type: '계정 및 회원정보',
+    qnaId: 9,
+    status: '답변완료',
+    categoryName: '계정 및 회원정보',
     title: '비밀번호 변경 방법을 모르겠습니다.',
     content: '마이페이지 어디에서 비밀번호를 변경해야 하나요?\n메뉴를 못 찾겠습니다.',
-    author: '이영희',
-    date: '2025-01-09 10:15',
-    status: 'ANSWERED',
+    userName: '이영희',
+    userId: 'user_09',
+    createdAt: '2025-01-09 10:15:00',
+    isVisible: 'N', // 비공개글 예시
+    // QnaAnswerMapper.xml - selectAnswerById / selectAnswerByQnaId 기준
     answer: {
-      content: '안녕하세요. 관리자입니다.\n마이페이지 > [회원정보 수정] 메뉴 하단에서 비밀번호 변경이 가능합니다.\n이용에 참고 부탁드립니다.',
-      author: '통합관리자',
-      date: '2025-01-09 11:00'
+      qnaAnswerId: 101,                  // <id property="qnaAnswerId" column="answer_id"/>
+      content: '안녕하세요. 관리자입니다.\n마이페이지 > [회원정보 수정] 메뉴 하단에서 비밀번호 변경이 가능합니다.\n이용에 참고 부탁드립니다.', // <result property="content" column="answer_content"/>
+      userId: 'admin_master',            // <result property="userId" column="user_id"/> (답변 작성자)
+      createdAt: '2025-01-09 11:00:00'   // <result property="createdAt" column="created_at"/>
     }
   },
 
   // 3. 기능 제안 (답변 대기, 파일 없음)
   {
-    id: 8,
-    no: 8,
-    type: '기능 제안 및 개선',
+    qnaId: 8,
+    status: '답변 처리중',
+    categoryName: '기능 제안 및 개선',
     title: '모바일 화면에서 버튼이 잘려 보입니다.',
     content: '아이폰 13 mini 사용 중입니다.\n메인 화면 하단 "더보기" 버튼이 화면 밖으로 나가서 누를 수가 없네요.\n수정 부탁드립니다.',
-    author: '박민수',
-    date: '2025-01-08 16:40',
-    status: 'PROCESSING',
+    userName: '박민수',
+    userId: 'user_08',
+    createdAt: '2025-01-08 16:40:00',
+    isVisible: 'Y',
     answer: null
   },
 
   // 4. 기능 제안 (답변 완료)
   {
-    id: 7,
-    no: 7,
-    type: '기능 제안 및 개선',
+    qnaId: 7,
+    status: '답변완료',
+    categoryName: '기능 제안 및 개선',
     title: '다크 모드 기능 추가 건의합니다.',
     content: '야간에 사용할 때 눈이 너무 아픕니다.\n다크 모드 지원 계획이 있으신가요?',
-    author: '최지은',
-    date: '2025-01-08 09:20',
-    status: 'ANSWERED',
+    userName: '최지은',
+    userId: 'user_07',
+    createdAt: '2025-01-08 09:20:00',
+    isVisible: 'Y',
     answer: {
+      qnaAnswerId: 102,
       content: '소중한 의견 감사합니다.\n현재 다크 모드는 개발 로드맵에 포함되어 있으며, 올 상반기 내 적용 예정입니다.\n조금만 기다려 주시면 감사하겠습니다.',
-      author: '개발팀장',
-      date: '2025-01-08 10:30'
+      userId: 'dev_lead',
+      createdAt: '2025-01-08 10:30:00'
     }
   },
 
   // 5. 기타 (답변 완료)
   {
-    id: 6,
-    no: 6,
-    type: '기타',
+    qnaId: 6,
+    status: '답변완료',
+    categoryName: '기타',
     title: '회원 탈퇴 처리가 안 됩니다.',
     content: '탈퇴 버튼을 눌렀는데 반응이 없습니다.\n강제 탈퇴 처리 해주세요.',
-    author: '정준호',
-    date: '2025-01-07 13:00',
-    status: 'ANSWERED',
+    userName: '정준호',
+    userId: 'user_06',
+    createdAt: '2025-01-07 13:00:00',
+    isVisible: 'N',
     answer: {
+      qnaAnswerId: 103,
       content: '불편을 드려 죄송합니다.\n시스템 일시 오류로 확인되어 현재는 정상적으로 처리가 가능합니다.\n다시 시도해 보시고 안 되시면 재문의 부탁드립니다.',
-      author: 'CS팀',
-      date: '2025-01-07 14:10'
+      userId: 'cs_team',
+      createdAt: '2025-01-07 14:10:00'
     }
   },
 
   // 6. 시스템 및 장애 (답변 대기, 파일 있음)
   {
-    id: 5,
-    no: 5,
-    type: '시스템 및 장애',
+    qnaId: 5,
+    status: '답변 처리중',
+    categoryName: '시스템 및 장애',
     title: '첨부파일 업로드 시 오류 발생',
     content: '게시글 작성 시 PDF 파일이 올라가지 않습니다.\n용량은 5MB 미만입니다.',
-    author: '강서연',
-    date: '2025-01-07 11:20',
-    status: 'PROCESSING',
+    userName: '강서연',
+    userId: 'user_05',
+    createdAt: '2025-01-07 11:20:00',
+    isVisible: 'Y',
+    files: [{ name: 'error_log.pdf', size: '4.5MB' }],
     answer: null
   },
 
   // 7. 계정 및 회원정보 (답변 완료)
   {
-    id: 4,
-    no: 4,
-    type: '계정 및 회원정보',
+    qnaId: 4,
+    status: '답변완료',
+    categoryName: '계정 및 회원정보',
     title: '아이디 찾기 결과가 나오지 않아요.',
     content: '가입했던 이메일과 전화번호를 입력했는데 정보가 없다고 나옵니다.',
-    author: '윤동주',
-    date: '2025-01-06 15:45',
-    status: 'ANSWERED',
+    userName: '윤동주',
+    userId: 'user_04',
+    createdAt: '2025-01-06 15:45:00',
+    isVisible: 'Y',
     answer: {
+      qnaAnswerId: 104,
       content: '안녕하세요.\n입력하신 정보로 조회가 되지 않는 경우, 가입 시 오타가 있었거나 탈퇴된 계정일 수 있습니다.\n고객센터 유선 문의(1588-0000) 주시면 상세 확인 도와드리겠습니다.',
-      author: '운영팀',
-      date: '2025-01-06 16:00'
+      userId: 'oper_team',
+      createdAt: '2025-01-06 16:00:00'
     }
   },
 
   // 8. 결제 및 서비스 이용 (답변 완료)
   {
-    id: 3,
-    no: 3,
-    type: '결제 및 서비스 이용',
+    qnaId: 3,
+    status: '답변완료',
+    categoryName: '결제 및 서비스 이용',
     title: '결제 내역 영수증 출력 문의',
     content: '법인 카드로 결제했습니다.\n증빙용 영수증은 어디서 뽑나요?',
-    author: '한석봉',
-    date: '2025-01-05 09:10',
-    status: 'ANSWERED',
+    userName: '한석봉',
+    userId: 'user_03',
+    createdAt: '2025-01-05 09:10:00',
+    isVisible: 'Y',
     answer: {
+      qnaAnswerId: 105,
       content: '결제 영수증은 [마이페이지] > [결제 내역] > [상세보기]에서 출력 가능합니다.',
-      author: 'CS팀',
-      date: '2025-01-06 09:00'
+      userId: 'cs_team',
+      createdAt: '2025-01-06 09:00:00'
     }
   },
 
   // 9. 기능 제안 및 개선 (답변 완료)
   {
-    id: 2,
-    no: 2,
-    type: '기능 제안 및 개선',
+    qnaId: 2,
+    status: '답변완료',
+    categoryName: '기능 제안 및 개선',
     title: '알림 설정 기능을 세분화해주세요.',
     content: '광고성 알림만 끄고 싶은데 전체 알림을 꺼야 하네요.\n설정 분리 부탁드립니다.',
-    author: '심사임당',
-    date: '2025-01-04 20:30',
-    status: 'ANSWERED',
+    userName: '심사임당',
+    userId: 'user_02',
+    createdAt: '2025-01-04 20:30:00',
+    isVisible: 'Y',
     answer: {
+      qnaAnswerId: 106,
       content: '좋은 의견 감사합니다. 다음 앱 업데이트(v2.1)에 알림 세분화 기능이 반영될 예정입니다.',
-      author: '기획팀',
-      date: '2025-01-04 21:00'
+      userId: 'planner_01',
+      createdAt: '2025-01-04 21:00:00'
     }
   },
 
   // 10. 기타 (답변 대기)
   {
-    id: 1,
-    no: 1,
-    type: '기타',
+    qnaId: 1,
+    status: '답변대기',
+    categoryName: '기타',
     title: '개인정보 처리방침 관련 문의',
     content: '회원 탈퇴 시 개인정보 보관 기간이 정확히 며칠인가요?',
-    author: '장영실',
-    date: '2025-01-03 14:00',
-    status: 'WAITING',
+    userName: '장영실',
+    userId: 'user_01',
+    createdAt: '2025-01-03 14:00:00',
+    isVisible: 'Y',
     answer: null
   }
 ];

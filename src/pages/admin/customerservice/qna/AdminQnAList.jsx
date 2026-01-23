@@ -33,7 +33,7 @@ const AdminQnAList = () => {
   const [searchParams, setSearchParams] = useState({
     keyword: '',
     status: 'ALL',
-    type: 'ALL',
+    category: 'ALL',
     dateStart: '',
     dateEnd: ''
   });
@@ -45,15 +45,15 @@ const AdminQnAList = () => {
   // 최신 글 3개 ID 계산 로직
   // ==================================================================================
   const recentIds = useMemo(() => {
-    const sorted = [...inquiries].sort((a, b) => new Date(b.date) - new Date(a.date));
-    return sorted.slice(0, 3).map(item => item.id);
+    const sorted = [...inquiries].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    return sorted.slice(0, 3).map(item => item.qnaId);
   }, [inquiries]);
 
   // ==================================================================================
   // 2. 필터링 로직
   // ==================================================================================
   const filteredData = useMemo(() => {
-    const { status, type, keyword, dateStart, dateEnd } = appliedFilters;
+    const { status, category, keyword, dateStart, dateEnd } = appliedFilters;
     const lowerKeyword = keyword.replace(/\s+/g, "").toLowerCase();
 
     return inquiries.filter((item) => {
@@ -61,11 +61,11 @@ const AdminQnAList = () => {
       if (status !== 'ALL' && item.status !== status) return false;
       
       // 2. 유형 필터
-      if (type !== 'ALL' && item.type !== type) return false;
+      if (category !== 'ALL' && item.categoryName !== category) return false;
 
       // 3. 날짜 필터 (YYYY-MM-DD 비교)
       if (dateStart || dateEnd) {
-          const itemDate = item.date.substring(0, 10); 
+          const itemDate = item.createdAt.substring(0, 10); 
           if (dateStart && itemDate < dateStart) return false;
           if (dateEnd && itemDate > dateEnd) return false;
       }
@@ -73,12 +73,12 @@ const AdminQnAList = () => {
       // 4. 키워드 검색 (제목 + 작성자)
       if (lowerKeyword) {
           const matchTitle = item.title.replace(/\s+/g, "").toLowerCase().includes(lowerKeyword);
-          const matchAuthor = item.author.replace(/\s+/g, "").toLowerCase().includes(lowerKeyword);
+          const matchAuthor = item.userName.replace(/\s+/g, "").toLowerCase().includes(lowerKeyword);
           if (!matchTitle && !matchAuthor) return false;
       }
 
       return true;
-    }).sort((a, b) => b.id - a.id); // 최신순 정렬
+    }).sort((a, b) => b.qnaId - a.qnaId); // 최신순 정렬
   }, [inquiries, appliedFilters]);
 
   // 현재 페이지 데이터 슬라이싱
@@ -95,7 +95,8 @@ const AdminQnAList = () => {
       key: 'no', 
       header: '번호', 
       width: '80px', 
-      className: 'text-center text-gray-500' 
+      className: 'text-center text-gray-500',
+      render: (_, row) => row.qnaId // qnaId 렌더링
     },
     { 
       key: 'status', 
@@ -104,24 +105,19 @@ const AdminQnAList = () => {
       className: 'text-center',
       render: (status) => {
         let badgeClass = "";
-        let label = "";
 
         switch (status) {
-          case 'WAITING':
+          case '답변대기':
             badgeClass = "bg-gray-50 text-gray-500 border-gray-200";
-            label = "답변대기";
             break;
-          case 'PROCESSING':
+          case '답변 처리중':
             badgeClass = "bg-orange-50 text-orange-600 border-orange-200";
-            label = "답변처리중";
             break;
-          case 'ANSWERED':
+          case '답변완료':
             badgeClass = "bg-blue-50 text-blue-600 border-blue-100";
-            label = "답변완료";
             break;
           default:
             badgeClass = "bg-gray-50 text-gray-500 border-gray-200";
-            label = status;
         }
 
         return (
@@ -129,13 +125,13 @@ const AdminQnAList = () => {
             "inline-block px-2 py-1 text-xs font-bold rounded-sm min-w-[70px] border text-center",
             badgeClass
           )}>
-            {label}
+            {status}
           </span>
         );
       }
     },
     { 
-      key: 'type', 
+      key: 'categoryName', 
       header: '문의유형', 
       width: '140px', 
       className: 'text-center text-gray-600' 
@@ -146,11 +142,11 @@ const AdminQnAList = () => {
       render: (title, row) => (
         <div 
           className="flex items-center gap-2 cursor-pointer hover:text-blue-600 hover:underline"
-          onClick={() => navigate(`/admin/contents/QnADetail/${row.id}`)}
+          onClick={() => navigate(`/admin/contents/QnADetail/${row.qnaId}`)}
         >
           <span className="truncate max-w-[400px] text-gray-900">{title}</span>
          {/* 최신 글 3개에 N 뱃지 표시 */}
-          {recentIds.includes(row.id) && (
+          {recentIds.includes(row.qnaId) && (
             <span className="inline-flex items-center justify-center w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex-shrink-0">
               N
             </span>
@@ -159,13 +155,13 @@ const AdminQnAList = () => {
       )
     },
     { 
-      key: 'author', 
+      key: 'userName', 
       header: '작성자', 
       width: '100px', 
       className: 'text-center text-gray-600' 
     },
     { 
-      key: 'date', 
+      key: 'createdAt', 
       header: '등록일', 
       width: '120px', 
       className: 'text-center text-gray-500',
@@ -180,9 +176,9 @@ const AdminQnAList = () => {
         <button 
           onClick={(e) => {
             e.stopPropagation();
-            navigate(`/admin/contents/QnADetail/${row.id}`);
+            navigate(`/admin/contents/QnADetail/${row.qnaId}`);
           }}
-          className="border border-gray-300 text-[#666] rounded px-3 py-1 text-[12px] font-bold bg-white hover:bg-gray-50 hover:text-blue-600 hover:border-blue-300 transition-all"
+          className="border border-gray-300 text-graygray-70 rounded px-3 py-1 text-[12px] font-bold bg-white hover:bg-gray-50 hover:text-blue-600 hover:border-blue-300 transition-all"
         >
           조회
         </button>
@@ -239,7 +235,7 @@ const AdminQnAList = () => {
     if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
 
     if (confirm(`선택한 ${selectedIds.length}개 문의를 영구 삭제하시겠습니까?`)) {
-      setInquiries(prev => prev.filter(item => !selectedIds.includes(item.id)));
+      setInquiries(prev => prev.filter(item => !selectedIds.includes(item.qnaId)));
       setSelectedIds([]);
     }
   };
@@ -248,7 +244,7 @@ const AdminQnAList = () => {
   // 5. UI 렌더링
   // ==================================================================================
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-[#F5F7FB] font-sans antialiased text-gray-900">
+    <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-gray-900">
       <main className="p-10">
         
         {/* Title */}
@@ -292,9 +288,9 @@ const AdminQnAList = () => {
                 className="w-full appearance-none h-14 pl-5 pr-8 text-sm border border-gray-300 rounded-md bg-white text-gray-700 focus:border-blue-500 outline-none transition-all cursor-pointer"
               >
                 <option value="ALL">상태(전체)</option>
-                <option value="WAITING">답변대기</option>
-                <option value="PROCESSING">답변처리중</option>
-                <option value="ANSWERED">답변완료</option>
+                <option value="답변대기">답변대기</option>
+                <option value="답변 처리중">답변처리중</option>
+                <option value="답변완료">답변완료</option>
               </select>
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
             </div>
@@ -302,8 +298,8 @@ const AdminQnAList = () => {
             {/* 3. 문의 유형 필터 */}
             <div className="relative w-full md:w-48">
               <select 
-                name="type"
-                value={searchParams.type}
+                name="category"
+                value={searchParams.category}
                 onChange={handleImmediateChange}
                 className="w-full appearance-none h-14 pl-5 pr-8 text-sm border border-gray-300 rounded-md bg-white text-gray-700 focus:border-blue-500 outline-none transition-all cursor-pointer"
               >
@@ -340,7 +336,7 @@ const AdminQnAList = () => {
             <div className="flex gap-2">
                <button 
                 onClick={handleDeleteSelected} 
-                className="px-6 h-12 bg-[#FF3B30] text-white rounded-md font-bold text-sm hover:bg-[#D63025] transition-all shadow-sm"
+                className="px-8 h-14 bg-red-400 text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm"
               >
                 삭제
               </button>
@@ -353,7 +349,7 @@ const AdminQnAList = () => {
             data={currentData}
             selectedIds={selectedIds}
             onSelectionChange={setSelectedIds}
-            onRowClick={(row) => navigate(`/admin/contents/QnADetail/${row.id}`)}
+            onRowClick={(row) => navigate(`/admin/contents/QnADetail/${row.qnaId}`)}
           />
 
           {/* Pagination */}

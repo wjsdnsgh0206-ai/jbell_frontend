@@ -1,14 +1,18 @@
 //src/pages/admin/customerservice/faq/AdminFAQAdd.jsx
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Save, X, RotateCcw, ChevronRight, Bold,Italic, Underline, List, Link as LinkIcon, Image as ImageIcon, } from 'lucide-react';
+import { Save, X } from 'lucide-react';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
+import { faqService } from '@/services/api';
 
 /**
  * FAQ 신규 등록 전용 컴포넌트
  */
-const FaqRegisterPage = ({ onCancel, onSave }) => {
+const FaqRegisterPage = ({ onCancel }) => {
     const navigate = useNavigate();
+
   // 폼 상태 관리 (초기값 설정)
   const [formData, setFormData] = useState({
     category: '회원/계정',
@@ -28,35 +32,71 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
     }));
   };
 
+  // 에디터 전용 핸들러 (Quill은 value를 직접 반환)
+  const handleEditorChange = (value) => {
+    setFormData((prev) => ({ ...prev, content: value }));
+  };
+
   // 라디오 버튼 핸들러 (상태값)
   const handleStatusChange = (val) => {
     setFormData((prev) => ({ ...prev, status: val }));
   };
 
-  // 저장 핸들러
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.title.trim()) return alert('제목을 입력해주세요.');
-    if (!formData.content.trim()) return alert('내용을 입력해주세요.');
-    if (!formData.author.trim()) return alert('작성자를 입력해주세요.');
-    if (!formData.content.trim()) return alert('내용을 입력해주세요.');
+  // 툴바 설정 (useMemo로 최적화하여 리렌더링 시 오동작 방지)
+  const modules = useMemo(() => ({
+    toolbar: [
+      [{ header: [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'], // 텍스트 스타일
+      [{ list: 'ordered' }, { list: 'bullet' }], // 리스트
+      ['link', 'image'], // 링크, 이미지
+      [{ color: [] }, { background: [] }], // 색상
+      ['clean'], // 서식 지우기
+    ],
+  }), []);
 
-    // [데이터 구조 변환] String -> JSON Block Array
-    // 실제로는 에디터가 필요하지만, 여기선 전체 텍스트를 하나의 'text' 블록으로 저장
-    const finalData = {
-        ...formData,
-        content: [
-            { type: 'text', value: formData.content }
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet',
+    'link', 'image',
+    'color', 'background',
+  ];
+
+  // [API 호출] 등록
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // 유효성 검사
+    if (!formData.title.trim()) return alert('제목을 입력해주세요.');
+    if (!formData.author.trim()) return alert('작성자를 입력해주세요.');
+    
+    // 에디터 태그 제거 후 빈 값 체크
+    const plainText = formData.content.replace(/<[^>]+>/g, '').trim();
+    if (!plainText && !formData.content.includes('<img')) return alert('내용을 입력해주세요.');
+
+    // 전송 데이터 구성
+    const payload = {
+        faqCategory: formData.category,
+        faqTitle: formData.title,
+        faqWrite: formData.author,
+        faqDisplayOrder: Number(formData.order), // 숫자 변환
+        faqVisibleYn: formData.status ? "Y" : "N", // Boolean -> String 변환
+        // 백엔드 Service에서 List<Map>을 JSON String으로 변환하므로 객체 배열로 전송
+        faqContent: [
+            { type: 'text', value: formData.content } 
         ]
     };
 
-    // 저장 로직 호출
-    if (onSave) onSave(formData);
-    
-    alert('FAQ가 정상적으로 등록되었습니다.');
-
-    navigate(-1);
+    try {
+        await faqService.createFaq(payload);
+        alert('FAQ가 정상적으로 등록되었습니다.');
+        navigate('/admin/contents/FAQList'); // 목록 페이지로 이동
+    } catch (error) {
+        console.error("등록 실패:", error);
+        alert("등록 중 오류가 발생했습니다.");
+    }
   };
+
     // 취소 버튼 핸들러
     const handleCancelClick = () => {
     if (onCancel) {
@@ -86,7 +126,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
                     <tbody>
                     {/* 카테고리 & 노출순서 */}
                     <tr>
-                        <th className="w-[140px] px-4 py-3 bg-graygray-5 border-b border-gray-300 font-semibold text-gray-700">
+                        <th className="w-[140px] px-4 py-3 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
                         분류 <span className="text-red-500">*</span>
                         </th>
                         <td className="px-4 py-3 border-b border-gray-300">
@@ -105,7 +145,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
                         </td>
                         
                         {/* 2단 레이아웃: 노출 순서 */}
-                        <th className="w-[140px] px-4 py-3 bg-graygray-5 border-b border-gray-300 font-semibold text-gray-700 border-l border-gray-200">
+                        <th className="w-[140px] px-4 py-3 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700 border-l border-gray-200">
                         노출 순서
                         </th>
                         <td className="px-4 py-3 border-b border-gray-300">
@@ -123,7 +163,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
 
                     {/* 2. 작성자 */}
                     <tr>
-                        <th className="px-4 py-3 bg-graygray-5 border-b border-gray-300 font-semibold text-gray-700">
+                        <th className="px-4 py-3 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
                         작성자 <span className="text-red-500">*</span>
                         </th>
                         <td colSpan="3" className="px-4 py-3 border-b border-gray-300">
@@ -140,7 +180,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
 
                     {/* 제목 */}
                     <tr>
-                        <th className="px-4 py-3 bg-graygray-5 border-b border-gray-300 font-semibold text-gray-700">
+                        <th className="px-4 py-3 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
                         제목 <span className="text-red-500">*</span>
                         </th>
                         <td colSpan="3" className="px-4 py-3 border-b border-gray-300">
@@ -157,7 +197,7 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
 
                     {/* 사용 여부 (Radio Style) */}
                     <tr>
-                        <th className="px-4 py-3 bg-graygray-5 border-b border-gray-300 font-semibold text-gray-700">
+                        <th className="px-4 py-3 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700">
                         사용 여부 <span className="text-red-500">*</span>
                         </th>
                         <td colSpan="3" className="px-4 py-3 border-b border-gray-300">
@@ -188,30 +228,21 @@ const FaqRegisterPage = ({ onCancel, onSave }) => {
 
                     {/* 본문 (Editor Mockup) */}
                     <tr>
-                        <th className="px-4 py-3 bg-graygray-5 border-b border-gray-300 font-semibold text-gray-700 align-top pt-4">
+                        <th className="px-4 py-3 bg-gray-50 border-b border-gray-300 font-semibold text-gray-700 align-top pt-4">
                         내용 <span className="text-red-500">*</span>
                         </th>
                         <td colSpan="3" className="px-4 py-3 border-b border-gray-300">
-                        {/* Editor UI Frame */}
-                        <div className="border border-gray-300 rounded-sm overflow-hidden">
-                            {/* Toolbar */}
-                            <div className="bg-gray-50 border-b border-gray-300 px-3 py-2 flex gap-1">
-                                <button type="button" className="p-1.5 hover:bg-gray-200 rounded text-gray-600"><Bold className="w-4 h-4"/></button>
-                                <button type="button" className="p-1.5 hover:bg-gray-200 rounded text-gray-600"><Italic className="w-4 h-4"/></button>
-                                <button type="button" className="p-1.5 hover:bg-gray-200 rounded text-gray-600"><Underline className="w-4 h-4"/></button>
-                                <button type="button" className="p-1.5 hover:bg-gray-200 rounded text-gray-600"><List className="w-4 h-4"/></button>
-                                <button type="button" className="p-1.5 hover:bg-gray-200 rounded text-gray-600"><LinkIcon className="w-4 h-4"/></button>
-                                <button type="button" className="p-1.5 hover:bg-gray-200 rounded text-gray-600"><ImageIcon className="w-4 h-4"/></button>
+                            <div className="bg-white">
+                                <ReactQuill
+                                    theme="snow"
+                                    value={formData.content}
+                                    onChange={handleEditorChange}
+                                    modules={modules}
+                                    formats={formats}
+                                    className="h-[400px] mb-12"
+                                    placeholder="답변 내용을 입력해주세요."
+                                />
                             </div>
-                            {/* Text Area */}
-                            <textarea
-                                name="content"
-                                value={formData.content}
-                                onChange={handleChange}
-                                className="w-full h-64 p-4 text-sm focus:outline-none resize-y placeholder-gray-400"
-                                placeholder="답변 내용을 입력해주세요. (저장 시 텍스트 블록으로 자동 변환됩니다)"
-                            />
-                        </div>
                         </td>
                     </tr>
                     </tbody>
