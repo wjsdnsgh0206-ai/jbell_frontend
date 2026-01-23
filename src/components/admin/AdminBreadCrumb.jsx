@@ -55,6 +55,8 @@ const adminMap = {
   "pressRelDetail": "보도자료 상세",
   "pressRelEdit": "보도자료 수정",
   "safetyEduList": "시민안전교육 목록",
+  "safetyEduAdd": "시민안전교육 등록",
+  "safetyEduDetail": "시민안전교육 상세",
   "safetyEduEdit": "시민안전교육 수정",
 };
 

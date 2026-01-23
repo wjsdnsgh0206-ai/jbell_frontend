@@ -201,7 +201,7 @@ const columns = useMemo(() => [
       </div>
     )
   }, 
-  { key: 'source', header: '출처', width: '160px', className: 'text-center' },
+  { key: 'source', header: '출처', width: '150px', className: 'text-center' },
   { key: 'title', header: '제목', className: 'text-center' },
   { key: 'author', header: '등록인', className: 'text-center' },
   { 
@@ -254,12 +254,10 @@ const columns = useMemo(() => [
   { 
   key: 'createdAt', 
   header: '등록일시', 
-  width: '120px', // 공통코드 목록과 비슷한 너비 확보
-  className: 'text-center text-graygray-50 py-2', // 공통코드와 동일한 색상 클래스 적용
+  width: '120px', 
+  className: 'text-center', 
   render: (val) => {
     if (!val) return "-";
-    // ✅ 날짜와 시간 사이에 공백이 있다면 두 줄로 나누고, 
-    // ✅ 공통코드와 동일하게 일정한 글자 크기와 스타일을 유지합니다.
     const dateParts = val.split(' ');
     return (
       <div className="flex flex-col items-center justify-center leading-tight text-[13px]">
@@ -328,7 +326,7 @@ const columns = useMemo(() => [
   setSearchType("all"); 
   setSelectedPublicStatus("all");
   
-  // 3. 날짜 초기화 (이제 이 코드가 정상 작동합니다)
+  // 3. 날짜 초기화 
   setStartDate(""); 
   setEndDate(""); 
   
@@ -384,7 +382,7 @@ const columns = useMemo(() => [
           <p>일괄 <span className="font-bold underline">{status ? '노출' : '비노출'}</span> 처리하시겠습니까?</p>
         </div>
       ),
-      type: status ? 'confirm' : 'delete', // 기존 delete 타입 디자인 재활용
+      type: status ? 'confirm' : 'delete',
       onConfirm: () => {
         setPressRels(prev => prev.map(item => selectedIds.includes(item.id) ? { ...item, isPublic: status } : item));
         setSelectedIds([]); 

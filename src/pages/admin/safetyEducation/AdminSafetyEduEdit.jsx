@@ -1,192 +1,339 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { useNavigate, useOutletContext } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal'; 
-import { Calendar, Link as LinkIcon, Info, School, Flame, MapPin } from 'lucide-react';
+import { safetyEduData } from '@/pages/user/openboards/BoardData'; 
+import { Plus, Trash2, Calendar, AlertCircle } from 'lucide-react';
 
-// React-Quill 설정
-import ReactQuill, { Quill } from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
-
-const Block = Quill.import('blots/block');
-Block.tagName = 'P'; 
-Quill.register(Block, true);
+const SuccessIcon = ({ fill = "#4ADE80" }) => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <circle cx="8" cy="8" r="8" fill={fill}/>
+    <path d="M11 6L7 10L5 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
 
 const AdminSafetyEduEdit = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
-  
+
+  // ★ [추가] 고유 ID 생성 함수 (사용자 페이지 key값 대응)
+  const generateId = (prefix) => `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
   const [showToast, setShowToast] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const [toastMessage, setToastMessage] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
 
-  // 무한 루프 방지를 위해 초기값 고정
-  const [formData, setFormData] = useState({
-    introTitle: "전북특별자치도민 안전 교육",
-    introContent: "전북특별자치도에서는 도민의 안전의식을 높이고 재난 대응 능력을 기르기 위해 다양한 시민 안전 교육 및 체험 프로그램을 운영하고 있습니다.\n주요 교육 정보 및 신청 방법은 다음과 같습니다.",
-    summary119: "태풍, 교통사고, 화재, 지진 등 다양한 재난 상황을 직접 체험하며 위기 탈출 방법을 배울 수 있는 종합 안전 체험 시설입니다.",
-    summaryStudent: "유아부터 중학생, 일반 시민까지 폭넓은 연령층을 대상으로 실습 중심의 안전교육을 운영합니다.",
-    safety119: {
-      usageInfo: `<p><strong>체험객 복장 유의사항</strong></p><p>치마, 구두, 리본, 레이스옷 등의 옷차림 착용 시 체험이 어렵습니다.</p>`,
-      mainUrl: "https://www.sobang.kr/safe119/index.sobang?contentsId=40",
-      reserveUrl: "https://www.sobang.kr/safe119/index.sobang?menuCd=DOM_000001803003001000"
-    },
-    studentSafety: {
-      guide: `<p><strong>운영 대상 및 신청 방법</strong></p><p>전주 시민 누구나(최소 4명 ~ 최대 10명)</p>`,
-      contact: "총무과 안전체험 담당 ☎ 270-1672"
-    },
-    updatedAt: "2025-05-20 14:30:22"
-  });
+  const [formData, setFormData] = useState(null);
+  const [errors, setErrors] = useState({ mgmtId: false, title: false, summary: false });
+
+  // 1. 데이터 로드 및 초기화
+  useEffect(() => {
+    const detailData = safetyEduData.find(item => item.id.toString() === id.toString());
+    if (detailData) {
+      // ★ 이 부분을 아래 로직으로 교체합니다.
+      
+      // 기존 데이터에 id가 없는 경우를 대비해 고유 ID를 생성하여 넣어줌 (데이터 정합성 유지)
+      const sanitizedSections = (detailData.sections || []).map(sec => ({
+        ...sec,
+        id: sec.id || generateId('sec'),
+        items: (sec.items || []).map(item => ({
+          ...item,
+          id: item.id || generateId('item')
+        }))
+      }));
+
+      setFormData({ 
+        ...detailData,
+        sections: sanitizedSections, // 정제된 섹션 데이터 적용
+        links: detailData.links || [],
+        orderNo: detailData.orderNo || '1'
+      });
+      
+      setBreadcrumbTitle(`${detailData.title} 수정`);
+    } else {
+      alert("해당 데이터를 찾을 수 없습니다.");
+      navigate('/admin/contents/safetyEduList');
+    }
+  }, [id, navigate, setBreadcrumbTitle]); // 의존성 배열은 그대로 유지
 
   useEffect(() => {
-    setBreadcrumbTitle("시민안전교육 관리");
     return () => setBreadcrumbTitle("");
   }, [setBreadcrumbTitle]);
 
-  // [에러 해결] handleCancel 함수 정의
+  // 2. 핸들러 함수들
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setIsDirty(true);
+
+    if (name === 'orderNo') {
+      // 숫자만 입력 가능하게 하며 최소값 1 보장
+      const val = value === '' ? '' : Math.max(1, parseInt(value) || 1).toString();
+      setFormData(prev => ({ ...prev, [name]: val }));
+      return;
+    }
+    
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: false }));
+  };
+
+  // 섹션 관리
+  const addSection = () => {
+    setIsDirty(true);
+    setFormData(prev => ({
+      ...prev,
+      sections: [
+        ...prev.sections, 
+        { 
+          id: generateId('sec'), // ★ 추가: 섹션 고유 ID
+          subTitle: '', 
+          items: [{ id: generateId('item'), type: 'text', text: '' }] // ★ 추가: 첫 아이템 ID
+        }
+      ]
+    }));
+  };
+
+  const removeSection = (sIdx) => {
+    setIsDirty(true);
+    setFormData(prev => ({ ...prev, sections: prev.sections.filter((_, i) => i !== sIdx) }));
+  };
+
+  const updateSectionTitle = (sIdx, value) => {
+    setIsDirty(true);
+    const newSections = [...formData.sections];
+    newSections[sIdx] = { ...newSections[sIdx], subTitle: value };
+    setFormData(prev => ({ ...prev, sections: newSections }));
+  };
+
+  // 아이템 관리 (불변성 유지 수정)
+  const addItem = (sIdx) => {
+    setIsDirty(true);
+    const newSections = [...formData.sections];
+    newSections[sIdx] = {
+      ...newSections[sIdx],
+      items: [
+        ...newSections[sIdx].items, 
+        { id: generateId('item'), type: 'text', text: '' } // ★ 추가: 아이템 고유 ID
+      ]
+    };
+    setFormData(prev => ({ ...prev, sections: newSections }));
+  };
+
+  const updateItem = (sIdx, iIdx, field, value) => {
+    setIsDirty(true);
+    const newSections = [...formData.sections];
+    const newItems = [...newSections[sIdx].items];
+    newItems[iIdx] = { ...newItems[iIdx], [field]: value };
+    newSections[sIdx] = { ...newSections[sIdx], items: newItems };
+    setFormData(prev => ({ ...prev, sections: newSections }));
+  };
+
+  const removeItem = (sIdx, iIdx) => {
+    setIsDirty(true);
+    const newSections = [...formData.sections];
+    newSections[sIdx] = {
+      ...newSections[sIdx],
+      items: newSections[sIdx].items.filter((_, i) => i !== iIdx)
+    };
+    setFormData(prev => ({ ...prev, sections: newSections }));
+  };
+
+  // 3. 저장 및 취소 로직
+  const handleSave = () => {
+    if (!formData.mgmtId.trim() || !formData.title.trim() || !formData.summary.trim()) {
+      setErrors({ 
+        mgmtId: !formData.mgmtId.trim(), 
+        title: !formData.title.trim(), 
+        summary: !formData.summary.trim() 
+      });
+      alert("필수 항목을 모두 입력해주세요.");
+      return;
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmSave = () => {
+    const index = safetyEduData.findIndex(item => item.id.toString() === id.toString());
+    if (index !== -1) {
+      // 한국 시간 기준 포맷팅
+      const now = new Date();
+      const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+      
+      safetyEduData[index] = { 
+        ...formData, 
+        orderNo: formData.orderNo || '1',
+        updatedAt: formattedDate 
+      };
+      
+      setIsModalOpen(false);
+      setToastMessage("수정사항이 성공적으로 반영되었습니다.");
+      setShowToast(true);
+      setTimeout(() => navigate(`/admin/contents/safetyEduList`), 1500);
+    }
+  };
+
+  // 취소 핸들러 (누락되었던 부분 추가)
   const handleCancel = () => {
-    if (isDirty) setIsCancelModalOpen(true);
-    else navigate(-1);
+    if (isDirty) {
+      setIsCancelModalOpen(true);
+    } else {
+      navigate(-1);
+    }
   };
 
-  const handleSave = () => setIsModalOpen(true);
-
-  const confirmSave = () => {
-    setIsDirty(false);
-    setIsModalOpen(false);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 2000);
-  };
-
-  const modules = useMemo(() => ({
-    toolbar: [['bold', 'underline'], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['clean']],
-  }), []);
+  if (!formData) return null;
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased">
-      {/* 토스트 알림 */}
+    <div className="relative flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased">
       {showToast && (
-        <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100] bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3">
-          <div className="w-2 h-2 bg-green-400 rounded-full" />
-          <span className="font-bold text-[16px]">성공적으로 수정되었습니다.</span>
+        <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100]">
+          <div className="bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-gray-700">
+            <SuccessIcon />
+            <span className="font-bold">{toastMessage}</span>
+          </div>
         </div>
       )}
 
-      {/* 보도자료 스타일: p-10 및 text-left */}
       <main className="p-10 text-left">
         <h2 className="text-[32px] font-bold mb-10 tracking-tight text-[#111]">시민안전교육 수정</h2>
 
-        {/* 상하 배열을 위해 max-w-[1000px] 설정 및 flex-col 유지 */}
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden max-w-[1000px]">
-          <div className="p-10 border-b border-gray-100 bg-gray-50/30">
-            <h3 className="text-[22px] font-extrabold text-[#111]">콘텐츠 관리</h3>
-          </div>
+        <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-14 w-full max-w-[1000px]">
+          <h3 className="text-[24px] font-extrabold mb-14 text-[#111] border-b-2 border-gray-100 pb-3">교육 정보 수정</h3>
+          
+          <div className="flex flex-col space-y-12">
+            {/* 관리번호 */}
+            <div className="flex flex-col">
+              <label className="font-bold text-[16px] mb-3 text-[#111]">관리번호 (ID)</label>
+              <input name="mgmtId" value={formData.mgmtId} readOnly className="w-full max-w-[500px] bg-gray-50 border border-gray-200 rounded-lg px-5 py-4 text-gray-400 outline-none cursor-not-allowed" />
+              <p className="text-[13px] text-gray-400 mt-2">* 관리번호는 수정할 수 없습니다.</p>
+            </div>
 
-          <div className="p-10 space-y-12">
-            {/* 섹션 1: 도입부 */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-2 text-[#0055aa] border-b border-gray-100 pb-2">
-                <Info size={18} />
-                <span className="font-bold text-[18px]">공통 도입부</span>
+            {/* 제목 */}
+            <div className="flex flex-col">
+              <label className="font-bold text-[16px] mb-3 text-[#111]">시설명 / 교육명 (필수)</label>
+              <input name="title" value={formData.title} onChange={handleChange} className={`w-full border rounded-lg px-5 py-4 outline-none ${errors.title ? 'border-red-500 bg-red-50' : 'border-gray-300 focus:border-[#2563EB]'}`} />
+            </div>
+
+            {/* 출처 정보 */}
+            <div className="p-8 bg-blue-50/50 rounded-xl border border-blue-100 flex flex-col gap-6">
+              <div className="flex flex-col">
+                <label className="font-bold text-[16px] mb-3 text-[#2563EB]">출처 기관</label>
+                <input name="source" value={formData.source} onChange={handleChange} className="w-full bg-white border border-blue-200 rounded-lg px-5 py-3.5 outline-none focus:border-[#2563EB]" />
               </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-[14px] font-bold text-gray-400 mb-2 uppercase">메인 타이틀</label>
-                  <input className="w-full border border-gray-300 rounded-lg px-5 py-4 font-bold text-[18px] focus:border-[#2563EB] outline-none transition-all" 
-                         value={formData.introTitle} onChange={(e) => {setFormData({...formData, introTitle: e.target.value}); setIsDirty(true);}} />
-                </div>
-                <div>
-                  <label className="block text-[14px] font-bold text-gray-400 mb-2 uppercase">설명 문구</label>
-                  <textarea className="w-full border border-gray-300 rounded-lg px-5 py-4 h-28 resize-none leading-relaxed focus:border-[#2563EB] outline-none transition-all" 
-                            value={formData.introContent} onChange={(e) => {setFormData({...formData, introContent: e.target.value}); setIsDirty(true);}} />
-                </div>
+              <div className="flex flex-col">
+                <label className="font-bold text-[16px] mb-3 text-[#2563EB]">출처 URL</label>
+                <input name="sourceUrl" value={formData.sourceUrl} onChange={handleChange} className="w-full bg-white border border-blue-200 rounded-lg px-5 py-3.5 outline-none focus:border-[#2563EB]" />
               </div>
             </div>
 
-            {/* 섹션 2: 요약 정보 (무조건 상하 배열) */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-2 text-gray-700 border-b border-gray-100 pb-2">
-                <MapPin size={18} />
-                <span className="font-bold text-[18px]">주요 시설 요약</span>
-              </div>
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-[14px] font-bold text-gray-400 mb-2 uppercase">전북119안전체험관 요약</label>
-                  <textarea className="w-full border border-gray-300 rounded-lg p-4 h-24 text-[15px] focus:border-[#2563EB] outline-none"
-                            value={formData.summary119} onChange={(e) => {setFormData({...formData, summary119: e.target.value}); setIsDirty(true);}} />
-                </div>
-                <div>
-                  <label className="block text-[14px] font-bold text-gray-400 mb-2 uppercase">전주학생교육문화관 요약</label>
-                  <textarea className="w-full border border-gray-300 rounded-lg p-4 h-24 text-[15px] focus:border-[#2563EB] outline-none"
-                            value={formData.summaryStudent} onChange={(e) => {setFormData({...formData, summaryStudent: e.target.value}); setIsDirty(true);}} />
-                </div>
+            {/* 요약 */}
+            <div className="flex flex-col gap-8">
+              <div className="flex flex-col">
+                <label className="font-bold text-[16px] mb-3 text-[#111]">내용 요약 (필수)</label>
+                <textarea name="summary" value={formData.summary} onChange={handleChange} rows="3" className={`w-full border rounded-lg px-5 py-4 outline-none resize-none ${errors.summary ? 'border-red-500' : 'border-gray-300 focus:border-[#2563EB]'}`} />
               </div>
             </div>
 
-            {/* 섹션 3: 119안전체험관 상세 */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-2 text-[#e15141] border-b border-gray-100 pb-2">
-                <Flame size={18} />
-                <span className="font-bold text-[18px]">전북소방119안전체험관 상세</span>
+            {/* 세부 내용 (Sections) */}
+            <div className="flex flex-col space-y-6">
+              <div className="flex justify-between items-center border-b border-gray-200 pb-3">
+                <label className="font-bold text-[18px] text-[#2563EB]">교육 세부 내용 (Sections)</label>
+                <button onClick={addSection} className="flex items-center gap-2 bg-[#2563EB] text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-blue-700 transition-all">
+                  <Plus size={18} /> 섹션 추가
+                </button>
               </div>
-              <div className="space-y-6">
-                <div className="custom-quill">
-                  <label className="block text-[15px] font-bold mb-3 text-gray-700">이용안내 에디터</label>
-                  <ReactQuill theme="snow" value={formData.safety119.usageInfo} modules={modules} 
-                              onChange={(val) => { if(val !== formData.safety119.usageInfo) { setFormData({...formData, safety119: {...formData.safety119, usageInfo: val}}); setIsDirty(true); }}} />
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-[14px] font-bold text-gray-400 mb-1 uppercase tracking-tight">공식 홈페이지 주소</label>
-                    <input className="w-full border border-gray-300 rounded-lg px-4 py-3 text-blue-600 focus:border-[#2563EB] outline-none font-medium" 
-                           value={formData.safety119.mainUrl} onChange={(e) => {setFormData({...formData, safety119: {...formData.safety119, mainUrl: e.target.value}}); setIsDirty(true);}} />
+
+              {formData.sections.map((section, sIdx) => (
+                <div key={sIdx} className="p-8 border border-gray-200 rounded-xl bg-[#F9FAFB] relative shadow-sm flex flex-col gap-6">
+                  <button onClick={() => removeSection(sIdx)} className="absolute top-6 right-6 text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={24} /></button>
+                  <div className="flex flex-col">
+                    <label className="text-[14px] font-bold text-gray-500 mb-2">섹션 소제목</label>
+                    <input 
+                      value={section.subTitle} 
+                      onChange={(e) => updateSectionTitle(sIdx, e.target.value)} 
+                      className="w-full bg-white border border-gray-300 rounded-lg px-5 py-3.5 font-bold text-[#2563EB] outline-none focus:border-[#2563EB]" 
+                    />
                   </div>
-                  <div>
-                    <label className="block text-[14px] font-bold text-gray-400 mb-1 uppercase tracking-tight">체험예약 주소</label>
-                    <input className="w-full border border-gray-300 rounded-lg px-4 py-3 text-blue-600 focus:border-[#2563EB] outline-none font-medium" 
-                           value={formData.safety119.reserveUrl} onChange={(e) => {setFormData({...formData, safety119: {...formData.safety119, reserveUrl: e.target.value}}); setIsDirty(true);}} />
+
+                  <div className="flex flex-col gap-4">
+                    {section.items.map((item, iIdx) => (
+                      <div key={iIdx} className="flex flex-col gap-3 bg-white p-5 rounded-lg border border-gray-200 relative group">
+                        <select value={item.type} onChange={(e) => updateItem(sIdx, iIdx, 'type', e.target.value)} className="w-fit border border-gray-300 rounded-md px-3 py-2 text-[13px] font-bold bg-gray-50 outline-none">
+                          <option value="text">일반 (text)</option>
+                          <option value="bold">강조 (bold)</option>
+                          <option value="indent">들여쓰기 (indent)</option>
+                          <option value="gray">안내문 (gray)</option>
+                        </select>
+                        <textarea value={item.text} onChange={(e) => updateItem(sIdx, iIdx, 'text', e.target.value)} className="w-full border-b border-gray-100 py-2 outline-none resize-none text-[15px]" rows="1" />
+                        <button onClick={() => removeItem(sIdx, iIdx)} className="absolute top-4 right-4 text-gray-300 hover:text-red-400"><Trash2 size={16}/></button>
+                      </div>
+                    ))}
+                    <button onClick={() => addItem(sIdx)} className="w-full py-3 border-2 border-dashed border-gray-200 rounded-lg text-gray-400 font-bold hover:bg-gray-100">+ 항목 추가</button>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
 
-            {/* 섹션 4: 학생교육문화관 상세 */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-2 text-[#2563EB] border-b border-gray-100 pb-2">
-                <School size={18} />
-                <span className="font-bold text-[18px]">전주학생교육문화관 상세</span>
+            {/* 하단 제어 영역 (순서, 노출여부, 일시) */}
+            <div className="space-y-10 pt-10 border-t border-gray-100">
+              <div className="flex flex-col w-full max-w-[100px]">
+                <label className="font-bold text-[16px] mb-3 text-[#111]">순서</label>
+                <input 
+                  type="number" 
+                  name="orderNo" 
+                  value={formData.orderNo} 
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-lg px-5 py-4 text-[#2563EB] font-bold text-[18px] outline-none focus:border-[#2563EB]"
+                />
+                <p className="text-[13px] text-gray-400 mt-2 font-medium">* 낮은 숫자일수록 상단 노출</p>
               </div>
-              <div className="space-y-6">
-                <div className="custom-quill">
-                  <label className="block text-[15px] font-bold mb-3 text-gray-700">운영 안내 에디터</label>
-                  <ReactQuill theme="snow" value={formData.studentSafety.guide} modules={modules} 
-                              onChange={(val) => { if(val !== formData.studentSafety.guide) { setFormData({...formData, studentSafety: {...formData.studentSafety, guide: val}}); setIsDirty(true); }}} />
-                </div>
-                <div>
-                  <label className="block text-[14px] font-bold text-gray-400 mb-2 uppercase">운영 문의 연락처</label>
-                  <input className="w-full border border-gray-300 rounded-lg px-5 py-4 font-bold text-gray-700 focus:border-[#2563EB] outline-none" 
-                         value={formData.studentSafety.contact} onChange={(e) => {setFormData({...formData, studentSafety: {...formData.studentSafety, contact: e.target.value}}); setIsDirty(true);}} />
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* 푸터 영역 */}
-          <div className="p-10 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
-            <div className="flex items-center gap-2 text-gray-400 font-medium text-[14px]">
-              <Calendar size={16} /> 최종 업데이트: {formData.updatedAt}
-            </div>
-            <div className="flex gap-3">
-              <button type="button" onClick={handleCancel} className="px-8 py-3.5 border border-gray-300 bg-white text-gray-500 rounded-lg font-bold hover:bg-gray-50 transition-all">취소</button>
-              <button type="button" onClick={handleSave} className="px-10 py-3.5 bg-[#2563EB] text-white rounded-lg font-bold shadow-lg shadow-blue-100 hover:bg-[#1d4ed8] transition-all">설정 저장하기</button>
+              <div className="flex flex-col">
+                <label className="font-bold text-[16px] mb-3 text-[#111]">노출 여부</label>
+                <div className="flex items-center gap-4">
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      setFormData(prev => ({...prev, isPublic: !prev.isPublic}));
+                      setIsDirty(true);
+                    }}
+                    className={`w-[54px] h-[28px] flex items-center rounded-full p-1 transition-colors duration-300 ${formData.isPublic ? 'bg-[#2563EB]' : 'bg-gray-300'}`}
+                  >
+                    <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${formData.isPublic ? 'translate-x-[26px]' : 'translate-x-0'}`} />
+                  </button>
+                  <span className={`text-[15px] font-bold ${formData.isPublic ? 'text-[#2563EB]' : 'text-gray-400'}`}>
+                    {formData.isPublic ? '노출' : '비노출'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-10 border-t border-gray-50 flex flex-col space-y-4">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[14px] font-bold text-gray-400">등록 일시</label>
+                  <div className="flex items-center gap-2 text-[#999] font-medium px-1">
+                    <Calendar size={16} /> {formData.createdAt}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[14px] font-bold text-gray-400">최종 수정 일시</label>
+                  <div className="flex items-center gap-2 text-[#999] font-medium px-1">
+                    <Calendar size={16} /> {formData.updatedAt || '-'}
+                  </div>
+                </div>
+              </div> 
             </div>
           </div>
+        </section>
+
+        <div className="flex justify-end gap-2 mt-12 max-w-[1000px]">
+          <button type="button" onClick={handleCancel} className="px-8 py-3.5 border border-gray-300 bg-white text-gray-500 rounded-lg font-bold">취소</button>
+          <button type="button" onClick={handleSave} className="px-8 py-3.5 bg-[#2563EB] text-white rounded-lg font-bold">저장</button>
         </div>
       </main>
 
-      {/* 모달 */}
-      <AdminConfirmModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={confirmSave} title="설정을 저장하시겠습니까?" message="사용자 페이지에 즉시 적용됩니다." type="save" />
-      <AdminConfirmModal isOpen={isCancelModalOpen} onClose={() => setIsCancelModalOpen(false)} onConfirm={() => navigate(-1)} title="수정을 취소하시겠습니까?" message="작성 중인 내용은 저장되지 않습니다." type="delete" />
+      <AdminConfirmModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleConfirmSave} title="수정사항을 저장하시겠습니까?" message="수정된 내용은 즉시 도민 안전교육 페이지에 반영됩니다." type="save" />
+      <AdminConfirmModal isOpen={isCancelModalOpen} onClose={() => setIsCancelModalOpen(false)} onConfirm={() => navigate(-1)} title="수정을 취소하시겠습니까?" message="수정 중인 내용은 저장되지 않습니다." type="delete" />
     </div>
   );
 };

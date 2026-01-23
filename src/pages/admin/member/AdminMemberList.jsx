@@ -40,16 +40,17 @@ const AdminMemberList = () => {
             key: 'memberId', 
             header: 'ID', 
             width: '15%',
-            className: 'text-blue-600 font-bold hover:underline cursor-pointer',
+            className: 'text-blue-600 font-bold hover:underline cursor-pointer text-center whitespace-nowrap',
             // 클릭 이벤트는 onRowClick에서 처리되지만, 시각적 스타일을 위해 클래스 추가
         },
-        { key: 'memberName', header: '이름', width: '15%' },
-        { key: 'memberTelNum', header: '전화번호', width: '20%' },
-        { key: 'memberRegion', header: '주소', width: '20%' },
+        { key: 'memberName', header: '이름', width: '15%', className: 'text-center whitespace-nowrap' },
+        { key: 'memberTelNum', header: '전화번호', width: '20%', className: 'text-center whitespace-nowrap' },
+        { key: 'memberRegion', header: '주소', width: '20%', className: 'text-center whitespace-nowrap' },
         { 
             key: 'isDormant', 
             header: '상태', 
             width: '10%',
+            className: 'text-center whitespace-nowrap',
             render: (value) => value ? (
                 <span className="px-2 py-1 text-xs rounded bg-gray-200 text-gray-700">휴면</span>
             ) : (
@@ -60,6 +61,7 @@ const AdminMemberList = () => {
             key: 'createdAt',
             header: '가입일',
             width: '15%',
+            className: 'text-center whitespace-nowrap',
             render: (value) => new Date(value).toLocaleDateString()
         }
     ], []);
