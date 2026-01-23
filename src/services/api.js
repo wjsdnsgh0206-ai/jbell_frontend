@@ -105,6 +105,55 @@ export const facilityService = {
 };
 
 /* =========================================================
+   FAQ 관리 API (Admin) - 추가된 부분
+========================================================= */
+export const faqService = {
+  // 1. 목록 조회
+  getFaqList: async () => {
+    // GET /api/admin/faqlist
+    const response = await api.get("/admin/faqlist");
+    return response.data;
+  },
+
+  // 2. 상세 조회
+  getFaqDetail: async (faqId) => {
+    // GET /api/admin/faqdetail/{faqId}
+    const response = await api.get(`/admin/faqdetail/${faqId}`);
+    return response.data;
+  },
+
+  // 3. 신규 등록
+  createFaq: async (payload) => {
+    // POST /api/admin/faqadd
+    const response = await api.post("/admin/faqadd", payload);
+    return response.data;
+  },
+
+  // 4. 수정
+  updateFaq: async (faqId, payload) => {
+    // PUT /api/admin/faqdetail/{faqId}
+    const response = await api.put(`/admin/faqdetail/${faqId}`, payload);
+    return response.data;
+  },
+
+  // 5. 공개/비공개 일괄 변경
+  updateFaqStatus: async (payload) => {
+    // PUT /api/admin/faqstatus
+    // payload: { faqIds: [1,2], visibleYn: "Y" }
+    const response = await api.put("/admin/faqstatus", payload);
+    return response.data;
+  },
+
+  // 6. 삭제 (단일 및 일괄)
+  deleteFaq: async (payload) => {
+    // POST /api/admin/faqdelete
+    // payload: { faqId: [1,2] } (백엔드 DTO 변수명이 faqId 리스트임)
+    const response = await api.post("/admin/faqdelete", payload);
+    return response.data;
+  }
+};
+
+/* =========================================================
    날씨 관련 API - 최지영 * 건드리지 말 것 *
 ========================================================= */
 export const weatherService = {
