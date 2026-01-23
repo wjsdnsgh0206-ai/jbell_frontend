@@ -7,7 +7,7 @@
  */
 export const ADMIN_MENU_DATA = {
   // [시스템 관리] 그룹: URL이 /admin/system/... 일 때 활성화
-  // --- 실시간 정보관리 🐹 최지영 ---
+  // --- 실시간 정보관리 최지영 ---
   realtime: [
     {
       title: "대시보드",
@@ -49,7 +49,9 @@ export const ADMIN_MENU_DATA = {
       title: "로그 관리",
       path: "/admin/system/adminLogList",
       isAvailable: true,
-      items: [],
+      items: [
+        { name: "시스템 보안 운영 분석", path: "/admin/system/adminSysOpAnalysis" }
+      ],
     },
   ],
   contents: [
