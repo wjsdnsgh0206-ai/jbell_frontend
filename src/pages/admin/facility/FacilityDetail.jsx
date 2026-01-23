@@ -4,6 +4,7 @@ import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 import { facilityService } from '@/services/api'; 
 import { ChevronLeft } from 'lucide-react';
 
+
 // 시설 유형 코드 변환 헬퍼 (백엔드 ApiType 매핑)
 const getSeCdName = (code) => {
   const mapping = {
