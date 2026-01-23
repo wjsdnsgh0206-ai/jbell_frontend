@@ -2,9 +2,6 @@
 name: React CI with Yarn
 
 on:
-  push:
-    branches: [ "main" ]
-   # master 브랜치를 대상으로 하는 PR이 있을 때
   pull_request:
     branches: [ "main" ]
     # PR이 "닫혔을 때(closed)" 트리거
