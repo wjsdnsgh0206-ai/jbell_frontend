@@ -473,7 +473,52 @@
     box-shadow: 0 0 0 1px rgba(225, 81, 65, 0.05); 
   }
 
-  /* ============================================================
+  /* 수정 추가@@ */
+
+/* 1. 보도자료 상세/수정 페이지 공통: 이미지가 박스를 나가지 않도록 설정 */
+.AdminPressRelDetail .ql-editor img,
+.custom-quill .ql-editor img {
+  max-width: 100% !important; /* 부모 박스 너비에 맞춤 */
+  height: auto !important;     /* 비율 유지 */
+  display: block !important;
+  margin: 30px auto !important; /* 중앙 정렬 */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* 2. AdminPressRelDetail 상세페이지 본문 스타일 */
+.AdminPressRelDetail .ql-editor {
+    background-color: transparent !important;
+    padding: 40px !important; 
+    min-height: 400px !important;
+    height: auto !important;
+}
+
+.AdminPressRelDetail .ql-editor p {
+    font-size: 17px !important;
+    line-height: 1.8 !important;
+    color: #333 !important;
+    margin-bottom: 15px !important;
+}
+
+/* 3. 수정 페이지 에디터(.custom-quill) 전용 스타일 */
+.custom-quill .ql-editor {
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+    min-height: 300px !important;
+}
+
+/* 수정페이지 에디터와 경고문구 사이의 간격을 다른 입력창들과 맞춤 */
+.custom-quill-wrapper {
+  margin-bottom: 5px !important; 
+}
+
+/* 툴바와 편집창 전체를 감싸는 영역의 마진도 0으로 고정하여 일관성 유지 */
+.custom-quill-wrapper .quill {
+  margin-bottom: 0 !important;
+}
+
+/* ============================================================
     [관리자] 리스트 페이지 날짜 입력창(Date Input) 커스텀 @@
     ============================================================ */
 

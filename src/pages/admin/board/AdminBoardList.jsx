@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { noticeData } from '@/pages/user/openboards/BoardData'; // 공지사항 데이터
+import { noticeData } from '@/pages/user/openboards/BoardData';
 import { Paperclip } from 'lucide-react';
 
 // [공통 컴포넌트 임포트]
@@ -19,9 +19,21 @@ const AdminBoardList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   
   // [State] 검색 및 정렬
-  // AdminSearchBox와 호환되도록 구조 변경 (keyword: 검색어, sort: 정렬순서)
-  const [searchParams, setSearchParams] = useState({ keyword: '', sort: 'desc' });
-  const [activeFilter, setActiveFilter] = useState({ keyword: '', sort: 'desc' }); // 실제 적용된 필터
+  const [searchParams, setSearchParams] = useState({
+    keyword: '',
+    title: '',
+    author: '',
+    isPublic: '',
+    sort: 'desc',
+  });
+
+  // [수정] 초기 activeFilter 상태를 searchParams와 동일하게 설정
+  const [activeFilter, setActiveFilter] = useState({ 
+    title: '', 
+    author: '', 
+    isPublic: '', 
+    sort: 'desc' 
+  }); 
 
   // [State] 모달 설정
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,23 +44,49 @@ const AdminBoardList = () => {
     onConfirm: () => {} 
   });
 
+  const [sortOrder, setSortOrder] = useState('latest'); 
+
   // [Logic] 데이터 필터링 및 정렬
   const filteredData = useMemo(() => {
-    const { keyword, sort } = activeFilter;
-    const searchTerm = keyword.replace(/\s+/g, "").toLowerCase();
-    
-    let result = posts.filter(post => {
-      if (!searchTerm) return true;
-      const targetString = [post.title, post.author, post.content].join("").replace(/\s+/g, "").toLowerCase();
-      return targetString.includes(searchTerm);
-    });
+    let result = [...posts];
 
-    return result.sort((a, b) => {
-      // 상단 고정(isPin) 우선 정렬 로직 추가 가능 (필요 시)
+    if (activeFilter.keyword) {
+      // 통합 검색어가 있다면 제목이나 작성자에서 검색
+      result = result.filter(post => 
+        post.title.includes(activeFilter.keyword) || 
+        post.author.includes(activeFilter.keyword)
+      );
+    }
+
+    if (activeFilter.title) {
+      result = result.filter(post =>
+        post.title.includes(activeFilter.title)
+      );
+    }
+
+    if (activeFilter.author) {
+      result = result.filter(post =>
+        post.author.includes(activeFilter.author)
+      );
+    }
+
+    // [중요] activeFilter에 isPublic이 초기화되어 있지 않으면(undefined) 
+    // undefined !== '' 가 True가 되어 빈 목록이 나오는 문제가 해결됨
+    if (activeFilter.isPublic !== '') {
+      result = result.filter(post =>
+        String(post.isPublic) === activeFilter.isPublic
+      );
+    }
+
+    result.sort((a, b) => {
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
-      return sort === "desc" ? dateB - dateA : dateA - dateB;
+      return activeFilter.sort === 'desc'
+        ? dateB - dateA
+        : dateA - dateB;
     });
+
+    return result;
   }, [posts, activeFilter]);
 
   // [Logic] 페이지네이션
@@ -63,17 +101,38 @@ const AdminBoardList = () => {
     setCurrentPage(1);
   };
 
+  // 공지사항 정렬
+  const handleSort = (order) => {
+    setSortOrder(order);
+    const newSort = order === 'latest' ? 'desc' : 'asc';
+    
+    setSearchParams(prev => ({
+      ...prev,
+      sort: newSort,
+    }));
+    setActiveFilter(prev => ({
+      ...prev,
+      sort: newSort,
+    }));
+  };
+
   const handleReset = () => {
-    const resetState = { keyword: '', sort: 'desc' };
+    const resetState = {
+      keyword: '',
+      title: '',
+      author: '',
+      isPublic: '',
+      sort: 'desc',
+    };
     setSearchParams(resetState);
     setActiveFilter(resetState);
     setCurrentPage(1);
+    setSortOrder('latest'); // 초기화 시 정렬 버튼 UI도 최신순으로 복귀
   };
 
   // [Event] 삭제 및 상태 변경 핸들러
   const handleDeleteSelected = () => {
     if (selectedIds.length === 0) {
-      // alert 대신 모달을 띄우거나 간단한 경고 처리 (여기선 alert 유지)
       alert("삭제할 항목을 선택해주세요."); 
       return; 
     }
@@ -169,7 +228,7 @@ const AdminBoardList = () => {
       render: (_, row) => (
         <button 
           onClick={(e) => {
-            e.stopPropagation(); // 행 클릭 이벤트 방지
+            e.stopPropagation(); 
             navigate(`/admin/board/noticeDetail/${row.id}`);
           }}
           className="border border-gray-300 text-[#666] rounded px-3 py-1 text-[12px] font-bold bg-white hover:bg-admin-primary hover:text-white hover:border-admin-primary transition-all"
@@ -193,26 +252,45 @@ const AdminBoardList = () => {
             onSearch={handleSearch}
             onReset={handleReset}
           >
-            {/* 커스텀 필터 슬롯: 정렬 기능 추가 */}
-            <select
-              name="sort"
-              value={searchParams.sort}
-              onChange={(e) => setSearchParams(prev => ({ ...prev, sort: e.target.value }))}
-              className="h-14 pl-3 pr-8 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary focus:border-admin-primary outline-none transition-all cursor-pointer min-w-[120px]"
-            >
-              <option value="desc">최신순</option>
-              <option value="asc">오래된순</option>
-            </select>
           </AdminSearchBox>
         </section>
 
         {/* 2. 데이터 테이블 영역 */}
         <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8">
           <div className="flex justify-between items-end mb-6">
-            <span className="text-body-m-bold text-admin-text-secondary">
-              {selectedIds.length > 0 ? `${selectedIds.length}개 선택됨` : `전체 ${filteredData.length}건`}
-            </span>
-            
+            {/* 왼쪽 묶음 */}
+            <div className="flex items-center gap-4">
+              <span className="text-body-m-bold text-admin-text-secondary">
+                {selectedIds.length > 0
+                  ? `${selectedIds.length}개 선택됨`
+                  : `전체 ${filteredData.length}건`}
+              </span>
+
+              {/* 🔽 정렬 버튼 위치 */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleSort('latest')}
+                  className={`px-3 py-1 rounded transition-colors ${
+                    sortOrder === 'latest'
+                      ? 'bg-gray-800 text-white'
+                      : 'bg-white border hover:bg-gray-50'
+                  }`}
+                >
+                  최신순
+                </button>
+                <button
+                  onClick={() => handleSort('oldest')}
+                  className={`px-3 py-1 rounded transition-colors ${
+                    sortOrder === 'oldest'
+                      ? 'bg-gray-800 text-white'
+                      : 'bg-white border hover:bg-gray-50'
+                  }`}
+                >
+                  오래된순
+                </button>
+              </div>
+            </div>
+
             <div className="flex gap-3">
               <button 
                 onClick={() => navigate('/admin/contents/adminBoardRegister')}
