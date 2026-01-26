@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { noticeData } from '@/pages/user/openboards/BoardData';
 import { Paperclip } from 'lucide-react';
+import axios from 'axios';
 
 // [공통 컴포넌트 임포트]
 import AdminSearchBox from '@/components/admin/AdminSearchBox';
@@ -238,6 +239,22 @@ const AdminBoardList = () => {
       )
     }
   ];
+
+
+
+/** <================================================== UseEffect ==================================================> **/
+  // axios for backend
+  // 1) 공지사항(notice)
+  useEffect(() => {
+    axios.get('/api/notice')
+      .then(res => {
+        console.log(res.data.data);
+      });
+  }, []);
+/** <================================================== UseEffect ==================================================> **/
+
+
+
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
