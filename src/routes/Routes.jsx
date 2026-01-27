@@ -6,15 +6,14 @@ import DisasterModalLayout from "@/layouts/user/disasterModal/DisasterModalLayou
 import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
 // 팀원별 라우트 파일 import (user)
-import { jyUserRoutes, disasterModal } from "@/routes/route-jy";
-import { shUserRoutes } from "@/routes/route-sh";
-import { ehUserRoutes } from "@/routes/route-eh";
-import { mjUserRoutes } from "@/routes/route-mj";
-import { bjUserRoutes } from "@/routes/route-bj";
-import { jhUserRoutes } from "@/routes/route-jh";
+import { jyUserRoutes, disasterModal } from "@/routes/user/route-jy";
+import { shUserRoutes } from "@/routes/user/route-sh";
+import { ehUserRoutes } from "@/routes/user/route-eh";
+import { mjUserRoutes } from "@/routes/user/route-mj";
+import { bjUserRoutes } from "@/routes/user/route-bj";
+import { jhUserRoutes } from "@/routes/user/route-jh";
 
 // 팀원별 라우트 파일 import (amdin)
-// import { jyUserRoutes } from "@/routes/admin/route-jy";
 import { shAdminRoutes } from "@/routes/admin/route-sh";
 import { mjAdminRoutes } from "@/routes/admin/route-mj";
 import { jhAdminRoutes } from "@/routes/admin/route-jh";
