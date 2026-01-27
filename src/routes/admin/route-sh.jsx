@@ -1,19 +1,22 @@
 // src/routes/admin/route-sh.jsx
 import { lazy } from 'react';
 
-export const AdminCommonCodeList = lazy(() => import("@/pages/admin/codeManagement/AdminCommonCodeList"));
-export const AdminGroupCodeAdd = lazy(() => import("@/pages/admin/codeManagement/AdminGroupCodeAdd"));
-export const AdminSubCodeAdd = lazy(() => import("@/pages/admin/codeManagement/AdminSubCodeAdd"));
-export const AdminGroupCodeDetail = lazy(() => import("@/pages/admin/codeManagement/AdminGroupCodeDetail"));
-export const AdminSubCodeDetail = lazy(() => import("@/pages/admin/codeManagement/AdminSubCodeDetail"));
-export const AdminGroupCodeEdit = lazy(() => import("@/pages/admin/codeManagement/AdminGroupCodeEdit"));
-export const AdminSubCodeEdit = lazy(() => import("@/pages/admin/codeManagement/AdminSubCodeEdit"));
-export const AdminPressRelList = lazy(() => import("@/pages/admin/pressManagement/AdminPressRelList"));
-export const AdminPressRelAdd = lazy(() => import("@/pages/admin/pressManagement/AdminPressRelAdd"));
-export const AdminPressRelDetail = lazy(() => import("@/pages/admin/pressManagement/AdminPressRelDetail"));
-export const AdminPressRelEdit = lazy(() => import("@/pages/admin/pressManagement/AdminPressRelEdit"));
-export const AdminSafetyEduList = lazy(() => import("@/pages/admin/safetyEducation/AdminSafetyEduList"));
-export const AdminSafetyEduEdit = lazy(() => import("@/pages/admin/safetyEducation/AdminSafetyEduEdit"));
+ const AdminCommonCodeList = lazy(() => import("@/pages/admin/codeManagement/AdminCommonCodeList"));
+ const AdminGroupCodeAdd = lazy(() => import("@/pages/admin/codeManagement/AdminGroupCodeAdd"));
+ const AdminSubCodeAdd = lazy(() => import("@/pages/admin/codeManagement/AdminSubCodeAdd"));
+ const AdminGroupCodeDetail = lazy(() => import("@/pages/admin/codeManagement/AdminGroupCodeDetail"));
+ const AdminSubCodeDetail = lazy(() => import("@/pages/admin/codeManagement/AdminSubCodeDetail"));
+ const AdminGroupCodeEdit = lazy(() => import("@/pages/admin/codeManagement/AdminGroupCodeEdit"));
+ const AdminSubCodeEdit = lazy(() => import("@/pages/admin/codeManagement/AdminSubCodeEdit"));
+ const AdminPressRelList = lazy(() => import("@/pages/admin/pressManagement/AdminPressRelList"));
+ const AdminPressRelAdd = lazy(() => import("@/pages/admin/pressManagement/AdminPressRelAdd"));
+ const AdminPressRelDetail = lazy(() => import("@/pages/admin/pressManagement/AdminPressRelDetail"));
+ const AdminPressRelEdit = lazy(() => import("@/pages/admin/pressManagement/AdminPressRelEdit"));
+ const AdminSafetyEduList = lazy(() => import("@/pages/admin/safetyEducation/AdminSafetyEduList"));
+ const AdminSafetyEduAdd = lazy(() => import("@/pages/admin/safetyEducation/AdminSafetyEduAdd"));
+ const AdminSafetyEduDetail = lazy(() => import("@/pages/admin/safetyEducation/AdminSafetyEduDetail"));
+ const AdminSafetyEduEdit = lazy(() => import("@/pages/admin/safetyEducation/AdminSafetyEduEdit"));
+
 
 
 
@@ -103,10 +106,24 @@ export const shAdminRoutes = [
     element: <AdminSafetyEduList />,
     nowPage: "시민안전교육목록",
   },
+  
+  // 시민안전교육관리 등록페이지 (콘텐츠관리 그룹- 홍보/자료 관리)
+   {
+    path: "/admin/contents/safetyEduAdd", 
+    element: <AdminSafetyEduAdd />,
+    nowPage: "시민안전교육등록",
+  },
+  
+  // 시민안전교육관리 상세페이지 (콘텐츠관리 그룹- 홍보/자료 관리)
+   {
+    path: "/admin/contents/safetyEduDetail/:id", 
+    element: <AdminSafetyEduDetail />,
+    nowPage: "시민안전교육상세",
+  },
 
   // 시민안전교육관리 수정페이지 (콘텐츠관리 그룹- 홍보/자료 관리)
    {
-    path: "/admin/contents/safetyEduEdit", 
+    path: "/admin/contents/safetyEduEdit/:id", 
     element: <AdminSafetyEduEdit />,
     nowPage: "시민안전교육수정",
   },
@@ -114,6 +131,3 @@ export const shAdminRoutes = [
 
 
 ];
-
-
-

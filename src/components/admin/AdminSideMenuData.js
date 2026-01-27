@@ -7,26 +7,38 @@
  */
 export const ADMIN_MENU_DATA = {
   // [시스템 관리] 그룹: URL이 /admin/system/... 일 때 활성화
-  // --- 실시간 정보관리 🐹 최지영 ---
+  // --- 실시간 정보관리 최지영 ---
   realtime: [
     {
       title: "대시보드",
       path: "/admin/realtime/realtimeDashboard",
       isAvailable: true,
       items: [
-        { name: "대시보드", path: "/admin/realtime/realtimeDashboard" },
+        { name: "대시보드 관리", path: "/admin/realtime/realtimeDashboard" },
       ],
     },
     {
-      title: "재난사고속보 관리",
+      title: "재난사고속보",
       path: "/admin/realtime/accidentNewsList",
       isAvailable: true,
       items: [
         { name: "사고속보 관리", path: "/admin/realtime/accidentNewsList"},
         { name: "재난 관리", path: "/admin/realtime/disasterManagementList" },
+        { name: "재난 발생 관리", path: "/admin/realtime/disasterEventManagementList" },
+        { name: "기상특보 관리", path: "/admin/realtime/weatherNewsList" },
+        { name: "재난문자이력 관리", path: "/admin/realtime/disasterMessageList"},
+      ],
+    },
+    {
+      title: "재난통계",
+      path: "/admin/realtime/disasterStatisticsList",
+      isAvailable: true,
+      items: [
+        { name: "재난통계 관리", path: "/admin/realtime/disasterStatisticsList"},
       ],
     },
   ],
+
   system: [
     {
       title: "코드 관리", // 소분류 그룹 제목
@@ -49,7 +61,9 @@ export const ADMIN_MENU_DATA = {
       title: "로그 관리",
       path: "/admin/system/adminLogList",
       isAvailable: true,
-      items: [],
+      items: [
+        { name: "시스템 보안 운영 분석", path: "/admin/system/adminSysOpAnalysis" }
+      ],
     },
   ],
   contents: [
@@ -100,9 +114,20 @@ export const ADMIN_MENU_DATA = {
     path: "/admin/member/adminMemberList",
     isAvailable: true,
     items: [
-      { name: "회원 조회", path: "/admin/member/adminMemberList" },
-      { name: "회원 등록", path: "/admin/member/adminMemberRegister" },
-    ],
-  }
-],
+        { name: "회원 조회", path: "/admin/member/adminMemberList" },
+        { name: "회원 등록", path: "/admin/member/adminMemberRegister" },
+      ],
+    },
+  ],
+  facility: [
+    {
+    title: "시설 관리",
+    path: "/admin/facility/facilityList",
+    isAvailable: true,
+    items: [
+        { name: "시설 목록 조회", path: "/admin/facility/facilityList" },
+        { name: "시설 등록", path: "/admin/facility/facilityAdd" },
+      ],
+    },
+  ],
 };

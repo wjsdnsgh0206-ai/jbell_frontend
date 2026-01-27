@@ -1,11 +1,11 @@
 // src/pages/user/customerservice/faq/FAQListPage.jsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, ChevronLeft, ChevronDown } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ChevronDown, AlertCircle } from 'lucide-react';
 
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 import SearchBarTemplate from '@/components/shared/SearchBarTemplate';
-import { faqData } from './data'; // 분리한 데이터 import
+import { faqService } from '@/services/api'; // API 서비스 import
 
 const FAQListPage = () => {
   const navigate = useNavigate();
@@ -18,6 +18,9 @@ const FAQListPage = () => {
   ];
 
   // --- 상태 관리 ---
+  const [faqs, setFaqs] = useState([]); // API 데이터 저장
+  const [loading, setLoading] = useState(true); // 로딩 상태
+
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortOrder, setSortOrder] = useState('mostAsked'); // 'latest' | 'oldest' | 'mostAsked'
@@ -27,27 +30,82 @@ const FAQListPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeSearch, setActiveSearch] = useState({ category: '전체', term: '' }); // 실제 적용된 검색어
 
+  // --- JSON 파싱 함수 ---
+  const parseContent = (contentJson) => {
+    if (!contentJson) return "";
+    try {
+      const parsed = JSON.parse(contentJson);
+      // 배열 형태라면 value 값들을 추출해서 이어붙임
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map(item => item.value || "") // value가 없으면 빈 문자열
+          .join(" "); // 문장들을 공백으로 연결
+      }
+      return contentJson; // 배열이 아니면 원본 반환
+    } catch (e) {
+      // JSON 파싱 실패 시 (일반 텍스트인 경우) 그대로 반환
+      return contentJson;
+    }
+  };
+
+  // --- 데이터 Fetching ---
+  useEffect(() => {
+    const fetchFaqList = async () => {
+      try {
+        setLoading(true);
+        // 사용자용 API 호출
+        const response = await faqService.getPublicFaqList();
+        
+        // API 응답 구조 확인
+        const rawList = response.data || response; 
+
+        if (Array.isArray(rawList)) {
+          const mappedData = rawList.map(item => ({
+            id: item.faqId,
+            question: item.faqTitle,
+            // JSON 파싱하여 순수 텍스트만 추출
+            answer: parseContent(item.faqContent), 
+            // 날짜 포맷팅 (YYYY-MM-DD)
+            date: item.faqCreatedAt ? item.faqCreatedAt.split('T')[0] : '',
+            views: item.faqViewCount || 0,
+            tag: item.faqCategory || '기타'
+          }));
+          setFaqs(mappedData);
+        } else {
+          setFaqs([]);
+        }
+      } catch (error) {
+        console.error("FAQ 목록 로딩 실패:", error);
+        setFaqs([]); 
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFaqList();
+  }, []);
+
   // --- 데이터 필터링 & 정렬 로직 (useMemo로 최적화) ---
   const processedData = useMemo(() => {
-    let result = [...faqData];
+    let result = [...faqs];
 
     // 1. 검색 필터링
     if (activeSearch.term) {
       const term = activeSearch.term.trim();
       result = result.filter(item => {
-        if (activeSearch.category === '제목') return item.question.includes(term);
-        if (activeSearch.category === '내용') return item.answer.includes(term);
-        return item.question.includes(term) || item.answer.includes(term);
+        const titleMatch = item.question && item.question.includes(term);
+        const contentMatch = item.answer && item.answer.includes(term);
+
+        if (activeSearch.category === '제목') return titleMatch;
+        if (activeSearch.category === '내용') return contentMatch;
+        return titleMatch || contentMatch;
       });
     }
 
     // 2. 정렬 로직 (인기순/최신순/오래된순)
     result.sort((a, b) => {
       if (sortOrder === 'mostAsked') {
-        // views가 없을 경우 0으로 처리하여 정렬 오류 방지
-        const viewsA = a.views || 0;
-        const viewsB = b.views || 0;
-        return viewsB - viewsA;
+        return b.views - a.views;
       }
 
       const dateA = new Date(a.date);
@@ -56,7 +114,7 @@ const FAQListPage = () => {
     });
 
     return result;
-  }, [activeSearch, sortOrder]);
+  }, [faqs, activeSearch, sortOrder]);
 
   // --- 페이지네이션 계산 ---
   const totalItems = processedData.length;
@@ -111,7 +169,6 @@ const FAQListPage = () => {
               <option value="제목">제목</option>
               <option value="내용">내용</option>
             </select>
-            {/* 화살표 아이콘 등은 필요 시 추가 */}
             <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
               <ChevronDown className="w-4 h-4 text-graygray-50" />
             </div>
@@ -171,7 +228,12 @@ const FAQListPage = () => {
 
         {/* --- FAQ 리스트 --- */}
         <div className="flex flex-col gap-3 md:gap-5 pt-4">
-          {currentItems.length > 0 ? (
+          {loading ? (
+             // 로딩 중 UI (간단한 텍스트 혹은 스켈레톤 적용 가능)
+             <div className="py-20 flex justify-center items-center text-graygray-50">
+               데이터를 불러오는 중입니다...
+             </div>
+            ) : currentItems.length > 0 ? (
             currentItems.map((item) => (
               <div
                 key={item.id}
@@ -189,7 +251,9 @@ const FAQListPage = () => {
                   {/* 답변 미리보기 (A) */}
                   <div className="flex items-start gap-3 pl-1">
                     <span className="text-body-m-bold text-graygray-50 leading-none mt-1 shrink-0">A</span>
-                    <p className="text-body-m text-graygray-70 line-clamp-2">{item.answer}</p>
+                    <p className="text-body-m text-graygray-70 line-clamp-2">
+                       {item.answer ? item.answer.replace(/<[^>]*>?/gm, '') : ''}
+                    </p>
                   </div>
                 </div>
 
@@ -236,7 +300,7 @@ const FAQListPage = () => {
                   key={number}
                   onClick={() => handlePageChange(number)}
                   className={`w-8 h-8 flex items-center justify-center rounded text-detail-m transition-all
-                    ${currentPage === number
+                    ${currentPage === number
                       ? 'bg-secondary-50 text-white font-bold shadow-sm'
                       : 'text-graygray-70 hover:bg-graygray-5'
                     }`}

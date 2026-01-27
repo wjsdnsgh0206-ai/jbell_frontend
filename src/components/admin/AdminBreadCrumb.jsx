@@ -13,6 +13,17 @@ const adminMap = {
   "disasterManagementList":"재난 관리",
   "disasterManagementDetail": "재난 상세",
   "disasterManagementAdd": "재난 등록",
+  "disasterEventManagementList": "재난 발생 관리",
+  "disasterEventManagementDetail": "재난 발생 관리 상세",
+  "disasterEventManagementAdd": "재난 발생 관리 등록",
+  "weatherNewsList": "기상특보 관리",
+  "weatherNewsDetail": "기상특보 관리 상세",
+  "weatherNewsAdd": "기상특보 관리 등록",
+  "disasterMessageList": "재난문자이력 관리",
+  "disasterMessageDetail": "재난문자이력 상세",
+  "disasterMessageAdd": "재난문자이력 등록",
+  "disasterStatisticsList": "재난통계",
+
   "contents": "콘텐츠 관리",
   "behavioralGuide": "행동요령 관리",
   "behavioralGuideList": "행동요령 목록",
@@ -29,6 +40,11 @@ const adminMap = {
   "FAQAdd": "FAQ 신규등록",
   "QnAList": "1:1 목록",
   "QnADetail": "1:1 상세정보",
+  "facility": "시설 관리",
+  "facilityList": "시설 목록",
+  "facilityAdd": "시설 등록",
+  "facilityDetail": "시설 상세정보",
+  "facilityUpdate": "시설 정보 변경",
 
   "behavioralGuideDetail": "행동요령 상세",
   "citySafetyMasterPlan": "도시안전기본계획 관리",
@@ -50,6 +66,8 @@ const adminMap = {
   "pressRelDetail": "보도자료 상세",
   "pressRelEdit": "보도자료 수정",
   "safetyEduList": "시민안전교육 목록",
+  "safetyEduAdd": "시민안전교육 등록",
+  "safetyEduDetail": "시민안전교육 상세",
   "safetyEduEdit": "시민안전교육 수정",
 };
 

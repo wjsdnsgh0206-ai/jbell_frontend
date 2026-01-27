@@ -43,7 +43,10 @@ const AdminSafetyEduList = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
-  useEffect(() => { setBreadcrumbTitle(""); }, [setBreadcrumbTitle]);
+  // [로직] 구분이 바뀌면 유형 초기화
+    useEffect(() => {
+      setBreadcrumbTitle(""); // 목록 페이지는 URL 매핑값을 따르도록 초기화
+    }, [setBreadcrumbTitle]);
 
   const triggerToast = (msg) => {
     setToastMessage(msg);
@@ -52,20 +55,17 @@ const AdminSafetyEduList = () => {
   };
 
   const goDetail = useCallback((id) => {
-    navigate(`/admin/safetyEducation/detail/${id}`);
-  }, [navigate]);
+    navigate(`/admin/contents/safetyEduDetail/${id}`); 
+}, [navigate]);
 
-  // [추가] 선택된 항목들의 시설명 목록 가져오기 (보도자료 리스트 방식)
   const getAllSelectedItemsList = () => {
     const selectedItems = eduList.filter(item => selectedIds.includes(item.id));
     return selectedItems.map(item => item.title).join(", ");
   };
 
-  // 1. 개별 토글 핸들러
   const handleTogglePublic = (id, currentStatus) => {
     const nextStatus = !currentStatus;
     const targetItem = eduList.find(item => item.id === id);
-
     setModalConfig({
       title: '노출 상태 변경',
       message: (
@@ -88,17 +88,14 @@ const AdminSafetyEduList = () => {
     setIsModalOpen(true);
   };
 
-  // 2. 일괄 상태 변경 핸들러 (항목 나열 추가)
   const handleBatchStatus = (status) => {
     if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
     const allNames = getAllSelectedItemsList();
-    
     setModalConfig({
       title: `일괄 ${status ? '노출' : '비노출'} 처리`,
       message: (
         <div className="flex flex-col gap-2 text-left">
-          <p>선택하신 <span className="text-admin-primary font-bold">[{allNames}]</span> 항목을</p>
-          <p>일괄 <span className="font-bold underline">{status ? '노출' : '비노출'}</span> 처리하시겠습니까?</p>
+          <p>선택하신 <span className="text-admin-primary font-bold">[{allNames}]</span> 항목을 일괄 <span className="font-bold underline">{status ? '노출' : '비노출'}</span> 처리하시겠습니까?</p>
         </div>
       ),
       type: status ? 'confirm' : 'delete',
@@ -112,11 +109,9 @@ const AdminSafetyEduList = () => {
     setIsModalOpen(true);
   };
 
-  // 3. 선택 삭제 핸들러 (항목 나열 추가)
   const handleDeleteSelected = () => {
     if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
     const allNames = getAllSelectedItemsList();
-
     setModalConfig({
       title: '선택 항목 삭제',
       message: (
@@ -136,24 +131,49 @@ const AdminSafetyEduList = () => {
     setIsModalOpen(true);
   };
 
-  // ... (filteredData, currentData, columns 정의는 이전과 동일)
+  /// ★ [정렬 로직 변경] createdAt 대신 orderNo 기준으로 정렬 (사용자 페이지와 동일하게)
   const filteredData = useMemo(() => {
     const searchTerm = appliedKeyword.replace(/\s+/g, "").toLowerCase();
     return eduList.filter(item => {
       const isPublicMatch = selectedPublicStatus === "all" || 
         (selectedPublicStatus === "visible" && item.isPublic === true) ||
         (selectedPublicStatus === "hidden" && item.isPublic === false);
+      
       let isSearchMatch = true;
       if (searchTerm) {
         const title = (item.title || "").replace(/\s+/g, "").toLowerCase();
-        const summary = (item.summary || "").replace(/\s+/g, "").toLowerCase();
+        const source = (item.source || "").replace(/\s+/g, "").toLowerCase();
+        const author = (item.author || "").toLowerCase();
         const id = (item.mgmtId || "").toLowerCase();
-        if (searchType === "all") isSearchMatch = title.includes(searchTerm) || summary.includes(searchTerm) || id.includes(searchTerm);
-        else if (searchType === "title") isSearchMatch = title.includes(searchTerm);
-        else if (searchType === "summary") isSearchMatch = summary.includes(searchTerm);
+        
+        const contentMatch = item.sections?.some(sec => 
+          sec.subTitle.replace(/\s+/g, "").toLowerCase().includes(searchTerm) ||
+          sec.items.some(i => i.text.replace(/\s+/g, "").toLowerCase().includes(searchTerm))
+        );
+
+        if (searchType === "all") {
+          isSearchMatch = title.includes(searchTerm) || source.includes(searchTerm) || id.includes(searchTerm) || author.includes(searchTerm) || contentMatch;
+        } else if (searchType === "title") {
+          isSearchMatch = title.includes(searchTerm);
+        } else if (searchType === "source") {
+          isSearchMatch = source.includes(searchTerm);
+        } else if (searchType === "content") {
+          isSearchMatch = contentMatch;
+        }
       }
-      return isPublicMatch && isSearchMatch;
-    }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+     return isPublicMatch && isSearchMatch;
+    }).sort((a, b) => {
+      // 순서가 지정되지 않은 항목은 맨 뒤로 보내고 싶다면 큰 숫자를 기본값으로 주는 것도 방법입니다.
+const orderA = a.orderNo === '' || a.orderNo === undefined ? 9999 : Number(a.orderNo);
+const orderB = b.orderNo === '' || b.orderNo === undefined ? 9999 : Number(b.orderNo);
+
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
+
+      // 2순위: orderNo가 같다면 등록일시(createdAt) 내림차순 (최신순)
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
   }, [eduList, appliedKeyword, searchType, selectedPublicStatus]);
 
   const currentData = useMemo(() => {
@@ -162,14 +182,82 @@ const AdminSafetyEduList = () => {
   }, [currentPage, filteredData]);
 
   const columns = useMemo(() => [
-    { key: 'no', header: 'NO', width: '60px', className: 'text-center', render: (_, row) => filteredData.length - ((currentPage - 1) * itemsPerPage) - currentData.findIndex(item => item.id === row.id) },
-    { key: 'mgmtId', header: 'ID', width: '120px', className: 'text-center' },
-    { key: 'title', header: '시설명(교육명)', width: '200px', className: 'text-left font-bold px-4' },
-    { key: 'summary', header: '내용 요약', className: 'text-left text-gray-500 text-[13px] px-4 min-w-[300px]', render: (val) => <p className="line-clamp-2 leading-relaxed">{val}</p> },
-    { key: 'author', header: '등록인', width: '100px', className: 'text-center' },
-    { key: 'createdAt', header: '등록일시', width: '120px', className: 'text-center text-[13px]', render: (val) => <div className="leading-tight">{val.split(' ').map((v, i) => <span key={i} className="block">{v}</span>)}</div> },
-    { key: 'isPublic', header: '노출여부', width: '100px', className: 'text-center', render: (isPublic, row) => <div className="flex justify-center"><ToggleSwitch isOn={isPublic} onToggle={() => handleTogglePublic(row.id, isPublic)} /></div> },
-    { key: 'actions', header: '상세/수정', width: '80px', className: 'text-center', render: (_, row) => <button onClick={() => goDetail(row.id)} className="border border-gray-300 rounded px-3 py-1 text-sm hover:bg-blue-100 whitespace-nowrap">보기</button> }
+    // ★ [추가] 노출 순서 컬럼
+    { 
+      key: 'orderNo', 
+      header: '순서', 
+      width: '80px', 
+      className: 'text-center', 
+      render: (val) => <span>{val || '-'}</span>
+    },
+    { key: 'mgmtId', header: 'ID', width: '130px', className: 'text-center' },
+    { 
+      key: 'regType', 
+      header: '등록방식', 
+      width: '110px', 
+      className: 'text-center',
+      render: (val) => (
+        <div className="flex justify-center">
+          <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[12px] font-bold border ${
+            val === '직접등록' 
+              ? 'bg-purple-50/50 text-purple-500 border-purple-100' 
+              : 'bg-orange-50/50 text-orange-500 border-orange-100'
+          }`}>
+            {val || '직접등록'}
+          </span>
+        </div>
+      )
+    },
+    { key: 'source', header: '출처', width: '180px', className: 'text-center' },
+    { 
+      key: 'title', 
+      header: '시설명(교육명)', 
+      className: 'text-center', 
+      render: (val) => <span className="font-medium">{val}</span>
+    },
+    { key: 'author', header: '등록인', width: '90px', className: 'text-center' },
+    { 
+      key: 'createdAt', 
+      header: '등록일시', 
+      width: '140px', 
+      className: 'text-center', 
+      render: (val) => {
+        if (!val) return "-";
+        const [date, time] = val.split(' ');
+        return (
+          <div className="flex flex-col items-center justify-center leading-tight text-[13px] text-gray-500">
+            <span className="block text-gray-500">{date}</span>
+            <span className="block">{time}</span>
+          </div>
+        );
+      }
+    },
+{ 
+  key: 'isPublic', 
+  header: '노출여부', 
+  width: '90px', 
+  className: 'text-center', 
+  render: (isPublic, row) => (
+    /* 여기서 클릭 이벤트 전파를 막아줍니다 */
+    <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
+      <ToggleSwitch isOn={isPublic} onToggle={() => handleTogglePublic(row.id, isPublic)} />
+    </div>
+  ) 
+},
+    { 
+      key: 'actions', 
+      header: '관리', 
+      width: '80px', 
+      className: 'text-center', 
+      render: (_, row) => (
+        <button 
+          onClick={() => goDetail(row.id)} 
+          className="border border-gray-300 rounded px-3 py-1 text-sm hover:bg-blue-100 whitespace-nowrap"
+        >
+          보기
+        </button>
+      ) 
+    }
   ], [filteredData.length, currentPage, currentData, goDetail]);
 
   return (
@@ -182,23 +270,36 @@ const AdminSafetyEduList = () => {
           </div>
         </div>
       )}
+
       <main className="p-10">
-        <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight">시민안전교육 시설 관리</h2>
+        <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight">시민안전교육 목록</h2>
+        
         <section className="bg-admin-surface border border-admin-border rounded-xl p-8 mb-8">
-          <AdminSearchBox searchParams={searchParams} setSearchParams={setSearchParams} onSearch={() => { setAppliedKeyword(searchParams.keyword); setCurrentPage(1); }} onReset={() => { setSearchParams({ keyword: '' }); setAppliedKeyword(''); setSearchType("all"); setSelectedPublicStatus("all"); setCurrentPage(1); setSelectedIds([]); }}>
+          <AdminSearchBox 
+            searchParams={searchParams} 
+            setSearchParams={setSearchParams} 
+            onSearch={() => { setAppliedKeyword(searchParams.keyword); setCurrentPage(1); }} 
+            onReset={() => { 
+              setSearchParams({ keyword: '' }); setAppliedKeyword(''); 
+              setSearchType("all"); setSelectedPublicStatus("all"); 
+              setCurrentPage(1); setSelectedIds([]); 
+            }}
+          >
             <div className="relative w-full md:w-48">
-              <select value={selectedPublicStatus} onChange={(e) => { setSelectedPublicStatus(e.target.value); setCurrentPage(1); }} className="w-full appearance-none h-14 pl-5 pr-10 border border-admin-border rounded-md bg-white outline-none cursor-pointer">
+              <select value={selectedPublicStatus} onChange={(e) => { setSelectedPublicStatus(e.target.value); setCurrentPage(1); }} className="w-full appearance-none h-14 pl-5 pr-10 border border-admin-border rounded-md bg-white outline-none cursor-pointer text-body-m focus:border-admin-primary transition-all">
                 <option value="all">노출여부 전체</option>
                 <option value="visible">노출</option>
                 <option value="hidden">비노출</option>
               </select>
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
             </div>
+
             <div className="relative w-full md:w-48">
-              <select value={searchType} onChange={(e) => setSearchType(e.target.value)} className="w-full appearance-none h-14 pl-5 pr-10 border border-admin-border rounded-md bg-white outline-none cursor-pointer">
+              <select value={searchType} onChange={(e) => setSearchType(e.target.value)} className="w-full appearance-none h-14 pl-5 pr-10 border border-admin-border rounded-md bg-white outline-none cursor-pointer text-body-m focus:border-admin-primary transition-all">
                 <option value="all">전체검색</option>
-                <option value="title">시설명</option>
-                <option value="content">내용</option>
+                <option value="title">시설명(교육명)</option>
+                <option value="source">출처</option>
+                <option value="content">내용(본문)</option>
               </select>
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
             </div>
@@ -225,10 +326,10 @@ const AdminSafetyEduList = () => {
             </div>
             <div className="flex gap-2">
               <button onClick={handleDeleteSelected} className="px-8 h-14 bg-[#FF003E] text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm">삭제</button>
-              <button onClick={() => navigate('/admin/safetyEducation/add')} className="px-8 h-14 bg-admin-primary text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm">등록</button>
+              <button onClick={() => navigate('/admin/contents/safetyEduAdd')} className="px-8 h-14 bg-admin-primary text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm">등록</button>
             </div>
           </div>
-          <AdminDataTable columns={columns} data={currentData} selectedIds={selectedIds} onSelectionChange={setSelectedIds} />
+          <AdminDataTable columns={columns} data={currentData} selectedIds={selectedIds} onSelectionChange={setSelectedIds} rowKey="id" />
           <AdminPagination totalItems={filteredData.length} itemCountPerPage={itemsPerPage} currentPage={currentPage} onPageChange={setCurrentPage} />
         </section>
       </main>

@@ -2,12 +2,14 @@ import { lazy } from "react";
 import AdminMemberEdit from "../../pages/admin/member/AdminMemberEdit";
 import AdminMemberDetail from "../../pages/admin/member/AdminMemberDetail";
 import AdminBoardManagement from "../../pages/admin/board/AdminBoardManagement";
-export const AdminBoardList = lazy(() => import("@/pages/admin/board/AdminBoardList"));
+
+ const AdminBoardList = lazy(() => import("@/pages/admin/board/AdminBoardList"));
 // export const AdminBoardManagement = lazy(() => import("@/pages/admin/board/AdminBoardManagement"));
-export const AdminBoardDetail = lazy(() => import("@/pages/admin/board/AdminBoardDetail"));
-export const AdminLogList = lazy(() => import("@/pages/admin/board/AdminLogList"));
-export const AdminMemberList = lazy(() => import("@/pages/admin/member/AdminMemberList"));
-export const AdminMemberRegister = lazy(() => import("@/pages/admin/member/AdminMemberRegister"));
+ const AdminBoardDetail = lazy(() => import("@/pages/admin/board/AdminBoardDetail"));
+ const AdminLogList = lazy(() => import("@/pages/admin/log/AdminLogList"));
+ const AdminSysOpAnalysis = lazy(() => import("@/pages/admin/log/AdminSysOpAnalysis"));
+ const AdminMemberList = lazy(() => import("@/pages/admin/member/AdminMemberList"));
+ const AdminMemberRegister = lazy(() => import("@/pages/admin/member/AdminMemberRegister"));
 
 // ------ 라우트 페이지 경로 입력 파일 ------ //
 // Routes.jsx에서 이 파일을 불러와서 Route를 생성함.
@@ -55,6 +57,11 @@ const mjAdminRoutes = [
             path: "/admin/system/adminLogList", 
             element: <AdminLogList />,
             nowPage: "로그 관리",
+      },
+      {
+            path: "/admin/system/adminSysOpAnalysis", 
+            element: <AdminSysOpAnalysis />,
+            nowPage: "시스템 운영/보안 분석",
       },
       {
             path: "/admin/member/adminMemberList", 

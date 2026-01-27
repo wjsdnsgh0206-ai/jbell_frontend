@@ -1,7 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
-// 보드 데이터를 가져와 (경로는 네 프로젝트 구조에 맞게 수정해줘!)
-// MainBoard.jsx 상단에서 이렇게 바꿔봐!
 import { noticeData, pressData } from "../../../pages/user/openboards/BoardData.js";
 
 const MainBoard = () => {
@@ -13,18 +11,15 @@ const MainBoard = () => {
     보도자료: "/userPressRelList",
   };
 
-  // activeTab에 따라 보여줄 데이터를 선택하고 최신순(날짜 내림차순) 정렬 후 5개만 추출
+  // 탭 선택(activeTab)에 따라 공지사항 또는 보도자료 데이터를 최신순으로 5개만 추출.
   const currentDisplayData = useMemo(() => {
     let data = [];
     if (activeTab === "공지사항") data = [...noticeData];
     else if (activeTab === "보도자료") data = [...pressData];
-    // else if (activeTab === "시민안전교육") data = []; // 시민안전교육 데이터가 생기면 여기에 추가!
-
-    // 날짜(date) 기준으로 내림차순 정렬 후 상위 5개 자르기
     return data
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, 5);
-  }, [activeTab]);
+  }, [activeTab]); // 공지사항 탭 클릭시 해당 로직 실행.
 
   return (
     <div className="bg-white rounded-xl border border-graygray-10 p-6 sm:p-8 h-full">

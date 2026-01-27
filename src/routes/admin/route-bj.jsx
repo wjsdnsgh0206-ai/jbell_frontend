@@ -1,11 +1,17 @@
 import { lazy } from 'react';
 
-export const AdminFAQList = lazy(() => import("@/pages/admin/customerservice/faq/AdminFAQList"));
-export const AdminFAQAdd = lazy(() => import("@/pages/admin/customerservice/faq/AdminFAQAdd"));
-export const AdminFAQDetail = lazy(() => import("@/pages/admin/customerservice/faq/AdminFAQDetail"));
+// ⭐ ========================
+// 코드 수정 20260122 오전 11:40
+// 주요 수정 사항 : lazy로 파일 import하는 코드에 export 제거. 
+// 제거 이유 : 컴포넌트와 데이터가 섞여서 함께 export되어 경고 메시지가 뜸. 이를 해결하기 위해 데이터만 export하는 방식으로 수정. 
+// ========================
 
-export const AdminQnAList = lazy(() => import("@/pages/admin/customerservice/qna/AdminQnAList"));
-export const AdminQnADetail = lazy(() => import("@/pages/admin/customerservice/qna/AdminQnADetail"));
+const AdminFAQList = lazy(() => import("@/pages/admin/customerservice/faq/AdminFAQList"));
+const AdminFAQAdd = lazy(() => import("@/pages/admin/customerservice/faq/AdminFAQAdd"));
+const AdminFAQDetail = lazy(() => import("@/pages/admin/customerservice/faq/AdminFAQDetail"));
+
+const AdminQnAList = lazy(() => import("@/pages/admin/customerservice/qna/AdminQnAList"));
+const AdminQnADetail = lazy(() => import("@/pages/admin/customerservice/qna/AdminQnADetail"));
 
 export const bjAdminRoutes = [
 

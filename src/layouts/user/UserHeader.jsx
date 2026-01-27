@@ -62,7 +62,7 @@ const UserHeader = () => {
         
         {/* 관리자 페이지 이동(임시) */}
         <div className="text-body-l-bold text-graygray-70 hover:text-secondary-50 transition-colors px-4 py-1 border border-graygray-50 rounded-lg">
-          <button onClick={() => navigate("/admin/system/commonCodeList")}>관리자 페이지</button>
+          <button onClick={() => navigate("/admin/realtime/realtimeDashboard")}>관리자 페이지</button>
         </div>
 
         {/* [PC] 인증 버튼 - xl(1280px) 이상에서만 표시 */}
