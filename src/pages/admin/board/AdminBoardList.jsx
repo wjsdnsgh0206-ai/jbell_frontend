@@ -15,7 +15,7 @@ const AdminBoardList = () => {
   const itemsPerPage = 10;
 
   // [State] 데이터 및 UI 상태
-  const [posts, setPosts] = useState(noticeData);
+  const [posts, setPosts] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   
@@ -98,9 +98,16 @@ const AdminBoardList = () => {
 
   // [Event] 검색 관련 핸들러
   const handleSearch = () => {
-    setActiveFilter(searchParams);
-    setCurrentPage(1);
+    axios.get('/api/notice', {
+      params: {
+        keyword: searchParams.keyword
+      }
+    }).then(res => {
+      setPosts(res.data);
+      setCurrentPage(1);
+    });
   };
+
 
   // 공지사항 정렬
   const handleSort = (order) => {
@@ -141,11 +148,23 @@ const AdminBoardList = () => {
       title: '선택 항목 삭제',
       message: `선택하신 ${selectedIds.length}건의 데이터를 정말 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.`,
       type: 'delete',
-      onConfirm: () => {
+      onConfirm: async () => { // async 추가
+      try {
+        // 1. 서버(DB)에 삭제 요청 전송 (반드시 비동기 처리)
+        // 여러 개를 삭제할 경우 백엔드 API 설계에 따라 반복문을 돌리거나 배열을 한 번에 전송
+        await Promise.all(
+          selectedIds.map(id => axios.delete(`/api/notice/${id}`))
+        );
+        // 2. 서버 삭제 성공 후 프론트 상태 업데이트
         setPosts(prev => prev.filter(post => !selectedIds.includes(post.id)));
         setSelectedIds([]);
         setIsModalOpen(false);
+        alert("삭제되었습니다.");
+      } catch (err) {
+        console.error("삭제 중 에러 발생:", err);
+        alert("삭제에 실패했습니다. 서버 상태를 확인하세요.");
       }
+    }
     });
     setIsModalOpen(true);
   };
@@ -248,8 +267,8 @@ const AdminBoardList = () => {
   useEffect(() => {
     axios.get('/api/notice')
       .then(res => {
-        console.log(res.data.data);
-      });
+        setPosts(res.data);
+        });
   }, []);
 /** <================================================== UseEffect ==================================================> **/
 
