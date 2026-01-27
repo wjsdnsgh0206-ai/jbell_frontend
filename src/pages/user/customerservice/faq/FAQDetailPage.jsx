@@ -5,18 +5,15 @@ import { AlertCircle } from 'lucide-react'; // 아이콘 추가
 
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 import { Button } from '@/components/shared/Button'; // 디자인 시스템 버튼
-import { getFAQDetail } from './data'; // 분리된 데이터 함수 임포트
+import { faqService } from '@/services/api';
 
 const FAQDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [item, setItem] = useState(null);
 
-  // 데이터 로드
-  useEffect(() => {
-    const data = getFAQDetail(id);
-    setItem(data);
-  }, [id]);
+  const [item, setItem] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   // Breadcrumb 설정
   const breadcrumbItems = [
@@ -26,8 +23,69 @@ const FAQDetailPage = () => {
     { label: "상세보기", path: "", hasIcon: false },
   ];
 
-  // 1. 데이터가 없을 경우 (예외 처리)
-  if (!item) {
+  // --- JSON 파싱 헬퍼 함수 ---
+  const parseContent = (contentJson) => {
+    if (!contentJson) return "";
+    try {
+      const parsed = JSON.parse(contentJson);
+      if (Array.isArray(parsed)) {
+        // 배열 내의 객체들 중 value만 뽑아서 연결
+        return parsed.map(p => p.value || "").join("\n");
+      }
+      return contentJson;
+    } catch (e) {
+      // JSON 형식이 아니면 문자열 그대로 반환
+      return contentJson;
+    }
+  };
+
+  // --- 데이터 Fetching ---
+  useEffect(() => {
+    const fetchDetail = async () => {
+      try {
+        setLoading(true);
+        setError(false);
+        
+        // API 호출
+        const response = await faqService.getPublicFaqDetail(id);
+        const data = response.data || response; // ApiResponse 구조 대응
+
+        if (data) {
+            // 백엔드 DTO(FaqDetail) -> 프론트엔드 변수 매핑
+            setItem({
+                id: data.faqId,
+                category: data.faqCategory || '기타',
+                question: data.faqTitle,
+                answer: parseContent(data.faqContent), // 파싱 적용
+                date: data.faqCreatedAt ? data.faqCreatedAt.split('T')[0] : '', // YYYY-MM-DD
+                modifiedDate: data.faqUpdatedAt ? data.faqUpdatedAt.split('T')[0] : (data.faqCreatedAt ? data.faqCreatedAt.split('T')[0] : ''),
+                views: data.faqViewCount
+            });
+        } else {
+            setError(true);
+        }
+      } catch (err) {
+        console.error("FAQ 상세 조회 실패:", err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDetail();
+  }, [id]);
+
+  // 1. 로딩 중
+  if (loading) {
+    return (
+        <div className="w-full min-h-[50vh] flex items-center justify-center text-graygray-50">
+            데이터를 불러오는 중입니다...
+        </div>
+    );
+  }
+
+  // 2. 데이터 없음 또는 에러
+  if (error || !item) {
     return (
       <div className="w-full min-h-[50vh] flex flex-col items-center justify-center px-4">
         <AlertCircle className="w-16 h-16 text-graygray-30 mb-4" />
@@ -51,12 +109,14 @@ const FAQDetailPage = () => {
           {/* 태그 & 날짜 정보 (모바일: 세로, PC: 가로 정렬) */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
             <span className="self-start sm:self-auto px-3 py-1 bg-graygray-5 text-graygray-70 text-detail-m rounded-full border border-graygray-10 whitespace-nowrap">
-              {item.tag}
+              {item.category}
             </span>
             <div className="flex items-center gap-2 text-detail-m text-graygray-50">
               <span>등록일: {item.date}</span>
               <span className="text-graygray-30">|</span>
               <span>최종 수정일: {item.modifiedDate}</span>
+              <span className="text-graygray-30">|</span>
+              <span>조회수: {item.views}</span>
             </div>
           </div>
 

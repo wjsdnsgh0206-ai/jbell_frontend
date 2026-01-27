@@ -216,20 +216,26 @@ const AdminFAQList = () => {
       header: '사용여부', 
       width: '100px',
       className: 'text-center',
-      render: (status, row) => (
-        // AdminCommonCodeList 스타일의 토글 스위치 적용
-        <div 
-          className="flex justify-center cursor-pointer"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleToggleStatus(row.faqId);
-          }}
-        >
-          <div className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-200 ${status ? 'bg-blue-600' : 'bg-gray-300'}`}>
-             <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ${status ? 'translate-x-6' : 'translate-x-0'}`} />
+      render: (status, row) => {
+        // 문자열 'Y'와 정확히 비교하여 Boolean 값 생성
+        const isActive = status === 'Y';
+
+        return (
+          <div 
+            className="flex justify-center cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              // 현재 상태(status)를 인자로 함께 전달
+              handleToggleStatus(row.faqId, status);
+            }}
+          >
+            {/* status 대신 isActive 변수 사용 */}
+            <div className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-200 ${isActive ? 'bg-blue-600' : 'bg-gray-300'}`}>
+               <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ${isActive ? 'translate-x-6' : 'translate-x-0'}`} />
+            </div>
           </div>
-        </div>
-      )
+        );
+      }
     },
     { 
       key: 'faqViewCount', 
@@ -277,13 +283,28 @@ const AdminFAQList = () => {
   };
 
   // 개별 상태 토글
-  const handleToggleStatus = (targetFaqId) => {
-  setFaqs(prev => prev.map(item => 
-    item.faqId === targetFaqId 
-      ? { ...item, faqVisibleYn: item.faqVisibleYn === 'Y' ? 'N' : 'Y' } 
-      : item
-  ));
-};
+ const handleToggleStatus = async (targetFaqId, currentStatus) => {
+    // 현재 "Y"면 "N"으로, "N"이면 "Y"로 변경할 값 설정
+    const newStatus = currentStatus === 'Y' ? 'N' : 'Y';
+    
+    try {
+      // 1. 백엔드 API 호출 (일괄 변경 API를 재활용하여 단건 처리)
+      await faqService.updateFaqStatus({
+        faqIds: [targetFaqId], // 리스트 형태여야 하므로 배열로 감쌈
+        visibleYn: newStatus
+      });
+
+      // 2. 성공 시 화면(Local State) 업데이트
+      setFaqs(prev => prev.map(item => 
+        item.faqId === targetFaqId 
+          ? { ...item, faqVisibleYn: newStatus } 
+          : item
+      ));
+    } catch (error) {
+      console.error("상태 변경 실패:", error);
+      alert("상태 변경 중 오류가 발생했습니다.");
+    }
+  };
 
   // ==================================================================================
   // 5. UI 렌더링
