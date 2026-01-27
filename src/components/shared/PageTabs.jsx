@@ -1,25 +1,30 @@
+// src/components/shared/PageTabs.jsx
+
 const PageTabs = ({ tabs, activeTab, onTabChange }) => {
   return (
-    <div className="flex flex-col lg:flex-row w-full" role="tablist">
+    <div 
+      className="grid grid-cols-3 w-full border-t border-l border-secondary-10 rounded-lg overflow-hidden shadow-sm" 
+      role="tablist"
+    >
       {tabs.map((tab, index) => {
         const isActive = activeTab === index;
         return (
           <button
-            key={index}
+            // [중요] map의 최상위 요소인 button에 반드시 key가 있어야 합니다.
+            key={`tab-${index}`} 
             role="tab"
             aria-selected={isActive}
             onClick={() => onTabChange(index)}
             className={`
-              flex-1 h-14 flex items-center justify-center px-4 transition-all
+              h-16 flex items-center justify-center px-2 transition-all
+              border-r border-b border-secondary-10
               ${isActive 
-                ? "bg-secondary-50 text-graygray-0" 
-                : "bg-white border border-secondary-5 text-graygray-70 hover:bg-graygray-5"
+                ? "bg-secondary-50 text-white font-bold" 
+                : "bg-white text-graygray-70 hover:bg-secondary-5 font-normal"
               }
-              lg:first:rounded-l-lg lg:last:rounded-r-lg
-              ${!isActive && "lg:border-r-0 lg:last:border-r"}
             `}
           >
-            <span className={`text-title-m ${isActive ? "" : "font-normal"}`}>
+            <span className="text-body-s lg:text-body-m leading-tight text-center break-keep">
               {tab.label}
             </span>
           </button>
@@ -28,4 +33,5 @@ const PageTabs = ({ tabs, activeTab, onTabChange }) => {
     </div>
   );
 };
+
 export default PageTabs;

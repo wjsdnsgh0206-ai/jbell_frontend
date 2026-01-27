@@ -1,7 +1,7 @@
 // src/components/shared/GuidePageTemplate.jsx
 import { useState } from 'react';
-import PageBreadcrumb from './PageBreadcrumb';
-import PageTabs from './PageTabs';
+import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
+import PageTabs from '@/components/shared/PageTabs';
 
 const GuidePageTemplate = ({ 
   breadcrumbItems, 
@@ -35,7 +35,7 @@ const GuidePageTemplate = ({
         {/* 3. 공통 안내 박스 */}
         <aside className="w-full p-6 bg-secondary-5 rounded-lg">
           <p className="text-body-m text-graygray-90 leading-relaxed">
-            * 탭을 선택하여 상황별(전, 중, 후) 행동요령을 확인하세요.
+            * 탭을 선택하여 상황별 행동요령을 확인하세요.
           </p>
         </aside>
       </header>

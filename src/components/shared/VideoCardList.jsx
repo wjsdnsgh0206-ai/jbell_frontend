@@ -1,21 +1,27 @@
-import VideoCard from './VideoCard'; // 분리한 컴포넌트 import
+// src/components/shared/VideoCardList.jsx
 
-const VideoCardList = ({ videos = [] }) => {
-  // 데이터가 없으면 렌더링 안 함
-  if (!videos || videos.length === 0) return null;
-
+const VideoCard = ({ title, description, image }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-      {videos.map((video, index) => (
-        <VideoCard
-          key={index}
-          title={video.title}
-          description={video.description}
-          image={video.image}
+    <article className="flex flex-col gap-6 p-6 rounded-xl border border-graygray-40 bg-white h-full hover:shadow-md transition-shadow">
+      <div className="flex flex-col gap-4">
+        <h3 className="text-title-l text-graygray-90 truncate" title={title}>{title}</h3>
+        {description && <p className="text-body-m text-graygray-70 line-clamp-2 min-h-[50px]">{description}</p>}
+      </div>
+      
+      <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-graygray-10 mt-auto border border-graygray-20">
+        <img
+          className="w-full h-full object-cover"
+          src={image}
+          alt={title}
+          referrerPolicy="no-referrer"
+          onError={(e) => {
+            e.target.onerror = null;
+            // 로컬에 이미지가 없다면 안정적인 외부 더미 이미지 사용
+            e.target.src = "https://dummyimage.com/600x400/e0e0e0/757575.png&text=No+Image";
+          }}
         />
-      ))}
-    </div>
+      </div>
+    </article>
   );
 };
-
-export default VideoCardList;
+// ... (VideoCardList 부분은 동일)
