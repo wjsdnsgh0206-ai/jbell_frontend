@@ -207,7 +207,7 @@ const QnAListPage = () => {
                         {item.status}
                       </span>
                       <span className="text-[12px] text-graygray-50 bg-white px-2 py-0.5 rounded border border-graygray-10">
-                        {item.categoryName} {/* DTO의 categoryName 사용 */}
+                        {item.categoryName}
                       </span>
                     </div>
 
