@@ -122,9 +122,8 @@ const AdminFAQList = () => {
 
       // 2. 상태 필터 (all, Y, N)
       const isStatusMatch = 
-        selectedStatus === "all" ? true :
-        selectedStatus === "Y" ? item.faqVisibleYn === true :
-        item.status === false;
+      selectedStatus === "all" ? true :
+      item.faqVisibleYn === selectedStatus; 
 
       if (!searchTerm) return isCategoryMatch && isStatusMatch;
 
@@ -181,13 +180,8 @@ const AdminFAQList = () => {
     { 
       key: 'faqCategory', 
       header: '분류', 
-      width: '100px', 
-      className: 'text-center',
-      render: (cat) => (
-        <span className="inline-block px-2 py-1 text-xs font-medium text-slate-600 bg-slate-100 rounded border border-slate-200">
-          {cat}
-        </span>
-      )
+      width: '110px', 
+      className: 'text-center text-gray-600'
     },
     { 
       key: 'faqTitle', 
@@ -205,10 +199,11 @@ const AdminFAQList = () => {
       header: '수정일', 
       width: '120px', 
       className: 'text-center text-gray-500',
-      // 날짜 포맷팅: YYYY-MM-DD (공백 기준 split 혹은 slice 사용)
+      // 날짜 포맷팅: YYYY-MM-DD (공백 또는 T 기준)
       render: (date) => {
         if (!date) return '-';
-        return date.split(' ')[0]; // '2025-01-02 15:30:00' -> '2025-01-02'
+        // '2026-01-26T14:32:12' -> '2026-01-26' (앞 10자리 추출)
+        return date.substring(0, 10);
       }
     },
     { 

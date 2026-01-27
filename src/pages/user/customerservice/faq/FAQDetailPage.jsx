@@ -1,10 +1,10 @@
 // src/pages/user/customerservice/faq/FAQListPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { AlertCircle } from 'lucide-react'; // 아이콘 추가
+import { AlertCircle } from 'lucide-react';
 
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
-import { Button } from '@/components/shared/Button'; // 디자인 시스템 버튼
+import { Button } from '@/components/shared/Button';
 import { faqService } from '@/services/api';
 
 const FAQDetailPage = () => {
@@ -23,19 +23,89 @@ const FAQDetailPage = () => {
     { label: "상세보기", path: "", hasIcon: false },
   ];
 
-  // --- JSON 파싱 헬퍼 함수 ---
-  const parseContent = (contentJson) => {
-    if (!contentJson) return "";
-    try {
-      const parsed = JSON.parse(contentJson);
-      if (Array.isArray(parsed)) {
-        // 배열 내의 객체들 중 value만 뽑아서 연결
-        return parsed.map(p => p.value || "").join("\n");
+  // 1. 사용할 렌더링 함수 정의
+const renderFaqContent = (contentJson) => {
+  if (!contentJson) return null;
+
+  try {
+    const parsedData = typeof contentJson === 'string' ? JSON.parse(contentJson) : contentJson;
+
+    // 배열 형태가 아니면 그냥 텍스트로 출력
+    if (!Array.isArray(parsedData)) {
+        return <p className="whitespace-pre-wrap">{contentJson}</p>;
+    }
+
+    // 배열을 순회하며 type에 따라 다르게 렌더링
+    return parsedData.map((block, index) => {
+      // 1) 텍스트 타입일 경우
+      if (block.type === 'text') {
+        return (
+          <p key={index} className="mb-4 whitespace-pre-wrap leading-relaxed text-gray-800">
+            {block.value}
+          </p>
+        );
       }
-      return contentJson;
-    } catch (e) {
-      // JSON 형식이 아니면 문자열 그대로 반환
-      return contentJson;
+      
+      // 2) 테이블 타입일 경우
+      if (block.type === 'table') {
+        return (
+          <div key={index} className="overflow-x-auto mb-4 border border-gray-200 rounded-lg">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  {block.headers.map((header, hIndex) => (
+                    <th key={hIndex} className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {block.rows.map((row, rIndex) => (
+                  <tr key={rIndex}>
+                    {row.map((cell, cIndex) => (
+                      <td key={cIndex} className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                        {cell}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      }
+
+      // 3) 리스트 타입
+      if (block.type === 'list') {
+          const ListTag = block.style === 'ordered' ? 'ol' : 'ul';
+          const listStyle = block.style === 'ordered' ? 'list-decimal' : 'list-disc';
+          
+          return (
+            <ListTag key={index} className={`mb-4 ml-5 space-y-1 ${listStyle} text-gray-800`}>
+              {block.items.map((listItem, i) => (
+                <li key={i} className="pl-1">{listItem}</li>
+              ))}
+            </ListTag>
+          );
+      }
+
+      // 4) 노트(참고) 타입
+      if (block.type === 'note') {
+          return (
+            <div key={index} className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200 text-sm text-gray-600">
+              {block.value}
+            </div>
+          );
+      }
+
+      return null;
+    });
+
+  } catch (e) {
+      console.error("FAQ parsing error:", e);
+      // 파싱 실패 시 원본 텍스트라도 보여주도록 처리
+      return <p className="whitespace-pre-wrap">{String(contentJson)}</p>;
     }
   };
 
@@ -48,7 +118,7 @@ const FAQDetailPage = () => {
         
         // API 호출
         const response = await faqService.getPublicFaqDetail(id);
-        const data = response.data || response; // ApiResponse 구조 대응
+        const data = response.data || response;
 
         if (data) {
             // 백엔드 DTO(FaqDetail) -> 프론트엔드 변수 매핑
@@ -56,7 +126,7 @@ const FAQDetailPage = () => {
                 id: data.faqId,
                 category: data.faqCategory || '기타',
                 question: data.faqTitle,
-                answer: parseContent(data.faqContent), // 파싱 적용
+                answer: data.faqContent,
                 date: data.faqCreatedAt ? data.faqCreatedAt.split('T')[0] : '', // YYYY-MM-DD
                 modifiedDate: data.faqUpdatedAt ? data.faqUpdatedAt.split('T')[0] : (data.faqCreatedAt ? data.faqCreatedAt.split('T')[0] : ''),
                 views: data.faqViewCount
@@ -132,7 +202,7 @@ const FAQDetailPage = () => {
           <div className="flex items-start gap-4">
             <span className="text-heading-m text-graygray-50 font-bold leading-none mt-1">A.</span>
             <div className="text-body-m text-graygray-80 whitespace-pre-wrap leading-relaxed">
-              {item.answer}
+              {renderFaqContent(item.answer)}
             </div>
           </div>
         </div>
