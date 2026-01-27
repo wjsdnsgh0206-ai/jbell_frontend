@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, Info, User, Lock, Check } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import { userService } from '@/services/api'; 
+import { useAuth } from '@/contexts/AuthContext';
+
 
 const IdPwLogin = () => {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [rememberId, setRememberId] = useState(false); // 아이디 저장 및 자동 로그인 통합 상태
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   // 페이지 로드 시 '아이디 저장'이 되어 있다면 불러오기
   useEffect(() => {
@@ -17,7 +21,7 @@ const IdPwLogin = () => {
     }
   }, []);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     
     if (!userId || !password) {
@@ -25,29 +29,48 @@ const IdPwLogin = () => {
       return;
     }
 
-    // --- 로그인 처리 로직 ---
+    try {
+      const response = await userService.login({
+        userId: userId,
+        userPw: password
+      });
 
-    // 1. 세션 기반 로그인 (현재 탭 유지)
-    sessionStorage.setItem('isLoggedIn', 'true');
-    sessionStorage.setItem('userName', userId);
+    // 2. 로그인 성공 처리 (백엔드 ApiResponse.data.data에 토큰이 들어있음)
+    if (response.data && response.data.data) {
+      const { accessToken, refreshToken , userName} = response.data.data;
 
-    // 2. 아이디 저장 및 자동 로그인 체크 시 처리
-    if (rememberId) {
-      // 아이디를 로컬 스토리지에 저장 (브라우저 재방문 시 자동 입력용)
-      localStorage.setItem('rememberedId', userId);
-      // 자동 로그인 활성화 여부 저장 (App.js나 Main에서 이 값을 보고 자동 로그인 처리)
-      localStorage.setItem('isAutoLogin', 'true');
-    } else {
-      // 체크 해제 시 관련 정보 삭제
-      localStorage.removeItem('rememberedId');
-      localStorage.removeItem('isAutoLogin');
-    }
+      // 토큰 저장 (Access는 인증용, Refresh는 갱신용)
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        localStorage.setItem('userId', userId);
+        sessionStorage.setItem('isLoggedIn', 'true');
 
-    alert(`${userId}님, 환영합니다!`);
-    navigate('/'); 
+        login(userId, userName || userId);
+
+        if (rememberId) {
+          localStorage.setItem('rememberedId', userId);
+        } else {
+          localStorage.removeItem('rememberedId');
+        }
+
+        alert(`환영합니다, ${userName || userId}님!`);
+        navigate('/'); 
+        // 5. reload() 제거 (Context가 상태를 즉시 업데이트하므로 필요 없음)
+      }
+    } catch (error) {
+    const serverMsg = error.response?.data?.message;
     
-    // 헤더 및 전역 상태 반영을 위한 새로고침
-    window.location.reload();
+    // 메시지에 영어나 특수문자가 너무 많거나 기술적인 단어가 포함되어 있다면 기본 메시지로 대체
+    const isTechnicalError = /MyBatis|BindingException|Parameter|SqlSession/i.test(serverMsg);
+    
+    if (isTechnicalError || !serverMsg) {
+        alert("로그인 처리 중 오류가 발생했습니다. 관리자에게 문의하세요.");
+    } else {
+        alert(serverMsg); // "아이디 또는 비밀번호가 틀렸습니다" 등은 정상 출력
+    }
+    
+    setPassword('');
+}
   };
 
   return (

@@ -3,35 +3,33 @@ import navigationItems from '@/routes/user/navigationItems';
 import { useState, useEffect } from "react";
 import logo from "@/assets/logo/jeonbuk_safety_nuri_watermark.svg";
 import { Menu, X, ChevronRight, ChevronDown, User, LogOut, LogIn, UserPlus } from 'lucide-react';
+import { useAuth } from "@/contexts/AuthContext"; // useAuth 임포트
 
 
 
 const UserHeader = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mobileOpenIndex, setMobileOpenIndex] = useState(null);
 
-  useEffect(() => {
-    // [변경] localStorage -> sessionStorage 로 변경
-    // 브라우저 탭을 닫으면 데이터가 삭제되므로 상태 유지가 되지 않습니다.
-    const status = sessionStorage.getItem('isLoggedIn') === 'true';
-    setIsLoggedIn(status);
-  }, []);
+  const isLoggedIn = !!user
+  
+
 
   const handleLogout = () => {
     if (window.confirm("로그아웃 하시겠습니까?")) {
-      // [변경] 삭제 시에도 sessionStorage 사용
-      sessionStorage.removeItem('isLoggedIn');
-      sessionStorage.removeItem('userName');
-      setIsLoggedIn(false);
+      logout(); // 4. Context의 로그아웃 호출 (로컬 스토리지 삭제 및 상태 초기화)
       navigate('/');
-      window.location.reload();
+      // reload() 불필요: logout() 호출 시 상태가 변해 UI가 자동 갱신됨
     }
   };
+
+
   const authButtons = isLoggedIn 
     ? [
-        { label: "마이페이지", icon: User, lnk: "/myProfile" },
+        // 5. 로그인 시 사용자 이름 표시 (선택 사항)
+        { label: `${user.userName}님`, icon: User, lnk: "/myProfile" },
         { label: "로그아웃", icon: LogOut, action: handleLogout },
       ]
     : [
@@ -67,22 +65,22 @@ const UserHeader = () => {
 
         {/* [PC] 인증 버튼 - xl(1280px) 이상에서만 표시 */}
         <div className="hidden xl:flex items-center gap-2">
-          {authButtons.map((button, index) => {
-            const Icon = button.icon;
-            return (
-              <button
-                key={index}
-                onClick={() => button.action ? button.action() : navigate(button.lnk)}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-md hover:bg-graygray-5 transition-colors"
-              >
-                <Icon className="w-4 h-4 xl:w-5 xl:h-5 text-graygray-90" />
-                <span className="text-body-m-bold text-graygray-90 whitespace-nowrap">
-                  {button.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        {authButtons.map((button, index) => {
+          const Icon = button.icon;
+          return (
+            <button
+              key={index}
+              onClick={() => button.action ? button.action() : navigate(button.lnk)}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-md hover:bg-graygray-5 transition-colors"
+            >
+              <Icon className="w-4 h-4 xl:w-5 xl:h-5 text-graygray-90" />
+              <span className="text-body-m-bold text-graygray-90 whitespace-nowrap">
+                {button.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
 
         {/* [Mobile] 햄버거 버튼 - xl 미만에서 표시 */}
         <button

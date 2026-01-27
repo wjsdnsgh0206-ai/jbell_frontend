@@ -25,11 +25,44 @@ const forestFireWarningApi = axios.create({
 const kmaWarningApi = axios.create({ baseURL: "/kma-warning-api" });
 const accidentNewsApi = axios.create({ baseURL: "/accidentNews-api" }); // 도로교통 정보 api
 
+
+export const commonService = {
+  /**
+   * 공통 코드 조회
+   * @param {string} groupId - 조회할 그룹 아이디 (예: 'AREA_JB')
+   */
+  getCodeList: async (groupId) => {
+    try {
+      // api 인스턴스를 사용하여 백엔드의 /api/common/codes/AREA_JB 호출
+      const response = await api.get(`/common/codes/${groupId}`);
+      return response.data; // { status: "SUCCESS", data: [{code: '...', name: '...'}, ...] }
+    } catch (error) {
+      console.error(`코드(${groupId}) 조회 중 에러:`, error);
+      throw error;
+    }
+  }
+};
+
+
+
 export const userService = {
-  // 유저 정보 가져오기 (기존 8080 서버)
-  getUsers: async (params) => {
-    const response = await api.get("/users", { params });
-    return response.data;
+
+  // 로그인
+  login: async (loginData) => {
+    // loginData = { userId, userPw }
+    return await axios.post(`/api/auth/login`, loginData);
+  },
+  // 비밀번호 확인
+  verifyPassword: async (verifyData) => {
+    return await axios.post(`/api/auth/verify-password`, verifyData);
+  },
+  // 로그아웃
+  logout: () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('userId');
+    sessionStorage.clear();
+    window.location.href = '/';
   },
 
   // 회원가입
@@ -39,12 +72,67 @@ export const userService = {
     return response.data;
   },
 
+
+  // 중복 id 체크
   checkId: async (userId) => {
     // try-catch를 여기서 하지 않고 호출하는 곳(Component)에서 처리하도록 내보냅니다.
     const response = await api.get("/auth/checkid", { params: { userId } });
     // 정상 응답(200)일 때 서버 응답의 data 필드(false)를 반환
     return response.data.data;
   },
+
+  // 이메일 인증번호 발송
+  requestEmailAuth: async (email) => {
+    // 이제 두 번째 인자에 { email }을 직접 넣습니다. (URL 파라미터 아님)
+    const response = await axios.post(`/api/auth/email-send`, { email });
+    return response.data;
+  },
+
+  // 인증번호 확인
+  verifyEmailAuth: async (email, code) => {
+    const response = await axios.post(`/api/auth/email-verify`, { email, code });
+    return response.data.data === true;
+  },
+  // 회원 상세 정보 조회
+    getUserInfo: async (userId) => {
+        const response = await axios.get(`/api/auth/userinfo`, {
+            params: { userId }
+        });
+        return response.data; // ApiResponse 객체 반환
+    },
+
+    // 회원 정보 수정
+    updateProfile: async (data) => {
+        const response = await axios.post(`/api/auth/update`, data);
+        return response.data;
+    },
+
+// ==========================================ID, PW 찾기 =====================
+// 3. 아이디 찾기 (인증 성공 후 호출)
+  findId: async (email) => {
+    // GET /api/auth/find-id?name=...&email=...
+    const response = await api.get("/auth/find-id", {
+      params: {email }
+    });
+    return response.data; // ApiResponse.success(userId) 형태
+  },
+
+  // 비밀번호 재설정 (컨트롤러: @RequestParam userId, email)
+  // 현재 백엔드가 @RequestParam을 사용하므로 params로 전달해야 합니다.
+  resetPassword: (userId, email, newPassword) => {
+    return api.post('/auth/reset-pw', null, {
+      params: { 
+        userId: userId, 
+        email: email,
+        newPassword: newPassword
+      }
+    }).then(res => res.data);
+  },
+  checkUserExists: (userId, email) => {
+  return api.get('/auth/check-user', {
+    params: { userId, email }
+  }).then(res => res.data);
+}
 };
 
 export const shelterService = {
