@@ -2,7 +2,7 @@
 const navigationItems = [
   {
     label: "재난사고속보",
-    path: "/disaster/accident", // 상위 메뉴 클릭 시 이동할 경로
+    path: window.location.hostname === 'localhost' ? "/disaster/accident" : "/disaster/earthquake", // 상위 메뉴 클릭 시 이동할 경로
     children: [
       // 하위 메뉴 추가
       { label: "지진", path: "/disaster/earthquake" },

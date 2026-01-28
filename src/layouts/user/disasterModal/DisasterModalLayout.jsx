@@ -37,6 +37,9 @@ const DisasterModalLayout = () => {
     { label: "한파", path: "/disaster/coldWave" },
   ];
 
+  const hostname = window.location.hostname;
+  if(hostname !== 'localhost') menuList.shift();
+
   return (
     <div className="fixed inset-0 z-[100] flex flex-col md:items-center md:justify-center bg-black/60 md:p-5 overflow-y-auto lg:overflow-hidden">
       <div
