@@ -51,10 +51,11 @@ export const shAdminRoutes = [
   
   // 상세코드 상세 페이지 //
     {
-        path: "/admin/system/subCodeDetail/:id", 
-        element: <AdminSubCodeDetail />,
-        nowPage: "상세코드상세보기",
-  },
+  // 기존 :id에서 :groupId와 :itemId(또는 :subCode)로 확장
+  path: "/admin/system/subCodeDetail/:groupId/:itemId", 
+  element: <AdminSubCodeDetail />,
+  nowPage: "상세코드상세",
+},
 
   // 그룹코드 수정 페이지 //
     {
@@ -65,10 +66,11 @@ export const shAdminRoutes = [
 
    // 상세코드 수정 페이지 //
     {
-        path: "/admin/system/subCodeEdit/:id", 
-        element: <AdminSubCodeEdit />,
-        nowPage: "상세코드수정",
-  },
+    // :id -> :groupId/:itemId 로 변경 (2개의 파라미터 필요)
+    path: "/admin/system/subCodeEdit/:groupId/:itemId", 
+    element: <AdminSubCodeEdit />,
+    nowPage: "상세코드수정",
+},
 
 
   // 보도자료관리 목록페이지 (콘텐츠관리 그룹- 홍보/자료 관리)
