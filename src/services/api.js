@@ -1,6 +1,7 @@
 // src/services/api.js
 import axios from "axios";
 import { JEONBUK_CODE_MAP } from "@/components/user/disaster/disasterCodes";
+import dayjs from 'dayjs';
 
 // 1. 기본 백엔드 인스턴스 (8080 서버용)
 const api = axios.create({
@@ -657,7 +658,7 @@ export const disasterModalService = {
         numOfRows: 500, // 전북 전체 시군구를 커버하기 위해 넉넉히
         pageNo: 1,
         dataType: "JSON",
-        fromTmFc: "20260119", // 오늘 기준 6일 전까지만 조회 가능
+        fromTmFc: dayjs().subtract(5, 'day').format('YYYYMMDD'), // 오늘 기준 6일 전까지만 조회 가능
         ...params, // warningType 등 넘어옴
       },
     });
