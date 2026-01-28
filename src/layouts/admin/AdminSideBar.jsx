@@ -36,7 +36,9 @@ const AdminSideBar = () => {
     <aside className="w-64 bg-[var(--admin-sidebar-bg)] text-gray-300 flex flex-col min-h-screen">
       {/* 로고 영역: 구조 유지 */}
 
-          <div className="px-5 pt-5 flex justify-center items-center border-b border-white/5">
+          <div className="px-5 pt-5 flex justify-center cursor-pointer items-center border-b border-white/5"
+                      onClick={() => navigate('/admin/realtime/realtimeDashboard')}
+            >
             <img
               className="w-[40px] sm:w-[40px] h-auto"
               alt="전북안전누리 로고"

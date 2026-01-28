@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { disasterModalService } from '@/services/api';
+import axios from 'axios';
 
 export const useWeatherWarning = (disasterType) => {
   const [warnings, setWarnings] = useState([]);
@@ -8,94 +8,56 @@ export const useWeatherWarning = (disasterType) => {
   const fetchWarnings = useCallback(async () => {
     setIsLoading(true);
     try {
-      const now = new Date();
-      const threeDaysAgo = new Date(now);
-      threeDaysAgo.setDate(now.getDate() - 3);
+      // 1. DB 조회 API 호출
+      const res = await axios.get('/api/disaster/dashboard/weatherWarnings');
       
-      const dateList = [];
-      for (let i = 0; i <= 3; i++) {
-        const date = new Date(threeDaysAgo);
-        date.setDate(threeDaysAgo.getDate() + i);
-        const dateStr = date.toISOString().split('T')[0].replace(/-/g, '');
-        dateList.push(dateStr);
-      }
-      
-      const threeDaysAgoStr = threeDaysAgo.toISOString().split('T')[0].replace(/-/g, '');
-      const todayStr = now.toISOString().split('T')[0].replace(/-/g, '');
-      
-      let allRawData = [];
-      
-      for (const inqDt of dateList) {
-        try {
-          const res = await disasterModalService.getWeatherWarning({ inqDt });
-          
-          let result = res?.data || res?.response || res;
-          
-          if (result?.header && !['00', '0'].includes(String(result.header.resultCode))) {
-            continue;
-          }
-          
-          let dateRawData = [];
-          const body = result?.body || result?.response?.body;
-          const items = body?.item || result?.items?.item;
-          
-          if (Array.isArray(body)) {
-            dateRawData = body;
-          } else if (items) {
-            dateRawData = Array.isArray(items) ? items : [items];
-          }
-          
-          if (dateRawData.length > 0) {
-            allRawData = allRawData.concat(dateRawData);
-          }
-        } catch (error) {
-          // API 호출 실패 시 해당 날짜 건너뛰기
-        }
-      }
-      
+      // 2. 응답 구조 확인 및 데이터 추출
+      const allRawData = res.data?.data || res.data || [];
+      console.log("검색 대상 데이터 수:", allRawData.length);
+
       if (allRawData.length > 0) {
-        const uniqueDataMap = new Map();
-        allRawData.forEach(item => {
-          const key = `${item.PRSNTN_TM}_${item.PRSNTN_SN}`;
-          if (!uniqueDataMap.has(key)) {
-            uniqueDataMap.set(key, item);
-          }
-        });
-        const uniqueData = Array.from(uniqueDataMap.values());
-        
-        const filtered = uniqueData.filter((item, index) => {
-          const fullTimeStr = String(item.PRSNTN_TM || "");
-          const itemDate = fullTimeStr.substring(0, 8);
-          
-          if (!itemDate || itemDate < threeDaysAgoStr || itemDate > todayStr) {
-            return false;
-          }
+        // 3일 전 날짜 계산 (비교용)
+        const now = new Date();
+        const threeDaysAgo = new Date();
+        threeDaysAgo.setDate(now.getDate() - 3);
+        const limitDay = threeDaysAgo.toISOString().split('T')[0].replace(/-/g, '');
 
-          const title = item.TTL || "";
-          const content = item.SPNE_FRMNT_PRCON_CN || "";
-          const zone = item.RLVT_ZONE || "";
+        // 3. 필터링 시작
+        const filtered = allRawData.filter((item) => {
+          // 데이터가 대문자로 오기 때문에 대문자 필드 사용
+          const prsntnTm = String(item?.PRSNTN_TM || ""); 
+          const title = String(item?.TTL || "");
+          const content = String(item?.SPNE_FRMNT_PRCON_CN || ""); // 상세내용
+          const zone = String(item?.RLVT_ZONE || "");
+
+          // [날짜 필터] 8자리 날짜가 limitDay(예: 20260125)보다 커야 함
+          if (prsntnTm.substring(0, 8) < limitDay) return false;
+
+          // [지역 필터] 전북, 전라북도, 전북자치도 키워드 포함 확인
+          const isJeonbuk = /전북|전라북도|전북자치도/.test(zone + content);
+          if (!isJeonbuk) return false;
+
+          // [재난 유형 필터] 키워드 매칭
           const targetText = (title + content + zone).replace(/\s/g, "");
-          let matchesType = false;
-          switch (disasterType) {
-            case 'earthquake': matchesType = /지진|해일/.test(targetText); break;
-            case 'flood': matchesType = /호우|홍수|강수|비/.test(targetText); break;
-            case 'landSlide': matchesType = /산사태|대설|한파|눈/.test(targetText); break;
-            case 'typhoon': matchesType = /태풍|강풍|풍랑|바람/.test(targetText); break;
-            case 'forestFire': matchesType = /건조|산불|화재/.test(targetText); break;
-            default: matchesType = false;
-          }
+          let matches = false;
           
-          return matchesType;
+          switch (disasterType) {
+            case 'earthquake': matches = /지진|해일/.test(targetText); break;
+            case 'flood':      matches = /호우|홍수|강수|비|침수/.test(targetText); break;
+            case 'landSlide':  matches = /산사태|대설|한파|눈|제설/.test(targetText); break;
+            case 'typhoon':    matches = /태풍|강풍|풍랑|바람/.test(targetText); break;
+            case 'forestFire': matches = /건조|산불|화재/.test(targetText); break;
+            default:           matches = false;
+          }
+          return matches;
         });
 
+        // 4. 최신순 정렬
         const sorted = filtered.sort((a, b) => {
-          const timeA = String(a.PRSNTN_TM || "");
-          const timeB = String(b.PRSNTN_TM || "");
-          
-          if (timeA !== timeB) {
-            return timeB.localeCompare(timeA);
-          }
-          return Number(b.PRSNTN_SN || 0) - Number(a.PRSNTN_SN || 0);
+          const timeA = String(a?.PRSNTN_TM || "");
+          const timeB = String(b?.PRSNTN_TM || "");
+          if (timeA !== timeB) return timeB.localeCompare(timeA);
+          return (Number(b?.PRSNTN_SN) || 0) - (Number(a?.PRSNTN_SN) || 0);
         });
 
         setWarnings(sorted);
@@ -103,6 +65,7 @@ export const useWeatherWarning = (disasterType) => {
         setWarnings([]);
       }
     } catch (error) {
+      console.error("기상 특보 fetch 에러:", error);
       setWarnings([]);
     } finally {
       setIsLoading(false);
