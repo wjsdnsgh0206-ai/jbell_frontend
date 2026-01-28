@@ -16,7 +16,7 @@ import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 /**
  * [관리자] 사고속보 목록 페이지
  */
-const AccidentNews = () => {
+const AccidentNewsList = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
 
@@ -295,4 +295,4 @@ const AccidentNews = () => {
   );
 };
 
-export default AccidentNews;
+export default AccidentNewsList;

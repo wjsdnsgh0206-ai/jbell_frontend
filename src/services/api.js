@@ -219,17 +219,31 @@ export const facilityService = {
    FAQ 관리 API (Admin)
 ========================================================= */
 export const faqService = {
-  // 1. 목록 조회
+  // 1. [관리자용] 목록 조회
   getFaqList: async () => {
     // GET /api/admin/faqlist
     const response = await api.get("/admin/faqlist");
     return response.data;
   },
 
-  // 2. 상세 조회
+  // [사용자용] 목록 조회
+  getPublicFaqList: async () => {
+    // GET /api/faqlist (이전 답변에서 만든 사용자용 컨트롤러 주소)
+    const response = await api.get("/faqlist");
+    return response.data;
+  },
+
+  // 2. [관리자용] 상세 조회
   getFaqDetail: async (faqId) => {
     // GET /api/admin/faqdetail/{faqId}
     const response = await api.get(`/admin/faqdetail/${faqId}`);
+    return response.data;
+  },
+
+  // [사용자용] 상세 조회
+  getPublicFaqDetail: async (faqId) => {
+    // GET /api/faqdetail/{faqId}
+    const response = await api.get(`/faqdetail/${faqId}`);
     return response.data;
   },
 
@@ -317,6 +331,27 @@ export const qnaService = {
   // DELETE /api/qna/answers/{answerId}
   deleteAnswer: async (answerId) => {
     const response = await api.delete(`/qna/answers/${answerId}`);
+    return response.data;
+  },
+
+  // 문의 등록
+  createQna: async (payload) => {
+    // POST /api/qna/add
+    const response = await api.post("/qna/add", payload);
+    return response.data;
+  },
+
+  // 사용자용 목록 조회
+  getPublicQnaList: async () => {
+    // GET /api/qna/list
+    const response = await api.get("/qna/list");
+    return response.data;
+  },
+  
+  // 사용자용 상세 조회
+  getPublicQnaDetail: async (qnaId) => {
+    // GET /api/qna/detail/{qnaId}
+    const response = await api.get(`/qna/detail/${qnaId}`);
     return response.data;
   }
 };
@@ -513,7 +548,7 @@ export const disasterModalService = {
         numOfRows: 500, // 전북 전체 시군구를 커버하기 위해 넉넉히
         pageNo: 1,
         dataType: "JSON",
-        fromTmFc: "20260114", // 오늘 기준 6일 전까지만 조회 가능
+        fromTmFc: "20260119", // 오늘 기준 6일 전까지만 조회 가능
         ...params, // warningType 등 넘어옴
       },
     });

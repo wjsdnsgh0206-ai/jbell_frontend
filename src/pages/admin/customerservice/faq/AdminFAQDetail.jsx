@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Edit2, Trash2, List, Eye, EyeOff, Clock, User, Calendar, CheckCircle, AlertCircle, Save, X } from 'lucide-react';
-import { AdminFAQData, FAQ_CATEGORIES } from './AdminFAQData';
 import { faqService } from '@/services/api';
 
 const cn = (...classes) => classes.filter(Boolean).join(' ');
+
+const FAQ_CATEGORIES = ['회원/계정', '결제/환불', '이용문의', '시스템', '기타'];
 
 const AdminFAQDetail = () => {
   const { id } = useParams();
@@ -20,9 +21,9 @@ const AdminFAQDetail = () => {
       faqContent: [], 
       faqWrite: '',
       faqViewCount: 0,
-      faqVisibleYn: 'N', // 백엔드 DTO 타입이 String ("Y"/"N") 인지 Boolean 인지 확인 필요.
-                        // 파일상 FaqList는 String "Y"/"N" 주석이 있고, 
-                        // DTO에는 String faqVisibleYn으로 되어 있음.
+      faqVisibleYn: 'N',
+      faqCreatedAt: '',
+      faqUpdatedAt: '' 
   });
   const [isEditing, setIsEditing] = useState(false);
 
@@ -32,8 +33,9 @@ const AdminFAQDetail = () => {
       // 서비스 함수 호출
       faqService.getFaqDetail(id)
         .then(res => {
-          const item = res.data; // res.data가 실제 DTO 내용
+          const item = res.data;
           
+          // JSON Content 파싱 로직
           let parsedContent = [];
           if (item.faqContent) {
              if (typeof item.faqContent === 'string') {
