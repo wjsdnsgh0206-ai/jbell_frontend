@@ -16,30 +16,42 @@ const AdminBoardManagement = () => {
     files: []
   });
 
+  const [loading, setLoading] = useState(isEditMode);
+
   // 1. 데이터 로드 (수정 모드)
   useEffect(() => {
-    if (isEditMode) {
-      const fetchDetail = async () => {
-        try {
-          // noticeApi.getNoticeDetail 또는 적절한 상세조회 메서드 사용
-          const response = await noticeApi.getNoticeDetail(boardId);
-          const data = response.data;
-          
-          setFormData({
-            noticeId: data.id,
-            title: data.title,
-            content: data.content,
-            isPublic: data.isPublic,
-            files: [] // 파일은 백엔드 구현에 따라 추가 처리 필요
-          });
-        } catch (error) {
-          console.error("데이터 로드 실패:", error);
-          alert("정보를 불러오는데 실패했습니다.");
-        }
-      };
-      fetchDetail();
+   if (isEditMode && noticeId) {
+        const fetchDetail = async () => {
+            try {
+                setLoading(true);
+                const response = await noticeApi.getNoticeDetail(noticeId);
+                const data = response.data;
+                
+                if (data) {
+                    setFormData({
+                        noticeId: data.id,      // 백엔드 DTO의 id 필드명 확인
+                        title: data.title,
+                        content: data.content,
+                        isPublic: data.isPublic,
+                        author: data.author || 'admin'
+                    });
+                }
+            } catch (error) {
+                console.error("데이터 로드 실패:", error);
+                alert("내용을 불러오지 못했습니다.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchDetail();
     }
-  }, [isEditMode, noticeId]);
+}, [isEditMode, noticeId]);
+
+// 렌더링 부분: 로딩 중일 때는 입력폼 대신 로딩 메시지만 보여줍니다.
+if (loading) return <div>정보를 가져오는 중입니다...</div>;
+
+
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -103,7 +115,7 @@ const AdminBoardManagement = () => {
               <label className="block text-body-m-bold text-admin-text-primary mb-3">공지 번호</label>
               <input 
                 type="text" 
-                value={isEditMode ? boardId : "자동 생성"} 
+                value={isEditMode ? noticeId : "자동 생성"} 
                 disabled 
                 className="w-full h-12 px-4 bg-graygray-5 border border-admin-border rounded-md text-graygray-40 font-mono"
               />

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { ArrowLeft, Calendar, User, Eye, Paperclip, Edit } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -12,6 +12,21 @@ const AdminBoardDetail = () => {
 
   // location.state로 넘어온 데이터 또는 id로 찾기
   // const post = location.state || noticeData.find(p => p.boardId === parseInt(boardId));
+
+  // 조회수 방어 코드
+  const hasFetched = useRef(false);
+    useEffect(() => {
+      if (hasFetched.current) return;
+
+      hasFetched.current = true;
+      fetchNoticeDetail();
+    }, [noticeId]);
+
+    const fetchNoticeDetail = async () => {
+      const res = await noticeApi.getNoticeDetail(noticeId);
+      setNotice(res.data);
+  };
+
 
   useEffect(() => {
     axios.get(`/api/notice/${noticeId}`)
