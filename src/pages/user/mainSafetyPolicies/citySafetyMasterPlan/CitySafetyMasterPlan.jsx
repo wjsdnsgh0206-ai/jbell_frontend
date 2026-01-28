@@ -1,5 +1,5 @@
 // src/pages/user/mainSafetyPolicies/citizenSafetyInsurance/CitySafetyMasterPlan.jsx
-import GuidePageTemplate from '@/components/shared/GuidePageTemplate';
+import GuidePageTemplate from '@/components/shared/GuidePageTemplate copy';
 import { citySafetyMasterPlanData } from './data';
 
 const CitySafetyMasterPlan = () => {

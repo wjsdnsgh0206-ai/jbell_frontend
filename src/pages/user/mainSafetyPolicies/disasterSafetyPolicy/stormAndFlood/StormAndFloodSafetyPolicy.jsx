@@ -1,7 +1,7 @@
 // src/pages/user/mainSafetyPolicies/disasterSafetyPolicy/stormAndFlood/StormAndFloodSafetyPolicy.jsx
 
 import React from 'react';
-import GuidePageTemplate from '@/components/shared/GuidePageTemplate';
+import GuidePageTemplate from '@/components/shared/GuidePageTemplate copy';
 import { CloudRain, Wind } from 'lucide-react'; // 날씨 관련 아이콘 추가
 import { stormAndFloodData } from './data';
 
