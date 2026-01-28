@@ -55,12 +55,18 @@ const AdminQnADetail = () => {
     }
 
     try {
+     const currentUserId = sessionStorage.getItem('userId');
+
+     if (!currentUserId) {
+      return alert('로그인 정보가 확인되지 않습니다. 다시 로그인해주세요.');
+    }
+
       if (answerMode === 'CREATE') {
         // 등록
         await qnaService.createAnswer({
           qnaId: inquiry.qnaId,
           content: answerInput,
-          userId: 'admin' // 현재 로그인한 관리자 ID (실제론 Context 등에서 가져옴)
+          userId: currentUserId // 수정됨: 'admin' -> 'ADMIN_MASTER' (또는 동적 ID)
         });
         alert('답변이 등록되었습니다.');
       } else if (answerMode === 'EDIT') {
@@ -74,7 +80,7 @@ const AdminQnADetail = () => {
 
     } catch (error) {
       console.error("답변 저장 실패:", error);
-      alert("처리에 실패했습니다.");
+      alert("처리에 실패했습니다. (로그를 확인해주세요)");
     }
   };
 
