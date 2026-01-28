@@ -3,9 +3,10 @@ import BaseBehaviorMethodPage from '@/pages/user/behaviorMethod/BaseBehaviorMeth
 const HeavyRainBehaviorMethod = () => {
   return (
     <BaseBehaviorMethodPage 
-      disasterType="NATURAL_HEAVYRAIN"
-      pageTitle="호우 행동요령"
+      disasterType="HEAVY_RAIN"
+      pageTitle="호우"
       category="자연재난"
+      categoryPath="/behaviorMethod/earthquake"
     />
   );
 };

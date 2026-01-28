@@ -1,9 +1,0 @@
-import React from 'react';
-
-const TrafficAccidentBehaviorMethod = () => {
-  return (
-    <div>준비중</div>
-  );
-};
-
-export default TrafficAccidentBehaviorMethod;

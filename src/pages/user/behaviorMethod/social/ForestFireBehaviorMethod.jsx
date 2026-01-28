@@ -1,9 +1,13 @@
-import React from 'react';
-
+// src\pages\user\behaviorMethod\social\ForestFireBehaviorMethod.jsx
+import BaseBehaviorMethodPage from '@/pages/user/behaviorMethod/BaseBehaviorMethodPage';
 const ForestFireBehaviorMethod = () => {
-
   return (
-    <div>준비중</div>
+    <BaseBehaviorMethodPage 
+      disasterType="FOREST_FIRE"
+      pageTitle="산불"
+      category="사회재난"
+      categoryPath="/behaviorMethod/fire"
+    />
   );
 };
 

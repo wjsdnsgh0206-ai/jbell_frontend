@@ -3,9 +3,10 @@ import BaseBehaviorMethodPage from '@/pages/user/behaviorMethod/BaseBehaviorMeth
 const LandslideBehaviorMethod = () => {
   return (
     <BaseBehaviorMethodPage 
-      disasterType="NATURAL_LANDSLIDE"
-      pageTitle="산사태 행동요령"
+      disasterType="LANDSLIDE"
+      pageTitle="산사태"
       category="자연재난"
+      categoryPath="/behaviorMethod/earthquake"
     />
   );
 };
