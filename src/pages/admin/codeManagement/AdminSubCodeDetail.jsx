@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { AdminCommonCodeData } from './AdminCommonCodeData'; 
+import { codeService } from '@/services/api'; // codeService 임포트
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 import { Calendar } from 'lucide-react';
 
-//  토스트용 성공 아이콘 컴포넌트 
 const SuccessIcon = ({ fill = "#4ADE80" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
     <circle cx="8" cy="8" r="8" fill={fill}/>
@@ -13,61 +12,100 @@ const SuccessIcon = ({ fill = "#4ADE80" }) => (
 );
 
 const AdminSubCodeDetail = () => {
-  const { id } = useParams();
+  // route-sh.jsx의 설정에 맞춰 groupId와 itemId를 가져옵니다.
+  const { groupId, itemId } = useParams(); 
   const { setBreadcrumbTitle } = useOutletContext();
   const navigate = useNavigate();
+  
   const [formData, setFormData] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
-  // 토스트 상태 
   const [isDeleting, setIsDeleting] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const found = AdminCommonCodeData.find(item => item.id === parseInt(id));
-    if (found) {
-      // 레이아웃의 breadcrumbTitle 상태를 업데이트 -> 브레드크럼이 즉시 바뀜
-      setBreadcrumbTitle(found.subName); 
+  const formatDateTime = (dateTimeStr) => {
+    if (!dateTimeStr) return '-';
+    return dateTimeStr.replace('T', ' ').split('.')[0]; 
+  };
+
+  const fetchDetail = useCallback(async () => {
+    // 이제 groupId와 itemId가 정상적으로 출력될 것입니다.
+    console.log("현재 파라미터:", { groupId, itemId });
+    
+    if (!groupId || !itemId) {
+        console.error("groupId 또는 itemId가 없습니다.");
+        return;
     }
     
-    // 페이지를 나갈 때는 초기화 (Clean-up)
-    return () => setBreadcrumbTitle("");
-  }, [id, setBreadcrumbTitle]);
+    try {
+      setIsLoading(true); // 로딩 상태 변수명 확인 (loading 인지 setIsLoading 인지)
+      
+      // 서비스 호출 시 인자 2개 전달
+      const response = await codeService.getCodeItem(groupId, itemId);
+      
+      console.log("서버 응답 데이터:", response);
+
+      // codeService에서 이미 response.data를 반환한다면 바로 response 사용
+      const actualData = response.data || response; 
+      
+      if (actualData) {
+        setFormData(actualData);
+        setBreadcrumbTitle(actualData.subName || "상세 코드 정보");
+      }
+    } catch (error) {
+      console.error("상세코드 로드 실패:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [groupId, itemId, setBreadcrumbTitle]);
 
   useEffect(() => {
-    // [수정된 부분] AdminCommonCodeData의 id와 URL의 id를 매칭
-    const detailData = AdminCommonCodeData.find(item => item.id === parseInt(id));
-    if (detailData) {
-      setFormData(detailData);
-    }
-  }, [id]);
+    fetchDetail();
+    return () => setBreadcrumbTitle("");
+  }, [fetchDetail]);
 
-  if (!formData) return null;
+  // 로딩 중일 때 표시
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-screen bg-[#F8F9FB]">
+        <div className="text-lg font-bold text-gray-400">데이터를 불러오는 중...</div>
+      </div>
+    );
+  }
 
-  const handleDelete = () => {
+  // 데이터 로드 실패 시 표시
+  if (!formData) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-screen bg-[#F8F9FB]">
+        <div className="text-center">
+          <p className="text-lg font-bold text-gray-400 mb-4">데이터를 찾을 수 없습니다.</p>
+          <button onClick={() => navigate(-1)} className="text-blue-500 font-bold underline">뒤로 가기</button>
+        </div>
+      </div>
+    );
+  }
+
+  const handleDelete = async () => {
     setIsDeleting(true); 
     setIsDeleteModalOpen(false);
 
-    // 실제 데이터 삭제 (ID 매칭 시 주의: AdminCommonCodeData 구조에 따라 필터링)
-    const index = AdminCommonCodeData.findIndex(item => item.id === parseInt(id));
-    if (index !== -1) {
-      AdminCommonCodeData.splice(index, 1);
+    try {
+      // axios 대신 codeService.deleteItem 사용
+      await codeService.deleteItem(groupId, itemId);
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+        navigate('/admin/system/commonCodeList');
+      }, 1500);
+    } catch (error) {
+      console.error("삭제 실패:", error);
+      alert("삭제 중 오류가 발생했습니다.");
+      setIsDeleting(false);
     }
-
-    setShowToast(true);
-
-    setTimeout(() => {
-      setShowToast(false);
-      navigate('/admin/system/commonCodeList');
-    }, 1500);
   };
-
-  if (!formData) return null;
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
-
-      {/* 토스트 알림 UI */}
       {showToast && (
         <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500">
           <div className="bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-gray-700">
@@ -80,111 +118,90 @@ const AdminSubCodeDetail = () => {
       <main className="p-10 text-left">
         <h2 className="text-[32px] font-bold mt-2 mb-2 tracking-tight">공통 코드 관리</h2>
         
-        {/* 상단 버튼 영역 */}
         <div className="flex justify-end gap-2 mb-6 max-w-[1000px]">
           <button 
             onClick={() => navigate('/admin/system/commonCodeList')}
-            className="px-6 py-2 border border-gray-300 bg-white text-[#333] rounded-md font-bold text-[15px] hover:bg-gray-50 shadow-sm transition-all disabled:opacity-50"
+            className="px-6 py-2 border border-gray-300 bg-white text-[#333] rounded-md font-bold text-[15px] hover:bg-gray-50 shadow-sm transition-all"
             disabled={isDeleting}
           >
             목록
           </button>
           <button 
             onClick={() => setIsDeleteModalOpen(true)}
-            className="px-6 py-2 bg-[#E1421F] text-white rounded-md font-bold text-[15px] hover:bg-[#c1381a] shadow-sm transition-all disabled:opacity-50"
+            className="px-6 py-2 bg-[#E1421F] text-white rounded-md font-bold text-[15px] hover:bg-[#c1381a] shadow-sm transition-all"
             disabled={isDeleting}
           >
             삭제
           </button>
           <button 
-            onClick={() => navigate(`/admin/system/subCodeEdit/${id}`)}
-            className="px-6 py-2 bg-[#2563EB] text-white rounded-md font-bold text-[15px] hover:bg-blue-700 shadow-sm transition-all disabled:opacity-50"
+            // 수정 페이지로 이동 시 groupId와 itemId를 함께 넘겨줍니다.
+            onClick={() => navigate(`/admin/system/subCodeEdit/${groupId}/${itemId}`)}
+            className="px-6 py-2 bg-[#2563EB] text-white rounded-md font-bold text-[15px] hover:bg-blue-700 shadow-sm transition-all"
             disabled={isDeleting}
           >
             수정
           </button>
         </div>
 
-        {/* 상세 정보 카드 섹션 */}
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-14 w-full max-w-[1000px]">
           <h3 className="text-[24px] font-extrabold mb-14 text-[#111] tracking-tight border-b-2 border-gray-100 pb-3">
             상세 코드 정보
           </h3>
           
           <div className="flex flex-col space-y-10">
-            {/* 그룹 코드: 데이터에 맞춰 groupName (groupCode) 형식으로 출력 */}
             <div>
               <label className="block font-bold text-[16px] mb-3 text-[#111]">그룹 코드</label>
-              <input 
-                value={`${formData.groupCode} (${formData.groupName})`}
-                readOnly
-                className="w-full max-w-[500px] bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] outline-none cursor-default"
-              />
+              <div className="w-full max-w-[500px] bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] font-medium">
+                {formData.groupCode} ({formData.groupName || '명칭 없음'})
+              </div>
             </div>
 
-            {/* 상세 코드 ID: 데이터 키 subCode에 맞춤 */}
             <div>
               <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 ID</label>
-              <input 
-                value={formData.subCode || ''}
-                readOnly
-                className="w-full max-w-[500px] bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] outline-none cursor-default"
-              />
+              <div className="w-full max-w-[500px] bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] font-medium">
+                {formData.subCode}
+              </div>
             </div>
 
-            {/* 상세 코드명: 데이터 키 subName에 맞춤 */}
             <div>
               <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드명</label>
-              <input 
-                value={formData.subName || ''}
-                readOnly
-                className="w-full max-w-[500px] bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] outline-none cursor-default"
-              />
+              <div className="w-full max-w-[500px] bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] font-medium">
+                {formData.subName}
+              </div>
             </div>
 
-            {/* 상세 코드 설명 */}
             <div>
               <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 설명</label>
-              <textarea 
-                value={formData.desc || ''}
-                readOnly
-                rows="2"
-                className="w-full max-w-[600px] bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] outline-none resize-none cursor-default leading-[22px]"
-              />
+              <div className="w-full max-w-[600px] bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] min-h-[80px] whitespace-pre-wrap leading-relaxed font-medium">
+                {formData.desc || '설명이 없습니다.'}
+              </div>
             </div>
 
-            {/* 순서 */}
             <div>
               <label className="block font-bold text-[16px] mb-3 text-[#111]">순서</label>
-              <input 
-                value={formData.order || ''}
-                readOnly
-                className="w-[100px] bg-[#F9FAFB] border border-gray-300 rounded-lg px-4 py-3 text-[#666] text-center outline-none cursor-default"
-              />
-              <p className="text-[13px] text-gray-400 mt-3 font-medium">* 숫자가 낮을수록 상위에 위치합니다</p>
+              <div className="w-[100px] bg-[#F9FAFB] border border-gray-300 rounded-lg px-4 py-3 text-[#666] text-center font-medium">
+                {formData.order}
+              </div>
             </div>
 
-            {/* 사용 여부 (상세페이지용 - 가로 배치 및 명칭 수정) */}
             <div className="flex items-center gap-5 pt-2">
-            <label className="font-bold text-[16px] text-[#111]">사용 여부</label>
-            <div className="flex items-center gap-3">
-                {/* 토글 버튼 영역 (Detail이므로 클릭 기능 제외, 애니메이션 유지) */}
+              <label className="font-bold text-[16px] text-[#111]">사용 여부</label>
+              <div className="flex items-center gap-3">
                 <div className={`w-[54px] h-[28px] flex items-center rounded-full p-1 transition-colors duration-300 ${formData.visible ? 'bg-[#2563EB]' : 'bg-gray-300'}`}>
-                <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${formData.visible ? 'translate-x-[26px]' : 'translate-x-0'}`}></div>
+                  <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${formData.visible ? 'translate-x-[26px]' : 'translate-x-0'}`}></div>
                 </div>
                 <span className={`text-[14px] font-bold ${formData.visible ? 'text-[#2563EB]' : 'text-gray-400'}`}>
-                {formData.visible ? '사용' : '미사용'}
+                  {formData.visible ? '사용' : '미사용'}
                 </span>
-            </div>
+              </div>
             </div>
 
-            {/* 7. 로그 정보 (수정됨: 수정 페이지 스타일과 통일) */}
             <div className="pt-10 border-t border-gray-100 flex flex-col space-y-8">
               <div className="flex flex-col gap-2">
                 <label className="text-[14px] font-bold text-gray-400">등록 일시</label>
                 <div className="flex items-center gap-2 text-[#999] font-medium px-1">
                   <Calendar size={16} className="text-gray-300" /> 
-                  {formData.date}
+                  {formatDateTime(formData.createdAt)}
                 </div>
               </div>
 
@@ -192,7 +209,7 @@ const AdminSubCodeDetail = () => {
                 <label className="text-[14px] font-bold text-gray-400">수정 일시</label>
                 <div className="flex items-center gap-2 text-[#999] font-medium px-1">
                   <Calendar size={16} className="text-gray-300" /> 
-                  {formData.editDate || formData.date}
+                  {formatDateTime(formData.updatedAt || formData.createdAt)}
                 </div>
               </div>
             </div>

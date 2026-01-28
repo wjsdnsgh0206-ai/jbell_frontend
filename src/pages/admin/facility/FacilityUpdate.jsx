@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft, ChevronDown } from 'lucide-react';
-import { facilityService } from '@/services/api'; 
+import { facilityService, commonService } from '@/services/api';
 
 const FacilityUpdate = () => {
   const navigate = useNavigate();
@@ -22,19 +22,27 @@ const FacilityUpdate = () => {
     opnYn: 'Y',
     useYn: 'Y'
   });
+  const [fcltSeCodes, setFcltSeCodes] = useState([]); // 시설유형 코드
+  const [sggCodes, setSggCodes] = useState([]);       // 시군구 코드
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchDetail = async () => {
+    const initData = async () => {
       setIsLoading(true);
       try {
-        const response = await facilityService.getFacilityDetail(id);
-        if (response && (response.status === 'SUCCESS' || response.httpCode === 200)) {
-          setFormData(response.data);
-        } else {
-          alert("데이터를 찾을 수 없습니다.");
-          navigate(-1);
+        // 1. 상세 데이터와 공통 코드를 동시에 호출
+        const [detailRes, seCodeRes, sggCodeRes] = await Promise.all([
+          facilityService.getFacilityDetail(id),
+          commonService.getCodeList('FCLT_SE'), // 시설유형 그룹코드
+          commonService.getCodeList('AREA_JB')  // 전북 시군구 그룹코드
+        ]);
+
+        if (detailRes?.data) {
+          setFormData(detailRes.data);
         }
+        if (seCodeRes?.data) setFcltSeCodes(seCodeRes.data);
+        if (sggCodeRes?.data) setSggCodes(sggCodeRes.data);
+
       } catch (error) {
         console.error("데이터 로드 실패:", error);
         alert("정보를 불러오는 중 오류가 발생했습니다.");
@@ -43,8 +51,8 @@ const FacilityUpdate = () => {
       }
     };
 
-    if (id) fetchDetail();
-  }, [id, navigate]);
+    if (id) initData();
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -145,15 +153,22 @@ const FacilityUpdate = () => {
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-gray-500">시군구</label>
-              <input 
-                type="text" 
-                name="sggNm" 
-                value={formData.sggNm} 
-                onChange={handleChange}
-                className="h-12 px-4 border border-gray-300 rounded-lg outline-none focus:border-blue-500"
-              />
-            </div>
+      <label className="text-sm font-semibold text-gray-500">시군구</label>
+      <div className="relative">
+        <select 
+          name="sggNm" 
+          value={formData.sggNm} 
+          onChange={handleChange}
+          className="w-full h-12 px-4 border border-gray-300 rounded-lg outline-none appearance-none bg-white focus:border-blue-500 cursor-pointer"
+        >
+          <option value="">시군구 선택</option>
+          {sggCodes.map(code => (
+            <option key={code.code} value={code.name}>{code.name}</option>
+          ))}
+        </select>
+        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
+      </div>
+    </div>
 
             <div className="flex flex-col gap-2 md:col-span-2">
               <label className="text-sm font-semibold text-gray-500">도로명 주소</label>

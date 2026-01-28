@@ -1,19 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { useForm } from 'react-hook-form';
 import { 
-  User, 
-  MapPin, 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  AlertCircle, 
-  Check, 
-  CalendarDays
+  User, MapPin, Mail, Lock, Eye, EyeOff, AlertCircle, Check, CalendarDays
 } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
-import { userService } from '@/services/api'; 
-import axios from 'axios'; // axios가 설치되어 있다고 가정합니다.
+// 가이드하신 임포트 형식으로 수정
+import { userService, commonService } from '@/services/api'; 
+import EmailAuthSection from '@/components/user/auth/EmailAuthSection';
+
 
 const SignupForm = () => {
   const navigate = useNavigate();
@@ -28,41 +22,61 @@ const SignupForm = () => {
 
   const userPw = watch('userPw');
   const userId = watch('userId');
-  const email = watch('email');
+  const userEmail = watch('userEmail');
+  const authCode = watch('authCode');
 
-    // [기능 추가] 아이디 중복 확인 API 연동
-    const handleIdCheck = async () => {
+
+  const [sggList, setSggList] = useState([]);
+
+ useEffect(() => {
+  const fetchRegions = async () => {
     try {
-      const isAvailable = await userService.checkId(userId); // 백엔드에서 true가 옴
-      if (isAvailable === true) { 
-        alert("사용 가능한 아이디입니다.");
-        setIsIdChecked(true);
+      // 백엔드에서 AREA_JB(전북) 그룹 코드를 불러옵니다.
+      const response = await commonService.getCodeList('AREA_JB');
+      if (response && response.data) {
+        setSggList(response.data);
       }
     } catch (error) {
-      // 409 에러는 여기서 잡힘
-      alert(error.response?.data?.message || "이미 사용 중인 아이디입니다.");
+      console.error("지역 코드 로드 실패:", error);
+    }
+  };
+  fetchRegions();
+}, []);
+  
+
+  // 아이디 중복 확인 API 연동
+  const handleIdCheck = async () => {
+  if (!userId) {
+    alert("아이디를 입력해주세요.");
+    return;
+  }
+
+  try {
+    // 백엔드에서 성공(200) 응답 시 데이터 본문의 false가 넘어옵니다.
+    // 즉, isDuplicated(중복여부)가 false라는 뜻입니다.
+    const isDuplicated = await userService.checkId(userId); 
+    
+    // 중복이 아닐 때 (false일 때) 사용 가능한 아이디입니다.
+    if (isDuplicated === false) { 
+      alert("사용 가능한 아이디입니다.");
+      setIsIdChecked(true);
+    } else {
+      // 혹시 백엔드에서 200 OK이면서 true를 보내는 예외 케이스 대응
+      alert("이미 사용 중인 아이디입니다.");
       setIsIdChecked(false);
     }
-  };
-
-  const handleSendCode = () => {
-    if (!email || errors.email) {
-      alert("올바른 이메일을 입력해주세요.");
-      return;
-    }
-    setIsAuthVerified(false);
-    alert(`${email}로 인증번호가 발송되었습니다. (테스트용: 123456)`);
-  };
-
-  const handleVerifyCode = () => {
-    const authCode = watch('authCode');
-    if (authCode === "123456") {
-      alert("인증되었습니다.");
-      setIsAuthVerified(true);
+  } catch (error) {
+    // 백엔드에서 409 Conflict 에러를 던지면 catch 블록으로 들어옵니다.
+    if (error.response && error.response.status === 409) {
+      alert("이미 사용 중인 아이디입니다.");
     } else {
-      alert("인증번호가 일치하지 않습니다.");
+      alert("중복 확인 중 오류가 발생했습니다.");
     }
-  };
+    setIsIdChecked(false);
+  }
+};
+
+
 
   const onSubmit = async (data) => {
     if (!isIdChecked) {
@@ -75,26 +89,33 @@ const SignupForm = () => {
     }
 
     try {
-      const area = data.residenceArea || "";
-      const dist = data.district || "";
-      const fullAddress = `${area} ${dist}`.trim();
 
       const requestData = {
         userId: data.userId,
-        userPw: data.userPw,
-        name: data.name,
-        birthDate: data.birthDate,
-        email: data.email,
-        residenceArea: fullAddress || null,
-        userGender: data.userGender
-      };
+      userPw: data.userPw,
+      userName: data.userName,
+      userBirthDate: data.userBirthDate,
+      userEmail: data.userEmail,
+      userResidenceArea: data.userResidenceArea, // 선택한 '전주시' 등의 값만 전송
+      userGender: data.userGender
+    };
 
+      // 백엔드 /api/auth/signup 호출
       const response = await userService.signup(requestData);
       
-      // 서버 응답의 status가 SUCCESS인지 확인
       if (response.status === "SUCCESS") {
         alert("회원가입이 성공적으로 완료되었습니다!");
-        navigate('/signupSuccess');
+        navigate('/signupSuccess', { 
+        replace: true, 
+        state: { 
+          user: {
+            userName: data.userName,
+            userBirthDate: data.userBirthDate,
+            userId: data.userId, 
+            userEmail: data.userEmail
+          } 
+        } 
+      });
       } else {
         alert(response.message || "회원가입에 실패했습니다.");
       }
@@ -125,28 +146,28 @@ const SignupForm = () => {
           {/* 거주 지역 (선택사항) */}
           <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
             <h2 className="text-lg font-bold flex items-center gap-2 border-b pb-3">
-              <MapPin size={20} className="text-blue-600" /> 거주 지역 <span className="text-xs font-normal text-slate-400 ml-1">(선택사항)</span>
+              <MapPin size={20} className="text-blue-600" /> 거주 지역
             </h2>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <select 
-                  {...register('residenceArea')}
-                  className="h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 outline-none focus:ring-2 focus:ring-blue-500 text-sm w-full"
-                >
-                  <option value="">시/도 선택</option>
-                  <option value="서울특별시">서울특별시</option>
-                  <option value="부산광역시">부산광역시</option>
-                </select>
+            <div className="flex gap-3">
+              {/* '전북특별자치도'는 고정 텍스트로 표시 */}
+              <div className="flex-1 h-12 flex items-center px-4 rounded-xl border border-slate-100 bg-slate-50 text-slate-500 text-sm font-medium">
+                전북특별자치도
               </div>
+              
               <select 
-                {...register('district')}
-                className="h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 outline-none text-sm"
+                {...register('userResidenceArea', { required: '거주 지역을 선택해주세요.' })}
+                className="flex-1 h-12 px-4 rounded-xl border border-slate-200 bg-white outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               >
-                <option value="">시/군/구 선택</option>
-                <option value="강남구">강남구</option>
-                <option value="해운대구">해운대구</option>
+                <option value="">시/군 선택</option>
+                {sggList.map((item) => (
+                  // 백엔드에 코드값을 저장하도록 설정 (예: 52110)
+                  <option key={item.code} value={item.code}>
+                    {item.name}
+                  </option>
+                ))}
               </select>
             </div>
+            <ErrorMsg name="userResidenceArea" />
           </section>
 
           {/* 기본 정보 */}
@@ -160,13 +181,13 @@ const SignupForm = () => {
               <input 
                 type="text" 
                 placeholder="실명을 입력하세요"
-                {...register('name', { 
+                {...register('userName', { 
                   required: '이름을 입력해주세요.',
                   minLength: { value: 2, message: '이름은 2자 이상이어야 합니다.' }
                 })}
                 className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-blue-500" 
               />
-              <ErrorMsg name="name" />
+              <ErrorMsg name="userName" />
             </div>
 
             <div className="space-y-2">
@@ -175,10 +196,10 @@ const SignupForm = () => {
               </label>
               <input 
                 type="date" 
-                {...register('birthDate', { required: '생년월일을 선택해주세요.' })}
+                {...register('userBirthDate', { required: '생년월일을 선택해주세요.' })}
                 className="w-full h-12 px-4 rounded-xl border border-slate-200 outline-none focus:border-blue-500 bg-white" 
               />
-              <ErrorMsg name="birthDate" />
+              <ErrorMsg name="userBirthDate" />
             </div>
 
             <div className="space-y-2">
@@ -290,69 +311,15 @@ const SignupForm = () => {
             </div>
           </section>
 
-          {/* 인증 섹션 */}
-          <section className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
-            <h2 className="text-lg font-bold flex items-center gap-2 border-b pb-3">
-              <Mail size={20} className="text-blue-600" /> 연락처 인증
-            </h2>
-            <div className="flex gap-2">
-              <input 
-                type="email" 
-                placeholder="example@mail.com"
-                {...register('email', { 
-                  required: '이메일을 입력해주세요.',
-                  pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: '올바른 형식의 이메일을 입력해주세요.' },
-                  onChange: () => {
-                    if (isAuthVerified) {
-                      setIsAuthVerified(false);
-                      setValue('authCode', '');
-                    }
-                  }
-                })}
-                className={`flex-1 h-12 px-4 rounded-xl border outline-none transition-colors ${
-                  isAuthVerified ? 'border-green-500 bg-green-50' : 'border-slate-200 focus:border-blue-500'
-                }`} 
-              />
-              <button 
-                type="button" 
-                onClick={handleSendCode} 
-                className="px-4 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold border border-slate-200 hover:bg-slate-200"
-              >
-                번호전송
-              </button>
-            </div>
-            <ErrorMsg name="email" />
-            
-            <div className="flex gap-2 mt-2">
-              <div className="relative flex-1">
-                <input 
-                  type="text" 
-                  placeholder="인증번호 6자리"
-                  {...register('authCode')}
-                  disabled={isAuthVerified}
-                  className={`w-full h-12 px-4 rounded-xl border outline-none transition-colors ${
-                    isAuthVerified ? 'border-green-500 bg-green-50 text-green-700' : 'border-slate-200 focus:border-blue-500'
-                  }`} 
-                />
-                {isAuthVerified && <Check className="absolute right-3 top-3.5 text-green-600" size={18} />}
-              </div>
-              <button 
-                type="button" 
-                onClick={handleVerifyCode} 
-                disabled={isAuthVerified}
-                className={`px-4 rounded-xl text-xs font-bold transition-all ${
-                  isAuthVerified ? 'bg-green-600 text-white' : 'bg-blue-600 text-white hover:bg-blue-700'
-                }`}
-              >
-                {isAuthVerified ? '인증완료' : '인증확인'}
-              </button>
-            </div>
-            {isAuthVerified && (
-              <p className="text-[11px] text-green-600 mt-1 ml-1 flex items-center gap-1">
-                <Check size={12}/> 이메일 인증이 완료되었습니다. 주소 수정 시 재인증이 필요합니다.
-              </p>
-            )}
-          </section>
+          <EmailAuthSection 
+        register={register}
+        watch={watch}
+        errors={errors}
+        userEmail={userEmail}
+        isAuthVerified={isAuthVerified}
+        setIsAuthVerified={setIsAuthVerified}
+        userService={userService}
+      />
 
           <div className="flex gap-3 pt-4">
             <button 

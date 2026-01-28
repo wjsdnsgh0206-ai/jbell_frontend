@@ -2,7 +2,7 @@
 const navigationItems = [
   {
     label: "재난사고속보",
-    path: "/disaster/accident", // 상위 메뉴 클릭 시 이동할 경로
+    path: window.location.hostname === 'localhost' ? "/disaster/accident" : "/disaster/earthquake", // 상위 메뉴 클릭 시 이동할 경로
     children: [
       // 하위 메뉴 추가
       { label: "지진", path: "/disaster/earthquake" },
@@ -14,11 +14,11 @@ const navigationItems = [
   },
   {
     label: "행동요령",
-    path: "/earthquakeActionGuide",
+    path: "/behaviorMethod/earthQuake",
     children: [
-      { label: "자연재난행동요령", path: "/earthquakeActionGuide" },
-      { label: "사회재난행동요령", path: "/trafficAccidentActionGuide" },
-      { label: "생활안전행동요령", path: "/firstAidActionGuide" },
+      { label: "자연재난행동요령", path: "/behaviorMethod/earthQuake" },
+      { label: "사회재난행동요령", path: "/trafficAccidentBehaviorMethod" },
+      { label: "생활안전행동요령", path: "/firstAidBehaviorMethod" },
     ],
   },
   {

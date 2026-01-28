@@ -1,45 +1,52 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // 1. useNavigate 임포트
-import { Lock, Eye, EyeOff, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
-import PageBreadcrumb from '@/components/shared/PageBreadcrumb'; // 1. import
+import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff, ShieldCheck, Loader2 } from 'lucide-react';
+import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
+import { useAuth } from '@/contexts/AuthContext';
+import { userService } from '@/services/api'; // userService 임포트 확인
 
 const EditProfileCheck = () => {
   const [password, setPassword] = useState('');
+  const { user } = useAuth(); // AuthContext에서 유저 정보 가져옴
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const navigate = useNavigate(); // 2. 네비게이트 함수 선언
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!password) return;
+    
+    // 유저 아이디가 없거나 비밀번호를 입력하지 않았으면 중단
+    if (!password || !user?.userId) {
+      if (!user?.userId) setError('로그인 정보가 없습니다.');
+      return;
+    }
 
     setIsLoading(true);
     setError('');
 
     try {
-      // --- 실제 API 호출 예시 ---
-      // const response = await fetch('/api/user/verify-password', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ password })
-      // });
-      // const data = await response.json();
-      
-      // 시뮬레이션 (1초 대기)
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // 1. userService를 이용해 본인 확인 요청
+      // loginData 구조와 동일하게 전달
+      const response = await userService.verifyPassword({
+        userId: user.userId,
+        userPw: password
+      });
 
-      // 가짜 검증 로직 (비밀번호가 '1234'라고 가정)
-      if (password === '1234') {
-        // 3. 검증 성공 시 이동할 경로 설정
+      // 2. 응답 상태가 SUCCESS인 경우 수정 페이지로 이동
+      if (response.data && response.data.status === "SUCCESS") {
         navigate('/editProfile'); 
       } else {
-        throw new Error('비밀번호가 일치하지 않습니다.');
+        // 백엔드에서 에러 메시지를 보낸 경우 활용
+        setError(response.data?.message || '비밀번호가 일치하지 않습니다.');
       }
 
     } catch (err) {
-      setError(err.message);
+      // 401 Unauthorized 등 에러 발생 시 처리
+      const serverMsg = err.response?.data?.message;
+      setError(serverMsg || '비밀번호가 일치하지 않거나 오류가 발생했습니다.');
+      console.error("인증 실패:", err);
     } finally {
       setIsLoading(false);
     }
@@ -47,28 +54,22 @@ const EditProfileCheck = () => {
 
   const breadcrumbItems = [
     { label: "홈", path: "/", hasIcon: true },
-    { label: "마이페이지",path: "/myProfile", hasIcon: false }, // 중간 경로 (클릭 안되게 하려면 path 생략)
-    { label: "내 정보 수정", hasIcon: false },    // 현재 페이지
+    { label: "마이페이지", path: "/myProfile", hasIcon: false },
+    { label: "내 정보 수정", hasIcon: false },
   ];
 
   return (
-    
     <div className="flex flex-col items-center w-full pb-20 px-4 lg:px-0">
-            {/* 브레드크럼 */}
-    <PageBreadcrumb items={breadcrumbItems} />
+      <PageBreadcrumb items={breadcrumbItems} />
       
-    {/* 헤더 타이틀 */}
-    <header className="flex flex-col w-full gap-8 lg:gap-10 mb-16">
-      <div className="flex flex-col gap-4">
-        <h1 className="text-heading-xl text-graygray-90">프로필 정보</h1>
-        <p className="text-detail-m text-graygray-70">회원님의 등록된 정보를 수정하실 수 있습니다.</p>
-      </div>
-    </header>
+      <header className="flex flex-col w-full gap-8 lg:gap-10 mb-16">
+        <div className="flex flex-col gap-4">
+          <h1 className="text-heading-xl text-graygray-90">프로필 정보</h1>
+          <p className="text-detail-m text-graygray-70">회원님의 등록된 정보를 수정하실 수 있습니다.</p>
+        </div>
+      </header>
 
       <div className="max-w-[1280px] w-full animate-in fade-in slide-in-from-top-4 duration-700">
-        
-    
-
         <form onSubmit={handleSubmit}>
           <div className={`bg-white border ${error ? 'border-red-500 shadow-sm shadow-red-50' : 'border-slate-200'} rounded-2xl p-8 sm:p-10 transition-all`}>
             <div className="mb-8">
@@ -110,7 +111,7 @@ const EditProfileCheck = () => {
           <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-6">
             <button
               type="button"
-              onClick={() => navigate(-1)} // 뒤로 가기
+              onClick={() => navigate(-1)}
               className="h-[56px] px-8 bg-white border border-slate-200 text-slate-500 rounded-xl font-bold hover:bg-slate-50 transition-all"
             >
               취소

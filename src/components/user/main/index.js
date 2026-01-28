@@ -5,7 +5,7 @@
     위해서 여러 파일들을 여기에 export해둠. 
 */
 
-export { default as MainActionGuide } from "./MainActionGuide";
+export { default as MainBehaviorMethod } from "./MainBehaviorMethod";
 export { default as MainWeather } from "./MainWeather";
 export { default as MainStatistics } from "./MainStatistics";
 export { default as MainDisaster } from "./MainDisaster";

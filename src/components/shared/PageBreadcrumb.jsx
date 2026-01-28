@@ -1,47 +1,46 @@
-// src/components/shared/PageBreadcrumb.jsx
-import { Link } from "react-router-dom"; // Link import 필수
+// src\components\shared\PageBreadcrumb.jsx
+import { Link } from "react-router-dom";
 import { ChevronRight } from 'lucide-react';
 import { GoHomeFill } from "react-icons/go";
 
+/**
+ * PageBreadcrumb
+ * @param {Array} items - [{ label: string, path?: string, hasIcon?: boolean }]
+ */
 const PageBreadcrumb = ({ items }) => {
+  if (!items || items.length === 0) return null;
+
   return (
     <nav className="w-full flex py-6 lg:py-10" aria-label="Breadcrumb">
-      <ol className="flex flex-wrap items-center justify-end gap-2 text-graygray-90">
+      <ol className="flex flex-wrap items-center justify-end gap-2">
         {items.map((item, index) => {
-          // 마지막 항목인지 확인 (마지막 항목은 클릭 안 되게 처리)
           const isLast = index === items.length - 1;
+          const isHome = item.hasIcon; // 홈 아이콘 여부
+
+          // 공통 스타일: 마지막 항목은 진하게, 나머지는 연하게
+          const textClass = `text-detail-m transition-colors ${
+            isLast 
+              ? 'font-bold text-graygray-90 cursor-default' 
+              : 'text-graygray-70 hover:text-secondary-50 hover:underline'
+          }`;
 
           return (
             <li key={index} className="flex items-center gap-2">
-              {/* [이동 로직] 
-                 1. path가 있고, 마지막 항목이 아니면 -> Link (클릭 가능)
-                 2. 그 외(마지막 항목이거나 path가 없으면) -> span (텍스트만)
-              */}
-              {item.path ? (
-                <Link 
-                  to={item.path} 
-                  className="flex items-center gap-2 hover:text-secondary-50 hover:underline transition-colors"
-                >
-                  {item.hasIcon && <GoHomeFill className="w-4 h-4 text-graygray-50" />}
-                 <span className={`
-                    text-detail-m
-                    ${isLast ? 'font-bold text-graygray-90' : 'text-graygray-70'} `}>
-                    {item.label}
-                  </span>
+              {/* 1. 링크가 있고 마지막이 아닌 경우 -> Link 컴포넌트 */}
+              {!isLast && item.path ? (
+                <Link to={item.path} className={`flex items-center gap-1 ${textClass}`}>
+                  {isHome && <GoHomeFill className="w-4 h-4 mb-0.5" />}
+                  <span>{item.label}</span>
                 </Link>
               ) : (
-                <div className="flex items-center gap-2">
-                  {item.hasIcon && <GoHomeFill className="w-4 h-4 text-graygray-50" />}
-                  <span className={`
-                    text-detail-m
-                    ${isLast ? 'font-bold text-graygray-90' : 'text-graygray-70'}
-                  `}>
-                    {item.label}
-                  </span>
+                /* 2. 링크가 없거나 마지막인 경우 -> span (텍스트만 표시) */
+                <div className={`flex items-center gap-1 ${textClass}`}>
+                  {isHome && <GoHomeFill className="w-4 h-4 mb-0.5" />}
+                  <span>{item.label}</span>
                 </div>
               )}
 
-              {/* 구분자 (>) */}
+              {/* 구분자 (>) : 마지막 항목이 아닐 때만 표시 */}
               {!isLast && (
                 <ChevronRight className="w-4 h-4 text-graygray-40" />
               )}

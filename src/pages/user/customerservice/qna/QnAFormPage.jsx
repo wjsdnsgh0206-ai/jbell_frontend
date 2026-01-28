@@ -1,13 +1,15 @@
 // src/pages/user/customerservice/qna/QnAFormPage.jsx
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Lock, Unlock} from 'lucide-react';
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 import { Button } from '@/components/shared/Button';
 import { qnaService } from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 const QnAFormPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const breadcrumbItems = [
     { label: "홈", path: "/", hasIcon: true },
@@ -23,6 +25,16 @@ const QnAFormPage = () => {
     content: '',
   });
   const [showSuccess, setShowSuccess] = useState(false);
+
+  // 로그인 여부 체크
+  // AuthContext가 이미 스토리지 체크를 마친 상태라고 가정합니다.
+  useEffect(() => {
+    // 유저 정보가 없으면 로그인 페이지로 리다이렉트
+    if (!user) {
+      alert("로그인이 필요한 서비스입니다.");
+      navigate('/LoginMain'); 
+    }
+  }, [user, navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -41,13 +53,20 @@ const QnAFormPage = () => {
       return;
     }
 
+    // user 객체 확인
+    if (!user || !user.userId) {
+        alert("로그인 정보가 올바르지 않습니다. 다시 로그인해주세요.");
+        return;
+    }
+
     // 전송용 데이터 객체 생성
     const payload = {
       qnaCategoryId: category,
       title: title,
       content: content,
       isVisible: isPublic ? "Y" : "N",
-      userId: "testUser"
+      // Context에서 가져온 userId 사용
+      userId: user.userId
     };
 
     try {
@@ -61,6 +80,9 @@ const QnAFormPage = () => {
       alert("문의 등록 중 오류가 발생했습니다.\n(관리자에게 문의해주세요)");
     }
   };
+
+  // 렌더링 시 user가 없으면(로그인 체크 전이거나 로그아웃 상태) 아무것도 보여주지 않음 (깜빡임 방지)
+  if (!user) return null;
 
   return (
     <div className="w-full bg-white text-graygray-90">

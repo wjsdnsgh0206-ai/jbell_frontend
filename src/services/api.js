@@ -25,11 +25,79 @@ const forestFireWarningApi = axios.create({
 const kmaWarningApi = axios.create({ baseURL: "/kma-warning-api" });
 const accidentNewsApi = axios.create({ baseURL: "/accidentNews-api" }); // 도로교통 정보 api
 
-export const userService = {
-  // 유저 정보 가져오기 (기존 8080 서버)
-  getUsers: async (params) => {
-    const response = await api.get("/users", { params });
+
+export const noticeApi = {
+  // 공지사항 전체 목록 조회
+  getNoticeDTOList: async () => {
+    const response = await api.get("/notice");
     return response.data;
+  },
+
+  // 공지사항 상세 조회
+  getNoticeDetail: async (id) => {
+    const response = await api.get(`/notice/${id}`);
+    return response.data;
+  },
+
+  // 공지사항 등록
+  createNotice: async (noticeData) => {
+    // 백엔드 NoticeController의 @PostMapping과 연결
+    const response = await api.post("/notice", noticeData);
+    return response.data;
+  },
+
+  // 공지사항 수정
+  updateNotice: async (id, noticeData) => {
+    // 백엔드 NoticeController의 @PutMapping("/{id}")과 연결
+    const response = await api.put(`/notice/${id}`, noticeData);
+    return response.data;
+  },
+
+  // 공지사항 삭제
+  deleteNotice: async (id) => {
+    // 백엔드 NoticeController의 @DeleteMapping("/{id}")과 연결
+    const response = await api.delete(`/notice/${id}`);
+    return response.data;
+  },
+};
+
+export const commonService = {
+  /**
+   * 공통 코드 조회
+   * @param {string} groupId - 조회할 그룹 아이디 (예: 'AREA_JB')
+   */
+  getCodeList: async (groupId) => {
+    try {
+      // api 인스턴스를 사용하여 백엔드의 /api/common/codes/AREA_JB 호출
+      const response = await api.get(`/common/codes/${groupId}`);
+      return response.data; // { status: "SUCCESS", data: [{code: '...', name: '...'}, ...] }
+    } catch (error) {
+      console.error(`코드(${groupId}) 조회 중 에러:`, error);
+      throw error;
+    }
+  }
+};
+
+
+
+export const userService = {
+
+  // 로그인
+  login: async (loginData) => {
+    // loginData = { userId, userPw }
+    return await axios.post(`/api/auth/login`, loginData);
+  },
+  // 비밀번호 확인
+  verifyPassword: async (verifyData) => {
+    return await axios.post(`/api/auth/verify-password`, verifyData);
+  },
+  // 로그아웃
+  logout: () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('userId');
+    sessionStorage.clear();
+    window.location.href = '/';
   },
 
   // 회원가입
@@ -39,12 +107,164 @@ export const userService = {
     return response.data;
   },
 
+
+  // 중복 id 체크
   checkId: async (userId) => {
     // try-catch를 여기서 하지 않고 호출하는 곳(Component)에서 처리하도록 내보냅니다.
     const response = await api.get("/auth/checkid", { params: { userId } });
     // 정상 응답(200)일 때 서버 응답의 data 필드(false)를 반환
     return response.data.data;
   },
+
+  // 이메일 인증번호 발송
+  requestEmailAuth: async (email) => {
+    // 이제 두 번째 인자에 { email }을 직접 넣습니다. (URL 파라미터 아님)
+    const response = await axios.post(`/api/auth/email-send`, { email });
+    return response.data;
+  },
+
+  // 인증번호 확인
+  verifyEmailAuth: async (email, code) => {
+    const response = await axios.post(`/api/auth/email-verify`, { email, code });
+    return response.data.data === true;
+  },
+  // 회원 상세 정보 조회
+    getUserInfo: async (userId) => {
+        const response = await api.get(`/auth/userinfo`, {
+            params: { userId }
+        });
+        return response.data; // ApiResponse 객체 반환
+    },
+
+    // 회원 정보 수정
+    updateProfile: async (data) => {
+        const response = await api.post(`/auth/update`, data);
+        return response.data;
+    },
+
+// ==========================================ID, PW 찾기 =====================
+// 3. 아이디 찾기 (인증 성공 후 호출)
+  findId: async (email) => {
+    // GET /api/auth/find-id?name=...&email=...
+    const response = await api.get("/auth/find-id", {
+      params: {email }
+    });
+    return response.data; // ApiResponse.success(userId) 형태
+  },
+
+  // 비밀번호 재설정 (컨트롤러: @RequestParam userId, email)
+  // 현재 백엔드가 @RequestParam을 사용하므로 params로 전달해야 합니다.
+  resetPassword: (userId, email, newPassword) => {
+    return api.post('/auth/reset-pw', null, {
+      params: { 
+        userId: userId, 
+        email: email,
+        newPassword: newPassword
+      }
+    }).then(res => res.data);
+  },
+    checkUserExists: (userId, email) => {
+    return api.get('/auth/check-user', {
+      params: { userId, email }
+    }).then(res => res.data);
+  },
+  // ==================================== 관리자 ==========================================
+  // 3. 회원 목록 조회 (페이징, 검색, 정렬 포함)
+  // params 예시: { page: 1, size: 10, memberRegion: '전북', keyword: '홍길동', sortOrder: 'latest' }
+  getMemberList: async (params) => {
+      return await api.get('/auth/list', { params });
+  },
+
+  // 4. 선택 회원 삭제 (논리 삭제 - status 업데이트)
+  // ids 예시: ['user1', 'user2']
+  deleteMembers: async (ids) => {
+      return await api.post('/auth/delete', { ids });
+  },
+
+  // 5. 신규 회원 등록 (관리자용)
+  // signupData 예시: { userId, userPw, userName, ... }
+  registerMember: async (signupData) => {
+      return await api.post('/auth/register', signupData);
+  },
+
+  // 6. 회원 상세 정보 조회
+  getMemberDetail: async (userId) => {
+      return await api.get(`/auth/detail/${userId}`);
+  },
+  updateMember: async (userId, payload) => {
+    // payload를 그대로 넘겨야 status가 포함됩니다.
+    const response = await api.put(`/auth/update/${userId}`, payload); 
+    return response.data;
+  }
+};
+
+/* =========================================================
+   공통 코드 관리 API (System Admin) - [NEW] 추가됨
+========================================================= */
+export const codeService = {
+  // 1. 공통코드 통합 조회
+  getAllCodes: async () => {
+    const response = await api.get("/common/code/all");
+    return response.data;
+  },
+
+  // 2. 그룹 중복 체크
+  checkGroupDup: async (params) => {
+    // params: { groupCode, groupName }
+    const response = await api.get("/common/code/check/group", { params });
+    return response.data;
+  },
+
+  // 3. 상세 중복 체크
+  checkSubDup: async (params) => {
+    // params: { groupCode, subCode, subName }
+    const response = await api.get("/common/code/check/sub", { params });
+    return response.data;
+  },
+
+  // 4. 그룹 관리 (목록, 상세, 등록, 수정, 삭제)
+  getCodeGroups: async () => {
+    const response = await api.get("/common/code/groups");
+    return response.data;
+  },
+  getCodeGroup: async (id) => {
+    const response = await api.get(`/common/code/groups/${id}`);
+    return response.data;
+  },
+  addGroup: async (data) => {
+    const response = await api.post("/common/code/groups", data);
+    return response.data;
+  },
+  updateGroup: async (id, data) => {
+    const response = await api.put(`/common/code/groups/${id}`, data);
+    return response.data;
+  },
+  deleteGroup: async (id) => {
+    const response = await api.delete(`/common/code/groups/${id}`);
+    return response.data;
+  },
+
+  // 5. 상세 코드 관리 (목록, 상세, 등록, 수정, 삭제)
+  getCodeItems: async (groupId) => {
+    const response = await api.get(`/common/code/groups/${groupId}/items`);
+    return response.data;
+  },
+  getCodeItem: async (groupId, itemId) => {
+    const response = await api.get(`/common/code/groups/${groupId}/items/${itemId}`);
+    return response.data;
+  },
+  addItem: async (groupId, data) => {
+    const response = await api.post(`/common/code/groups/${groupId}/items`, data);
+    return response.data;
+  },
+  updateItem: async (groupId, itemId, data) => {
+    const response = await api.put(`/common/code/groups/${groupId}/items/${itemId}`, data);
+    return response.data;
+  },
+  deleteItem: async (groupId, itemId) => {
+    const response = await api.delete(`/common/code/groups/${groupId}/items/${itemId}`);
+    return response.data;
+  }
 };
 
 export const shelterService = {
@@ -440,6 +660,20 @@ export const disasterModalService = {
         fromTmFc: "20260119", // 오늘 기준 6일 전까지만 조회 가능
         ...params, // warningType 등 넘어옴
       },
+    });
+    return response.data;
+  },
+};
+/* =========================================================
+  국민행동요령 API (백엔드 DB 연동)
+========================================================= */
+export const behaviorMethodService = {
+  // 행동요령 목록 조회
+  // contentType 예: "NATURAL_TYPHOON", "NATURAL_EARTHQUAKE"
+  getBehaviorMethodList: async (contentType) => {
+    // 8080 포트 백엔드 API 호출
+    const response = await api.get("/behaviorMethod/list", {
+      params: { contentType },
     });
     return response.data;
   },

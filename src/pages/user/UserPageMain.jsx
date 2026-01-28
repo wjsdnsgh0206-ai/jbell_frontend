@@ -1,5 +1,5 @@
 import React from "react";
-import { MainActionGuide, MainWeather, MainStatistics, MainDisaster, MainBoard } from "@/components/user/main/index.js";
+import { MainBehaviorMethod, MainWeather, MainStatistics, MainDisaster, MainBoard } from "@/components/user/main/index.js";
 
 /*
   UserPageMain 컴포넌트
@@ -55,7 +55,7 @@ const UserPageMain = () => {
 
             {/* 행동요령 박스 */}
             <div className="flex flex-col h-full w-full">
-              <MainActionGuide />
+              <MainBehaviorMethod />
             </div>
 
           </div>
