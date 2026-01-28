@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronRight, ArrowLeft, Trash2, CheckCircle, FileText, CornerDownRight, Edit } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { qnaService } from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 // 유틸리티: 클래스 병합
 const cn = (...classes) => classes.filter(Boolean).join(' ');
@@ -11,6 +12,7 @@ const cn = (...classes) => classes.filter(Boolean).join(' ');
 const AdminQnADetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   // 상태 관리
   const [inquiry, setInquiry] = useState(null); // 문의 상세 데이터 (DTO 구조)
@@ -54,19 +56,17 @@ const AdminQnADetail = () => {
       return alert('답변 내용을 입력해주세요.');
     }
 
-    try {
-     const currentUserId = sessionStorage.getItem('userId');
-
-     if (!currentUserId) {
+    if (!user || !user.userId) {
       return alert('로그인 정보가 확인되지 않습니다. 다시 로그인해주세요.');
     }
 
+    try {
       if (answerMode === 'CREATE') {
         // 등록
         await qnaService.createAnswer({
           qnaId: inquiry.qnaId,
           content: answerInput,
-          userId: currentUserId // 수정됨: 'admin' -> 'ADMIN_MASTER' (또는 동적 ID)
+          userId: user.userId
         });
         alert('답변이 등록되었습니다.');
       } else if (answerMode === 'EDIT') {
