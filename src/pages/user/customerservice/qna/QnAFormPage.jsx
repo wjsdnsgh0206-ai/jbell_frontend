@@ -1,14 +1,13 @@
 // src/pages/user/customerservice/qna/QnAFormPage.jsx
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Lock, Unlock, X } from 'lucide-react';
+import { Check, Lock, Unlock} from 'lucide-react';
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 import { Button } from '@/components/shared/Button';
-import { categoryMap, createInquiryObject } from './data';
+import { qnaService } from '@/services/api';
 
 const QnAFormPage = () => {
   const navigate = useNavigate();
-  const fileInputRef = useRef(null);
 
   const breadcrumbItems = [
     { label: "홈", path: "/", hasIcon: true },
@@ -22,7 +21,6 @@ const QnAFormPage = () => {
     category: '',
     title: '',
     content: '',
-    file: null
   });
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -31,39 +29,37 @@ const QnAFormPage = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData(prev => ({ ...prev, file: e.target.files[0].name }));
-    }
-  };
-
-  // 파일 삭제 핸들러
-  const handleFileDelete = () => {
-    setFormData(prev => ({ ...prev, file: null }));
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
   const togglePublic = (val) => {
     setFormData(prev => ({ ...prev, isPublic: val }));
   };
 
-  const handleSubmit = () => {
-    const { title, content, category } = formData;
+  const handleSubmit = async () => {
+    const { title, content, category, isPublic } = formData;
     
     if (!title || !content || !category) {
       alert("모든 필수 항목(*)을 입력해주세요.");
       return;
     }
 
-    const newInquiry = createInquiryObject(formData);
-    console.log("전송 데이터:", newInquiry);
-    
-    setShowSuccess(true);
-    setTimeout(() => {
-      navigate('/qna');
-    }, 1000);
+    // 전송용 데이터 객체 생성
+    const payload = {
+      qnaCategoryId: category,
+      title: title,
+      content: content,
+      isVisible: isPublic ? "Y" : "N",
+      userId: "testUser"
+    };
+
+    try {
+      await qnaService.createQna(payload);
+      setShowSuccess(true);
+      setTimeout(() => {
+        navigate('/qna');
+      }, 1000);
+    } catch (error) {
+      console.error("문의 등록 실패:", error);
+      alert("문의 등록 중 오류가 발생했습니다.\n(관리자에게 문의해주세요)");
+    }
   };
 
   return (
@@ -89,11 +85,11 @@ const QnAFormPage = () => {
                   className="w-full h-14 px-4 border border-graygray-30 rounded-lg focus:outline-none focus:border-secondary-50 text-body-m text-graygray-90 bg-white cursor-pointer appearance-none transition-colors"
                 >
                   <option value="" disabled>유형을 선택해주세요</option>
-                  <option value="account">계정 및 회원정보</option>
-                  <option value="system">시스템 및 장애</option>
-                  <option value="payment_service">결제 및 서비스 이용</option>
-                  <option value="proposal">기능 제안 및 개선</option>
-                  <option value="etc">기타</option>
+                  <option value="ACC_MGMT">계정 및 회원정보</option>
+                  <option value="SYS_ERR">시스템 및 장애</option>
+                  <option value="PAY_SERV">결제 및 서비스 이용</option>
+                  <option value="SUGG_IMP">기능 제안 및 개선</option>
+                  <option value="ETC_INQ">기타</option>
                 </select>
               </div>
 
