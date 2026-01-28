@@ -7,12 +7,19 @@ const UserSideBar = ({ nowPage, categories = [] }) => {
   const navigate = useNavigate();
   const location = useLocation(); // 현재 URL 정보 가져오기
 
-  // 현재 경로와 일치하는 메뉴 아이템 찾기
-  // some()을 사용하여 현재 URL이 해당 카테고리의 아이템 경로를 포함하는지 확인
+  // 현재 경로와 일치하는 메뉴 아이템 혹은 카테고리 찾기
   const findActiveCategory = () => {
-    return categories.find(cat => 
-      cat.items && cat.items.some(item => location.pathname === item.path)
-    )?.title || categories[0]?.title;
+    return categories.find(cat => {
+      // 1. 하위 아이템 경로 중 하나라도 현재 URL에 포함되는지 확인
+      const hasActiveSubItem = cat.items && cat.items.some(item => 
+        location.pathname.startsWith(item.path)
+      );
+      
+      // 2. 카테고리 자체 경로가 현재 URL의 시작점인지 확인 (예: /behaviorMethod/earthQuake)
+      const isCategoryPath = cat.path && location.pathname.startsWith(cat.path);
+
+      return hasActiveSubItem || isCategoryPath;
+    })?.title || categories[0]?.title;
   };
 
   const [openCategory, setOpenCategory] = useState(findActiveCategory);
@@ -45,7 +52,8 @@ const UserSideBar = ({ nowPage, categories = [] }) => {
             const isOpened = openCategory === cat.title;
             
             // [자동 활성화 로직] 현재 경로가 이 카테고리의 아이템 중 하나와 일치하거나, 카테고리 path와 일치할 때
-            const isCategoryActive = (hasSubItems && cat.items.some(i => i.path === location.pathname)) || (cat.path === location.pathname);
+            const isCategoryActive = (cat.path && location.pathname.startsWith(cat.path)) || 
+                         (hasSubItems && cat.items.some(i => location.pathname.startsWith(i.path)));
 
             return (
               <section key={cat.title} className="flex flex-col w-full">
@@ -68,8 +76,8 @@ const UserSideBar = ({ nowPage, categories = [] }) => {
                 {hasSubItems && isOpened && (
                   <ul className="flex flex-col w-full py-4 border-b border-graygray-30 bg-white">
                     {cat.items.map((item) => {
-                      // [자동 활성화 로직] 현재 URL과 아이템 경로가 정확히 일치하는지 확인
-                      const isItemActive = location.pathname === item.path;
+                      // 정확히 일치하거나, 해당 아이템의 하위 경로일 때 활성화 (예: /earthQuake/typhoon/detail 등)
+                      const isItemActive = location.pathname.startsWith(item.path);
 
                       return (
                         <li key={item.name} className="flex w-full px-4 py-1">

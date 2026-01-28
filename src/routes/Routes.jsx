@@ -105,7 +105,7 @@ const AllRoutes = (props) => {
       <Route
         element={
           <UserLayout
-            sidebarData={SIDE_MENU_DATA.BEHAVIORMETHOD}
+            sidebarData={SIDE_MENU_DATA.BEHAVIOR_METHOD}
             nowPage="행동요령"
             {...props}
           />
