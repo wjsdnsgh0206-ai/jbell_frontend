@@ -22,39 +22,39 @@ export const SIDE_MENU_DATA = {
       ] 
     },
   ],
-  BEHAVIORALGUIDE: [
+  BEHAVIORMETHOD: [
     { 
       title: '자연재난행동요령', 
       items: [
-        { name: '지진', path: '/earthquakeActionGuide' },
-        { name: '태풍', path: '/typhoonActionGuide' },
-        { name: '홍수', path: '/floodActionGuide' },
-        { name: '호우', path: '/heavyRainActionGuide' },
-        { name: '산사태', path: '/landslideActionGuide' },
+        { name: '지진', path: '/behaviorMethod/earthQuake' },
+        { name: '태풍', path: '/behaviorMethod/typhoon' },
+        { name: '홍수', path: '/behaviorMethod/flood' },
+        { name: '호우', path: '/behaviorMethod/heavyRain' },
+        { name: '산사태', path: '/behaviorMethod/landslide' },
       ] 
     },
     { 
-    title: '사회재난행동요령', 
-    items: [
-      { name: '교통사고', path: '/trafficAccidentActionGuide' },
-      { name: '화재', path: '/fireActionGuide' },
-      { name: '산불', path: '/forestFireActionGuide' },
-      { name: '건축물붕괴', path: '/buildingCollapseActionGuide' },
-      { name: '전기, 가스 사고', path: '/electricityGasAccidentActionGuide' },
-      { name: '도로터널사고', path: '/roadTunnelAccidentActionGuide' },
-      { name: '철도, 지하철 사고', path: '/railwaySubwayAccidentActionGuide' },
-    ] 
-  },
-  { 
-    title: '생활안전행동요령', 
-    items: [
-      { name: '응급처치', path: '/firstAidActionGuide' },
-      { name: '심페소생술', path: '/cprActionGuide' },
-      { name: '식중독', path: '/foodPoisoningActionGuide' },
-      { name: '승강기 안전사고', path: '/elevatorAccidentActionGuide' },
-      { name: '산행안전사고', path: '/mountainSafetyActionGuide' },
-    ] 
-  },
+      title: '사회재난행동요령', 
+      items: [
+        { name: '교통사고', path: '/behaviorMethod/trafficAccident' },
+        { name: '화재', path: '/behaviorMethod/fire' },
+        { name: '산불', path: '/behaviorMethod/forestFire' },
+        { name: '건축물붕괴', path: '/behaviorMethod/buildingCollapse' },
+        { name: '전기, 가스 사고', path: '/behaviorMethod/electricityGasAccident' },
+        { name: '도로터널사고', path: '/behaviorMethod/roadTunnelAccident' },
+        { name: '철도, 지하철 사고', path: '/behaviorMethod/railwaySubwayAccident' },
+      ] 
+    },
+    { 
+      title: '생활안전행동요령', 
+      items: [
+        { name: '응급처치', path: '/behaviorMethod/firstAid' },
+        { name: '심폐소생술', path: '/behaviorMethod/cpr' },
+        { name: '식중독', path: '/behaviorMethod/foodPoisoning' },
+        { name: '승강기 안전사고', path: '/behaviorMethod/elevatorAccident' },
+        { name: '산행안전사고', path: '/behaviorMethod/mountainSafety' },
+      ] 
+    },
   ],
   FACILITY : [
     {

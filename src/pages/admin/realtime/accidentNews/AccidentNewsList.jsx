@@ -271,7 +271,7 @@ const AccidentNewsList = () => {
             columns={columns}
             data={currentData}
             selectedIds={selectedIds}
-            onSelectionChange={setSelectedIds} // 이 부분 BehavioralGuideList 로직으로 수정
+            onSelectionChange={setSelectedIds} // 이 부분 BehaviorMethodList 로직으로 수정
             rowKey="id"
           />
 

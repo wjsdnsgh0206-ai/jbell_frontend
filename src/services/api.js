@@ -1,6 +1,7 @@
 // src/services/api.js
 import axios from "axios";
 import { JEONBUK_CODE_MAP } from "@/components/user/disaster/disasterCodes";
+import dayjs from 'dayjs';
 
 // 1. 기본 백엔드 인스턴스 (8080 서버용)
 const api = axios.create({
@@ -25,6 +26,41 @@ const forestFireWarningApi = axios.create({
 const kmaWarningApi = axios.create({ baseURL: "/kma-warning-api" });
 const accidentNewsApi = axios.create({ baseURL: "/accidentNews-api" }); // 도로교통 정보 api
 
+
+export const noticeApi = {
+  // 공지사항 전체 목록 조회
+  getNoticeDTOList: async () => {
+    const response = await api.get("/notice");
+    return response.data;
+  },
+
+  // 공지사항 상세 조회
+  getNoticeDetail: async (id) => {
+    const response = await api.get(`/notice/${id}`);
+    return response.data;
+  },
+
+  // 공지사항 등록
+  createNotice: async (noticeData) => {
+    // 백엔드 NoticeController의 @PostMapping과 연결
+    const response = await api.post("/notice", noticeData);
+    return response.data;
+  },
+
+  // 공지사항 수정
+  updateNotice: async (id, noticeData) => {
+    // 백엔드 NoticeController의 @PutMapping("/{id}")과 연결
+    const response = await api.put(`/notice/${id}`, noticeData);
+    return response.data;
+  },
+
+  // 공지사항 삭제
+  deleteNotice: async (id) => {
+    // 백엔드 NoticeController의 @DeleteMapping("/{id}")과 연결
+    const response = await api.delete(`/notice/${id}`);
+    return response.data;
+  },
+};
 
 export const commonService = {
   /**
@@ -159,6 +195,75 @@ export const userService = {
   updateMember: async (userId, payload) => {
     // payload를 그대로 넘겨야 status가 포함됩니다.
     const response = await api.put(`/auth/update/${userId}`, payload); 
+    return response.data;
+  }
+};
+
+/* =========================================================
+   공통 코드 관리 API (System Admin) - [NEW] 추가됨
+========================================================= */
+export const codeService = {
+  // 1. 공통코드 통합 조회
+  getAllCodes: async () => {
+    const response = await api.get("/common/code/all");
+    return response.data;
+  },
+
+  // 2. 그룹 중복 체크
+  checkGroupDup: async (params) => {
+    // params: { groupCode, groupName }
+    const response = await api.get("/common/code/check/group", { params });
+    return response.data;
+  },
+
+  // 3. 상세 중복 체크
+  checkSubDup: async (params) => {
+    // params: { groupCode, subCode, subName }
+    const response = await api.get("/common/code/check/sub", { params });
+    return response.data;
+  },
+
+  // 4. 그룹 관리 (목록, 상세, 등록, 수정, 삭제)
+  getCodeGroups: async () => {
+    const response = await api.get("/common/code/groups");
+    return response.data;
+  },
+  getCodeGroup: async (id) => {
+    const response = await api.get(`/common/code/groups/${id}`);
+    return response.data;
+  },
+  addGroup: async (data) => {
+    const response = await api.post("/common/code/groups", data);
+    return response.data;
+  },
+  updateGroup: async (id, data) => {
+    const response = await api.put(`/common/code/groups/${id}`, data);
+    return response.data;
+  },
+  deleteGroup: async (id) => {
+    const response = await api.delete(`/common/code/groups/${id}`);
+    return response.data;
+  },
+
+  // 5. 상세 코드 관리 (목록, 상세, 등록, 수정, 삭제)
+  getCodeItems: async (groupId) => {
+    const response = await api.get(`/common/code/groups/${groupId}/items`);
+    return response.data;
+  },
+  getCodeItem: async (groupId, itemId) => {
+    const response = await api.get(`/common/code/groups/${groupId}/items/${itemId}`);
+    return response.data;
+  },
+  addItem: async (groupId, data) => {
+    const response = await api.post(`/common/code/groups/${groupId}/items`, data);
+    return response.data;
+  },
+  updateItem: async (groupId, itemId, data) => {
+    const response = await api.put(`/common/code/groups/${groupId}/items/${itemId}`, data);
+    return response.data;
+  },
+  deleteItem: async (groupId, itemId) => {
+    const response = await api.delete(`/common/code/groups/${groupId}/items/${itemId}`);
     return response.data;
   }
 };
@@ -553,9 +658,23 @@ export const disasterModalService = {
         numOfRows: 500, // 전북 전체 시군구를 커버하기 위해 넉넉히
         pageNo: 1,
         dataType: "JSON",
-        fromTmFc: "20260119", // 오늘 기준 6일 전까지만 조회 가능
+        fromTmFc: dayjs().subtract(5, 'day').format('YYYYMMDD'), // 오늘 기준 6일 전까지만 조회 가능
         ...params, // warningType 등 넘어옴
       },
+    });
+    return response.data;
+  },
+};
+/* =========================================================
+  국민행동요령 API (백엔드 DB 연동)
+========================================================= */
+export const behaviorMethodService = {
+  // 행동요령 목록 조회
+  // contentType 예: "NATURAL_TYPHOON", "NATURAL_EARTHQUAKE"
+  getBehaviorMethodList: async (contentType) => {
+    // 8080 포트 백엔드 API 호출
+    const response = await api.get("/behaviorMethod/list", {
+      params: { contentType },
     });
     return response.data;
   },

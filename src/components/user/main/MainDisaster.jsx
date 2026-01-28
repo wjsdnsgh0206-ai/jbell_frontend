@@ -69,7 +69,7 @@ const MainDisaster = () => {
         {/* 더보기 버튼 클릭시, 재난사고속보 모달 페이지 오픈 */}
         <button
           className="text-detail-m text-graygray-50 hover:text-secondary-50 transition-colors p-1"
-          onClick={() => navigate("/disaster/accident")}
+          onClick={() => navigate(window.location.hostname === 'localhost'? "/disaster/accident": "/disaster/earthquake")}
         >
           더보기 +
         </button>

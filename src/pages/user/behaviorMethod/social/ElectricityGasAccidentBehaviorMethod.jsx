@@ -1,0 +1,8 @@
+import React from 'react';
+const ElectricityGasAccidentBehaviorMethod = () => {
+  return (
+    <div>준비중</div>
+  );
+};
+
+export default ElectricityGasAccidentBehaviorMethod;
