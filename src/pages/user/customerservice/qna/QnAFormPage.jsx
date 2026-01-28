@@ -1,5 +1,5 @@
 // src/pages/user/customerservice/qna/QnAFormPage.jsx
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Lock, Unlock} from 'lucide-react';
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
@@ -16,6 +16,9 @@ const QnAFormPage = () => {
     { label: "1:1문의하기", path: "/qna/form", hasIcon: false },
   ];
 
+  // 로그인된 유저 ID를 담을 상태
+  const [loginUserId, setLoginUserId] = useState('');
+
   const [formData, setFormData] = useState({
     isPublic: true,
     category: '',
@@ -23,6 +26,33 @@ const QnAFormPage = () => {
     content: '',
   });
   const [showSuccess, setShowSuccess] = useState(false);
+
+  // 페이지 로드 시 로그인 정보 가져오기
+  useEffect(() => {
+    // 💡 중요: 로그인 페이지에서 저장했던 "키 이름"을 확인해야 합니다.
+    // 보통 'user', 'userInfo', 'loginUser' 등으로 저장합니다.
+    const storedUser = sessionStorage.getItem('user') || localStorage.getItem('user');
+
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        // 저장된 객체에서 ID를 꺼냅니다. (user_id 또는 userId 등 저장된 필드명 확인 필요)
+        const userId = parsedUser.userId || parsedUser.user_id || parsedUser.id;
+        
+        if (userId) {
+          setLoginUserId(userId);
+        } else {
+          console.error("로그인 정보에 ID가 없습니다.");
+        }
+      } catch (e) {
+        console.error("로그인 정보 파싱 실패", e);
+      }
+    } else {
+      // 로그인이 안 되어 있다면 로그인 페이지로 튕겨내기
+      alert("로그인이 필요한 서비스입니다.");
+      navigate('/LoginMain'); 
+    }
+  }, [navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -41,13 +71,18 @@ const QnAFormPage = () => {
       return;
     }
 
+    if (!loginUserId) {
+        alert("로그인 정보가 올바르지 않습니다. 다시 로그인해주세요.");
+        return;
+    }
+
     // 전송용 데이터 객체 생성
     const payload = {
       qnaCategoryId: category,
       title: title,
       content: content,
       isVisible: isPublic ? "Y" : "N",
-      userId: "testUser"
+      userId: loginUserId
     };
 
     try {

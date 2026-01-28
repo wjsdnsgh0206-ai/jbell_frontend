@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, Navigation, User, Layers, Home, RotateCcw, Menu, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import DaumPostcode from 'react-daum-postcode'; // 카카오 우편번호 서비스
-import { api, configUtils, authUtils } from '@/utils/axiosConfig';
-import { facilityService } from '@/services/api';
+import { api } from '@/utils/axiosConfig';
+import { facilityService, commonService } from '@/services/api';
 
 /* <================ SelectBox 부품 (동일) ================> */
 const SelectBox = ({ label, value, options = [], onChange, disabled }) => {
@@ -173,15 +173,11 @@ const UserMap = () => {
   const [currentPage, setCurrentPage] = useState(1); // 현재 페이지 상태
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
-  const [addressType, setAddressType] = useState('road');
+  const [sggCodes, setSggCodes] = useState([]);       // DB 시군구
 
   // 주소 선택 값 -> 사용자의 선택 상태
   // ( 사용자가 지금 무엇을 선택했는가 ) - 이것이 검색 키워드의 재료
-  const [selectedSido, setSelectedSido] = useState('');         // 시도
   const [selectedSigun, setSelectedSigun] = useState('');       // 시군
-  const [selectedGoo, setSelectedGoo] = useState('');           // 구
-  const [selectedDong, setSelectedDong] = useState('');         // 읍면동
-  const [selectedInitial, setSelectedInitial] = useState('');   // 초성
   const [selectedRoad, setSelectedRoad] = useState('');         // 도로명
 
   // 대피소 및 검색 결과 -> 핵심 데이터 상태
@@ -191,16 +187,12 @@ const UserMap = () => {
 
   // 재난 메뉴
   const [civilSelect, setCivilSelect] = useState('');
-  const [weatherSelect, setWeatherSelect] = useState('');
-  const [mountainSelect, setMountainSelect] = useState('');
-  const [sortType, setSortType] = useState('distance');
 
   // 카카오 모음
   // ★ [카카오맵 관련 상태] - 지도 전용 상태
   const mapRef = useRef(null); // 지도를 담을 DOM 레퍼런스
   const [mapInstance, setMapInstance] = useState(null); // 지도 객체 저장
   const [markers, setMarkers] = useState([]); // 현재 표시된 마커들 관리
-  const [searchKeyword, setSearchKeyword] = useState(''); // 검색어 상태 추가
   // 카카오 우편번호 서비스
   const [showPostcode, setShowPostcode] = useState(false);
   /* <========================== 상태 관리 ==========================> */
@@ -208,13 +200,6 @@ const UserMap = () => {
 
 
   /* <====================== 데이터 정의 (동일) =======================> */
-  const REGION_DATA = {
-    '전주시': ['완산구', '덕진구'],
-    '군산시': [], '익산시': [], '정읍시': [], '남원시': [], '김제시': [],
-    '완주군': [], '고창군': [], '부안군': [], '순창군': [], '임실군': [],
-    '무주군': [], '진안군': [], '장수군': [],
-  };
- 
 
   const JB_REGIONS_FOR_SELECTS = {
     '전주시': [],
@@ -234,11 +219,13 @@ const UserMap = () => {
     removeMarkers();
   };
 
+  // 지역(시군구) 선택 시
   const handleSigunSelect = (city) => {
     setSelectedSigun(city);
-    setSelectedGoo('');
-    // 시군만 선택했을 때 바로 검색하고 싶다면 아래 호출
-    if (civilSelect) handleCivilChange(civilSelect);
+    // 지역을 바꿨을 때 이미 유형이 선택되어 있다면 바로 검색 실행
+    if (civilSelect) {
+      handleCivilChange(civilSelect, 1, city); 
+    }
   };
 
   const handlePageChange = (newPage) => {
@@ -249,39 +236,31 @@ const UserMap = () => {
 };
 
  // 재난 유형 변경 및 검색 실행 함수 수정
-const handleCivilChange = async (value, page = 1) => {
-  setCivilSelect(value);
-  if (!selectedSigun) return;
-  
-  // page 인자가 들어오면 해당 페이지로, 아니면 1페이지로 초기화
-  if (page === 1) setCurrentPage(1);
-
   // '전체' 선택 시 빈 문자열을 보내 백엔드에서 모든 유형을 검색하게 함
-  const apiCode = value === '전체' ? '' : SHELTER_TYPE_MAP[value];
-  
-  const params = {
-    ctpvNm: "전북",
-    sggNm: selectedSigun,  
-    fcltSeCd: apiCode, 
-    page: page,
-    size: 100
-  };
+  const handleCivilChange = async (value, page = 1, targetCity = selectedSigun) => {
+    setCivilSelect(value);
+    if (!targetCity) return;
+    
+    if (page === 1) setCurrentPage(1);
 
-  try {
-    const response = await facilityService.getFacilityList(params);
-    const items = response.data?.items || response.items || [];
+    const apiCode = value === '전체' ? '' : SHELTER_TYPE_MAP[value];
     
-    // 데이터가 성공적으로 오면 결과 저장 및 지도 마커 업데이트
-    setShelterResults(items);
-    
-    // 리스트 상단으로 스크롤 이동
-    const listContainer = document.querySelector('.overflow-y-auto');
-    if (listContainer) listContainer.scrollTop = 0;
-    
-  } catch (error) {
-    console.error("데이터 로드 실패:", error);
-  }
-};
+    const params = {
+      ctpvNm: "전북",
+      sggNm: targetCity,  
+      fcltSeCd: apiCode, 
+      page: page,
+      size: 100
+    };
+
+    try {
+      const response = await facilityService.getFacilityList(params);
+      const items = response.data?.items || response.items || [];
+      setShelterResults(items);
+    } catch (error) {
+      console.error("데이터 로드 실패:", error);
+    }
+  };
  
   // handleResultClick
   const handleResultClick = (item) => {
@@ -358,96 +337,7 @@ const handleCivilChange = async (value, page = 1) => {
     return response.data;
   };
   //
-
-  let currentFacilities = []; // 현재 데이터 저장용
-  // let markers = [];           // 지도 마커 관리용
-  let map = null;             // 지도 객체 (초기화 시 할당)
-
-  /* 3. API 호출 함수 (apiNum과 areaCode를 '인자'로 받게 수정) */
-  const fetchFacilities = async (areaCode, apiNum, keyType) => {
-    const baseUrl = '/safety-api';
-    const currentKey = SERVICE_KEY[keyType] || shelterServiceKey;
-
-    const urlProxy = `${baseUrl}/DSSP-IF-${apiNum}?serviceKey=${currentKey}&sigunguCode=${areaCode}&type=json`;
-
-    try {
-      console.log("요청 시작:", urlProxy);
-      const response = await fetch(urlProxy);
-      if (!response.ok) throw new Error(`HTTP 에러: ${response.status}`);
-
-      const data = await response.json();
-
-      const items = data?.response?.body?.items?.item || [];
-
-      if (items.length === 0) {
-        alert("검색 결과가 없습니다.");
-        setShelterResults([]);
-        return;
-      }
-
-      setShelterResults(items);
-      console.log("데이터 저장 완료:", items);
-
-    } catch (error) {
-      // 🚨 아까 빠졌던 catch 부분입니다!
-      console.error("데이터 로딩 오류:", error);
-      alert("데이터를 가져오는 중 오류가 발생했습니다.");
-    } // <--- try-catch 닫기
-
-  }; // <--- fetchFacilities 함수 닫기 (이게 있어야 export 에러가 안 남)
-
-
-
-
-
-  // --- [3. 지도 업데이트 함수] ---
-  function updateMap(facilityData) {
-    if (!facilityData || !Array.isArray(facilityData)) return;
-
-    // 1. 기존 마커 지우기
-    markers.forEach(marker => marker.setMap(null));
-    setMarkers([]);
-
-    // 2. 새로운 마커 찍기
-    facilityData.forEach(item => {
-      // [주의] item.latitude, item.lon 등 API 응답 필드명을 확인하세요!
-      console.log("마커 생성 위치:", item.xPos, item.yPos);
-
-      /* 지도 라이브러리 예시 (네이버/카카오 등)
-      const marker = new google.maps.Marker({
-          position: { lat: Number(item.yPos), lng: Number(item.xPos) },
-          map: map
-      });
-      markers.push(marker);
-      */
-    });
-
-    console.log(`총 ${facilityData.length}개의 마커가 표시되었습니다.`);
-  }
-
-  // --- [4. 이벤트 핸들러: 사용자가 지역 선택 시] ---
-  async function handleUserSelection() {
-    // 1. 지역 코드 배열
-    const selectedAreaCodes = [
-      '52790', '52130'
-    ];
-
-    const selectedApiNum = ['00706', '10945'];
-
-    // 3. 시설 타입(또는 API 번호) 배열
-    const selectedFacilityTypes = [
-      'VITE_API_SHELTER_TEMPORARY_HOUSING_KEY',
-      'VITE_API_SHELTER_EARTHQUAKE'];
-
-    // 4. 하나씩 꺼내서 호출하기 (핵심!)
-    for (const area of selectedAreaCodes) {
-      for (const type of selectedFacilityTypes) {
-        // 이제 함수가 '문자열' 하나씩을 받아서 정상적인 URL을 만듭니다.
-        await fetchFacilities(area, type, keyType);
-      }
-    }
-  }
-
+  
   /* <================ ★ 카카오맵 로직 시작 ★ ================> */
   // useEffect 모음
   //
@@ -476,22 +366,6 @@ const handleCivilChange = async (value, page = 1) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // 2. 키워드 검색 함수
-  const searchPlaces = (keyword) => {
-    if (!window.kakao) return;
-    const ps = new window.kakao.maps.services.Places();
-
-    ps.keywordSearch(keyword, (data, status) => {
-      if (status === window.kakao.maps.services.Status.OK) {
-        console.log(keyword);
-        console.log(data);
-        setShelterResults(data); // 사이드바 리스트 업데이트
-      } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
-        alert('검색 결과가 존재하지 않습니다.');
-        setShelterResults([]);
-      }
-    });
-  };
   //
   /* <========== 지도 초기화 ==========> */
   /* <========== 지도 마커 생성 및 클릭 이벤트 처리 ==========> */
@@ -548,7 +422,21 @@ useEffect(() => {
   }
 }, [shelterResults, mapInstance]);
   /* <========== 지도 마커 및 커스텀 오버레이 로직 ==========> */
-  // useEffect 최종 막줄
+  useEffect(() => {
+    const loadRegionCodes = async () => {
+      try {
+        const response = await commonService.getCodeList('AREA_JB');
+        if (response?.data) {
+          setSggCodes(response.data);
+        }
+      } catch (error) {
+        console.error("시군구 코드 로드 실패:", error);
+        // 실패 시 대비용 기본 데이터 (Optional)
+        // setSggCodes([{ code: '45110', name: '전주시' }, ...]);
+      }
+    };
+    loadRegionCodes();
+  }, []);
 
 
 
@@ -573,16 +461,6 @@ useEffect(() => {
       });
     }
   };
-
-  /* <================ ★ 카카오맵 로직 끝 ★ ================> */
-
-  // shelterResults가 배열인지 확인하고, 아니면 빈 배열로 처리
-  const sortedResults = Array.isArray(shelterResults)
-    ? [...shelterResults].sort((a, b) => {
-      if (sortType === 'name') return (a.place_name || "").localeCompare(b.place_name || "");
-      return 0;
-    })
-    : []; // 배열이 아니면 그냥 빈 리스트 전달
 
 
 
@@ -633,7 +511,8 @@ useEffect(() => {
               <MapPin size={24} />
               <span className="text-[11px] font-medium">주소검색</span>
             </button>
-            <button onClick={() => setActiveMenu('shelter')} className={`flex flex-col items-center gap-1 group w-1/3 ${activeMenu === 'shelter' ? 'text-blue-600' : 'text-slate-500'}`}>
+            <button onClick={() => setActiveMenu('shelter')} className={`flex flex-col items-center gap-1 group w-1/3
+              ${activeMenu === 'shelter' ? 'text-blue-600' : 'text-slate-500'}`}>
               <Layers size={24} />
               <span className="text-[11px] font-medium">대피소</span>
             </button>
@@ -653,13 +532,28 @@ useEffect(() => {
 
           {activeMenu === 'shelter' ? (
             <div className="p-4 space-y-4">
-    <SelectBox label="지역 선택" value={selectedSigun} options={Object.keys(JB_REGIONS_FOR_SELECTS)} onChange={handleSigunSelect} />
+    <div className="flex flex-col gap-1">
+      <label className="text-xs text-slate-500 ml-1">지역 선택</label>
+      <select 
+        value={selectedSigun} 
+        onChange={(e) => handleSigunSelect(e.target.value)}
+        className="w-full p-3 border rounded-md text-sm bg-white outline-none focus:border-blue-500 transition-all appearance-none"
+      >
+        <option value="">지역 선택</option>
+        {sggCodes.map((item) => (
+          <option key={item.code} value={item.name}>
+            {item.name}
+          </option>
+        ))}
+      </select>
+    </div>
+
     <div className="space-y-3 pt-2 border-t">
       <SelectBox
         label="대피소/쉼터 유형"
         options={MBY_SELECT_OPTIONS}
         value={civilSelect}
-        onChange={(val) => handleCivilChange(val, 1)} // 유형 변경 시 1페이지부터
+        onChange={(val) => handleCivilChange(val, 1)} 
         disabled={!selectedSigun}
       />
     </div>
