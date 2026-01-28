@@ -128,11 +128,34 @@ export const userService = {
       }
     }).then(res => res.data);
   },
-  checkUserExists: (userId, email) => {
-  return api.get('/auth/check-user', {
-    params: { userId, email }
-  }).then(res => res.data);
-}
+    checkUserExists: (userId, email) => {
+    return api.get('/auth/check-user', {
+      params: { userId, email }
+    }).then(res => res.data);
+  },
+  // ==================================== 관리자 ==========================================
+  // 3. 회원 목록 조회 (페이징, 검색, 정렬 포함)
+  // params 예시: { page: 1, size: 10, memberRegion: '전북', keyword: '홍길동', sortOrder: 'latest' }
+  getMemberList: async (params) => {
+      return await axios.get('/api/auth/list', { params });
+  },
+
+  // 4. 선택 회원 삭제 (논리 삭제 - status 업데이트)
+  // ids 예시: ['user1', 'user2']
+  deleteMembers: async (ids) => {
+      return await axios.post('/api/auth/delete', { ids });
+  },
+
+  // 5. 신규 회원 등록 (관리자용)
+  // signupData 예시: { userId, userPw, userName, ... }
+  registerMember: async (signupData) => {
+      return await axios.post('/api/admin/member/register', signupData);
+  },
+
+  // 6. 회원 상세 정보 조회
+  getMemberDetail: async (userId) => {
+      return await axios.get(`/api/admin/member/detail/${userId}`);
+  }
 };
 
 export const shelterService = {
