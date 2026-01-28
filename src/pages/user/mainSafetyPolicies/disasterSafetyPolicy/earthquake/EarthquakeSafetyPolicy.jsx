@@ -1,6 +1,6 @@
 // src/pages/user/mainSafetyPolicies/disasterSafetyPolicy/earthquake/EarthquakeSafetyPolicy.jsx
 import React from 'react';
-import GuidePageTemplate from '@/components/shared/GuidePageTemplate';
+import GuidePageTemplate from '@/components/shared/GuidePageTemplate copy';
 import { earthquakeSafetyPolicyData } from './data';
 
 const EarthquakeSafetyPolicy = () => {

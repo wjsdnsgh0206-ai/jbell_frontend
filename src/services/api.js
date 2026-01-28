@@ -664,3 +664,17 @@ export const disasterModalService = {
     return response.data;
   },
 };
+/* =========================================================
+  국민행동요령 API (백엔드 DB 연동)
+========================================================= */
+export const behaviorMethodService = {
+  // 행동요령 목록 조회
+  // contentType 예: "NATURAL_TYPHOON", "NATURAL_EARTHQUAKE"
+  getBehaviorMethodList: async (contentType) => {
+    // 8080 포트 백엔드 API 호출
+    const response = await api.get("/behaviorMethod/list", {
+      params: { contentType },
+    });
+    return response.data;
+  },
+};
