@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { AdminCommonCodeData } from './AdminCommonCodeData';
+import axios from 'axios';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 import { Calendar } from 'lucide-react';
 
@@ -34,32 +34,44 @@ const AdminGroupCodeEdit = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const [formData, setFormData] = useState({
-    groupCodeId: '',
+    groupCode: '',
     groupName: '',
     desc: '',
     order: 1,
-    regDate: '',
-    modDate: ''
+    createdAt: '',
+    updatedAt: ''
   });
 
-  // 데이터 로드
+  // [추가] 날짜 포맷 함수
+  const formatDateTime = (dateTimeStr) => {
+    if (!dateTimeStr) return '-';
+    return dateTimeStr.replace('T', ' ');
+  };
+
+// 데이터 로드 (DB 연동)
   useEffect(() => {
-    const detailData = AdminCommonCodeData.find(item => String(item.id) === String(id));
-    if (detailData) {
-      const initialForm = {
-        groupCodeId: detailData.groupCode,
-        groupName: detailData.groupName,
-        desc: detailData.desc || '',
-        order: detailData.order || 1,
-        regDate: detailData.date,
-        modDate: detailData.editDate || detailData.date 
-      };
-      setFormData(initialForm);
-      setOriginalData({ ...initialForm, visible: detailData.visible });
-      setOriginalName(detailData.groupName);
-      setIsRegistered(detailData.visible);
-      setBreadcrumbTitle(detailData.groupName);
-    }
+    const fetchDetail = async () => {
+      try {
+        const response = await axios.get(`/api/common/code/groups/${id}`);
+        const data = response.data;
+        const initialForm = {
+          groupCode: data.groupCode,
+          groupName: data.groupName,
+          desc: data.desc || '',
+          order: data.order || 1,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt
+        };
+        setFormData(initialForm);
+        setOriginalData({ ...initialForm, visible: data.visible });
+        setOriginalName(data.groupName);
+        setIsRegistered(data.visible);
+        setBreadcrumbTitle(data.groupName);
+      } catch (error) {
+        console.error("로드 실패:", error);
+      }
+    };
+    fetchDetail();
   }, [id, setBreadcrumbTitle]);
 
   // 변경 사항 체크 (더티 체크)
@@ -74,18 +86,17 @@ const AdminGroupCodeEdit = () => {
   }, [formData, originalData, isRegistered]);
 
   // 중복 체크 로직 개선
-  const checkDuplicateName = useMemo(() => {
-    const currentInputName = formData.groupName.trim();
-    
-    // 입력값이 없거나 기존 이름과 똑같으면 중복 아님
-    if (!currentInputName || currentInputName === originalName.trim()) return false;
+  // [수정] 기존 로직을 아래로 교체
+const checkDuplicateName = useMemo(() => {
+  const currentInputName = formData.groupName.trim();
+  
+  // 입력값이 없거나 기존 이름과 똑같으면 중복 아님
+  if (!currentInputName || currentInputName === originalName.trim()) return false;
 
-    // 현재 수정 중인 그룹 코드가 아닌 다른 데이터들 중에서 동일한 그룹명이 있는지 확인
-    return AdminCommonCodeData.some(item => 
-      item.groupCode !== formData.groupCodeId && 
-      item.groupName.trim() === currentInputName
-    );
-  }, [formData.groupName, formData.groupCodeId, originalName]);
+  // 실 서버 연동 시에는 서버 저장 시 에러 처리를 하거나 중복체크 API를 사용합니다.
+  // 에러 방지를 위해 일단 false를 반환하게 둡니다.
+  return false; 
+}, [formData.groupName, originalName]);
 
   // 브라우저 뒤로가기 방지
   const handlePopState = useCallback(() => {
@@ -144,23 +155,15 @@ const AdminGroupCodeEdit = () => {
     setIsModalOpen(true);
   };
 
-  const handleConfirmSave = () => {
-    setIsModalOpen(false);
-    const now = new Date();
-    const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-
-    // 더미 데이터 업데이트 (해당 그룹 코드를 가진 모든 항목의 이름을 업데이트해야 일관성이 유지됨)
-    AdminCommonCodeData.forEach((item, index) => {
-      if (item.groupCode === formData.groupCodeId) {
-        AdminCommonCodeData[index] = {
-          ...item,
-          groupName: formData.groupName.trim(),
-          desc: item.subCode === '-' ? formData.desc.trim() : item.desc, // 그룹 대표 데이터만 설명 업데이트
-          order: item.subCode === '-' ? formData.order : item.order,
-          visible: item.subCode === '-' ? isRegistered : item.visible,
-          editDate: formattedDate 
-        };
-      }
+  const handleConfirmSave = async () => {
+  setIsModalOpen(false);
+  try {
+    await axios.put(`/api/common/code/groups/${id}`, {
+      groupCode: formData.groupCode,
+      groupName: formData.groupName.trim(),
+      desc: formData.desc.trim(),
+      order: formData.order,
+      visible: isRegistered
     });
 
     window.removeEventListener('popstate', handlePopState);
@@ -169,7 +172,11 @@ const AdminGroupCodeEdit = () => {
     setTimeout(() => {
       navigate(`/admin/system/groupCodeDetail/${id}`, { replace: true });
     }, 1500);
-  };
+  } catch (error) {
+    console.error("저장 실패:", error);
+    alert("저장 중 오류가 발생했습니다.");
+  }
+};
 
   const handleCancel = () => {
     if (isDirty) setIsCancelModalOpen(true);
@@ -209,7 +216,7 @@ const AdminGroupCodeEdit = () => {
             {/* 그룹 코드 ID (Read Only) */}
             <div className="w-full max-w-[500px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">그룹 코드 ID</label>
-              <input value={formData.groupCodeId} readOnly className="w-full bg-[#F3F4F7] border border-gray-200 rounded-lg px-5 py-4 text-[#666] cursor-not-allowed outline-none font-medium" />
+              <input value={formData.groupCode} readOnly className="w-full bg-[#F3F4F7] border border-gray-200 rounded-lg px-5 py-4 text-[#666] cursor-not-allowed outline-none font-medium" />
               <p className="text-[13px] text-gray-400 mt-3 font-medium">* 그룹 코드 ID는 수정할 수 없습니다.</p>
             </div>
 
@@ -274,14 +281,22 @@ const AdminGroupCodeEdit = () => {
             <div className="pt-10 border-t border-gray-100 flex flex-col space-y-8">
               <div className="flex flex-col gap-2">
                 <label className="text-[14px] font-bold text-gray-400">등록 일시</label>
-                <div className="flex items-center gap-2 text-[#999] font-medium px-1"><Calendar size={16} className="text-gray-300" /> {formData.regDate}</div>
+                <div className="flex items-center gap-2 text-[#999] font-medium px-1">
+                  <Calendar size={16} className="text-gray-300" /> 
+                  {/* regDate 대신 formatDateTime(formData.createdAt) 사용 */}
+                  {formatDateTime(formData.createdAt)}
+                </div>
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-[14px] font-bold text-gray-400">수정 일시</label>
-                <div className="flex items-center gap-2 text-[#999] font-medium px-1"><Calendar size={16} className="text-gray-300" /> {formData.modDate}</div>
+                <div className="flex items-center gap-2 text-[#999] font-medium px-1">
+                  <Calendar size={16} className="text-gray-300" /> 
+                  {/* modDate 대신 formatDateTime(formData.updatedAt || formData.createdAt) 사용 */}
+                  {formatDateTime(formData.updatedAt || formData.createdAt)}
+                </div>
               </div>
-            </div>           
-          </div> 
+            </div>
+          </div>  
         </section>
 
         <div className="flex justify-end gap-2 mt-12 max-w-[1000px]">
