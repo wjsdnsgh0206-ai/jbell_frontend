@@ -198,6 +198,75 @@ export const userService = {
   }
 };
 
+/* =========================================================
+   공통 코드 관리 API (System Admin) - [NEW] 추가됨
+========================================================= */
+export const codeService = {
+  // 1. 공통코드 통합 조회
+  getAllCodes: async () => {
+    const response = await api.get("/common/code/all");
+    return response.data;
+  },
+
+  // 2. 그룹 중복 체크
+  checkGroupDup: async (params) => {
+    // params: { groupCode, groupName }
+    const response = await api.get("/common/code/check/group", { params });
+    return response.data;
+  },
+
+  // 3. 상세 중복 체크
+  checkSubDup: async (params) => {
+    // params: { groupCode, subCode, subName }
+    const response = await api.get("/common/code/check/sub", { params });
+    return response.data;
+  },
+
+  // 4. 그룹 관리 (목록, 상세, 등록, 수정, 삭제)
+  getCodeGroups: async () => {
+    const response = await api.get("/common/code/groups");
+    return response.data;
+  },
+  getCodeGroup: async (id) => {
+    const response = await api.get(`/common/code/groups/${id}`);
+    return response.data;
+  },
+  addGroup: async (data) => {
+    const response = await api.post("/common/code/groups", data);
+    return response.data;
+  },
+  updateGroup: async (id, data) => {
+    const response = await api.put(`/common/code/groups/${id}`, data);
+    return response.data;
+  },
+  deleteGroup: async (id) => {
+    const response = await api.delete(`/common/code/groups/${id}`);
+    return response.data;
+  },
+
+  // 5. 상세 코드 관리 (목록, 상세, 등록, 수정, 삭제)
+  getCodeItems: async (groupId) => {
+    const response = await api.get(`/common/code/groups/${groupId}/items`);
+    return response.data;
+  },
+  getCodeItem: async (groupId, itemId) => {
+    const response = await api.get(`/common/code/groups/${groupId}/items/${itemId}`);
+    return response.data;
+  },
+  addItem: async (groupId, data) => {
+    const response = await api.post(`/common/code/groups/${groupId}/items`, data);
+    return response.data;
+  },
+  updateItem: async (groupId, itemId, data) => {
+    const response = await api.put(`/common/code/groups/${groupId}/items/${itemId}`, data);
+    return response.data;
+  },
+  deleteItem: async (groupId, itemId) => {
+    const response = await api.delete(`/common/code/groups/${groupId}/items/${itemId}`);
+    return response.data;
+  }
+};
+
 export const shelterService = {
   getShelters: async (params) => {
     // Vite 프록시 설정 덕분에 /safety-api/DSSP-IF-10941 로 요청하면 됩니다.
