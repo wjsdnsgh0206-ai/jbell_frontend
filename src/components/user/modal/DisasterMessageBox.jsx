@@ -6,88 +6,47 @@ const DisasterMessage = () => {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 환경 변수에서 API 키 가져오기
-  const DISASTER_API_KEY = import.meta.env.VITE_API_DISATER_TEXT_MESSAGE_KEY;
+  // 백엔드 영문 코드를 한글 이름과 색상으로 매핑
+  const typeMap = {
+    NATURAL_EARTHQUAKE: { label: "지진", color: "#ef4444", bg: "bg-red-100", text: "text-red-600" },
+    NATURAL_HEAVYRAIN: { label: "호우", color: "#3b82f6", bg: "bg-blue-100", text: "text-blue-600" },
+    NATURAL_FLOOD: { label: "홍수", color: "#0ea5e9", bg: "bg-sky-100", text: "text-sky-600" },
+    HEAT_SHELTER: { label: "폭염", color: "#f97316", bg: "bg-orange-100", text: "text-orange-600" },
+    CIVIL_DEFENSE_DISASTER: { label: "기타/실종", color: "#94a3b8", bg: "bg-gray-100", text: "text-gray-600" },
+    ITEM_001: { label: "알림", color: "#94a3b8", bg: "bg-gray-100", text: "text-gray-600" }
+  };
 
   useEffect(() => {
-    const fetchDisasterMessages = async () => {
-      if (!DISASTER_API_KEY) {
-        console.error("환경 변수 VITE_API_DISATER_TEXT_MESSAGE_KEY가 설정되지 않았습니다.");
-        setIsFalse(false);
-        return;
-      }
-
+    const fetchFromBackend = async () => {
       try {
         setIsLoading(true);
-
-        const now = new Date();
-        const todayStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
-        const url = `/message-api/DSSP-IF-00247`;
-
-        const response = await axios.get(url, {
-          params: {
-            serviceKey: DISASTER_API_KEY,
-            crtDt: todayStr,
-            numOfRows: 100,
-            rgnNm: "전북특별자치도",
-          }
-        });
-
-        const rawData = response.data?.body || [];
-
-        const formattedData = rawData.map((item, index) => {
-          const content = item.MSG_CN || "내용 없음";
-          const regDt = item.CRT_DT || "";
-          const disasterCategory = item.DST_SE_NM || "알림";
-
-          // [수정 포인트] 타입 결정 로직 정교화 및 우선순위 조정
-          let type = "주의";
-
-          // 1. 기상 (한파, 대설, 호우, 강풍 등) - '한파' 키워드 명시적 추가
-          if (
-            disasterCategory.includes("대설") || disasterCategory.includes("호우") || 
-            disasterCategory.includes("기상") || disasterCategory.includes("한파") ||
-            disasterCategory.includes("강풍") || disasterCategory.includes("건조") ||
-            content.includes("눈") || content.includes("비") || 
-            content.includes("한파") || content.includes("추위") || content.includes("특보")
-          ) {
-            type = "기상";
-          } 
-          // 2. 화재
-          else if (disasterCategory.includes("화재") || content.includes("화재")) {
-            type = "화재";
-          }
-          // 3. 교통
-          else if (
-            disasterCategory.includes("교통") || content.includes("교통") || 
-            content.includes("결빙") || content.includes("사고") || content.includes("통제")
-          ) {
-            type = "교통";
-          }
-
-          return {
-            id: item.SN || `msg-${index}`,
-            category: disasterCategory,
-            time: regDt.includes(" ") ? regDt.split(" ")[1].substring(0, 5) : "00:00",
-            content: content,
-            type: type,
-          };
-        });
+        // 우리 백엔드 API 호출
+        const response = await axios.get("http://localhost:8080/api/disaster/message-list");
+        
+        // 백엔드 response.data.data 구조에 맞춰서 저장
+        const formattedData = (response.data.data || []).map(item => ({
+          id: item.sn,
+          time: item.crtDt ? item.crtDt.split(" ")[1].substring(0, 5) : "00:00",
+          content: item.msgCn,
+          dstType: item.dstType,
+          category: item.emrgStepNm, // 긴급/안전안내 등
+          region: item.rcptnRgnNm
+        }));
 
         setMessages(formattedData);
       } catch (error) {
-        console.error("재난문자 호출 에러:", error);
+        console.error("백엔드 데이터 호출 에러:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchDisasterMessages();
-  }, [DISASTER_API_KEY]);
+    fetchFromBackend();
+  }, []);
 
   return (
     <div className="flex flex-col h-auto lg:h-full max-h-[440px] md:max-h-full bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
-      <div className="px-4 py-3 md:px-6 md:py-4 border-b border-gray-100 flex items-center gap-2.5 flex-shrink-0 bg-white rounded-none">
+      <div className="px-4 py-3 md:px-6 md:py-4 border-b border-gray-100 flex items-center gap-2.5 flex-shrink-0 bg-white">
         <div className="h-6 w-6 flex items-center justify-center rounded-lg bg-red-50">
           <AlertCircle size={16} className="text-red-500" />
         </div>
@@ -101,50 +60,40 @@ const DisasterMessage = () => {
             <p className="text-detail-s">데이터를 가져오는 중입니다...</p>
           </div>
         ) : messages.length > 0 ? (
-          messages.map((msg) => (
-            <div
-              key={msg.id}
-              className="relative p-4 bg-gray-50/50 border border-gray-100 rounded-xl transition-all hover:bg-white hover:shadow-md group border-l-4"
-              style={{
-                borderLeftColor:
-                  msg.type === "화재" ? "#ef4444" :
-                  msg.type === "기상" ? "#3b82f6" :
-                  msg.type === "교통" ? "#f97316" : "#94a3b8",
-              }}
-            >
-              <div className="flex justify-between items-center mb-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] md:text-detail-s-bold text-gray-700 font-bold">
-                    {msg.category}
-                  </span>
-                  <span className={`text-[10px] md:text-[11px] px-1.5 py-0.5 rounded font-black ${
-                    msg.type === "화재" ? "bg-red-100 text-red-600" :
-                    msg.type === "기상" ? "bg-blue-100 text-blue-600" :
-                    msg.type === "교통" ? "bg-orange-100 text-orange-600" : "bg-gray-100 text-gray-600"
-                  }`}>
-                    {msg.type}
-                  </span>
+          messages.map((msg) => {
+            const style = typeMap[msg.dstType] || typeMap['ITEM_001'];
+            return (
+              <div
+                key={msg.id}
+                className="relative p-4 bg-gray-50/50 border border-gray-100 rounded-xl transition-all hover:bg-white hover:shadow-md border-l-4"
+                style={{ borderLeftColor: style.color }}
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] md:text-detail-s-bold text-gray-700 font-bold">
+                      {msg.category}
+                    </span>
+                    <span className={`text-[10px] md:text-[11px] px-1.5 py-0.5 rounded font-black ${style.bg} ${style.text}`}>
+                      {style.label}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1 text-[10px] md:text-detail-s text-gray-400 font-mono">
+                    <Clock size={10} />
+                    {msg.time}
+                  </div>
                 </div>
-                <div className="flex items-center gap-1 text-[10px] md:text-detail-s text-gray-400 font-mono">
-                  <Clock size={10} className="md:w-3 md:h-3" />
-                  {msg.time}
-                </div>
+                <p className="text-detail-s md:text-detail-m text-gray-700 leading-relaxed break-keep font-medium">
+                  {msg.content}
+                </p>
+                <p className="mt-2 text-[10px] text-blue-500 font-semibold">{msg.region}</p>
               </div>
-              <p className="text-detail-s md:text-detail-m text-gray-700 leading-relaxed break-keep font-medium">
-                {msg.content}
-              </p>
-            </div>
-          ))
+            );
+          })
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-gray-400 py-10">
-            <p className="text-detail-m mb-1">오늘 수신된 전북 재난문자가 없습니다.</p>
-            <p className="text-detail-s opacity-70">평온한 하루네요! 😊</p>
+            <p className="text-detail-m mb-1">데이터가 없습니다.</p>
           </div>
         )}
-      </div>
-
-      <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex-shrink-0">
-        <p className="text-detail-xs text-gray-400 leading-tight">SafetyData API (전북특별자치도 기준)</p>
       </div>
     </div>
   );

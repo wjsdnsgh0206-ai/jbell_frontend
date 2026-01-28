@@ -1,10 +1,12 @@
 //src/pages/user/customerservice/qna/QnAListPage.jsx
-import React, { useState, useMemo } from 'react';
-import { Search, ChevronRight, ChevronLeft, ChevronDown, Plus, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Search, ChevronRight, ChevronLeft, ChevronDown, Plus, AlertCircle, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 import SearchBarTemplate from '@/components/shared/SearchBarTemplate';
 import { Button } from '@/components/shared/Button';
+import { qnaService } from '@/services/api';
+import { CgSlack } from 'react-icons/cg';
 
 const QnAListPage = () => {
   const navigate = useNavigate();
@@ -16,22 +18,28 @@ const QnAListPage = () => {
     { label: "1:1문의", path: "/qna", hasIcon: false },
   ];
 
-  // 샘플 데이터 (실제 프로젝트에선 data.js로 분리 추천)
-  const inquiries = [
-    { id: 1, status: 'progress', statusText: '답변대기', title: '비밀번호 변경이 되지 않습니다.', content: '마이페이지에서 비밀번호 변경을 시도했는데 오류가 발생합니다...', date: '2024.04.30', category: '계정 및 회원정보' },
-    { id: 2, status: 'complete', statusText: '답변완료', title: '서비스 이용 관련 문의드립니다.', content: '주말에도 고객센터 상담이 가능한가요?', date: '2024.05.01', category: '결제 및 서비스 이용' },
-    { id: 3, status: 'receipt', statusText: '접수완료', title: '결제 취소 요청', content: '어제 결제한 내역을 취소하고 싶습니다.', date: '2024.06.01', category: '결제 및 서비스 이용' },
-    { id: 4, status: 'waiting', statusText: '처리중', title: '기관 연동이 안돼요', content: '타기관 인증서 등록 시 오류가 뜹니다.', date: '2025.11.01', category: '시스템 및 장애' },
-    // ... 데이터 생략
-  ];
-
   // --- 상태 관리 ---
+  const [inquiries, setInquiries] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [sortOrder, setSortOrder] = useState('latest');
   const [searchCategory, setSearchCategory] = useState('전체');
   const [searchTerm, setSearchTerm] = useState('');
   const [activeSearch, setActiveSearch] = useState({ category: '전체', term: '' });
+
+  // API 데이터 로드
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await qnaService.getPublicQnaList();
+        console.log("서버 응답 데이터:", data); // [체크 1] 데이터가 잘 오는지 확인
+        setInquiries(data);
+      } catch (error) {
+        console.error("목록 로드 실패 에러:", error); // [체크 2] 빨간색 에러가 뜨는지 확인
+      }
+    };
+    fetchData();
+  }, []);
 
   // --- 데이터 필터링 및 정렬 ---
   const processedData = useMemo(() => {
@@ -45,12 +53,12 @@ const QnAListPage = () => {
       });
     }
     result.sort((a, b) => {
-      const dateA = new Date(a.date);
-      const dateB = new Date(b.date);
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
       return sortOrder === 'latest' ? dateB - dateA : dateA - dateB;
     });
     return result;
-  }, [activeSearch, sortOrder]);
+  }, [inquiries, activeSearch, sortOrder]);
 
   const totalItems = processedData.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
@@ -79,11 +87,14 @@ const QnAListPage = () => {
   // 배지 스타일 (FAQ와 톤 맞춤)
   const getStatusStyle = (status) => {
     switch (status) {
-      case 'progress': return 'bg-orange-50 text-orange-600 border-orange-100'; 
-      case 'complete': return 'bg-blue-50 text-blue-600 border-blue-100';      
-      case 'receipt':  return 'bg-graygray-5 text-graygray-60 border-graygray-10'; 
-      case 'waiting':  return 'bg-green-50 text-green-600 border-green-100';   
-      default: return 'bg-graygray-5 text-graygray-40 border-graygray-10';
+      case '답변처리중': // 진행중 (오렌지)
+        return 'bg-orange-50 text-orange-600 border-orange-100'; 
+      case '답변완료':   // 완료 (파랑)
+        return 'bg-blue-50 text-blue-600 border-blue-100';      
+      case '답변대기':   // 대기 (초록)
+        return 'bg-green-50 text-green-600 border-green-100';   
+      default:           // 그 외 (회색)
+        return 'bg-graygray-5 text-graygray-40 border-graygray-10';
     }
   };
 
@@ -171,47 +182,71 @@ const QnAListPage = () => {
         </div>
 
         {/* --- QnA(문의) 리스트 영역 --- */}
-        {/* 1. border-t-2와 상단 컨트롤바 사이의 간격을 mt-8로 확보
-          2. 리스트 하단과 페이지네이션 사이의 간격을 mb-16으로 확보 
-        */}
         <div className="flex flex-col mb-16">
           {currentItems.length > 0 ? (
-            <div className="flex flex-col gap-4 md:gap-5 pt-4"> {/* 선 바로 아래 첫 아이템과의 간격 */}
-              {currentItems.map((item) => (
-                <div 
-                  key={item.id} 
-                  onClick={() => navigate(`/qna/${item.id}`)}
-                  className="border border-graygray-10 rounded-xl p-5 md:p-6 hover:shadow-sm hover:border-graygray-30 transition-all cursor-pointer bg-white active:bg-graygray-5 flex flex-col gap-4"
-                >
-                  {/* 상단: 상태 배지 및 카테고리 */}
-                  <div className="flex items-center gap-2">
-                    <span className={`px-2 py-0.5 text-[12px] font-bold rounded border ${getStatusStyle(item.status)}`}>
-                      {item.statusText}
-                    </span>
-                    <span className="text-[12px] text-graygray-50 bg-white px-2 py-0.5 rounded border border-graygray-10">
-                      {item.category}
-                    </span>
-                  </div>
+            <div className="flex flex-col gap-4 md:gap-5 pt-4">
+              {currentItems.map((item) => {
+                const isSecret = item.isVisible === 'N'; 
 
-                  {/* 중간: 질문 제목 및 내용 미리보기 */}
-                  <div className="flex flex-col gap-2">
-                    <h3 className="text-title-l text-graygray-90 font-bold leading-snug group-hover:text-secondary-50 transition-colors truncate">
-                      {item.title}
-                    </h3>
-                    <p className="text-body-m text-graygray-60 line-clamp-1 leading-relaxed">
-                      {item.content}
-                    </p>
-                  </div>
+                return (
+                  <div 
+                    key={item.qnaId} 
+                    onClick={() => {
+                        if(isSecret) {
+                            alert("비밀글입니다. (작성자만 확인 가능)");
+                            // 실제 구현 시: navigate(`/qna/${item.qnaId}`)로 보내고 상세페이지에서 권한 체크
+                        } else {
+                            navigate(`/qna/${item.qnaId}`);
+                        }
+                    }}
+                    className="border border-graygray-10 rounded-xl p-5 md:p-6 hover:shadow-sm hover:border-graygray-30 transition-all cursor-pointer bg-white active:bg-graygray-5 flex flex-col gap-4"
+                  >
+                  {/* 상단: 상태 배지 및 카테고리 */}
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-0.5 text-[12px] font-bold rounded border ${getStatusStyle(item.status)}`}>
+                        {item.status}
+                      </span>
+                      <span className="text-[12px] text-graygray-50 bg-white px-2 py-0.5 rounded border border-graygray-10">
+                        {item.categoryName}
+                      </span>
+                    </div>
+
+                  {/* 제목 및 내용 표시 영역 */}
+                    <div className="flex flex-col gap-2">
+                      <h3 className="text-title-l text-graygray-90 font-bold leading-snug group-hover:text-secondary-50 transition-colors truncate flex items-center gap-2">
+                        {isSecret ? (
+                            // 비밀글일 경우
+                            <>
+                                <span className="text-graygray-60">비밀글입니다.</span>
+                                <Lock size={16} className="text-graygray-40" />
+                            </>
+                        ) : (
+                            // 공개글일 경우
+                            item.title
+                        )}
+                      </h3>
+                      
+                      {/* 내용은 비밀글이면 아예 숨기거나 안내 문구 표시 */}
+                      {!isSecret && (
+                          <p className="text-body-m text-graygray-60 line-clamp-1 leading-relaxed">
+                            {item.content} {/* DTO에 content가 없다면 Mapper에서 추가 필요 */}
+                          </p>
+                      )}
+                    </div>
 
                   {/* 하단: 메타 정보 영역 */}
-                  <div className="flex items-center justify-between border-t border-graygray-5 pt-4">
-                    <div className="text-detail-m text-graygray-50 tabular-nums">
-                      <span>등록일: {item.date}</span>
+                    <div className="flex items-center justify-between border-t border-graygray-5 pt-4">
+                      <div className="text-detail-m text-graygray-50 tabular-nums flex gap-3">
+                         {/* 작성자 이름 마스킹 처리 (선택사항) */}
+                        <span>{item.userName}</span>
+                        <span className="text-graygray-30">|</span>
+                        <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <ChevronRight size={18} className="text-graygray-30 group-hover:text-secondary-50 transition-colors" />
                     </div>
-                    <ChevronRight size={18} className="text-graygray-30 group-hover:text-secondary-50 transition-colors" />
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             /* 검색 결과 없음 UI */

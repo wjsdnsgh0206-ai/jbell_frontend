@@ -105,20 +105,34 @@ export const facilityService = {
 };
 
 /* =========================================================
-   FAQ 관리 API (Admin) - 추가된 부분
+   FAQ 관리 API (Admin)
 ========================================================= */
 export const faqService = {
-  // 1. 목록 조회
+  // 1. [관리자용] 목록 조회
   getFaqList: async () => {
     // GET /api/admin/faqlist
     const response = await api.get("/admin/faqlist");
     return response.data;
   },
 
-  // 2. 상세 조회
+  // [사용자용] 목록 조회
+  getPublicFaqList: async () => {
+    // GET /api/faqlist (이전 답변에서 만든 사용자용 컨트롤러 주소)
+    const response = await api.get("/faqlist");
+    return response.data;
+  },
+
+  // 2. [관리자용] 상세 조회
   getFaqDetail: async (faqId) => {
     // GET /api/admin/faqdetail/{faqId}
     const response = await api.get(`/admin/faqdetail/${faqId}`);
+    return response.data;
+  },
+
+  // [사용자용] 상세 조회
+  getPublicFaqDetail: async (faqId) => {
+    // GET /api/faqdetail/{faqId}
+    const response = await api.get(`/faqdetail/${faqId}`);
     return response.data;
   },
 
@@ -149,6 +163,84 @@ export const faqService = {
     // POST /api/admin/faqdelete
     // payload: { faqId: [1,2] } (백엔드 DTO 변수명이 faqId 리스트임)
     const response = await api.post("/admin/faqdelete", payload);
+    return response.data;
+  }
+};
+
+/* =========================================================
+   1:1 문의 (QnA) 관리 API (Admin & User 공용)
+========================================================= */
+export const qnaService = {
+  // 1. 목록 조회 (관리자용)
+  // GET /api/admin/qnalist
+  getQnaList: async () => {
+    const response = await api.get("/admin/qnalist");
+    return response.data;
+  },
+
+  // 2. 상세 조회
+  // GET /api/admin/qnadetail?qnaId=1
+  getQnaDetail: async (qnaId) => {
+    const response = await api.get(`/admin/qnadetail`, {
+      params: { qnaId }
+    });
+    return response.data;
+  },
+
+  // 3. 문의 삭제 (단건 및 다건)
+  // DELETE /api/admin/qnadelete (Body: { qnaIds: [...] })
+  deleteQna: async (qnaIds) => {
+    // axios.delete는 body를 보낼 때 { data: ... } 형태로 감싸야 함
+    // 백엔드 DTO: QnaBulkDelete { qnaIds: List<Long>, userId: String }
+    const response = await api.delete("/admin/qnadelete", {
+      data: { 
+        qnaIds: qnaIds,
+        userId: "admin" // 세션 처리가 되어있다면 생략 가능하거나, 필요시 전달
+      }
+    });
+    return response.data;
+  },
+
+  // 4. 답변 등록
+  // POST /api/qna/answers
+  createAnswer: async (payload) => {
+    // payload: { qnaId, content, userId }
+    const response = await api.post("/qna/answers", payload);
+    return response.data;
+  },
+
+  // 5. 답변 수정
+  // PATCH /api/qna/answers/{answerId}
+  updateAnswer: async (answerId, content) => {
+    const response = await api.patch(`/qna/answers/${answerId}`, { content });
+    return response.data;
+  },
+
+  // 6. 답변 삭제
+  // DELETE /api/qna/answers/{answerId}
+  deleteAnswer: async (answerId) => {
+    const response = await api.delete(`/qna/answers/${answerId}`);
+    return response.data;
+  },
+
+  // 문의 등록
+  createQna: async (payload) => {
+    // POST /api/qna/add
+    const response = await api.post("/qna/add", payload);
+    return response.data;
+  },
+
+  // 사용자용 목록 조회
+  getPublicQnaList: async () => {
+    // GET /api/qna/list
+    const response = await api.get("/qna/list");
+    return response.data;
+  },
+  
+  // 사용자용 상세 조회
+  getPublicQnaDetail: async (qnaId) => {
+    // GET /api/qna/detail/{qnaId}
+    const response = await api.get(`/qna/detail/${qnaId}`);
     return response.data;
   }
 };
@@ -345,7 +437,7 @@ export const disasterModalService = {
         numOfRows: 500, // 전북 전체 시군구를 커버하기 위해 넉넉히
         pageNo: 1,
         dataType: "JSON",
-        fromTmFc: "20260114", // 오늘 기준 6일 전까지만 조회 가능
+        fromTmFc: "20260119", // 오늘 기준 6일 전까지만 조회 가능
         ...params, // warningType 등 넘어옴
       },
     });
