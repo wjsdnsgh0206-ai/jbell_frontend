@@ -5,9 +5,11 @@ import { Check, Lock, Unlock} from 'lucide-react';
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 import { Button } from '@/components/shared/Button';
 import { qnaService } from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 const QnAFormPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const breadcrumbItems = [
     { label: "홈", path: "/", hasIcon: true },
@@ -15,9 +17,6 @@ const QnAFormPage = () => {
     { label: "1:1문의", path: "/qna", hasIcon: false },
     { label: "1:1문의하기", path: "/qna/form", hasIcon: false },
   ];
-
-  // 로그인된 유저 ID를 담을 상태
-  const [loginUserId, setLoginUserId] = useState('');
 
   const [formData, setFormData] = useState({
     isPublic: true,
@@ -27,32 +26,15 @@ const QnAFormPage = () => {
   });
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // 페이지 로드 시 로그인 정보 가져오기
+  // 로그인 여부 체크
+  // AuthContext가 이미 스토리지 체크를 마친 상태라고 가정합니다.
   useEffect(() => {
-    // 💡 중요: 로그인 페이지에서 저장했던 "키 이름"을 확인해야 합니다.
-    // 보통 'user', 'userInfo', 'loginUser' 등으로 저장합니다.
-    const storedUser = sessionStorage.getItem('user') || localStorage.getItem('user');
-
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        // 저장된 객체에서 ID를 꺼냅니다. (user_id 또는 userId 등 저장된 필드명 확인 필요)
-        const userId = parsedUser.userId || parsedUser.user_id || parsedUser.id;
-        
-        if (userId) {
-          setLoginUserId(userId);
-        } else {
-          console.error("로그인 정보에 ID가 없습니다.");
-        }
-      } catch (e) {
-        console.error("로그인 정보 파싱 실패", e);
-      }
-    } else {
-      // 로그인이 안 되어 있다면 로그인 페이지로 튕겨내기
+    // 유저 정보가 없으면 로그인 페이지로 리다이렉트
+    if (!user) {
       alert("로그인이 필요한 서비스입니다.");
       navigate('/LoginMain'); 
     }
-  }, [navigate]);
+  }, [user, navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -71,7 +53,8 @@ const QnAFormPage = () => {
       return;
     }
 
-    if (!loginUserId) {
+    // user 객체 확인
+    if (!user || !user.userId) {
         alert("로그인 정보가 올바르지 않습니다. 다시 로그인해주세요.");
         return;
     }
@@ -82,7 +65,8 @@ const QnAFormPage = () => {
       title: title,
       content: content,
       isVisible: isPublic ? "Y" : "N",
-      userId: loginUserId
+      // Context에서 가져온 userId 사용
+      userId: user.userId
     };
 
     try {
@@ -96,6 +80,9 @@ const QnAFormPage = () => {
       alert("문의 등록 중 오류가 발생했습니다.\n(관리자에게 문의해주세요)");
     }
   };
+
+  // 렌더링 시 user가 없으면(로그인 체크 전이거나 로그아웃 상태) 아무것도 보여주지 않음 (깜빡임 방지)
+  if (!user) return null;
 
   return (
     <div className="w-full bg-white text-graygray-90">
