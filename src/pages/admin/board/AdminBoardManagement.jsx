@@ -26,10 +26,10 @@ const AdminBoardManagement = () => {
           const data = response.data;
           
           setFormData({
-            noticeId: data.Id,
+            noticeId: data.id,
             title: data.title,
             content: data.content,
-            isPublic: data.isPublic === 'Y' || data.isPublic === true,
+            isPublic: data.isPublic,
             files: [] // 파일은 백엔드 구현에 따라 추가 처리 필요
           });
         } catch (error) {
@@ -39,7 +39,7 @@ const AdminBoardManagement = () => {
       };
       fetchDetail();
     }
-  }, [isEditMode, boardId]);
+  }, [isEditMode, noticeId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -60,7 +60,6 @@ const AdminBoardManagement = () => {
     }
 
     const payload = {
-      noticeId: isEditMode ? Number(boardId) : null,
       title: formData.title,
       content: formData.content,
       isPublic: formData.isPublic, // 여기서 true/false가 전달
@@ -70,7 +69,7 @@ const AdminBoardManagement = () => {
     try {
       if (isEditMode) {
         // 수정 API 호출
-        await noticeApi.updateNotice(boardId, payload);
+        await noticeApi.updateNotice(noticeId, payload);
         alert("공지사항이 수정되었습니다.");
       } else {
         // 등록 API 호출
