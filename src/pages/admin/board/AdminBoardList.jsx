@@ -156,7 +156,7 @@ const AdminBoardList = () => {
           selectedIds.map(id => axios.delete(`/api/notice/${id}`))
         );
         // 2. 서버 삭제 성공 후 프론트 상태 업데이트
-        setPosts(prev => prev.filter(post => !selectedIds.includes(post.id)));
+        setPosts(prev => prev.filter(post => !selectedIds.map(String).includes(String(post.id))));
         setSelectedIds([]);
         setIsModalOpen(false);
         alert("삭제되었습니다.");
