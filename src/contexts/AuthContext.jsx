@@ -10,11 +10,12 @@ export const AuthProvider = ({ children }) => {
     // 1. 앱 시작 시 로컬 스토리지에서 직접 값을 읽어옴
     const savedUserId = localStorage.getItem('userId');
     const savedUserName = localStorage.getItem('userName');
+    const savedUserGrade = localStorage.getItem('userGrade');
 
     if (savedUserId && savedUserName) {
       setUser({ 
         userId: savedUserId, 
-        userName: savedUserName 
+        userName: savedUserName
       });
     }
     setLoading(false);

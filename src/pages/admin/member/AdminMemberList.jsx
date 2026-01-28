@@ -222,7 +222,7 @@ const AdminMemberList = () => {
                                 disabled={selectedIds.length === 0}
                                 className="bg-red-500 hover:bg-red-600 disabled:bg-gray-300 text-white font-bold py-2 px-4 rounded-md transition-colors"
                             >
-                                선택 삭제(정지)
+                                선택 정지
                             </button>
                             <button
                                 onClick={() => navigate('/admin/member/adminMemberRegister')}
