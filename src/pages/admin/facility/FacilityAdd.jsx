@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronDown } from 'lucide-react';
-import { facilityService } from '@/services/api';
+import { facilityService, commonService } from '@/services/api';
 
 const FacilityAdd = () => {
   const navigate = useNavigate();
@@ -10,17 +10,34 @@ const FacilityAdd = () => {
   // 1. 백엔드 FacilityDTO 필드명과 100% 일치시킴
   const [formData, setFormData] = useState({
     fcltNm: '',
-    fcltSeCd: 'DSSP-IF-10945', // DB 외래키 제약조건에 맞는 실제 코드값으로 기본값 설정
+    fcltSeCd: '',
     ctpvNm: '전북특별자치도',
     sggNm: '',
     roadNmAddr: '',
-    lat: 0, // 기본값 (전북 중심부 등) 또는 0
+    lat: 0,
     lot: 0,
     fcltArea: 0,
-    fcltCapacity: 0, // rcvCapacity에서 fcltCapacity로 수정
+    fcltCapacity: 0,
     opnYn: 'Y',
     useYn: 'Y'
   });
+
+  const [areaCodes, setAreaCodes] = useState([]);
+
+  useEffect(() => {
+    const fetchAreaCodes = async () => {
+      try {
+        // 백엔드의 CommonMapper.getCodeListByGroupId("AREA_JB") 호출 API
+        const response = await commonService.getCodeList('AREA_JB'); 
+        if (response && response.status === 'SUCCESS') {
+          setAreaCodes(response.data); // data: [{code: 'L1061300', name: '전주'}, ...]
+        }
+      } catch (error) {
+        console.error("지역 코드를 불러오는데 실패했습니다.", error);
+      }
+    };
+    fetchAreaCodes();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,8 +55,8 @@ const FacilityAdd = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.fcltNm || !formData.roadNmAddr) {
-      alert("시설명과 도로명 주소는 필수 입력 항목입니다.");
+    if (!formData.fcltNm || !formData.sggNm || !formData.roadNmAddr) {
+      alert("시설명, 시군구, 도로명 주소는 필수 입력 항목입니다.");
       return;
     }
 
@@ -126,15 +143,21 @@ const FacilityAdd = () => {
 
             {/* 시군구 */}
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-gray-500">시군구</label>
-              <input 
-                type="text"
-                name="sggNm"
-                value={formData.sggNm}
-                onChange={handleChange}
-                placeholder="예: 전주시 완산구"
-                className="h-12 px-4 border border-gray-300 rounded-lg outline-none focus:border-blue-500"
-              />
+              <label className="text-sm font-semibold text-gray-500">시군구 <span className="text-red-500">*</span></label>
+              <div className="relative">
+                <select name="sggNm" value={formData.sggNm} onChange={handleChange}
+                 className="w-full h-12 px-4 border border-gray-300 rounded-lg outline-none appearance-none bg-white focus:border-blue-500 cursor-pointer"
+                >
+                  <option value="">지역 선택</option>
+                  {/* areaCodes 뒤에 ?. 을 붙여주세요 */}
+                  {areaCodes?.map((area) => (
+                    <option key={area.code} value={area.code}>
+                      {area.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
+              </div>
             </div>
 
             {/* 도로명 주소 */}
