@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 /*
-  MainActionGuide 컴포넌트
+  MainBehaviorMethod 컴포넌트
   > 작성자 : 최지영
   > 포인트 : 카드 내부 숫자와 호버 시 배경색에 테마 컬러 적용
   > 수정사항 : 디자인 토큰(graygray, secondary) 및 Semantic Class 적용
@@ -34,7 +34,7 @@ const GUIDE_DATA = {
   ],
 };
 
-const MainActionGuide = () => {
+const MainBehaviorMethod = () => {
     const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("생활안전");
 
@@ -49,7 +49,7 @@ const MainActionGuide = () => {
           </h2>
                   <button
           className="shrink-0 text-detail-m text-graygray-50 hover:text-graygray-90 transition-colors font-bold"
-          onClick={() => navigate('/earthquakeActionGuide')}
+          onClick={() => navigate('/behaviorMethod/earthQuake')}
         >
           더보기 +
         </button>
@@ -112,4 +112,4 @@ const MainActionGuide = () => {
   );
 };
 
-export default MainActionGuide;
+export default MainBehaviorMethod;
