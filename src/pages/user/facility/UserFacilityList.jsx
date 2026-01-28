@@ -1,80 +1,116 @@
-// src/pages/user/facility/UserFacilityList.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronDown } from 'lucide-react';
 
 import PageBreadcrumb from "@/components/shared/PageBreadcrumb";
 import FacilityListSection from "@/components/user/facility/FacilityListSection";
 import SearchBarTemplate from "@/components/shared/SearchBarTemplate";
-import { getFacilityList, facilityPageConfig } from "./data"; 
+import { facilityPageConfig } from "./data"; 
+import { facilityService, commonService } from "@/services/api"; // commonService 추가
 
 const UserFacilityList = () => {
   const navigate = useNavigate();
-  const { meta, filterOptions } = facilityPageConfig;
+  const { meta } = facilityPageConfig;
 
   // 1. 상태 관리
   const [filters, setFilters] = useState({
-    facilityType: "전체",
-    district: "전체",
+    facilityType: "", // 초기값 빈 문자열 (전체)
+    district: "",     // 초기값 빈 문자열 (전체)
     query: ""
   });
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-  const [allData, setAllData] = useState([]);       
-  const [filteredData, setFilteredData] = useState([]); 
+  const [totalItems, setTotalItems] = useState(0);
+  const [facilityList, setFacilityList] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // 2. 초기 데이터 로드
+  // DB에서 가져올 옵션 상태
+  const [districtOptions, setDistrictOptions] = useState([]);
+  const [typeOptions, setTypeOptions] = useState([]);
+
+  // 2. 공통 코드 로드 (시군구 및 시설유형)
   useEffect(() => {
-    const data = getFacilityList();
-    setAllData(data);
-    setFilteredData(data);
+    const loadOptions = async () => {
+      try {
+        // 시군구 코드 (AREA_JB)와 시설유형 코드 (SHELTER_TYPE) 병렬 호출
+        const [distRes, typeRes] = await Promise.all([
+          commonService.getCodeList('AREA_JB'),
+          commonService.getCodeList('SHELTER_TYPE')
+        ]);
+        
+        if (distRes?.data) setDistrictOptions(distRes.data);
+        if (typeRes?.data) setTypeOptions(typeRes.data);
+      } catch (error) {
+        console.error("옵션 데이터 로드 실패:", error);
+      }
+    };
+    loadOptions();
   }, []);
 
-  // 3. 핸들러 함수
+  // 3. 데이터 로드 함수 (서버 연동)
+  const fetchFacilities = useCallback(async () => {
+    try {
+      setLoading(true);
+      const params = {
+        ctpvNm: "전북",
+        sggNm: filters.district,     // DB에서 가져온 name 값
+        fcltSeCd: filters.facilityType, // DB에서 가져온 code(ID) 값
+        fcltNm: filters.query,
+        page: currentPage,
+        size: 10
+      };
+
+      const response = await facilityService.getFacilityList(params);
+      const items = response.data?.items || [];
+      const total = response.data?.total || 0;
+
+      // UI 포맷에 맞게 매핑
+      const formattedItems = items.map(item => ({
+        ...item,
+        id: item.fcltId,
+        name: item.fcltNm,
+        // 유형 이름은 옵션 리스트에서 찾아오거나 백엔드에서 받아온 값 사용
+        type: typeOptions.find(t => t.code === item.fcltSeCd)?.name || "시설",
+        address: item.roadNmAddr,
+      }));
+
+      setFacilityList(formattedItems);
+      setTotalItems(total);
+    } catch (error) {
+      console.error("목록 로드 실패:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [filters, currentPage, typeOptions]);
+
+  useEffect(() => {
+    fetchFacilities();
+  }, [currentPage, fetchFacilities]);
+
+  // 4. 핸들러
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
   const handleSearch = () => {
-    let result = allData;
-    if (filters.facilityType !== "전체") result = result.filter(item => item.type === filters.facilityType);
-    if (filters.district !== "전체") result = result.filter(item => item.address.includes(filters.district));
-    if (filters.query) result = result.filter(item => item.name.includes(filters.query));
-
-    setFilteredData(result);
-    setCurrentPage(1); 
+    setCurrentPage(1);
+    fetchFacilities();
   };
 
   const handleReset = () => {
-    setFilters({ facilityType: "전체", district: "전체", query: "" });
-    setFilteredData(allData); 
+    setFilters({ facilityType: "", district: "", query: "" });
     setCurrentPage(1);
   };
 
-  const handleDetail = (id) => {
-    navigate(`/facility/detail/${id}`);
-  };
-
-  // 4. 페이징 계산
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const currentItems = filteredData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const totalPages = Math.ceil(totalItems / 10);
 
   return (
     <div className="flex flex-col items-center w-full min-h-screen pb-20 px-4 lg:px-0">
       <div className="w-full max-w-[1000px] flex flex-col">
-        
         <PageBreadcrumb items={meta.breadcrumbs} />
 
         <header className="flex flex-col w-full gap-8 lg:gap-10 pb-20">
-          <div className="flex flex-col gap-4">
-            <h1 className="text-heading-xl text-graygray-90">
-              {meta.title}
-            </h1>
-          </div>
+          <h1 className="text-heading-xl text-graygray-90">{meta.title}</h1>
         </header>
 
         <SearchBarTemplate
@@ -84,54 +120,48 @@ const UserFacilityList = () => {
           onReset={handleReset}
           placeholder="시설명을 입력해주세요."
         >
-          {/* 👇 여기에 이 페이지에 필요한 필터만 쏙 넣습니다. */}
-          
-          {/* 필터 1: 시설 유형 */}
-          <div className="relative w-full lg:w-40">
+          {/* 필터 1: 시설 유형 (DB 연동) */}
+          <div className="relative w-full lg:w-48">
             <select 
               value={filters.facilityType}
               onChange={(e) => handleFilterChange('facilityType', e.target.value)}
-              className="w-full lg:min-w-fit h-14 px-4 pr-10 bg-white border border-graygray-30 rounded-lg text-body-s text-graygray-90 outline-none focus:border-secondary-50 cursor-pointer appearance-none"
+              className="w-full h-14 px-4 pr-10 bg-white border border-graygray-30 rounded-lg text-body-s text-graygray-90 outline-none focus:border-secondary-50 cursor-pointer appearance-none"
             >
-              <option value="전체">시설유형 전체</option>
-              {filterOptions.facilityTypes.map((type, idx) => (
-                type !== "전체" && <option key={idx} value={type}>{type}</option>
+              <option value="">시설유형 전체</option>
+              {typeOptions.map((opt) => (
+                <option key={opt.code} value={opt.code}>{opt.name}</option>
               ))}
             </select>
-            {/* 화살표 아이콘 등은 필요 시 추가 */}
             <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
               <ChevronDown className="w-4 h-4 text-graygray-50" />
             </div>
           </div>
 
-          {/* 필터 2: 시군구 */}
-          <div className="relative w-full lg:w-auto">
+          {/* 필터 2: 시군구 (DB 연동) */}
+          <div className="relative w-full lg:w-40">
             <select 
               value={filters.district}
               onChange={(e) => handleFilterChange('district', e.target.value)}
-              className="w-full lg:min-w-fit h-14 px-4 pr-10 bg-white border border-graygray-30 rounded-lg text-body-s text-graygray-90 outline-none focus:border-secondary-50 cursor-pointer appearance-none"
+              className="w-full h-14 px-4 pr-10 bg-white border border-graygray-30 rounded-lg text-body-s text-graygray-90 outline-none focus:border-secondary-50 cursor-pointer appearance-none"
             >
-              <option value="전체">시군구 전체</option>
-              {filterOptions.districts.map((district, idx) => (
-                district !== "전체" && <option key={idx} value={district}>{district}</option>
+              <option value="">시군구 전체</option>
+              {districtOptions.map((opt) => (
+                <option key={opt.code} value={opt.name}>{opt.name}</option>
               ))}
             </select>
             <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
               <ChevronDown className="w-4 h-4 text-graygray-50" />
             </div>
           </div>
-          
         </SearchBarTemplate>
 
-        {/* 4. 리스트 섹션 */}
         <FacilityListSection 
-          items={currentItems}
+          items={facilityList}
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={setCurrentPage}
-          onDetail={handleDetail}
+          onDetail={(id) => navigate(`/facility/detail/${id}`)}
         />
-
       </div>
     </div>
   );

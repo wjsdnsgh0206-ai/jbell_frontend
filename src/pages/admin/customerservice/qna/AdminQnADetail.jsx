@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronRight, ArrowLeft, Trash2, CheckCircle, FileText, CornerDownRight, Edit } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { qnaService } from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 // 유틸리티: 클래스 병합
 const cn = (...classes) => classes.filter(Boolean).join(' ');
@@ -11,6 +12,7 @@ const cn = (...classes) => classes.filter(Boolean).join(' ');
 const AdminQnADetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   // 상태 관리
   const [inquiry, setInquiry] = useState(null); // 문의 상세 데이터 (DTO 구조)
@@ -54,13 +56,17 @@ const AdminQnADetail = () => {
       return alert('답변 내용을 입력해주세요.');
     }
 
+    if (!user || !user.userId) {
+      return alert('로그인 정보가 확인되지 않습니다. 다시 로그인해주세요.');
+    }
+
     try {
       if (answerMode === 'CREATE') {
         // 등록
         await qnaService.createAnswer({
           qnaId: inquiry.qnaId,
           content: answerInput,
-          userId: 'admin' // 현재 로그인한 관리자 ID (실제론 Context 등에서 가져옴)
+          userId: user.userId
         });
         alert('답변이 등록되었습니다.');
       } else if (answerMode === 'EDIT') {
@@ -74,7 +80,7 @@ const AdminQnADetail = () => {
 
     } catch (error) {
       console.error("답변 저장 실패:", error);
-      alert("처리에 실패했습니다.");
+      alert("처리에 실패했습니다. (로그를 확인해주세요)");
     }
   };
 
