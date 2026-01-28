@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AdminCommonCodeData } from './AdminCommonCodeData';
+import axios from 'axios';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
 const SuccessIcon = ({ fill = "#2563EB" }) => (
@@ -29,6 +29,9 @@ const AdminGroupCodeAdd = () => {
   const [formData, setFormData] = useState({
     groupCodeId: '', groupName: '', desc: '', order: 1
   });
+
+  // 중복 상태 관리
+  const [isDuplicate, setIsDuplicate] = useState({ id: false, name: false });
 
   const isDirty = useMemo(() => {
     return !!(formData.groupCodeId.trim() || formData.groupName.trim() || formData.desc.trim());
@@ -59,13 +62,29 @@ const AdminGroupCodeAdd = () => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [isDirty]);
 
-  const checkDuplicate = useMemo(() => {
-    const targetId = formData.groupCodeId.trim().toUpperCase();
-    const targetName = formData.groupName.trim();
-    if (!targetId && !targetName) return { id: false, name: false };
-    const isIdDup = AdminCommonCodeData.some(item => item.groupCode.toUpperCase() === targetId);
-    const isNameDup = AdminCommonCodeData.some(item => item.groupName.trim() === targetName);
-    return { id: isIdDup, name: isNameDup };
+   // 실시간 서버 중복 체크
+  useEffect(() => {
+    if (!formData.groupCodeId && !formData.groupName) {
+      setIsDuplicate({ id: false, name: false });
+      return;
+    }
+
+    const checkGroupDuplicate = async () => {
+      try {
+        const res = await axios.get('/api/common/code/check/group', {
+          params: {
+            groupCode: formData.groupCodeId,
+            groupName: formData.groupName
+          }
+        });
+        setIsDuplicate({ id: res.data.isIdDup, name: res.data.isNameDup });
+      } catch (err) {
+        console.error("중복 체크 실패", err);
+      }
+    };
+
+    const timer = setTimeout(checkGroupDuplicate, 400);
+    return () => clearTimeout(timer);
   }, [formData.groupCodeId, formData.groupName]);
 
   const isIdEmpty = isSubmitted && !formData.groupCodeId.trim();
@@ -79,8 +98,9 @@ const AdminGroupCodeAdd = () => {
     } else if (name === "groupName") {
       if (value.length <= 20) setFormData(prev => ({ ...prev, [name]: value }));
     } else if (name === "order") {
+      // 숫자만 입력 가능하도록 수정 (AdminSubCodeAdd와 동일한 로직)
       const val = value.replace(/[^0-9]/g, "");
-      setFormData(prev => ({ ...prev, [name]: val === "" ? "" : parseInt(val) }));
+      setFormData(prev => ({ ...prev, [name]: val }));
     } else if (name === "desc") {
       if (value.length <= 50) setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -88,36 +108,42 @@ const AdminGroupCodeAdd = () => {
 
   const handleSaveClick = () => {
     setIsSubmitted(true);
-    
-    // 1. 필수값 체크 (alert 있음)
     if (!formData.groupCodeId.trim() || !formData.groupName.trim()) {
       alert("필수 입력 사항을 모두 작성해주세요.");
       return;
     }
-
-    // 2. 중복 체크 (alert 없이 로직만 중단 -> UI에 빨간 글씨 노출됨)
-    if (checkDuplicate.id || checkDuplicate.name) {
+    // 실제 중복 상태 체크
+    if (isDuplicate.id || isDuplicate.name) {
       return;
     }
-    
     setIsModalOpen(true);
   };
 
-  const handleConfirmSave = () => {
-    setIsModalOpen(false);
-    window.removeEventListener('popstate', handlePopState);
-    const newEntry = {
-      id: Date.now(),
-      groupCode: formData.groupCodeId.trim().toUpperCase(),
-      groupName: formData.groupName.trim(),
-      subCode: '-', subName: '-', desc: formData.desc.trim(),
-      date: new Date().toISOString().replace('T', ' ').substring(0, 16),
-      order: formData.order, visible: isRegistered
-    };
-    AdminCommonCodeData.unshift(newEntry);
-    setToastMessage("그룹코드가 성공적으로 등록되었습니다.");
-    setShowToast(true);
-    setTimeout(() => navigate('/admin/system/commonCodeList', { replace: true }), 1500);
+  // 실제 DB 저장 로직
+  const handleConfirmSave = async () => {
+    try {
+      const payload = {
+        groupCode: formData.groupCodeId.trim().toUpperCase(),
+        groupName: formData.groupName.trim(),
+        desc: formData.desc.trim(),
+        order: Number(formData.order) || 1,
+        visible: isRegistered
+      };
+
+      await axios.post('/api/common/code/groups', payload);
+
+      setIsModalOpen(false);
+      window.removeEventListener('popstate', handlePopState);
+      
+      setToastMessage("그룹코드가 성공적으로 등록되었습니다.");
+      setShowToast(true);
+      
+      // 실제 목록 페이지 경로로 이동
+      setTimeout(() => navigate('/admin/system/commonCodeList', { replace: true }), 1500);
+    } catch (err) {
+      alert(err.response?.data?.message || "저장 중 오류가 발생했습니다.");
+      setIsModalOpen(false);
+    }
   };
 
   const handleCancel = () => {
@@ -156,14 +182,14 @@ const AdminGroupCodeAdd = () => {
               <input 
                 name="groupCodeId" value={formData.groupCodeId} onChange={handleChange} autoComplete="off" placeholder="예: SYSTEM_AUTH"
                 className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${
-                  isIdEmpty || checkDuplicate.id ? 'border-[#E15141] ring-1 ring-red-50' : formData.groupCodeId ? 'border-[#2563EB]' : 'border-gray-300 focus:border-[#2563EB]'
+                  isIdEmpty || isDuplicate.id ? 'border-[#E15141] ring-1 ring-red-50' : formData.groupCodeId ? 'border-[#2563EB]' : 'border-gray-300 focus:border-[#2563EB]'
                 }`}
               />
               <div className="flex justify-between items-start mt-2">
                 <div className="flex-1 min-h-[20px]">
                   {isIdEmpty ? (
                     <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium"><ErrorIcon /> 그룹 코드 ID를 입력해주세요.</div>
-                  ) : checkDuplicate.id ? (
+                  ) : isDuplicate.id ? (
                     <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium"><ErrorIcon /> 이미 존재하는 코드 ID입니다.</div>
                   ) : formData.groupCodeId ? (
                     <div className="text-[#2563EB] text-sm flex items-center gap-2 font-medium"><SuccessIcon /> 사용 가능한 코드 ID입니다.</div>
@@ -179,17 +205,24 @@ const AdminGroupCodeAdd = () => {
             <div className="w-full max-w-[500px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">그룹 코드 명 (필수)</label>
               <input 
-                name="groupName" value={formData.groupName} onChange={handleChange} autoComplete="off" placeholder="예: 시스템 권한 코드"
+                name="groupName" 
+                value={formData.groupName} 
+                onChange={handleChange} 
+                autoComplete="off" 
+                placeholder="예: 시스템 권한 코드"
                 className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${
-                  isNameEmpty || checkDuplicate.name ? 'border-[#E15141] ring-1 ring-red-50' : formData.groupName ? 'border-[#2563EB]' : 'border-gray-300 focus:border-[#2563EB]'
+                  isNameEmpty || isDuplicate.name ? 'border-[#E15141] ring-1 ring-red-50' : formData.groupName ? 'border-[#2563EB]' : 'border-gray-300 focus:border-[#2563EB]'
                 }`}
               />
               <div className="flex justify-between items-start mt-2">
                 <div className="flex-1 min-h-[20px]">
                   {isNameEmpty ? (
                     <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium"><ErrorIcon /> 그룹 코드 명을 입력해주세요.</div>
-                  ) : checkDuplicate.name ? (
+                  ) : isDuplicate.name ? (
                     <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium"><ErrorIcon /> 이미 존재하는 그룹명입니다.</div>
+                  ) : formData.groupName ? (
+                    /* 이 부분을 추가하여 ID와 동일한 UI를 제공합니다 */
+                    <div className="text-[#2563EB] text-sm flex items-center gap-2 font-medium"><SuccessIcon fill="#2563EB" /> 사용 가능한 그룹명입니다.</div>
                   ) : (
                     <p className="text-[13px] text-gray-400 font-medium">* 최대 20자까지 입력 가능</p>
                   )}
@@ -205,11 +238,42 @@ const AdminGroupCodeAdd = () => {
               <div className="flex justify-end mt-2"><span className="text-[12px] text-gray-400 font-medium">{formData.desc.length} / 50</span></div>
             </div>
 
-            <div className="w-full">
-              <label className="block font-bold text-[16px] mb-3 text-[#111]">순서</label>
-              <input type="number" name="order" value={formData.order} onChange={handleChange} min="1" className="w-[100px] border border-gray-300 rounded-lg px-4 py-3 text-center outline-none focus:border-[#2563EB] font-medium" />
-              <p className="text-[13px] text-gray-400 mt-3 font-medium">* 숫자가 낮을수록 리스트 상단에 노출됩니다.</p>
-            </div>
+            {/* 순서 입력 섹션 */}
+<div className="w-full group">
+  <label className="block font-bold text-[16px] mb-3 text-[#111]">순서</label>
+  <div className="relative w-[100px]">
+    <input 
+      type="text" // 화살표 제거를 위해 text로 변경
+      name="order" 
+      value={formData.order} 
+      onChange={handleChange} 
+      className="w-full border border-gray-300 rounded-lg px-4 py-3 text-center outline-none focus:border-[#2563EB] font-medium transition-all" 
+    />
+    
+    {/* 커스텀 증감 화살표 (SubCodeAdd와 동일 UI) */}
+    <div className="absolute right-[1px] top-[1px] bottom-[1px] flex flex-col w-[24px] opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-r-lg overflow-hidden border-l border-gray-100">
+      <button 
+        type="button"
+        onClick={() => setFormData(prev => ({ ...prev, order: Number(prev.order) + 1 }))}
+        className="flex-1 hover:bg-gray-100 flex items-center justify-center border-b border-gray-100"
+      >
+        <svg width="8" height="6" viewBox="0 0 10 6" fill="none">
+          <path d="M1 5L5 1L9 5" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+      <button 
+        type="button"
+        onClick={() => setFormData(prev => ({ ...prev, order: Math.max(1, Number(prev.order) - 1) }))}
+        className="flex-1 hover:bg-gray-100 flex items-center justify-center"
+      >
+        <svg width="8" height="6" viewBox="0 0 10 6" fill="none">
+          <path d="M1 1L5 5L9 1" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <p className="text-[13px] text-gray-400 mt-3 font-medium">* 숫자가 낮을수록 리스트 상단에 노출됩니다.</p>
+</div>
 
             <div className="flex items-center gap-5 pt-2">
               <label className="font-bold text-[16px] text-[#111]">사용 여부</label>

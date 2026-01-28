@@ -20,6 +20,15 @@ const AdminLogList = () => {
     setBreadcrumbTitle('');
     }, [setBreadcrumbTitle]);
 
+    /*
+    useEffect(() => {
+        axios.get('/api/logs/login')
+        .then(res => {
+            console.log(res.data.data);
+        });
+    }, []);
+    */
+
 
     
     /* <================ 데이터 및 상태 관리 ================> */

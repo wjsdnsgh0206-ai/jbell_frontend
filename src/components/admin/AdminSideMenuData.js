@@ -69,11 +69,11 @@ export const ADMIN_MENU_DATA = {
   contents: [
     {
       title: "행동요령 관리", // 소분류 그룹 제목
-      path: "/admin/contents/behavioralGuideList", // 대표 경로 추가
+      path: "/admin/contents/behaviorMethodList", // 대표 경로 추가
       isAvailable: true, // 메뉴 활성화 여부 (준비 중일 경우 false)
       items: [
-        { name: "행동요령 목록", path: "/admin/contents/behavioralGuideList" },
-        { name: "행동요령 등록", path: "/admin/contents/behavioralGuideAdd" },
+        { name: "행동요령 목록", path: "/admin/contents/behaviorMethodList" },
+        { name: "행동요령 등록", path: "/admin/contents/behaviorMethodAdd" },
       ],
     },
     {

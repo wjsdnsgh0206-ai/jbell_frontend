@@ -1,7 +1,7 @@
 // src/pages/user/mainSafetyPolicies/citizenSafetyInsurance/CitizenSafetyMasterPlan.jsx
 
 import React from 'react';
-import GuidePageTemplate from '@/components/shared/GuidePageTemplate';
+import GuidePageTemplate from '@/components/shared/GuidePageTemplate copy';
 import { ShieldCheck, CheckCircle2, Phone, FileText, ArrowRight, ArrowDown } from 'lucide-react'; 
 import { citizenSafetyInsuranceData } from './data';
 

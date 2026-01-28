@@ -1,7 +1,14 @@
 import React from "react";
-import { MainActionGuide, MainWeather, MainStatistics, MainDisaster, MainBoard } from "@/components/user/main/index.js";
-// ✅ 경로 재난문자 박스로 확인!
-import DisasterMessage from "@/components/user/modal/DisasterMessageBox"; 
+import { MainBehaviorMethod, MainWeather, MainStatistics, MainDisaster, MainBoard } from "@/components/user/main/index.js";
+
+/*
+  UserPageMain 컴포넌트
+  > 작성자 : 최지영
+  > 컴포넌트 설명 : 재난사고속보 모달창 레이아웃. 
+  > 반응형 가이드 : 
+    - 웹(lg 이상): 기존 1200px 중앙 정렬 유지
+    - 모바일: 세로 배치 및 터치 친화적 간격 적용
+*/
 
 const UserPageMain = () => {
   return (
@@ -50,7 +57,7 @@ const UserPageMain = () => {
               <MainBoard />
             </div>
             <div className="flex flex-col h-full w-full">
-              <MainActionGuide />
+              <MainBehaviorMethod />
             </div>
           </div>
         </div>

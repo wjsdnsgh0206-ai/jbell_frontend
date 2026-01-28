@@ -1,17 +1,29 @@
 //src/pages/admin/customerservice/faq/AdminFAQAdd.jsx
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Save, X } from 'lucide-react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { faqService } from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 /**
  * FAQ 신규 등록 전용 컴포넌트
  */
 const FaqRegisterPage = ({ onCancel }) => {
     const navigate = useNavigate();
+    const { user } = useAuth();
+
+  // 0. 관리자 권한 체크 (진입 시 실행)
+  useEffect(() => {
+    if (user) {
+        if (user.userGrade !== 'ADMIN') { 
+            alert('관리자 권한이 없습니다.');
+            navigate('/'); // 메인 페이지로 이동
+        }
+    }
+  }, [user, navigate]);
 
   // 폼 상태 관리 (초기값 설정)
   const [formData, setFormData] = useState({

@@ -25,8 +25,8 @@ const adminMap = {
   "disasterStatisticsList": "재난통계",
 
   "contents": "콘텐츠 관리",
-  "behavioralGuide": "행동요령 관리",
-  "behavioralGuideList": "행동요령 목록",
+  "behaviorMethod": "행동요령 관리",
+  "behaviorMethodList": "행동요령 목록",
   "system": "시스템 관리",
   "commonCodeList": "공통코드 목록",
   "groupCodeAdd": "그룹코드 등록",
@@ -46,7 +46,7 @@ const adminMap = {
   "facilityDetail": "시설 상세정보",
   "facilityUpdate": "시설 정보 변경",
 
-  "behavioralGuideDetail": "행동요령 상세",
+  "behaviorMethodDetail": "행동요령 상세",
   "citySafetyMasterPlan": "도시안전기본계획 관리",
   "disasterSafetyPolicy": "재난별 안전정책 관리",
   "citizenSafetyInsurance": "시민 안전보험 관리",
