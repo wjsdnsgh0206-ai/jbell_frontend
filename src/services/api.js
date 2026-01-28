@@ -26,6 +26,41 @@ const kmaWarningApi = axios.create({ baseURL: "/kma-warning-api" });
 const accidentNewsApi = axios.create({ baseURL: "/accidentNews-api" }); // 도로교통 정보 api
 
 
+export const noticeApi = {
+  // 공지사항 전체 목록 조회
+  getNoticeDTOList: async () => {
+    const response = await api.get("/notice");
+    return response.data;
+  },
+
+  // 공지사항 상세 조회
+  getNoticeDetail: async (id) => {
+    const response = await api.get(`/notice/${id}`);
+    return response.data;
+  },
+
+  // 공지사항 등록
+  createNotice: async (noticeData) => {
+    // 백엔드 NoticeController의 @PostMapping과 연결
+    const response = await api.post("/notice", noticeData);
+    return response.data;
+  },
+
+  // 공지사항 수정
+  updateNotice: async (id, noticeData) => {
+    // 백엔드 NoticeController의 @PutMapping("/{id}")과 연결
+    const response = await api.put(`/notice/${id}`, noticeData);
+    return response.data;
+  },
+
+  // 공지사항 삭제
+  deleteNotice: async (id) => {
+    // 백엔드 NoticeController의 @DeleteMapping("/{id}")과 연결
+    const response = await api.delete(`/notice/${id}`);
+    return response.data;
+  },
+};
+
 export const commonService = {
   /**
    * 공통 코드 조회
