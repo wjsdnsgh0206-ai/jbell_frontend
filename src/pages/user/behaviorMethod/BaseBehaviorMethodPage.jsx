@@ -4,7 +4,12 @@ import BehaviorContentRenderer from '@/pages/user/behaviorMethod/BehaviorContent
 import { behaviorMethodService } from '@/services/api';
 import { transformData } from '@/utils/behaviorTransform';
 
-const BaseBehaviorMethodPage = ({ disasterType, pageTitle, category }) => {
+const BaseBehaviorMethodPage = ({ 
+  disasterType, 
+  pageTitle, 
+  category,
+  categoryPath,
+}) => {
   const [guideData, setGuideData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -35,9 +40,9 @@ const BaseBehaviorMethodPage = ({ disasterType, pageTitle, category }) => {
 
   const breadcrumbItems = [
     { label: "홈", path: "/", hasIcon: true },
-    { label: "행동요령", path: "/behaviorMethod/earthQuake" },
-    { label: category, path: null },
-    { label: pageTitle, path: null }
+    { label: "행동요령", path: "/behaviorMethod/earthquake" }, 
+    { label: category, path: categoryPath }, 
+    { label: pageTitle, path: null } // 현재 페이지는 보통 클릭 안 되게 null (원하면 path 넣어도 됨)
   ];
 
   if (loading) {

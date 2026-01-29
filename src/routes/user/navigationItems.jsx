@@ -17,8 +17,8 @@ const navigationItems = [
     path: "/behaviorMethod/earthQuake",
     children: [
       { label: "자연재난행동요령", path: "/behaviorMethod/earthQuake" },
-      { label: "사회재난행동요령", path: "/trafficAccidentBehaviorMethod" },
-      { label: "생활안전행동요령", path: "/firstAidBehaviorMethod" },
+      { label: "사회재난행동요령", path: "/behaviorMethod/fire" },
+      { label: "생활안전행동요령", path: "/behaviorMethod/firstAid" },
     ],
   },
   {

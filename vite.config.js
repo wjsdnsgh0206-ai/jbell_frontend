@@ -204,6 +204,13 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/kma-warning-api/, ""),
         },
+
+        // 기상청 기상특보 조회서비스 (getPwnCd용)
+        "/mdbs_html": {
+          target: "http://mepv2.safekorea.go.kr/mdbs_html",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/mdbs_html/, ""),
+        },
       },
     },
   };

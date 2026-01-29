@@ -24,16 +24,13 @@ const DisasterMessageList = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
 
-  // ==================================================================================
   // 1. 상태 관리
-  // ==================================================================================
-  const [messages, setMessages] = useState([]); // 백엔드 데이터를 담을 상태
+  const [messages, setMessages] = useState([]); 
   const [isLoading, setIsLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // 필터 관련 상태
   const [searchParams, setSearchParams] = useState({ keyword: '' }); 
   const [appliedKeyword, setAppliedKeyword] = useState(''); 
   const [senderName, setSenderName] = useState(""); 
@@ -41,7 +38,6 @@ const DisasterMessageList = () => {
   const [selectedCategory, setSelectedCategory] = useState("전체"); 
   const [selectedType, setSelectedType] = useState("전체"); 
 
-  // [날짜 필터] 오늘 기준 7일 전으로 초기값 설정
   const getFormattedDate = (date) => date.toISOString().split('T')[0];
   const today = new Date();
   const sevenDaysAgo = new Date();
@@ -53,24 +49,35 @@ const DisasterMessageList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState({ title: '', message: '', type: 'confirm', onConfirm: () => {} });
 
-  // ==================================================================================
-  // 2. 데이터 가져오기 (API 연동)
-  // ==================================================================================
-  const fetchMessages = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      // 1. API 호출
-      const response = await disasterApi.getDisasterMessages();
-      
-      // 2. 데이터 추출 (공통 DTO 대응)
-      // response가 배열이면 그대로 사용, 객체라면 그 안의 data나 list 필드 확인
-      let rawData = [];
-      if (Array.isArray(response)) {
-        rawData = response;
-      } else if (response && Array.isArray(response.data)) {
-        rawData = response.data;
-      } else if (response && Array.isArray(response.list)) {
-        rawData = response.list;
+  // 2. 데이터 가져오기 (이 부분 로직만 수정됨)
+  useEffect(() => {
+    if (setBreadcrumbTitle) setBreadcrumbTitle("재난 문자 이력");
+    
+    const fetchMessages = async () => {
+      try {
+        setIsLoading(true);
+        // API 주소 확인: 리스트를 가져오는 백엔드 엔드포인트
+        const response = await axios.get("http://localhost:8080/api/disaster/dashboard/disasterMessages");
+        const rawData = response.data?.data || response.data || [];
+        
+        // 데이터 매핑 (대소문자 무관하게 처리)
+        const mappedData = rawData.map(item => ({
+          id: item.sn || item.SN,
+          category: item.emrgStepNm || item.EMRG_STEP_NM || '안전안내',
+          // 코드값 분리 로직 (NATURAL_HEAVYRAIN -> HEAVYRAIN)
+          type: (item.dstType || item.DST_TYPE || 'ITEM_001') === 'ITEM_001' ? '일반' : (item.dstType || item.DST_TYPE).split('_')[1] || '일반',
+          sender: "기상청/행정안전부",
+          content: item.msgCn || item.MSG_CN,
+          dateTime: item.crtDt || item.CRT_DT,
+          region: item.rcptnRgnNm || item.RCPTN_RGN_NM,
+          isVisible: true
+        }));
+        
+        setMessages(mappedData);
+      } catch (error) {
+        console.error("데이터 로드 실패:", error);
+      } finally {
+        setIsLoading(false);
       }
 
       // 3. 매핑 로직 (rawData가 배열인 것이 보장됨)
@@ -103,18 +110,15 @@ const DisasterMessageList = () => {
     navigate(`/admin/realtime/disasterMessageDetail/${id}`);
   }, [navigate]);
 
-  // ==================================================================================
-  // 3. 데이터 가공 (Filtering & Sorting)
-  // ==================================================================================
+  // 3. 필터링 로직 (네 코드 그대로 유지)
   const filteredData = useMemo(() => {
     return messages.filter((item) => {
       const matchCategory = selectedCategory === "전체" || item.category === selectedCategory;
       const matchType = selectedType === "전체" || item.type.includes(selectedType);
       const matchSender = !senderName || item.sender.includes(senderName);
-      const matchKeyword = !appliedKeyword || item.content.includes(appliedKeyword);
-      const matchRegion = selectedRegion === "전체" || item.region.includes(selectedRegion);
+      const matchKeyword = !appliedKeyword || (item.content && item.content.includes(appliedKeyword));
+      const matchRegion = selectedRegion === "전체" || (item.region && item.region.includes(selectedRegion));
       
-      // 날짜 비교 (dateTime: "yyyy/MM/dd HH:mm:ss")
       const itemDate = item.dateTime ? item.dateTime.split(" ")[0].replaceAll("/", "-") : "";
       const matchDate = itemDate >= startDate && itemDate <= endDate;
 
@@ -127,9 +131,7 @@ const DisasterMessageList = () => {
     return filteredData.slice(startIndex, startIndex + itemsPerPage);
   }, [currentPage, filteredData]);
 
-  // ==================================================================================
-  // 4. 테이블 컬럼 정의
-  // ==================================================================================
+  // 4. 테이블 컬럼 정의 (네 디자인 그대로 유지)
   const columns = useMemo(() => [
     { key: 'id', header: 'ID', width: '100px', className: 'text-center text-gray-500 font-mono text-xs' },
     { 
@@ -181,9 +183,7 @@ const DisasterMessageList = () => {
     }
   ], [goDetail]);
 
-  // ==================================================================================
-  // 5. 핸들러 (Handlers)
-  // ==================================================================================
+  // 5. 핸들러 (디자인 유지)
   const handleSearch = () => { 
     setAppliedKeyword(searchParams.keyword);
     setCurrentPage(1); 
@@ -221,7 +221,6 @@ const DisasterMessageList = () => {
     setIsModalOpen(true);
   };
 
-  // 삭제 및 일괄 처리 핸들러는 기존 디자인/로직 유지 (생략 가능하나 구조상 유지)
   const handleBatchStatus = (status) => {
     if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
     const visibleYn = status ? 'Y' : 'N';
@@ -266,6 +265,7 @@ const DisasterMessageList = () => {
     setIsModalOpen(true);
   };
 
+  // 6. 렌더링 (디자인 100% 동일)
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
       <main className="p-10">
@@ -345,7 +345,6 @@ const DisasterMessageList = () => {
                   `전체 ${filteredData.length}건`
                 )}
               </span>
-              {/* 일괄 처리 버튼들 유지 */}
               <div className="flex items-center ml-4 gap-4">
                 <button onClick={() => handleBatchStatus(true)} className="flex items-center gap-2 group cursor-pointer">
                   <div className="w-5 h-5 rounded-full border-2 border-[#2563EB] flex items-center justify-center group-hover:bg-blue-50 transition-all">

@@ -31,19 +31,52 @@ const WeatherNewsList = () => {
 
   const [filters, setFilters] = useState({
     newsType: "전체",
-    region: "전체",
+    // region 필터 삭제
     level: "전체",
-    startDate: "2023-10-10",
-    endDate: "2026-12-31",
+    startDate: defaultStartDate,
+    endDate: today,
   });
 
   const [searchParams, setSearchParams] = useState({ keyword: '' });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState({ title: "", message: "", type: "confirm", onConfirm: () => {} });
 
+  const fetchAdminData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await axios.get('/api/disaster/dashboard/weatherWarnings');
+      const allRawData = res.data?.data || res.data || [];
+      
+      const mappedData = allRawData.map(item => {
+        const rawTime = String(item.PRSNTN_TM || "");
+        const formattedDate = rawTime.length >= 8 
+          ? `${rawTime.substring(0, 4)}-${rawTime.substring(4, 6)}-${rawTime.substring(6, 8)} ${rawTime.substring(8, 10)}:${rawTime.substring(10, 12)}`
+          : "0000-00-00 00:00";
+
+        return {
+          id: item.PRSNTN_SN,
+          level: item.TTL?.includes('경보') ? '위험' : (item.TTL?.includes('주의보') ? '주의' : '보통'),
+          type: item.TTL?.split(' ')[0] || "기타",
+          title: item.TTL,
+          content: item.SPNE_FRMNT_PRCON_CN || item.RLVT_ZONE,
+          dateTime: formattedDate,
+          isVisible: true,
+          raw: item
+        };
+      });
+
+      setWeatherNews(mappedData);
+    } catch (error) {
+      console.error("관리자 데이터 로드 실패:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (setBreadcrumbTitle) setBreadcrumbTitle("기상 특보 관리");
-  }, [setBreadcrumbTitle]);
+    fetchAdminData();
+  }, [setBreadcrumbTitle, fetchAdminData]);
 
   // ==================================================================================
   // 2. 백엔드 데이터 호출 (연결)
@@ -101,10 +134,9 @@ const WeatherNewsList = () => {
   const handleReset = () => {
     setFilters({ 
       newsType: "전체", 
-      region: "전체", 
       level: "전체", 
-      startDate: "2023-10-10", 
-      endDate: "2026-12-31" 
+      startDate: defaultStartDate, 
+      endDate: today 
     });
     setSearchParams({ keyword: '' });
     setCurrentPage(1);
@@ -112,7 +144,7 @@ const WeatherNewsList = () => {
 
   const getAllSelectedItemsList = () => {
     const selectedItems = weatherNews.filter(item => selectedIds.includes(item.id));
-    return selectedItems.map(item => item.title.substring(0, 10) + "...").join(", ");
+    return selectedItems.map(item => (item.title || "").substring(0, 10) + "...").join(", ");
   };
 
   // [기능] 일괄 노출/비노출 변경
@@ -266,7 +298,6 @@ const WeatherNewsList = () => {
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
             </div>
 
-            {/* 발효 일시 기간 필터 */}
             <div className="flex items-center border border-admin-border rounded-md px-4 h-14 bg-white focus-within:border-admin-primary transition-all shrink-0">
               <div className="flex items-center gap-2">
                 <div className="group relative flex items-center w-[130px]">
@@ -299,7 +330,6 @@ const WeatherNewsList = () => {
           </AdminSearchBox>
         </section>
 
-        {/* [B] 리스트 영역 */}
         <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8">
           <div className="flex justify-between items-end mb-6">
             <div className="flex items-center gap-4">

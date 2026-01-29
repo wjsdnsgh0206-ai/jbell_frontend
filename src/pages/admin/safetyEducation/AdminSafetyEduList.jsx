@@ -1,6 +1,8 @@
+// src/pages/admin/safetyEducation/AdminSafetyEduList.jsx
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { safetyEduData } from '@/pages/user/openboards/BoardData'; 
+import { safetyEduService } from '@/services/api'; // [변경] API 서비스 임포트
 import { ChevronDown } from 'lucide-react';
 
 import AdminDataTable from '@/components/admin/AdminDataTable';
@@ -18,7 +20,7 @@ const SuccessIcon = ({ fill = "#4ADE80" }) => (
 const ToggleSwitch = ({ isOn, onToggle }) => (
   <button 
     onClick={(e) => { e.stopPropagation(); onToggle(); }}
-    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${isOn ? 'bg-admin-primary' : 'bg-gray-300'}`}
+    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${isOn ? 'bg-blue-600' : 'bg-gray-300'}`}
   >
     <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isOn ? 'translate-x-6' : 'translate-x-1'}`} />
   </button>
@@ -28,7 +30,10 @@ const AdminSafetyEduList = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
 
-  const [eduList, setEduList] = useState(safetyEduData); 
+  // [변경] 데이터 상태 관리
+  const [eduList, setEduList] = useState([]); 
+  const [totalItems, setTotalItems] = useState(0); // 전체 개수
+
   const [selectedIds, setSelectedIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -43,10 +48,34 @@ const AdminSafetyEduList = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
-  // [로직] 구분이 바뀌면 유형 초기화
-    useEffect(() => {
-      setBreadcrumbTitle(""); // 목록 페이지는 URL 매핑값을 따르도록 초기화
-    }, [setBreadcrumbTitle]);
+  useEffect(() => {
+    setBreadcrumbTitle(""); 
+  }, [setBreadcrumbTitle]);
+
+  // 데이터 조회 함수 (API 호출)
+  const fetchList = useCallback(async () => {
+    try {
+      const params = {
+        page: currentPage - 1, // Spring Pageable은 0부터 시작
+        size: itemsPerPage,
+        keyword: appliedKeyword,
+        searchType: searchType,
+        isPublic: selectedPublicStatus
+      };
+
+      const response = await safetyEduService.getSafetyEduList(params);
+      setEduList(response.content);
+      setTotalItems(response.totalElements);
+    } catch (error) {
+      console.error("목록 조회 실패:", error);
+      triggerToast("데이터를 불러오는데 실패했습니다.");
+    }
+  }, [currentPage, appliedKeyword, searchType, selectedPublicStatus]);
+
+  // 검색 조건이나 페이지 변경 시 데이터 재조회
+  useEffect(() => {
+    fetchList();
+  }, [fetchList]);
 
   const triggerToast = (msg) => {
     setToastMessage(msg);
@@ -56,133 +85,107 @@ const AdminSafetyEduList = () => {
 
   const goDetail = useCallback((id) => {
     navigate(`/admin/contents/safetyEduDetail/${id}`); 
-}, [navigate]);
+  }, [navigate]);
 
   const getAllSelectedItemsList = () => {
     const selectedItems = eduList.filter(item => selectedIds.includes(item.id));
     return selectedItems.map(item => item.title).join(", ");
   };
 
+  // 단건 노출 상태 토글 (API 호출)
   const handleTogglePublic = (id, currentStatus) => {
     const nextStatus = !currentStatus;
     const targetItem = eduList.find(item => item.id === id);
+    
     setModalConfig({
       title: '노출 상태 변경',
       message: (
         <div className="flex flex-col gap-2 text-left">
-          <p>' <span className="font-bold text-admin-text-primary">{targetItem?.title}</span> ' 의 상태를 
-            <span className={`font-bold ${nextStatus ? 'text-admin-primary' : 'text-[#FF003E]'} ml-1`}>
+          <p>' <span className="font-bold text-gray-900">{targetItem?.title}</span> ' 의 상태를 
+            <span className={`font-bold ${nextStatus ? 'text-blue-600' : 'text-red-500'} ml-1`}>
               [{nextStatus ? '노출' : '비노출'}]
             </span>로 변경하시겠습니까?
           </p>
-          <p className="text-body-s text-graygray-50">* 변경 즉시 사용자 서비스 화면에 반영됩니다.</p>
+          <p className="text-sm text-gray-500">* 변경 즉시 사용자 서비스 화면에 반영됩니다.</p>
         </div>
       ),
       type: nextStatus ? 'confirm' : 'delete',
-      onConfirm: () => {
-        setEduList(prev => prev.map(item => item.id === id ? { ...item, isPublic: nextStatus } : item));
-        setIsModalOpen(false);
-        triggerToast(`'${targetItem.title}' 노출 상태가 변경되었습니다.`);
+      onConfirm: async () => {
+        try {
+          // 단건이지만 배열 형태로 API 호출
+          await safetyEduService.updateVisibility([id], nextStatus);
+          setIsModalOpen(false);
+          triggerToast(`'${targetItem.title}' 노출 상태가 변경되었습니다.`);
+          fetchList(); // 목록 새로고침
+        } catch (error) {
+          console.error("상태 변경 실패:", error);
+          alert("상태 변경 중 오류가 발생했습니다.");
+        }
       }
     });
     setIsModalOpen(true);
   };
 
+  // 일괄 노출 상태 변경 (API 호출)
   const handleBatchStatus = (status) => {
     if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
     const allNames = getAllSelectedItemsList();
+
     setModalConfig({
       title: `일괄 ${status ? '노출' : '비노출'} 처리`,
       message: (
         <div className="flex flex-col gap-2 text-left">
-          <p>선택하신 <span className="text-admin-primary font-bold">[{allNames}]</span> 항목을 일괄 <span className="font-bold underline">{status ? '노출' : '비노출'}</span> 처리하시겠습니까?</p>
+          <p>선택하신 <span className="text-blue-600 font-bold">[{allNames}]</span> 항목을 일괄 <span className="font-bold underline">{status ? '노출' : '비노출'}</span> 처리하시겠습니까?</p>
         </div>
       ),
       type: status ? 'confirm' : 'delete',
-      onConfirm: () => {
-        setEduList(prev => prev.map(item => selectedIds.includes(item.id) ? { ...item, isPublic: status } : item));
-        setSelectedIds([]); 
-        setIsModalOpen(false);
-        triggerToast(`일괄 ${status ? '노출' : '비노출'} 처리가 완료되었습니다.`);
+      onConfirm: async () => {
+        try {
+          await safetyEduService.updateVisibility(selectedIds, status);
+          setSelectedIds([]); 
+          setIsModalOpen(false);
+          triggerToast(`일괄 ${status ? '노출' : '비노출'} 처리가 완료되었습니다.`);
+          fetchList(); // 목록 새로고침
+        } catch (error) {
+          console.error("일괄 변경 실패:", error);
+          alert("처리 중 오류가 발생했습니다.");
+        }
       }
     });
     setIsModalOpen(true);
   };
 
+  // 일괄 삭제 (API 호출)
   const handleDeleteSelected = () => {
     if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
     const allNames = getAllSelectedItemsList();
+
     setModalConfig({
       title: '선택 항목 삭제',
       message: (
         <div className="flex flex-col gap-2 text-left">
           <p>선택하신 <span className="text-red-600 font-bold">[{allNames}]</span> 항목을 정말 삭제하시겠습니까?</p>
-          <p className="text-body-s text-graygray-50">* 삭제된 데이터는 복구할 수 없습니다.</p>
+          <p className="text-sm text-gray-500">* 삭제된 데이터는 복구할 수 없습니다.</p>
         </div>
       ),
       type: 'delete',
-      onConfirm: () => {
-        setEduList(prev => prev.filter(c => !selectedIds.includes(c.id)));
-        setSelectedIds([]);
-        setIsModalOpen(false);
-        triggerToast("삭제되었습니다."); 
+      onConfirm: async () => {
+        try {
+          await safetyEduService.deleteSafetyEdus(selectedIds);
+          setSelectedIds([]);
+          setIsModalOpen(false);
+          triggerToast("삭제되었습니다."); 
+          fetchList(); // 목록 새로고침
+        } catch (error) {
+          console.error("삭제 실패:", error);
+          alert("삭제 중 오류가 발생했습니다.");
+        }
       }
     });
     setIsModalOpen(true);
   };
 
-  /// ★ [정렬 로직 변경] createdAt 대신 orderNo 기준으로 정렬 (사용자 페이지와 동일하게)
-  const filteredData = useMemo(() => {
-    const searchTerm = appliedKeyword.replace(/\s+/g, "").toLowerCase();
-    return eduList.filter(item => {
-      const isPublicMatch = selectedPublicStatus === "all" || 
-        (selectedPublicStatus === "visible" && item.isPublic === true) ||
-        (selectedPublicStatus === "hidden" && item.isPublic === false);
-      
-      let isSearchMatch = true;
-      if (searchTerm) {
-        const title = (item.title || "").replace(/\s+/g, "").toLowerCase();
-        const source = (item.source || "").replace(/\s+/g, "").toLowerCase();
-        const author = (item.author || "").toLowerCase();
-        const id = (item.mgmtId || "").toLowerCase();
-        
-        const contentMatch = item.sections?.some(sec => 
-          sec.subTitle.replace(/\s+/g, "").toLowerCase().includes(searchTerm) ||
-          sec.items.some(i => i.text.replace(/\s+/g, "").toLowerCase().includes(searchTerm))
-        );
-
-        if (searchType === "all") {
-          isSearchMatch = title.includes(searchTerm) || source.includes(searchTerm) || id.includes(searchTerm) || author.includes(searchTerm) || contentMatch;
-        } else if (searchType === "title") {
-          isSearchMatch = title.includes(searchTerm);
-        } else if (searchType === "source") {
-          isSearchMatch = source.includes(searchTerm);
-        } else if (searchType === "content") {
-          isSearchMatch = contentMatch;
-        }
-      }
-     return isPublicMatch && isSearchMatch;
-    }).sort((a, b) => {
-      // 순서가 지정되지 않은 항목은 맨 뒤로 보내고 싶다면 큰 숫자를 기본값으로 주는 것도 방법입니다.
-const orderA = a.orderNo === '' || a.orderNo === undefined ? 9999 : Number(a.orderNo);
-const orderB = b.orderNo === '' || b.orderNo === undefined ? 9999 : Number(b.orderNo);
-
-      if (orderA !== orderB) {
-        return orderA - orderB;
-      }
-
-      // 2순위: orderNo가 같다면 등록일시(createdAt) 내림차순 (최신순)
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    });
-  }, [eduList, appliedKeyword, searchType, selectedPublicStatus]);
-
-  const currentData = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredData.slice(startIndex, startIndex + itemsPerPage);
-  }, [currentPage, filteredData]);
-
   const columns = useMemo(() => [
-    // ★ [추가] 노출 순서 컬럼
     { 
       key: 'orderNo', 
       header: '순서', 
@@ -200,8 +203,8 @@ const orderB = b.orderNo === '' || b.orderNo === undefined ? 9999 : Number(b.ord
         <div className="flex justify-center">
           <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[12px] font-bold border ${
             val === '직접등록' 
-              ? 'bg-purple-50/50 text-purple-500 border-purple-100' 
-              : 'bg-orange-50/50 text-orange-500 border-orange-100'
+              ? 'bg-purple-50 text-purple-500 border-purple-100' 
+              : 'bg-orange-50 text-orange-500 border-orange-100'
           }`}>
             {val || '직접등록'}
           </span>
@@ -223,7 +226,10 @@ const orderB = b.orderNo === '' || b.orderNo === undefined ? 9999 : Number(b.ord
       className: 'text-center', 
       render: (val) => {
         if (!val) return "-";
-        const [date, time] = val.split(' ');
+        // 서버에서 ISO 문자열로 오거나 포맷팅된 문자열로 올 수 있음. 
+        // "YYYY-MM-DDTHH:mm:ss" 형태라면 T를 공백으로 치환하여 표시
+        const displayDate = val.replace('T', ' ');
+        const [date, time] = displayDate.split(' ');
         return (
           <div className="flex flex-col items-center justify-center leading-tight text-[13px] text-gray-500">
             <span className="block text-gray-500">{date}</span>
@@ -232,18 +238,17 @@ const orderB = b.orderNo === '' || b.orderNo === undefined ? 9999 : Number(b.ord
         );
       }
     },
-{ 
-  key: 'isPublic', 
-  header: '노출여부', 
-  width: '90px', 
-  className: 'text-center', 
-  render: (isPublic, row) => (
-    /* 여기서 클릭 이벤트 전파를 막아줍니다 */
-    <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
-      <ToggleSwitch isOn={isPublic} onToggle={() => handleTogglePublic(row.id, isPublic)} />
-    </div>
-  ) 
-},
+    { 
+      key: 'isPublic', 
+      header: '노출여부', 
+      width: '90px', 
+      className: 'text-center', 
+      render: (isPublic, row) => (
+        <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
+          <ToggleSwitch isOn={isPublic} onToggle={() => handleTogglePublic(row.id, isPublic)} />
+        </div>
+      ) 
+    },
     { 
       key: 'actions', 
       header: '관리', 
@@ -252,16 +257,16 @@ const orderB = b.orderNo === '' || b.orderNo === undefined ? 9999 : Number(b.ord
       render: (_, row) => (
         <button 
           onClick={() => goDetail(row.id)} 
-          className="border border-gray-300 rounded px-3 py-1 text-sm hover:bg-blue-100 whitespace-nowrap"
+          className="border border-gray-300 rounded px-3 py-1 text-sm hover:bg-blue-50 whitespace-nowrap"
         >
           보기
         </button>
       ) 
     }
-  ], [filteredData.length, currentPage, currentData, goDetail]);
+  ], [eduList, goDetail]); // eduList가 바뀌면 렌더링 갱신
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
+    <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-sans antialiased text-gray-900">
       {showToast && (
         <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[9999]">
           <div className="bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-gray-700">
@@ -272,9 +277,9 @@ const orderB = b.orderNo === '' || b.orderNo === undefined ? 9999 : Number(b.ord
       )}
 
       <main className="p-10">
-        <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight">시민안전교육 목록</h2>
+        <h2 className="text-[32px] font-bold mt-2 mb-10 text-[#111] tracking-tight">시민안전교육 목록</h2>
         
-        <section className="bg-admin-surface border border-admin-border rounded-xl p-8 mb-8">
+        <section className="bg-white border border-gray-200 rounded-xl p-8 mb-8">
           <AdminSearchBox 
             searchParams={searchParams} 
             setSearchParams={setSearchParams} 
@@ -286,31 +291,31 @@ const orderB = b.orderNo === '' || b.orderNo === undefined ? 9999 : Number(b.ord
             }}
           >
             <div className="relative w-full md:w-48">
-              <select value={selectedPublicStatus} onChange={(e) => { setSelectedPublicStatus(e.target.value); setCurrentPage(1); }} className="w-full appearance-none h-14 pl-5 pr-10 border border-admin-border rounded-md bg-white outline-none cursor-pointer text-body-m focus:border-admin-primary transition-all">
+              <select value={selectedPublicStatus} onChange={(e) => { setSelectedPublicStatus(e.target.value); setCurrentPage(1); }} className="w-full appearance-none h-14 pl-5 pr-10 border border-gray-200 rounded-md bg-white outline-none cursor-pointer text-[15px] focus:border-blue-600 transition-all">
                 <option value="all">노출여부 전체</option>
                 <option value="visible">노출</option>
                 <option value="hidden">비노출</option>
               </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
             </div>
 
             <div className="relative w-full md:w-48">
-              <select value={searchType} onChange={(e) => setSearchType(e.target.value)} className="w-full appearance-none h-14 pl-5 pr-10 border border-admin-border rounded-md bg-white outline-none cursor-pointer text-body-m focus:border-admin-primary transition-all">
+              <select value={searchType} onChange={(e) => setSearchType(e.target.value)} className="w-full appearance-none h-14 pl-5 pr-10 border border-gray-200 rounded-md bg-white outline-none cursor-pointer text-[15px] focus:border-blue-600 transition-all">
                 <option value="all">전체검색</option>
                 <option value="title">시설명(교육명)</option>
                 <option value="source">출처</option>
                 <option value="content">내용(본문)</option>
               </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
             </div>
           </AdminSearchBox>
         </section>
 
-        <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8">
+        <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
           <div className="flex justify-between items-end mb-6">
             <div className="flex items-center gap-4">
-              <span className="text-body-m-bold text-admin-text-secondary">
-                {selectedIds.length > 0 ? <span className="text-admin-primary">{selectedIds.length}개 선택됨</span> : `전체 ${filteredData.length}건`}
+              <span className="font-bold text-gray-500">
+                {selectedIds.length > 0 ? <span className="text-blue-600">{selectedIds.length}개 선택됨</span> : `전체 ${totalItems}건`}
               </span>
               <div className="flex items-center ml-4 gap-4 border-l pl-4 border-gray-200">
                 <button onClick={() => handleBatchStatus(true)} className="flex items-center gap-2 group">
@@ -326,11 +331,15 @@ const orderB = b.orderNo === '' || b.orderNo === undefined ? 9999 : Number(b.ord
             </div>
             <div className="flex gap-2">
               <button onClick={handleDeleteSelected} className="px-8 h-14 bg-[#FF003E] text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm">삭제</button>
-              <button onClick={() => navigate('/admin/contents/safetyEduAdd')} className="px-8 h-14 bg-admin-primary text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm">등록</button>
+              <button onClick={() => navigate('/admin/contents/safetyEduAdd')} className="px-8 h-14 bg-blue-600 text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm">등록</button>
             </div>
           </div>
-          <AdminDataTable columns={columns} data={currentData} selectedIds={selectedIds} onSelectionChange={setSelectedIds} rowKey="id" />
-          <AdminPagination totalItems={filteredData.length} itemCountPerPage={itemsPerPage} currentPage={currentPage} onPageChange={setCurrentPage} />
+          
+          {/* 서버에서 받은 데이터(eduList)를 그대로 전달 */}
+          <AdminDataTable columns={columns} data={eduList} selectedIds={selectedIds} onSelectionChange={setSelectedIds} rowKey="id" />
+          
+          {/* 전체 아이템 수 기반 페이지네이션 */}
+          <AdminPagination totalItems={totalItems} itemCountPerPage={itemsPerPage} currentPage={currentPage} onPageChange={setCurrentPage} />
         </section>
       </main>
       <AdminConfirmModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} {...modalConfig} />
