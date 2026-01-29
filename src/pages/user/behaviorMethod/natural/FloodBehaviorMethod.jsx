@@ -3,9 +3,10 @@ import BaseBehaviorMethodPage from '@/pages/user/behaviorMethod/BaseBehaviorMeth
 const FloodBehaviorMethod = () => {
   return (
     <BaseBehaviorMethodPage 
-      disasterType="NATURAL_FLOOD"
-      pageTitle="홍수 행동요령"
+      disasterType="FLOOD"
+      pageTitle="홍수"
       category="자연재난"
+      categoryPath="/behaviorMethod/earthquake"
     />
   );
 };

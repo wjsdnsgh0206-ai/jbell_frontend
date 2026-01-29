@@ -1,8 +1,13 @@
-import React from 'react';
-
+// src\pages\user\behaviorMethod\social\BuildingCollapseBehaviorMethod.jsx
+import BaseBehaviorMethodPage from '@/pages/user/behaviorMethod/BaseBehaviorMethodPage';
 const BuildingCollapseBehaviorMethod = () => {
   return (
-    <div>준비중</div>
+    <BaseBehaviorMethodPage 
+      disasterType="BUILDING_COLLAPSE"
+      pageTitle="건축물붕괴"
+      category="사회재난"
+      categoryPath="/behaviorMethod/fire"
+    />
   );
 };
 
