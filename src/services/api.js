@@ -467,6 +467,87 @@ export const qnaService = {
 };
 
 /* =========================================================
+   시민안전교육 관리 API (Admin & User 공용)
+   Backend: SafetyEduController.java
+========================================================= */
+export const safetyEduService = {
+  /**
+   * 1. 목록 조회 (검색 + 페이징)
+   * GET /api/safety-edu
+   * @param {Object} params - { page, size, keyword, searchType, isPublic, sort }
+   */
+  getSafetyEduList: async (params) => {
+    // 백엔드 PageableDefault size=10
+    const response = await api.get("/safety-edu", { params });
+    return response.data;
+  },
+
+  /**
+   * 2. 상세 조회
+   * GET /api/safety-edu/{id}
+   */
+  getSafetyEduDetail: async (id) => {
+    const response = await api.get(`/safety-edu/${id}`);
+    return response.data;
+  },
+
+  /**
+   * 3. 등록
+   * POST /api/safety-edu
+   * @param {Object} data - RequestDto 구조 (title, sections, links 등)
+   */
+  createSafetyEdu: async (data) => {
+    const response = await api.post("/safety-edu", data);
+    return response.data; // 등록된 ID (Long) 반환
+  },
+
+  /**
+   * 4. 수정
+   * PUT /api/safety-edu/{id}
+   * @param {Long} id - 콘텐츠 ID
+   * @param {Object} data - RequestDto 구조
+   */
+  updateSafetyEdu: async (id, data) => {
+    const response = await api.put(`/safety-edu/${id}`, data);
+    return response.data; // 수정된 ID (Long) 반환
+  },
+
+  /**
+   * 5. 단일 삭제
+   * DELETE /api/safety-edu/{id}
+   */
+  deleteSafetyEdu: async (id) => {
+    const response = await api.delete(`/safety-edu/${id}`);
+    return response.data;
+  },
+
+  /**
+   * 6. 일괄 삭제
+   * POST /api/safety-edu/batch-delete
+   * @param {Array<Long>} ids - 삭제할 ID 리스트 (예: [1, 2, 3])
+   * 주의: Controller가 @PostMapping을 사용함 (Delete Method 아님)
+   */
+  deleteSafetyEdus: async (ids) => {
+    const response = await api.post("/safety-edu/batch-delete", ids);
+    return response.data;
+  },
+
+  /**
+   * 7. 노출 상태 변경 (일괄)
+   * PATCH /api/safety-edu/visibility
+   * @param {Array<Long>} ids - 변경할 ID 리스트
+   * @param {Boolean} isPublic - true(공개) / false(비공개)
+   * 주의: ids는 Body(@RequestBody), isPublic은 QueryString(@RequestParam)으로 전송
+   */
+  updateVisibility: async (ids, isPublic) => {
+    const response = await api.patch("/safety-edu/visibility", ids, {
+      params: { isPublic },
+    });
+    return response.data;
+  },
+};
+
+/* =========================================================
    날씨 관련 API - 최지영 * 건드리지 말 것 *
 ========================================================= */
 export const weatherService = {
