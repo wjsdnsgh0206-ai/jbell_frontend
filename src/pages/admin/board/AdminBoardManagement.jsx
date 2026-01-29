@@ -10,48 +10,68 @@ const AdminBoardManagement = () => {
 
   const [formData, setFormData] = useState({
     noticeId: '',
-    title: '', // 백엔드 Notice 엔티티 필드명과 일치
+    title: '',
     content: '',
     isPublic: true,
+    author: 'admin',  // ✅ 추가!
     files: []
   });
 
   const [loading, setLoading] = useState(isEditMode);
+  const [error, setError] = useState(null);  // 에러 상태 추가
 
   // 1. 데이터 로드 (수정 모드)
   useEffect(() => {
-   if (isEditMode && noticeId) {
-        const fetchDetail = async () => {
-            try {
-                setLoading(true);
-                const response = await noticeApi.getNoticeDetail(noticeId);
-                const data = response.data;
-                
-                if (data) {
-                    setFormData({
-                        noticeId: data.id,      // 백엔드 DTO의 id 필드명 확인
-                        title: data.title,
-                        content: data.content,
-                        isPublic: data.isPublic,
-                        author: data.author || 'admin'
-                    });
-                }
-            } catch (error) {
-                console.error("데이터 로드 실패:", error);
-                alert("내용을 불러오지 못했습니다.");
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchDetail();
+    if (isEditMode && noticeId) {
+      const fetchDetail = async () => {
+        try {
+          setLoading(true);
+          setError(null);  // 에러 초기화
+          
+          const response = await noticeApi.getNoticeDetail(noticeId);
+          
+          // 응답 데이터 확인 (콘솔로 구조 확인용)
+          console.log("백엔드 응답:", response);
+          
+          // 백엔드 응답 구조에 따라 수정
+          const data = response.data || response;  // Axios 설정에 따라
+          
+          if (data) {
+            setFormData({
+              noticeId: data.noticeId || data.id,  // 둘 다 대응
+              title: data.title || '',
+              content: data.content || '',
+              isPublic: data.isPublic ?? true,
+              author: data.author || 'admin'
+            });
+          } else {
+            throw new Error("데이터가 없습니다.");
+          }
+        } catch (error) {
+          console.error("데이터 로드 실패:", error);
+          setError("내용을 불러오지 못했습니다.");
+          alert("내용을 불러오지 못했습니다.");
+          navigate('/admin/contents/adminBoardList');  // 목록으로 이동
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchDetail();
     }
-}, [isEditMode, noticeId]);
+  }, [isEditMode, noticeId, navigate]);  // navigate 의존성 추가
 
-// 렌더링 부분: 로딩 중일 때는 입력폼 대신 로딩 메시지만 보여줍니다.
-if (loading) return <div>정보를 가져오는 중입니다...</div>;
+  // 로딩/에러 처리
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-xl">정보를 가져오는 중입니다...</div>
+    </div>
+  );
 
-
-
+  if (error) return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-xl text-red-500">{error}</div>
+    </div>
+  );
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -72,10 +92,10 @@ if (loading) return <div>정보를 가져오는 중입니다...</div>;
     }
 
     const payload = {
-      title: formData.title,
-      content: formData.content,
-      isPublic: formData.isPublic, // 여기서 true/false가 전달
-      author: "admin"
+      title: formData.title.trim(),  // 공백 제거
+      content: formData.content.trim(),
+      isPublic: formData.isPublic,
+      author: formData.author || "admin"  // author 포함
     };
 
     try {
@@ -91,7 +111,7 @@ if (loading) return <div>정보를 가져오는 중입니다...</div>;
       navigate('/admin/contents/adminBoardList');
     } catch (error) {
       console.error("저장 실패:", error);
-      alert("서버 통신 중 오류가 발생했습니다.");
+      alert(`서버 통신 중 오류가 발생했습니다: ${error.message}`);
     }
   };
 

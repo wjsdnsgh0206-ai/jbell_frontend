@@ -303,7 +303,7 @@ const AdminBoardList = () => {
                   : `전체 ${filteredData.length}건`}
               </span>
 
-              {/* 🔽 정렬 버튼 위치 */}
+              {/* 정렬 버튼 위치 */}
               <div className="flex gap-2">
                 <button
                   onClick={() => handleSort('latest')}
