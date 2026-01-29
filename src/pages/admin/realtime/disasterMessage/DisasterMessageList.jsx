@@ -49,35 +49,24 @@ const DisasterMessageList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState({ title: '', message: '', type: 'confirm', onConfirm: () => {} });
 
-  // 2. 데이터 가져오기 (이 부분 로직만 수정됨)
-  useEffect(() => {
-    if (setBreadcrumbTitle) setBreadcrumbTitle("재난 문자 이력");
-    
-    const fetchMessages = async () => {
-      try {
-        setIsLoading(true);
-        // API 주소 확인: 리스트를 가져오는 백엔드 엔드포인트
-        const response = await axios.get("http://localhost:8080/api/disaster/dashboard/disasterMessages");
-        const rawData = response.data?.data || response.data || [];
-        
-        // 데이터 매핑 (대소문자 무관하게 처리)
-        const mappedData = rawData.map(item => ({
-          id: item.sn || item.SN,
-          category: item.emrgStepNm || item.EMRG_STEP_NM || '안전안내',
-          // 코드값 분리 로직 (NATURAL_HEAVYRAIN -> HEAVYRAIN)
-          type: (item.dstType || item.DST_TYPE || 'ITEM_001') === 'ITEM_001' ? '일반' : (item.dstType || item.DST_TYPE).split('_')[1] || '일반',
-          sender: "기상청/행정안전부",
-          content: item.msgCn || item.MSG_CN,
-          dateTime: item.crtDt || item.CRT_DT,
-          region: item.rcptnRgnNm || item.RCPTN_RGN_NM,
-          isVisible: true
-        }));
-        
-        setMessages(mappedData);
-      } catch (error) {
-        console.error("데이터 로드 실패:", error);
-      } finally {
-        setIsLoading(false);
+  // ==================================================================================
+  // 2. 데이터 가져오기 (API 연동)
+  // ==================================================================================
+  const fetchMessages = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      // 1. API 호출
+      const response = await disasterApi.getDisasterMessages();
+      
+      // 2. 데이터 추출 (공통 DTO 대응)
+      // response가 배열이면 그대로 사용, 객체라면 그 안의 data나 list 필드 확인
+      let rawData = [];
+      if (Array.isArray(response)) {
+        rawData = response;
+      } else if (response && Array.isArray(response.data)) {
+        rawData = response.data;
+      } else if (response && Array.isArray(response.list)) {
+        rawData = response.list;
       }
 
       // 3. 매핑 로직 (rawData가 배열인 것이 보장됨)
