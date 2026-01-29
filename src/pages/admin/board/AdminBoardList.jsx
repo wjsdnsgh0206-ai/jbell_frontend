@@ -217,9 +217,9 @@ const AdminBoardList = () => {
       header: '첨부', 
       width: '60px', 
       className: 'text-center',
-      render: (files) => (
+      render: (_, row) => (
         <div className="flex justify-center text-graygray-40">
-          {row.fileCount > 0 ? (
+          {row && row.fileCount > 0 ? (
             <div className="flex items-center gap-1 font-mono text-[13px]">
               <Paperclip size={14} />{row.fileCount}
             </div>

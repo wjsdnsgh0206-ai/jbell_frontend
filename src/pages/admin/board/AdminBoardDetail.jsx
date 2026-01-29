@@ -8,42 +8,32 @@ const AdminBoardDetail = () => {
   // const location = useLocation();
   const { noticeId } = useParams();
   console.log(noticeId)
+
+  // 상태 변수 이름
   const [post, setPost] = useState(null);
 
   // location.state로 넘어온 데이터 또는 id로 찾기
   // const post = location.state || noticeData.find(p => p.boardId === parseInt(boardId));
 
   // 조회수 방어 코드
-  const hasFetched = useRef(false);
-    useEffect(() => {
-      if (hasFetched.current) return;
-
-      hasFetched.current = true;
-      fetchNoticeDetail();
-    }, [noticeId]);
-
-    const fetchNoticeDetail = async () => {
-      const res = await noticeApi.getNoticeDetail(noticeId);
-      setNotice(res.data);
-  };
-
-
   useEffect(() => {
+    if (!noticeId) return;
+
     axios.get(`/api/notice/${noticeId}`)
       .then(res => {
-        setPost(res.data);
+        setPost(res.data); // setNotice가 아니라 setPost를 사용해야 합니다.
       })
       .catch(err => {
-        console.error(err);
+        console.error("데이터 로딩 실패:", err);
+        // 500 에러 등이 발생할 경우 여기서 확인 가능합니다.
       });
   }, [noticeId]);
-
 
   // 데이터가 없으면 에러 처리
   if (!post) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center min-h-screen bg-admin-bg">
-        <p className="text-xl text-gray-500 mb-4">게시글을 찾을 수 없습니다.</p>
+        <p className="text-xl text-gray-500 mb-4">게시글을 불러오는 중이거나 찾을 수 없습니다.</p>
         <button 
           onClick={() => navigate('/admin/contents/adminBoardList')}
           className="px-6 py-2 bg-admin-primary text-white rounded-md"
@@ -59,7 +49,7 @@ const AdminBoardDetail = () => {
   const handleDownload = async (fileId) => {
     try {
       const response = await axios.get(`/api/notice/file/download/${fileId}`, {
-        responseType: 'blob'  // 중요!
+        responseType: 'blob'
       });
       
       // 파일명 추출

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { X, Paperclip, ArrowLeft, Save } from 'lucide-react';
 import { noticeApi } from '@/services/api';
+import axios from 'axios';
 
 const AdminBoardManagement = () => {
   const navigate = useNavigate();
@@ -32,43 +33,34 @@ const AdminBoardManagement = () => {
       const fetchDetail = async () => {
         try {
           setLoading(true);
-          setError(null);  // 에러 초기화
-          
-          const response = await noticeApi.getNoticeDetail(noticeId);
-          
-          // 응답 데이터 확인 (콘솔로 구조 확인용)
-          console.log("백엔드 응답:", response);
-          
-          // 백엔드 응답 구조에 따라 수정
-          const data = response.data || response;  // Axios 설정에 따라
-          
+          // noticeApi.getNoticeDetail 대신 직접 axios 호출
+          const response = await axios.get(`/api/notice/${noticeId}`);
+          const data = response.data;
+
           if (data) {
             setFormData({
-              noticeId: data.noticeId || data.id,  // 둘 다 대응
+              noticeId: data.id, // DTO에서 id로 넘어오므로
               title: data.title || '',
               content: data.content || '',
               isPublic: data.isPublic ?? true,
               author: data.author || 'admin'
             });
-          } 
-            if (data.files && data.files.length > 0) {
+            if (data.files) {
               setExistingFiles(data.files);
-            } // 기존 파일 저장
-          else {
-            throw new Error("데이터가 없습니다.");
+            }
           }
         } catch (error) {
-          console.error("데이터 로드 실패:", error);
-          setError("내용을 불러오지 못했습니다.");
-          alert("내용을 불러오지 못했습니다.");
-          navigate('/admin/contents/adminBoardList');  // 목록으로 이동
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchDetail();
-    }
-  }, [isEditMode, noticeId, navigate]);  // navigate 의존성 추가
+                console.error("데이터 로드 실패:", error);
+                setError("내용을 불러오지 못했습니다.");
+                alert("내용을 불러오지 못했습니다.");
+                navigate('/admin/contents/adminBoardList');  // 목록으로 이동
+              } finally {
+                setLoading(false);
+              }
+            };
+            fetchDetail();
+          }
+        }, [isEditMode, noticeId, navigate]);  // navigate 의존성 추가
 
   // 로딩/에러 처리
   if (loading) return (
@@ -298,7 +290,7 @@ const AdminBoardManagement = () => {
                     >
                       <div className="flex items-center gap-3">
                         <Paperclip size={16} className="text-blue-600" />
-                        <span className="text-[14px] text-graygray-70">{file.originalName}</span>
+                        <span className="text-[14px] text-graygray-70">{file.fileRealName || file.originalName}</span>
                         <span className="text-[12px] text-graygray-40">
                           ({(file.fileSize / 1024).toFixed(1)} KB)
                         </span>
