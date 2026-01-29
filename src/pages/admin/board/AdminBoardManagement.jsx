@@ -87,7 +87,7 @@ const AdminBoardManagement = () => {
   };
 
 // <-------------------------------------------------------------------------------------->
-  // 2. 등록 및 수정 실행
+ // 2. 등록 및 수정 실행
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -96,18 +96,10 @@ const AdminBoardManagement = () => {
       return;
     }
 
-    const payload = {
-      title: formData.title.trim(),  // 공백 제거
-      content: formData.content.trim(),
-      isPublic: formData.isPublic,
-      author: formData.author || "admin"  // author 포함
-    };
-
     try {
-      
       const submitData = new FormData();
     
-      // JSON 데이터를 Blob으로 변환하여 추가
+      // 1. 공지사항 텍스트 데이터 (JSON을 Blob으로 감싸서 'notice'라는 이름으로 추가)
       const noticeData = {
         title: formData.title.trim(),
         content: formData.content.trim(),
@@ -119,31 +111,40 @@ const AdminBoardManagement = () => {
         type: 'application/json'
       }));
       
-      // 파일들 추가
+      // 2. 새 첨부 파일들 추가 ('files'라는 이름으로 추가)
       uploadFiles.forEach((file) => {
         submitData.append('files', file);
       });
       
-      // 삭제할 파일 ID들 추가 (수정 모드)
-      if (isEditMode && deleteFileIds.length > 0) {
-        deleteFileIds.forEach(id => {
-          submitData.append('deleteFileIds', id);
-        });
+      // 3. 삭제할 파일 ID 리스트 추가 (수정 모드일 때만)
+      if (isEditMode) {
+        // 백엔드에서 @RequestPart List<Long>으로 받으므로 JSON Blob으로 처리
+        // 만약 삭제할 파일이 없더라도 빈 배열([])을 보내주는 것이 백엔드 에러 방지에 좋습니다.
+        submitData.append('deleteFileIds', new Blob([JSON.stringify(deleteFileIds)], {
+          type: 'application/json'
+        }));
       }
+
+      // axios 설정 (Content-Type 명시)
+      const config = {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      };
       
       if (isEditMode) {
         // 수정 API 호출
-        await noticeApi.updateNotice(noticeId, payload);
+        await axios.put(`/api/notice/${noticeId}`, submitData, config);
         alert("공지사항이 수정되었습니다.");
       } else {
         // 등록 API 호출
-        await noticeApi.createNotice(payload);
+        await axios.post(`/api/notice`, submitData, config);
         alert("공지사항이 등록되었습니다.");
       }
       navigate('/admin/contents/adminBoardList');
     } catch (error) {
       console.error("저장 실패:", error);
-      alert(`서버 통신 중 오류가 발생했습니다: ${error.message}`);
+      // 서버에서 보내주는 상세 에러 메시지가 있다면 출력
+      const errorMsg = error.response?.data?.message || error.message;
+      alert(`저장 중 오류가 발생했습니다: ${errorMsg}`);
     }
   };
 // <-------------------------------------------------------------------------------------->
