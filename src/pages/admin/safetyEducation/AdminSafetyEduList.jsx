@@ -218,7 +218,16 @@ const AdminSafetyEduList = () => {
       className: 'text-center', 
       render: (val) => <span className="font-medium">{val}</span>
     },
-    { key: 'author', header: '등록인', width: '90px', className: 'text-center' },
+    { 
+      key: 'author', 
+      header: '등록인', 
+      width: '100px', 
+      className: 'text-center',
+      // [변경] ADMIN_MASTER가 들어오면 '최고관리자'로 변환하여 표시
+      render: (val) => (
+        <span>{val === 'ADMIN_MASTER' ? '최고관리자' : val}</span>
+      )
+    },
     { 
       key: 'createdAt', 
       header: '등록일시', 
