@@ -22,6 +22,7 @@ const BehaviorMethodList = () => {
   const [guides, setGuides] = useState([]);      // 전체 데이터 (DB)
   const [loading, setLoading] = useState(true);  // 로딩 상태
   const [error, setError] = useState(false);     // 에러 상태
+  const [onlyLatest, setOnlyLatest] = useState(true); // 최신 데이터만 보기 토글 (기본값 TRUE)
 
   const [selectedIds, setSelectedIds] = useState([]); // 체크박스 선택 ID
   const [currentPage, setCurrentPage] = useState(1);  // 현재 페이지
@@ -46,9 +47,13 @@ const BehaviorMethodList = () => {
     try {
       setLoading(true);
       setError(false);
-      // 전체 데이터를 가져온 후 클라이언트에서 필터링하는 방식
-      // (데이터 양이 많다면 API 파라미터로 필터링하도록 수정 필요)
-      const data = await behaviorMethodService.getBehaviorMethodList();
+
+      // API 호출 시 현재 선택된 카테고리와 토글 상태를 정확히 전달
+      const data = await behaviorMethodService.getAdminBehaviorList({ 
+        contentType: selectedCategory, 
+        onlyLatest: onlyLatest ? 'Y' : 'N' 
+      });
+      
       setGuides(data || []);
     } catch (err) {
       console.error("데이터 로드 실패:", err);
@@ -56,59 +61,52 @@ const BehaviorMethodList = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedCategory, onlyLatest]); // ★ 중요: 의존성 추가 (카테고리나 토글이 바뀔 때 함수 갱신)
 
   useEffect(() => {
     fetchData();
-    setBreadcrumbTitle(""); // 목록 페이지는 기본 경로명 사용
-  }, [fetchData, setBreadcrumbTitle]);
+    setBreadcrumbTitle(""); 
+  }, [fetchData, setBreadcrumbTitle]); // ★ fetchData가 위에서 갱신되므로 자동으로 재실행됨
 
-  // ==================================================================================
-  // 3. 필터링 및 데이터 가공 logic
-  // ==================================================================================
-  
-  // 1단 필터(카테고리) 변경 시 2단 필터(유형) 및 페이지 초기화
-  useEffect(() => {
-    setSelectedType("all");
-    setCurrentPage(1);
-  }, [selectedCategory]);
-
-  // [옵션 생성] 데이터 기반으로 '구분' 목록 추출 (중복제거)
+  // 1단 필터: '자연재난', '사회재난' 등 명칭으로 표시
   const categoryOptions = useMemo(() => {
     if (!guides.length) return [{ value: "all", label: "구분 전체" }];
-    const categories = [...new Set(guides.map(item => item.contentType?.split('-')[0]).filter(Boolean))];
+    const categories = [...new Set(guides.map(item => item.groupName).filter(Boolean))];
     return [{ value: "all", label: "구분 전체" }, ...categories.map(c => ({ value: c, label: c }))];
   }, [guides]);
 
-  // [옵션 생성] 선택된 '구분'에 해당하는 '유형' 목록 추출
+  // 2단 필터: '태풍', '지진' 등 명칭으로 표시
   const typeOptions = useMemo(() => {
     if (selectedCategory === "all") return [{ value: "all", label: "유형 전체" }];
-    
     const types = guides
-      .filter(item => item.contentType?.startsWith(selectedCategory))
-      .map(item => item.contentType?.split('-')[1])
+      .filter(item => item.groupName === selectedCategory)
+      .map(item => item.contentTypeName)
       .filter(Boolean);
     const uniqueTypes = [...new Set(types)];
-    
     return [{ value: "all", label: "유형 전체" }, ...uniqueTypes.map(t => ({ value: t, label: t }))];
   }, [guides, selectedCategory]);
 
   // [필터링 실행]
   const filteredData = useMemo(() => {
     return guides.filter(item => {
-      if (!item.contentType) return false;
-      const [itemCat, itemType] = item.contentType.split('-');
+      // 1. 카테고리/유형 필터링 (서버에서 이미 필터링해왔으므로 검색어 위주로 수행)
+      // 단, selectedCategory가 'all'일 때는 전체가 서버에서 오므로 클라이언트 필터 유지
+      const [itemCat, itemType] = item.contentType?.split('-') || [];
       
       const isCategoryMatch = selectedCategory === "all" || itemCat === selectedCategory;
       const isTypeMatch = selectedType === "all" || itemType === selectedType;
       
-      const titleMatch = item.title?.includes(appliedKeyword);
-      const bodyMatch = item.body?.includes(appliedKeyword);
-      const matchesSearch = !appliedKeyword || titleMatch || bodyMatch;
+      // 검색어 필터링
+      const matchesSearch = item.title.includes(appliedKeyword) || 
+                            (item.body && item.body.includes(appliedKeyword));
 
+      // ★ [수정] 클라이언트 측 isLatest 필터링 제거
+      // 서버에서 이미 onlyLatest 조건에 맞춰서 데이터를 보내주므로, 
+      // 프론트에서는 검색어와 타입 일치 여부만 확인하면 됩니다.
+      
       return isCategoryMatch && isTypeMatch && matchesSearch;
     });
-  }, [guides, selectedCategory, selectedType, appliedKeyword]);
+  }, [guides, selectedCategory, selectedType, appliedKeyword]); // onlyLatest 제거 (서버가 이미 처리함)
 
   // [페이지네이션]
   const currentData = useMemo(() => {
@@ -132,12 +130,13 @@ const BehaviorMethodList = () => {
     setAppliedKeyword('');
     setSelectedCategory("all");
     setSelectedType("all");
+    setOnlyLatest(true)
     setCurrentPage(1);
   };
 
   // 상세 페이지 이동
   const goDetail = (row) => {
-    navigate(`/admin/contents/behaviorMethodDetail/${row.contentId}`);
+    navigate(`/admin/behaviorMethodDetail/${row.contentId}`);
   };
 
   // 선택된 항목 이름 가져오기 (메시지용)
@@ -239,6 +238,16 @@ const BehaviorMethodList = () => {
     setIsModalOpen(true);
   }, []); // 의존성 없음 (setState 함수형 업데이트 사용)
 
+  // 일괄 삭제 기능 핸들러
+  const handleCleanupOldData = async () => {
+    if (window.confirm("현재 사용되지 않는 과거 동기화 데이터를 모두 삭제하시겠습니까?")) {
+      // API 호출: DELETE /behaviorMethod/cleanup
+      // 서버에서는 WHERE regType = 'API' AND lastSyncYn = 'N' 인 데이터를 삭제
+      await behaviorMethodService.cleanupOldData();
+      fetchData(); // 재조회
+    }
+  };
+
   // ==================================================================================
   // 5. 테이블 컬럼 정의 (AdminDataTable용)
   // ==================================================================================
@@ -248,13 +257,12 @@ const BehaviorMethodList = () => {
       key: 'contentType', 
       header: '재난구분/유형', 
       className: 'text-center',
-      render: (val) => {
-        if (!val) return '-';
-        const parts = val.split('-');
+      render: (val, row) => {
+        // 이제 row.groupName(자연재난)과 row.contentTypeName(태풍)을 직접 사용
         return (
           <div className="flex flex-col items-center leading-tight">
-            <span className="text-gray-500 text-sm">{parts[0]}</span>
-            <span className="font-bold">{parts[1] || ''}</span>
+            <span className="text-gray-500 text-xs">{row.groupName || '구분 없음'}</span>
+            <span className="font-bold text-admin-primary">{row.contentTypeName || val}</span>
           </div>
         );
       }
@@ -338,7 +346,7 @@ const BehaviorMethodList = () => {
             onSearch={handleSearch}
             onReset={handleReset}
           >
-            {/* 커스텀 필터 슬롯 (children) */}
+            {/* 1. 커스텀 필터: 카테고리 선택 */}
             <div className="relative w-full md:w-48">
               <select 
                 value={selectedCategory} 
@@ -350,6 +358,7 @@ const BehaviorMethodList = () => {
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
             </div>
 
+            {/* 2. 커스텀 필터: 유형 선택 */}
             <div className="relative w-full md:w-48">
               <select 
                 value={selectedType} 
@@ -360,6 +369,31 @@ const BehaviorMethodList = () => {
               </select>
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
             </div>
+
+            {/* 3. 커스텀 필터: 이력 보기 토글 (여기에 추가!) */}
+            {/* mb-4 제거, h-14로 높이를 맞춰서 select 박스와 정렬 */}
+            <div className="flex items-center h-14 px-2">
+              <label className="relative inline-flex items-center cursor-pointer select-none">
+                <input 
+                  type="checkbox" 
+                  checked={!onlyLatest} 
+                  onChange={() => setOnlyLatest(!onlyLatest)} 
+                  className="sr-only peer"
+                />
+                {/* 토글 스위치 디자인 */}
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer 
+                              peer-checked:after:translate-x-full peer-checked:after:border-white 
+                              after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                              after:bg-white after:border-gray-300 after:border after:rounded-full 
+                              after:h-5 after:w-5 after:transition-all 
+                              peer-checked:bg-admin-primary transition-colors"></div>
+                {/* 라벨 텍스트 */}
+                <span className="ml-3 text-body-m font-medium text-gray-700 whitespace-nowrap">
+                  과거 이력 포함
+                </span>
+              </label>
+            </div>
+
           </AdminSearchBox>
         </section>
 

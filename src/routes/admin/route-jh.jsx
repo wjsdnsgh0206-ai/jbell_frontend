@@ -8,8 +8,8 @@ import { lazy } from 'react';
 // ========================
 
 const BehaviorMethodList = lazy(() => import("@/pages/admin/behaviorMethod/BehaviorMethodList"));
-const BehaviorMethodDetail = lazy(() => import("@/pages/admin/contents/behaviorMethod/BehaviorMethodDetail"));
-const BehaviorMethodAdd = lazy(() => import("@/pages/admin/contents/behaviorMethod/BehaviorMethodAdd"));
+const BehaviorMethodDetail = lazy(() => import("@/pages/admin/behaviorMethod/BehaviorMethodDetail"));
+const BehaviorMethodAdd = lazy(() => import("@/pages/admin/behaviorMethod/BehaviorMethodAdd"));
 const PolicyPageEditor = lazy(() => import("@/pages/admin/contents/safetyPolicy/PolicyPageEditor"));
 
 export const jhAdminRoutes = [
@@ -20,12 +20,12 @@ export const jhAdminRoutes = [
     nowPage: "행동요령 목록",
   },
   {
-    path: "/admin/contents/behaviorMethodDetail/:id", 
+    path: "/admin/behaviorMethodDetail/:id", 
     element: <BehaviorMethodDetail />,
     nowPage: "행동요령 상세",
   },
   {
-    path: "/admin/contents/behaviorMethodAdd", 
+    path: "/admin/behaviorMethodAdd", 
     element: <BehaviorMethodAdd />,
     nowPage: "행동요령 등록",
   },
