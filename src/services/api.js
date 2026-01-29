@@ -26,6 +26,7 @@ const kmaWarningApi = axios.create({ baseURL: "/kma-warning-api" });
 const accidentNewsApi = axios.create({ baseURL: "/accidentNews-api" }); // 도로교통 정보 api
 
 
+
 export const noticeApi = {
   // 공지사항 전체 목록 조회
   getNoticeDTOList: async () => {
@@ -59,7 +60,29 @@ export const noticeApi = {
     const response = await api.delete(`/notice/${id}`);
     return response.data;
   },
+
+ // 첨부파일 관련
+  getNoticeList: () => axios.get('/api/notice'),
+  getNoticeDetail: (id) => axios.get(`/api/notice/${id}`),
+  createNotice: (data) => axios.post('/api/notice', data),
+  updateNotice: (id, data) => axios.put(`/api/notice/${id}`, data),
+  deleteNotice: (id) => axios.delete(`/api/notice/${id}`),
+  
+  // 파일 포함 API 추가
+  createNoticeWithFiles: (formData) => axios.post('/api/notice', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  
+  updateNoticeWithFiles: (id, formData) => axios.put(`/api/notice/${id}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  
+  downloadFile: (fileId) => axios.get(`/api/notice/file/download/${fileId}`, {
+    responseType: 'blob'
+  })
 };
+
+
 
 export const commonService = {
   /**

@@ -219,9 +219,9 @@ const AdminBoardList = () => {
       className: 'text-center',
       render: (files) => (
         <div className="flex justify-center text-graygray-40">
-          {files?.length > 0 ? (
+          {row.fileCount > 0 ? (
             <div className="flex items-center gap-1 font-mono text-[13px]">
-              <Paperclip size={14} />{files.length}
+              <Paperclip size={14} />{row.fileCount}
             </div>
           ) : "-"}
         </div>

@@ -53,6 +53,43 @@ const AdminBoardDetail = () => {
       </div>
     );
   }
+/** <============================================================ ... ============================================================> **/
+/** <============================================================ ... ============================================================> **/
+  // 파일 다운로드 핸들러
+  const handleDownload = async (fileId) => {
+    try {
+      const response = await axios.get(`/api/notice/file/download/${fileId}`, {
+        responseType: 'blob'  // 중요!
+      });
+      
+      // 파일명 추출
+      const contentDisposition = response.headers['content-disposition'];
+      let fileName = 'download';
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (fileNameMatch && fileNameMatch[1]) {
+          fileName = fileNameMatch[1].replace(/['"]/g, '');
+        }
+      }
+      
+      // 다운로드 트리거
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('다운로드 실패:', error);
+        alert('파일 다운로드에 실패했습니다.');
+      }
+  };
+/** <============================================================ ... ============================================================> **/
+
+
+
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg p-10 font-sans">
@@ -132,7 +169,7 @@ const AdminBoardDetail = () => {
             <ul className="space-y-2">
               {post.files.map((file, index) => (
                 <li 
-                  key={index}
+                  key={file.fileId}
                   className="flex items-center justify-between p-3 bg-graygray-5 rounded-md border border-graygray-10 hover:bg-graygray-10 transition-colors"
                 >
                   <div className="flex items-center gap-3">
@@ -140,11 +177,13 @@ const AdminBoardDetail = () => {
                     <span className="text-[14px] text-graygray-70">{file.name || file}</span>
                     {file.size && (
                       <span className="text-[12px] text-graygray-30">
-                        ({(file.size / 1024).toFixed(1)} KB)
+                        ({(file.fileSize / 1024).toFixed(1)} KB)
                       </span>
                     )}
                   </div>
-                  <button className="text-[13px] text-admin-primary font-bold hover:underline">
+                  <button 
+                  onClick={() => handleDownload(file.fileId)}
+                  className="text-[13px] text-admin-primary font-bold hover:underline">
                     다운로드
                   </button>
                 </li>
