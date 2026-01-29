@@ -7,6 +7,7 @@ import axios from "axios";
 import { disasterApi } from '@/services/api';
 import { DISASTER_OPTIONS } from "./MessagetTypeData";
 
+
 // [공통 컴포넌트]
 import AdminDataTable from '@/components/admin/AdminDataTable';
 import AdminPagination from '@/components/admin/AdminPagination';

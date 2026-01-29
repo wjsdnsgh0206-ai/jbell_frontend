@@ -1,8 +1,6 @@
 // src/pages/admin/realtime/weatherNews/WeatherTypeData.js
 
 export const WEATHER_OPTIONS = {
-  // 재난 문자용 (이전 코드 유지)
-  CATEGORIES: [ { value: '안전안내', label: '안전안내' }, { value: '긴급재난', label: '긴급재난' } ],
   
   // 기상 특보용 추가
   WEATHER_TYPES: [
