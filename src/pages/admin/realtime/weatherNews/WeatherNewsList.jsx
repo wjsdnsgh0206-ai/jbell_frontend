@@ -3,6 +3,9 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { ChevronDown, RotateCcw, Calendar, Search } from "lucide-react";
+import { disasterApi } from '@/services/api';
+import { WEATHER_OPTIONS } from "./WeatherTypeData";
+
 
 // [공통 컴포넌트]
 import AdminDataTable from "@/components/admin/AdminDataTable";
@@ -10,8 +13,6 @@ import AdminPagination from "@/components/admin/AdminPagination";
 import AdminSearchBox from "@/components/admin/AdminSearchBox";
 import AdminConfirmModal from "@/components/admin/AdminConfirmModal";
 
-// [데이터 임포트]
-import { initialWeatherData } from "./WeatherNewsData";
 
 const WeatherNewsList = () => {
   const navigate = useNavigate();
@@ -20,10 +21,11 @@ const WeatherNewsList = () => {
   // ==================================================================================
   // 1. 상태 관리
   // ==================================================================================
-  const [weatherNews, setWeatherNews] = useState(initialWeatherData);
   const [selectedIds, setSelectedIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [weatherNews, setWeatherNews] = useState([]); 
+  const [totalCount, setTotalCount] = useState(0);
 
   // 기존 속성명 유지: filters
   const [filters, setFilters] = useState({
@@ -44,35 +46,59 @@ const WeatherNewsList = () => {
     if (setBreadcrumbTitle) setBreadcrumbTitle("기상 특보 관리");
   }, [setBreadcrumbTitle]);
 
+
+
+  // API 호출 로직
+  const fetchWeatherData = useCallback(async () => {
+    try {
+      const params = {
+        ttl: filters.newsType === "전체" ? "" : filters.newsType,
+        rlvtZone: filters.region === "전체" ? "" : filters.region,
+        lvl: filters.level === "전체" ? "" : filters.level,
+        startDate: filters.startDate,
+        endDate: filters.endDate,
+        limit: itemsPerPage,
+        offset: (currentPage - 1) * itemsPerPage,
+        keyword: searchParams.keyword // 통합 검색 키워드
+      };
+
+      const response = await disasterApi.getSavedWeatherWarnings(params);
+      
+      // 백엔드 Map 구조(list, totalCount)에 대응
+      const mappedData = (response.list || []).map(item => ({
+        id: String(item.prsntnSn),
+        level: item.lvl || "보통",
+        type: item.ttl || "기상특보",
+        title: item.ttl || "-",
+        content: item.rlvtZone || "-",
+        dateTime: item.prsntnTm || "",
+        isVisible: item.visibleYn === 'Y'
+      }));
+
+      setWeatherNews(mappedData);
+      setTotalCount(response.totalCount || 0);
+    } catch (error) {
+      console.error("데이터 로드 실패:", error);
+    }
+  }, [currentPage, filters, searchParams.keyword]);
+
+  useEffect(() => {
+    fetchWeatherData();
+  }, [fetchWeatherData]);
+
+
   // ==================================================================================
   // 2. 필터링 로직 (기존 속성명 및 로직 유지)
   // ==================================================================================
-  const filteredData = useMemo(() => {
-    return weatherNews.filter((item) => {
-      const matchType = filters.newsType === "전체" || item.type.includes(filters.newsType);
-      const matchRegion = filters.region === "전체" || item.content.includes(filters.region);
-      const matchLevel = filters.level === "전체" || item.level === filters.level;
-      const itemDate = item.dateTime.split(" ")[0];
-      const matchDate = itemDate >= filters.startDate && itemDate <= filters.endDate;
-      
-      // 검색어 필터링 추가
-      const keyword = searchParams.keyword.trim().toLowerCase();
-      const matchKeyword = !keyword || item.title.toLowerCase().includes(keyword) || item.content.toLowerCase().includes(keyword);
+  const filteredData = weatherNews;
+  const paginatedData = weatherNews;
 
-      return matchType && matchRegion && matchLevel && matchDate && matchKeyword;
-    });
-  }, [weatherNews, filters, searchParams.keyword]);
-
-  const paginatedData = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredData.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredData, currentPage]);
 
   // ==================================================================================
   // 3. 핸들러
   // ==================================================================================
   const handleSearch = () => {
-    setCurrentPage(1);
+    setCurrentPage(1); // 페이지 초기화 시 fetchWeatherData 자동 실행
   };
 
   const handleReset = () => {
@@ -94,8 +120,6 @@ const WeatherNewsList = () => {
 
   const handleBatchStatus = (status) => {
     if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
-    const allNames = getAllSelectedItemsList();
-    
     setModalConfig({
       title: `일괄 ${status ? '노출' : '비노출'} 처리`,
       message: (
@@ -105,14 +129,17 @@ const WeatherNewsList = () => {
         </div>
       ),
       type: status ? 'confirm' : 'delete',
-      onConfirm: () => {
-        setWeatherNews(prev => prev.map(item => selectedIds.includes(item.id) ? { ...item, isVisible: status } : item));
+      onConfirm: async () => {
+      try {
+        await disasterApi.updateWeatherVisibility(selectedIds, status ? 'Y' : 'N');
+        fetchWeatherData(); // 데이터 재로드
         setSelectedIds([]); 
         setIsModalOpen(false);
-      }
-    });
-    setIsModalOpen(true);
-  };
+      } catch (e) { alert("처리 중 오류가 발생했습니다."); }
+    }
+  });
+  setIsModalOpen(true);
+};
 
   const handleToggleVisible = (id, currentStatus) => {
     const nextStatus = !currentStatus;
@@ -130,8 +157,6 @@ const WeatherNewsList = () => {
 
   const handleDeleteSelected = () => {
     if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
-    const allNames = getAllSelectedItemsList();
-
     setModalConfig({
       title: '선택 항목 삭제',
       message: (
@@ -141,14 +166,17 @@ const WeatherNewsList = () => {
         </div>
       ),
       type: 'delete',
-      onConfirm: () => {
-        setWeatherNews(prev => prev.filter(item => !selectedIds.includes(item.id)));
+      onConfirm: async () => {
+      try {
+        await disasterApi.deleteWeatherWarnings(selectedIds);
+        fetchWeatherData();
         setSelectedIds([]);
         setIsModalOpen(false);
-      }
-    });
-    setIsModalOpen(true);
-  };
+      } catch (e) { alert("삭제 실패"); }
+    }
+  });
+  setIsModalOpen(true);
+};
 
   const goDetail = useCallback((id) => {
     navigate(`/admin/realtime/weatherNewsDetail/${id}`);
@@ -308,7 +336,12 @@ const WeatherNewsList = () => {
           <AdminDataTable columns={columns} data={paginatedData} selectedIds={selectedIds} onSelectionChange={setSelectedIds} rowKey="id" />
 
           <div className="mt-10">
-            <AdminPagination currentPage={currentPage} totalItems={filteredData.length} itemCountPerPage={itemsPerPage} onPageChange={setCurrentPage} />
+            <AdminPagination 
+              currentPage={currentPage} 
+              totalItems={totalCount} // filteredData.length 대신 서버 totalCount 사용
+              itemCountPerPage={itemsPerPage} 
+              onPageChange={setCurrentPage} 
+            />
           </div>
         </section>
       </main>
