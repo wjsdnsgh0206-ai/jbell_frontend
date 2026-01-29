@@ -1,8 +1,10 @@
+// src/pages/admin/safetyEducation/AdminSafetyEduEdit.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal'; 
-import { safetyEduData } from '@/pages/user/openboards/BoardData'; 
-import { Plus, Trash2, Calendar, AlertCircle } from 'lucide-react';
+import { safetyEduService } from '@/services/api';
+import { Plus, Trash2, Calendar } from 'lucide-react';
 
 const SuccessIcon = ({ fill = "#4ADE80" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -16,7 +18,6 @@ const AdminSafetyEduEdit = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
 
-  // ★ [추가] 고유 ID 생성 함수 (사용자 페이지 key값 대응)
   const generateId = (prefix) => `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
   const [showToast, setShowToast] = useState(false);
@@ -28,47 +29,54 @@ const AdminSafetyEduEdit = () => {
   const [formData, setFormData] = useState(null);
   const [errors, setErrors] = useState({ mgmtId: false, title: false, summary: false });
 
-  // 1. 데이터 로드 및 초기화
   useEffect(() => {
-    const detailData = safetyEduData.find(item => item.id.toString() === id.toString());
-    if (detailData) {
-      // ★ 이 부분을 아래 로직으로 교체합니다.
-      
-      // 기존 데이터에 id가 없는 경우를 대비해 고유 ID를 생성하여 넣어줌 (데이터 정합성 유지)
-      const sanitizedSections = (detailData.sections || []).map(sec => ({
-        ...sec,
-        id: sec.id || generateId('sec'),
-        items: (sec.items || []).map(item => ({
-          ...item,
-          id: item.id || generateId('item')
-        }))
-      }));
+    // [변경] 초기 데이터 로드
+    const fetchDetail = async () => {
+      try {
+        const detailData = await safetyEduService.getSafetyEduDetail(id);
+        
+        // 데이터가 없는 경우를 대비해 ID 생성 및 구조 보정
+        const sanitizedSections = (detailData.sections || []).map(sec => ({
+          ...sec,
+          id: sec.id || generateId('sec'),
+          items: (sec.items || []).map(item => ({
+            ...item,
+            id: item.id || generateId('item')
+          }))
+        }));
 
-      setFormData({ 
-        ...detailData,
-        sections: sanitizedSections, // 정제된 섹션 데이터 적용
-        links: detailData.links || [],
-        orderNo: detailData.orderNo || '1'
-      });
-      
-      setBreadcrumbTitle(`${detailData.title} 수정`);
-    } else {
-      alert("해당 데이터를 찾을 수 없습니다.");
-      navigate('/admin/contents/safetyEduList');
-    }
-  }, [id, navigate, setBreadcrumbTitle]); // 의존성 배열은 그대로 유지
+        const sanitizedLinks = (detailData.links || []).map(link => ({
+          ...link,
+          id: link.id || generateId('link')
+        }));
+
+        setFormData({ 
+          ...detailData,
+          sections: sanitizedSections,
+          links: sanitizedLinks,
+          orderNo: detailData.orderNo || '1'
+        });
+        
+        setBreadcrumbTitle(`${detailData.title} 수정`);
+      } catch (error) {
+        console.error("데이터 로드 실패:", error);
+        alert("해당 데이터를 찾을 수 없습니다.");
+        navigate('/admin/contents/safetyEduList');
+      }
+    };
+
+    fetchDetail();
+  }, [id, navigate, setBreadcrumbTitle]);
 
   useEffect(() => {
     return () => setBreadcrumbTitle("");
   }, [setBreadcrumbTitle]);
 
-  // 2. 핸들러 함수들
   const handleChange = (e) => {
     const { name, value } = e.target;
     setIsDirty(true);
 
     if (name === 'orderNo') {
-      // 숫자만 입력 가능하게 하며 최소값 1 보장
       const val = value === '' ? '' : Math.max(1, parseInt(value) || 1).toString();
       setFormData(prev => ({ ...prev, [name]: val }));
       return;
@@ -78,7 +86,6 @@ const AdminSafetyEduEdit = () => {
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: false }));
   };
 
-  // 섹션 관리
   const addSection = () => {
     setIsDirty(true);
     setFormData(prev => ({
@@ -86,9 +93,9 @@ const AdminSafetyEduEdit = () => {
       sections: [
         ...prev.sections, 
         { 
-          id: generateId('sec'), // ★ 추가: 섹션 고유 ID
+          id: generateId('sec'), 
           subTitle: '', 
-          items: [{ id: generateId('item'), type: 'text', text: '' }] // ★ 추가: 첫 아이템 ID
+          items: [{ id: generateId('item'), type: 'text', text: '' }]
         }
       ]
     }));
@@ -106,7 +113,6 @@ const AdminSafetyEduEdit = () => {
     setFormData(prev => ({ ...prev, sections: newSections }));
   };
 
-  // 아이템 관리 (불변성 유지 수정)
   const addItem = (sIdx) => {
     setIsDirty(true);
     const newSections = [...formData.sections];
@@ -114,7 +120,7 @@ const AdminSafetyEduEdit = () => {
       ...newSections[sIdx],
       items: [
         ...newSections[sIdx].items, 
-        { id: generateId('item'), type: 'text', text: '' } // ★ 추가: 아이템 고유 ID
+        { id: generateId('item'), type: 'text', text: '' }
       ]
     };
     setFormData(prev => ({ ...prev, sections: newSections }));
@@ -139,7 +145,27 @@ const AdminSafetyEduEdit = () => {
     setFormData(prev => ({ ...prev, sections: newSections }));
   };
 
-  // 3. 저장 및 취소 로직
+  // 링크 관련 핸들러 추가
+  const addLink = () => {
+    setIsDirty(true);
+    setFormData(prev => ({ 
+      ...prev, 
+      links: [...prev.links, { id: generateId('link'), label: '', url: '' }] 
+    }));
+  };
+
+  const updateLink = (lIdx, field, value) => {
+    setIsDirty(true);
+    const newLinks = [...formData.links];
+    newLinks[lIdx][field] = value;
+    setFormData(prev => ({ ...prev, links: newLinks }));
+  };
+
+  const removeLink = (lIdx) => {
+    setIsDirty(true);
+    setFormData(prev => ({ ...prev, links: prev.links.filter((_, i) => i !== lIdx) }));
+  };
+
   const handleSave = () => {
     if (!formData.mgmtId.trim() || !formData.title.trim() || !formData.summary.trim()) {
       setErrors({ 
@@ -153,27 +179,22 @@ const AdminSafetyEduEdit = () => {
     setIsModalOpen(true);
   };
 
-  const handleConfirmSave = () => {
-    const index = safetyEduData.findIndex(item => item.id.toString() === id.toString());
-    if (index !== -1) {
-      // 한국 시간 기준 포맷팅
-      const now = new Date();
-      const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-      
-      safetyEduData[index] = { 
-        ...formData, 
-        orderNo: formData.orderNo || '1',
-        updatedAt: formattedDate 
-      };
+  const handleConfirmSave = async () => {
+    try {
+      // 수정 API 호출
+      await safetyEduService.updateSafetyEdu(id, formData);
       
       setIsModalOpen(false);
       setToastMessage("수정사항이 성공적으로 반영되었습니다.");
       setShowToast(true);
       setTimeout(() => navigate(`/admin/contents/safetyEduList`), 1500);
+    } catch (error) {
+      console.error("수정 실패:", error);
+      alert("수정 중 오류가 발생했습니다.");
+      setIsModalOpen(false);
     }
   };
 
-  // 취소 핸들러 (누락되었던 부분 추가)
   const handleCancel = () => {
     if (isDirty) {
       setIsCancelModalOpen(true);
@@ -202,20 +223,17 @@ const AdminSafetyEduEdit = () => {
           <h3 className="text-[24px] font-extrabold mb-14 text-[#111] border-b-2 border-gray-100 pb-3">교육 정보 수정</h3>
           
           <div className="flex flex-col space-y-12">
-            {/* 관리번호 */}
             <div className="flex flex-col">
               <label className="font-bold text-[16px] mb-3 text-[#111]">관리번호 (ID)</label>
               <input name="mgmtId" value={formData.mgmtId} readOnly className="w-full max-w-[500px] bg-gray-50 border border-gray-200 rounded-lg px-5 py-4 text-gray-400 outline-none cursor-not-allowed" />
               <p className="text-[13px] text-gray-400 mt-2">* 관리번호는 수정할 수 없습니다.</p>
             </div>
 
-            {/* 제목 */}
             <div className="flex flex-col">
               <label className="font-bold text-[16px] mb-3 text-[#111]">시설명 / 교육명 (필수)</label>
               <input name="title" value={formData.title} onChange={handleChange} className={`w-full border rounded-lg px-5 py-4 outline-none ${errors.title ? 'border-red-500 bg-red-50' : 'border-gray-300 focus:border-[#2563EB]'}`} />
             </div>
 
-            {/* 출처 정보 */}
             <div className="p-8 bg-blue-50/50 rounded-xl border border-blue-100 flex flex-col gap-6">
               <div className="flex flex-col">
                 <label className="font-bold text-[16px] mb-3 text-[#2563EB]">출처 기관</label>
@@ -227,15 +245,17 @@ const AdminSafetyEduEdit = () => {
               </div>
             </div>
 
-            {/* 요약 */}
             <div className="flex flex-col gap-8">
               <div className="flex flex-col">
                 <label className="font-bold text-[16px] mb-3 text-[#111]">내용 요약 (필수)</label>
                 <textarea name="summary" value={formData.summary} onChange={handleChange} rows="3" className={`w-full border rounded-lg px-5 py-4 outline-none resize-none ${errors.summary ? 'border-red-500' : 'border-gray-300 focus:border-[#2563EB]'}`} />
               </div>
+              <div className="flex flex-col">
+                <label className="font-bold text-[16px] mb-3 text-[#111]">하단 공지사항 (Footer Notice)</label>
+                <textarea name="footerNotice" value={formData.footerNotice} onChange={handleChange} rows="2" className="w-full border border-gray-300 rounded-lg px-5 py-4 outline-none resize-none focus:border-[#2563EB]" />
+              </div>
             </div>
 
-            {/* 세부 내용 (Sections) */}
             <div className="flex flex-col space-y-6">
               <div className="flex justify-between items-center border-b border-gray-200 pb-3">
                 <label className="font-bold text-[18px] text-[#2563EB]">교육 세부 내용 (Sections)</label>
@@ -275,7 +295,27 @@ const AdminSafetyEduEdit = () => {
               ))}
             </div>
 
-            {/* 하단 제어 영역 (순서, 노출여부, 일시) */}
+            <div className="flex flex-col gap-10">
+              <div className="flex flex-col gap-4">
+                <div className="flex justify-between items-center">
+                  <label className="font-bold text-[16px] text-[#111]">관련 사이트 링크 (Links)</label>
+                  <button onClick={addLink} className="text-[14px] font-bold text-[#2563EB] hover:underline">+ 링크 추가</button>
+                </div>
+                {formData.links.map((link, lIdx) => (
+                  <div key={lIdx} className="flex flex-col gap-3 p-5 bg-gray-50 border border-gray-200 rounded-xl relative">
+                    <button onClick={() => removeLink(lIdx)} className="absolute top-4 right-4 text-gray-300 hover:text-red-500"><Trash2 size={18}/></button>
+                    <input value={link.label} onChange={(e) => updateLink(lIdx, 'label', e.target.value)} placeholder="링크 라벨" className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-[15px]" />
+                    <input value={link.url} onChange={(e) => updateLink(lIdx, 'url', e.target.value)} placeholder="https://..." className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-[15px]" />
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-col">
+                <label className="font-bold text-[16px] mb-3 text-[#111]">문의처 정보 (Contact)</label>
+                <input name="contact" value={formData.contact} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-5 py-4 outline-none focus:border-[#2563EB]" />
+              </div>
+            </div>
+
             <div className="space-y-10 pt-10 border-t border-gray-100">
               <div className="flex flex-col w-full max-w-[100px]">
                 <label className="font-bold text-[16px] mb-3 text-[#111]">순서</label>
@@ -312,13 +352,13 @@ const AdminSafetyEduEdit = () => {
                 <div className="flex flex-col gap-1">
                   <label className="text-[14px] font-bold text-gray-400">등록 일시</label>
                   <div className="flex items-center gap-2 text-[#999] font-medium px-1">
-                    <Calendar size={16} /> {formData.createdAt}
+                    <Calendar size={16} /> {formData.createdAt && formData.createdAt.replace('T', ' ')}
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-[14px] font-bold text-gray-400">최종 수정 일시</label>
                   <div className="flex items-center gap-2 text-[#999] font-medium px-1">
-                    <Calendar size={16} /> {formData.updatedAt || '-'}
+                    <Calendar size={16} /> {formData.updatedAt ? formData.updatedAt.replace('T', ' ') : '-'}
                   </div>
                 </div>
               </div> 
