@@ -668,14 +668,59 @@ export const disasterModalService = {
 /* =========================================================
   국민행동요령 API (백엔드 DB 연동)
 ========================================================= */
-export const behaviorMethodService = {
+/*
+export const behaviorMethodService2 = {
   // 행동요령 목록 조회
   // contentType 예: "NATURAL_TYPHOON", "NATURAL_EARTHQUAKE"
-  getBehaviorMethodList: async (contentType) => {
-    // 8080 포트 백엔드 API 호출
+  getBehaviorMethodList2: async (contentType) => {
     const response = await api.get("/behaviorMethod/list", {
       params: { contentType },
     });
     return response.data;
   },
+};
+*/
+export const behaviorMethodService = {
+  // 행동요령 목록 조회 (사용자)
+  // contentType이 없으면 전체 조회 (백엔드 로직에 따름)
+  getBehaviorMethodList: async (contentType) => {
+    const response = await api.get("/behaviorMethod/list", {
+       params: { contentType, visibleYn: 'Y'},
+      });
+    return response.data;
+  },
+
+  // 행동요령 목록 조회 (관리자)
+  // 관리자단 API 호출 (서비스 파일)
+  getBehaviorMethodList: async (contentType) => {
+      // 관리자는 visibleYn 파라미터를 안 보냄 -> XML에서 IF문 안 탐 -> 전체 조회
+      // contentType이 'all' 이거나 null이면 파라미터 제외
+      const params = {};
+      if (contentType && contentType !== 'all') {
+          params.contentType = contentType;
+      }
+      
+      const response = await api.get("/behaviorMethod/list", { params });
+      return response.data;
+  },
+  
+  // 2. 행동요령 삭제 (관리자용)
+  // ids: 삭제할 ID 배열 (예: [1, 2, 3])
+  deleteBehaviorMethods: async (ids) => {
+    // 예: DELETE /behaviorMethod?ids=1,2,3 또는 Body로 전달
+    const response = await api.delete("/behaviorMethod", {
+      data: { ids } // Body에 담아서 보낼 경우
+    });
+    return response.data;
+  },
+
+  // 3. 노출 여부 변경 (관리자용)
+  // ids: ID 배열, visibleYn: 'Y' or 'N'
+  updateVisibility: async (ids, visibleYn) => {
+    const response = await api.patch("/behaviorMethod/visibility", {
+      ids,
+      visibleYn
+    });
+    return response.data;
+  }
 };
