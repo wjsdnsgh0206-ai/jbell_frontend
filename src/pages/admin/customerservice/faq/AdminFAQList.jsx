@@ -421,25 +421,30 @@ const AdminFAQList = () => {
               </button>
             </div>
           </div>
+          {loading ?(
+             <div className="text-center py-20 text-gray-500">데이터를 불러오는 중입니다...</div>
+          ) : (
+            <>
+              {/* Table */}
+              <AdminDataTable 
+                columns={columns}
+                data={currentData}
+                selectedIds={selectedIds}
+                onSelectionChange={setSelectedIds}
+                rowKey="faqId"
+              />
 
-          {/* Table */}
-          <AdminDataTable 
-            columns={columns}
-            data={currentData}
-            selectedIds={selectedIds}
-            onSelectionChange={setSelectedIds}
-            rowKey="faqId"
-          />
-
-          {/* Pagination */}
-          <div className="mt-8">
-            <AdminPagination 
-                totalItems={filteredData.length}
-                itemCountPerPage={itemsPerPage}
-                currentPage={currentPage}
-                onPageChange={setCurrentPage}
-            />
-          </div>
+              {/* Pagination */}
+              <div className="mt-8">
+                <AdminPagination 
+                    totalItems={filteredData.length}
+                    itemCountPerPage={itemsPerPage}
+                    currentPage={currentPage}
+                    onPageChange={setCurrentPage}
+                />
+              </div>
+            </>
+          )}
         </section>
       </main>
     </div>

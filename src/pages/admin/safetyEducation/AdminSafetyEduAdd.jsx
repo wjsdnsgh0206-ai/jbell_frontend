@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal'; 
-import { safetyEduService } from '@/services/api'; // [변경] API 서비스 임포트
+import { safetyEduService } from '@/services/api';
 import { Plus, Trash2, Phone } from 'lucide-react';
 
+// [내부용 작은 컴포넌트]
 const SuccessIcon = ({ fill = "#4ADE80" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
     <circle cx="8" cy="8" r="8" fill={fill}/>
@@ -13,17 +14,35 @@ const SuccessIcon = ({ fill = "#4ADE80" }) => (
   </svg>
 );
 
+/**
+ * 시민안전교육 신규 등록 전용 컴포넌트
+ */
 const AdminSafetyEduAdd = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
 
+  // ==================================================================================
+  // 0. 초기 설정 및 유틸리티
+  // ==================================================================================
+
   // 프론트에서 임시로 사용하는 ID 생성 함수 (전송시에는 제외하거나 DTO 구조에 맞게 처리)
   // const generateId = (prefix) => `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
+  useEffect(() => {
+    setBreadcrumbTitle("시민안전교육 등록");
+    return () => setBreadcrumbTitle("");
+  }, [setBreadcrumbTitle]);
+
+  // ==================================================================================
+  // 1. 상태 관리 (State Management)
+  // ==================================================================================
+
+  // [UI 상태] 토스트 및 모달 제어
   const [showToast, setShowToast] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
+  // [폼 데이터 상태]
   const [formData, setFormData] = useState({
     mgmtId: '', 
     regType: '직접등록',
@@ -46,16 +65,18 @@ const AdminSafetyEduAdd = () => {
     links: [{ id: generateId('link'), label: '', url: '' }]
   });
 
+  // [유효성 검사 에러 상태]
   const [errors, setErrors] = useState({ mgmtId: false, title: false, summary: false });
 
-  useEffect(() => {
-    setBreadcrumbTitle("시민안전교육 등록");
-    return () => setBreadcrumbTitle("");
-  }, [setBreadcrumbTitle]);
+  // ==================================================================================
+  // 2. 핸들러 (Event Handlers)
+  // ==================================================================================
 
+  // [입력 핸들러] 일반 필드
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
+    // 순서(OrderNo) 필드 예외 처리
     if (name === 'orderNo') {
       if (value === '') {
         setFormData(prev => ({ ...prev, [name]: '' }));
@@ -69,9 +90,11 @@ const AdminSafetyEduAdd = () => {
     }
     
     setFormData(prev => ({ ...prev, [name]: value }));
+    // 에러 상태 초기화
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: false }));
   };
 
+  // [동적 폼 핸들러] 섹션(Section) 추가/삭제/수정
   const addSection = () => {
     setFormData(prev => ({
       ...prev,
@@ -90,6 +113,7 @@ const AdminSafetyEduAdd = () => {
     setFormData(prev => ({ ...prev, sections: prev.sections.filter((_, i) => i !== sIdx) }));
   };
 
+  // [동적 폼 핸들러] 아이템(Item) 추가/삭제/수정
   const addItem = (sIdx) => {
     const newSections = [...formData.sections];
     newSections[sIdx] = {
@@ -119,6 +143,7 @@ const AdminSafetyEduAdd = () => {
     setFormData(prev => ({ ...prev, sections: newSections }));
   };
 
+  // [동적 폼 핸들러] 링크(Link) 추가/삭제/수정
   const addLink = () => {
     setFormData(prev => ({ 
       ...prev, 
@@ -136,21 +161,28 @@ const AdminSafetyEduAdd = () => {
     setFormData(prev => ({ ...prev, links: prev.links.filter((_, i) => i !== lIdx) }));
   };
 
+  // ==================================================================================
+  // 3. API 호출 및 저장 (API Call)
+  // ==================================================================================
+
+  // [저장 전 검증]
   const handleSave = () => {
+    // 필수값 체크
     if (!formData.mgmtId.trim() || !formData.title.trim() || !formData.summary.trim()) {
       setErrors({ mgmtId: !formData.mgmtId.trim(), title: !formData.title.trim(), summary: !formData.summary.trim() });
       alert("필수 항목을 모두 입력해주세요.");
       return;
     }
+    // 순서 기본값 처리
     if (!formData.orderNo) {
         setFormData(prev => ({ ...prev, orderNo: '1' }));
     }
     setIsModalOpen(true);
   };
 
- const handleConfirmSave = async () => {
+  // [API 호출] 최종 저장
+  const handleConfirmSave = async () => {
    try {
-     // API 호출
      await safetyEduService.createSafetyEdu(formData);
      setShowToast(true);
      setTimeout(() => navigate('/admin/contents/safetyEduList'), 1500);
@@ -163,6 +195,7 @@ const AdminSafetyEduAdd = () => {
 
   return (
     <div className="relative flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased">
+      {/* Toast Notification */}
       {showToast && (
         <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100]">
           <div className="bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-gray-700">
@@ -173,12 +206,15 @@ const AdminSafetyEduAdd = () => {
       )}
 
       <main className="p-10 text-left">
+        {/* 1. Header Area */}
         <h2 className="text-[32px] font-bold mb-10 tracking-tight text-[#111]">시민안전교육 등록</h2>
 
+        {/* 2. Content Area (Form) */}
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-14 w-full max-w-[1000px]">
           <h3 className="text-[24px] font-extrabold mb-14 text-[#111] border-b-2 border-gray-100 pb-3">교육 정보 입력</h3>
           
           <div className="flex flex-col space-y-12">
+            {/* 기본 정보 */}
             <div className="flex flex-col gap-8">
               <div className="flex flex-col">
                 <label className="font-bold text-[16px] mb-3 text-[#111]">관리번호 (ID) (필수)</label>
@@ -191,6 +227,7 @@ const AdminSafetyEduAdd = () => {
               </div>
             </div>
 
+            {/* 출처 정보 */}
             <div className="p-8 bg-blue-50/50 rounded-xl border border-blue-100 flex flex-col gap-6">
               <div className="flex flex-col">
                 <label className="font-bold text-[16px] mb-3 text-[#2563EB]">출처 기관</label>
@@ -202,6 +239,7 @@ const AdminSafetyEduAdd = () => {
               </div>
             </div>
 
+            {/* 내용 요약 및 공지 */}
             <div className="flex flex-col gap-8">
               <div className="flex flex-col">
                 <label className="font-bold text-[16px] mb-3 text-[#111]">내용 요약 (필수)</label>
@@ -213,6 +251,7 @@ const AdminSafetyEduAdd = () => {
               </div>
             </div>
 
+            {/* 교육 세부 내용 (Sections) */}
             <div className="flex flex-col space-y-6">
               <div className="flex justify-between items-center border-b border-gray-200 pb-3">
                 <label className="font-bold text-[18px] text-[#2563EB]">교육 세부 내용 (Sections)</label>
@@ -274,6 +313,7 @@ const AdminSafetyEduAdd = () => {
               ))}
             </div>
 
+            {/* 기타 정보 (링크 및 연락처) */}
             <div className="flex flex-col gap-10">
               <div className="flex flex-col gap-4">
                 <div className="flex justify-between items-center">
@@ -297,7 +337,8 @@ const AdminSafetyEduAdd = () => {
                 </div>
               </div>
             </div>
-
+            
+            {/* 순서 (Order) */}
             <div className="flex flex-col pt-8 border-t border-gray-100">
               <label className="font-bold text-[16px] text-[#111] mb-3">순서</label>
               <div className="flex flex-col gap-2">
@@ -317,7 +358,8 @@ const AdminSafetyEduAdd = () => {
                 </p>
               </div>
             </div>
-
+            
+            {/* 노출 여부 (Visibility) */}
             <div className="flex items-center gap-5 pt-8 border-t border-gray-100">
               <label className="font-bold text-[16px] text-[#111]">노출 여부</label>
               <button type="button" onClick={() => setFormData(prev => ({...prev, isPublic: !prev.isPublic}))} className={`w-[54px] h-[28px] flex items-center rounded-full p-1 transition-colors duration-300 ${formData.isPublic ? 'bg-[#2563EB]' : 'bg-gray-300'}`}>
@@ -327,13 +369,15 @@ const AdminSafetyEduAdd = () => {
             </div>
           </div>
         </section>
-
+        
+        {/* 3. Action Buttons */}
         <div className="flex justify-end gap-2 mt-12 max-w-[1000px]">
           <button onClick={() => setIsCancelModalOpen(true)} className="px-10 py-4 border border-gray-300 rounded-lg font-bold text-[16px] text-gray-500 bg-white hover:bg-gray-50 transition-colors">취소</button>
           <button onClick={handleSave} className="px-10 py-4 bg-[#2563EB] text-white rounded-lg font-bold text-[16px] hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all">저장</button>
         </div>
       </main>
-
+      
+      {/* Confirm Modals */}
       <AdminConfirmModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleConfirmSave} title="교육 정보를 저장하시겠습니까?" message="입력하신 정보가 시민안전교육 데이터에 반영됩니다." type="save" />
       <AdminConfirmModal isOpen={isCancelModalOpen} onClose={() => setIsCancelModalOpen(false)} onConfirm={() => navigate(-1)} title="등록을 취소하시겠습니까?" message="작성 중인 내용은 저장되지 않습니다." type="delete" />
     </div>
