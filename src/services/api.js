@@ -702,7 +702,15 @@ export const disasterModalService = {
     );
     return response.data;
   },
-
+getForestFireRisk: async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/api/disaster/forest-fire/risk"); 
+      return response.data; // 보통 여기서 List<DisasterAccidentDTO>가 들어옴
+    } catch (error) {
+      console.error("산불 데이터 로딩 에러:", error);
+      throw error;
+    }
+  },
   /* -----------------------------
     산사태 예보발령 api
 ----------------------------- */
