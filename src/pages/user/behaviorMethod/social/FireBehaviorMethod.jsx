@@ -1,8 +1,13 @@
-import React from 'react';
-
+// src\pages\user\behaviorMethod\social\FireBehaviorMethod.jsx
+import BaseBehaviorMethodPage from '@/pages/user/behaviorMethod/BaseBehaviorMethodPage';
 const FireBehaviorMethod = () => {
   return (
-    <div>준비중</div>
+    <BaseBehaviorMethodPage 
+      disasterType="FIRE"
+      pageTitle="화재"
+      category="사회재난"
+      categoryPath="/behaviorMethod/fire"
+    />
   );
 };
 

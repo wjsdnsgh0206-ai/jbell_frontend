@@ -10,12 +10,10 @@ const HeavyRainBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/n
 const LandslideBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/LandslideBehaviorMethod"));
 
 // 사회재난행동요령 import (social)
-const TrafficAccidentBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/social/TrafficAccidentBehaviorMethod"));
 const FireBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/social/FireBehaviorMethod"));
 const ForestFireBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/social/ForestFireBehaviorMethod"));
 const BuildingCollapseBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/social/BuildingCollapseBehaviorMethod"));
 const ElectricityGasAccidentBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/social/ElectricityGasAccidentBehaviorMethod"));
-const RoadTunnelAccidentBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/social/RoadTunnelAccidentBehaviorMethod"));
 const RailwaySubwayAccidentBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/social/RailwaySubwayAccidentBehaviorMethod"));
 
 // 생활안전행동요령 import (life)
@@ -23,6 +21,7 @@ const FirstAidBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/li
 const CprBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/life/CprBehaviorMethod"));
 const FoodPoisoningBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/life/FoodPoisoningBehaviorMethod"));
 const ElevatorAccidentBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/life/ElevatorAccidentBehaviorMethod"));
+const TrafficAccidentBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/life/TrafficAccidentBehaviorMethod"));
 const MountainSafetyBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/life/MountainSafetyBehaviorMethod"));
 
 // 대피소 소개 import
@@ -41,27 +40,26 @@ const StormAndFloodInsurance = lazy(() => import("@/pages/user/mainSafetyPolicie
 
 export const jhUserRoutes = [
   /* 자연재난행동요령 */
-  { path: "/behaviorMethod/earthQuake", element: <EarthquakeBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIORMETHOD, nowPage: "행동요령" },
-  { path: "/behaviorMethod/typhoon", element: <TyphoonBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIORMETHOD, nowPage: "행동요령" },
-  { path: "/behaviorMethod/flood", element: <FloodBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIORMETHOD, nowPage: "행동요령" },
-  { path: "/behaviorMethod/heavyRain", element: <HeavyRainBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIORMETHOD, nowPage: "행동요령" },
-  { path: "/behaviorMethod/landslide", element: <LandslideBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIORMETHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/earthQuake", element: <EarthquakeBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/typhoon", element: <TyphoonBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/flood", element: <FloodBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/heavyRain", element: <HeavyRainBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/landslide", element: <LandslideBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
 
   /* 사회재난행동요령 */
-  { path: "/behaviorMethod/trafficAccident", element: <TrafficAccidentBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIORMETHOD, nowPage: "행동요령" },
-  { path: "/behaviorMethod/fire", element: <FireBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIORMETHOD, nowPage: "행동요령" },
-  { path: "/behaviorMethod/forestFire", element: <ForestFireBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIORMETHOD, nowPage: "행동요령" },
-  { path: "/behaviorMethod/buildingCollapse", element: <BuildingCollapseBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIORMETHOD, nowPage: "행동요령" },
-  { path: "/behaviorMethod/electricityGasAccident", element: <ElectricityGasAccidentBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIORMETHOD, nowPage: "행동요령" },
-  { path: "/behaviorMethod/roadTunnelAccident", element: <RoadTunnelAccidentBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIORMETHOD, nowPage: "행동요령" },
-  { path: "/behaviorMethod/railwaySubwayAccident", element: <RailwaySubwayAccidentBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIORMETHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/trafficAccident", element: <TrafficAccidentBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/fire", element: <FireBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/forestFire", element: <ForestFireBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/buildingCollapse", element: <BuildingCollapseBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/electricityGasAccident", element: <ElectricityGasAccidentBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/railwaySubwayAccident", element: <RailwaySubwayAccidentBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
 
   /* 생활안전행동요령 */
-  { path: "/behaviorMethod/firstAid", element: <FirstAidBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIORMETHOD, nowPage: "행동요령" },
-  { path: "/behaviorMethod/cpr", element: <CprBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIORMETHOD, nowPage: "행동요령" },
-  { path: "/behaviorMethod/foodPoisoning", element: <FoodPoisoningBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIORMETHOD, nowPage: "행동요령" },
-  { path: "/behaviorMethod/elevatorAccident", element: <ElevatorAccidentBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIORMETHOD, nowPage: "행동요령" },
-  { path: "/behaviorMethod/mountainSafety", element: <MountainSafetyBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIORMETHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/firstAid", element: <FirstAidBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/cpr", element: <CprBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/foodPoisoning", element: <FoodPoisoningBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/elevatorAccident", element: <ElevatorAccidentBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/mountainSafety", element: <MountainSafetyBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
 
   /* 대피소 소개 (기존 유지) */
   { 

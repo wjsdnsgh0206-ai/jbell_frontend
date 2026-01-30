@@ -3,9 +3,10 @@ import BaseBehaviorMethodPage from '@/pages/user/behaviorMethod/BaseBehaviorMeth
 const TyphoonBehaviorMethod = () => {
   return (
     <BaseBehaviorMethodPage 
-      disasterType="NATURAL_TYPHOON"
-      pageTitle="태풍 행동요령"
+      disasterType="TYPHOON"
+      pageTitle="태풍"
       category="자연재난"
+      categoryPath="/behaviorMethod/earthquake"
     />
   );
 };
