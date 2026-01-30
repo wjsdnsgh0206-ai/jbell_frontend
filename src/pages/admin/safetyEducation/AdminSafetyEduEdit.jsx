@@ -6,6 +6,7 @@ import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 import { safetyEduService } from '@/services/api';
 import { Plus, Trash2, Calendar } from 'lucide-react';
 
+// [내부용 작은 컴포넌트]
 const SuccessIcon = ({ fill = "#4ADE80" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
     <circle cx="8" cy="8" r="8" fill={fill}/>
@@ -13,24 +14,46 @@ const SuccessIcon = ({ fill = "#4ADE80" }) => (
   </svg>
 );
 
+/**
+ * [관리자] 시민안전교육 수정 페이지
+ * - 기존 데이터 조회 후 수정 및 저장
+ * - 동적 섹션(Sections) 및 링크(Links) 관리
+ */
 const AdminSafetyEduEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
+  
+  // ==================================================================================
+  // 0. 초기 설정 및 유틸리티
+  // ==================================================================================
 
-  const generateId = (prefix) => `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  // 프론트에서 임시로 사용하는 ID 생성 함수
+  // const generateId = (prefix) => `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
+  // ==================================================================================
+  // 1. 상태 관리 (State Management)
+  // ==================================================================================
+
+  // [UI 상태] 토스트, 모달, 변경사항 감지
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
 
+  // [폼 데이터 상태]
   const [formData, setFormData] = useState(null);
+
+  // [유효성 검사 에러 상태]
   const [errors, setErrors] = useState({ mgmtId: false, title: false, summary: false });
 
+  // ==================================================================================
+  // 2. 데이터 로드 (Data Fetching)
+  // ==================================================================================
+
+  // [API 호출] 초기 데이터 로드 및 정규화
   useEffect(() => {
-    // [변경] 초기 데이터 로드
     const fetchDetail = async () => {
       try {
         const detailData = await safetyEduService.getSafetyEduDetail(id);
@@ -72,10 +95,16 @@ const AdminSafetyEduEdit = () => {
     return () => setBreadcrumbTitle("");
   }, [setBreadcrumbTitle]);
 
+  // ==================================================================================
+  // 3. 핸들러 (Event Handlers)
+  // ==================================================================================
+
+  // [입력 핸들러] 일반 필드
   const handleChange = (e) => {
     const { name, value } = e.target;
     setIsDirty(true);
 
+    // 순서(OrderNo) 필드 예외 처리
     if (name === 'orderNo') {
       const val = value === '' ? '' : Math.max(1, parseInt(value) || 1).toString();
       setFormData(prev => ({ ...prev, [name]: val }));
@@ -83,9 +112,11 @@ const AdminSafetyEduEdit = () => {
     }
     
     setFormData(prev => ({ ...prev, [name]: value }));
+    // 에러 상태 초기화
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: false }));
   };
 
+  // [동적 폼 핸들러] 섹션(Section) 관리
   const addSection = () => {
     setIsDirty(true);
     setFormData(prev => ({
@@ -113,6 +144,7 @@ const AdminSafetyEduEdit = () => {
     setFormData(prev => ({ ...prev, sections: newSections }));
   };
 
+  // [동적 폼 핸들러] 아이템(Item) 관리
   const addItem = (sIdx) => {
     setIsDirty(true);
     const newSections = [...formData.sections];
@@ -145,7 +177,7 @@ const AdminSafetyEduEdit = () => {
     setFormData(prev => ({ ...prev, sections: newSections }));
   };
 
-  // 링크 관련 핸들러 추가
+  // [동적 폼 핸들러] 링크(Link) 관리
   const addLink = () => {
     setIsDirty(true);
     setFormData(prev => ({ 
@@ -166,7 +198,13 @@ const AdminSafetyEduEdit = () => {
     setFormData(prev => ({ ...prev, links: prev.links.filter((_, i) => i !== lIdx) }));
   };
 
+  // ==================================================================================
+  // 4. 저장 및 취소 (Actions)
+  // ==================================================================================
+
+  // [저장 전 검증]
   const handleSave = () => {
+    // 필수값 체크
     if (!formData.mgmtId.trim() || !formData.title.trim() || !formData.summary.trim()) {
       setErrors({ 
         mgmtId: !formData.mgmtId.trim(), 
@@ -179,9 +217,9 @@ const AdminSafetyEduEdit = () => {
     setIsModalOpen(true);
   };
 
+  // [API 호출] 최종 수정 저장
   const handleConfirmSave = async () => {
     try {
-      // 수정 API 호출
       await safetyEduService.updateSafetyEdu(id, formData);
       
       setIsModalOpen(false);
@@ -195,6 +233,7 @@ const AdminSafetyEduEdit = () => {
     }
   };
 
+  // [취소]
   const handleCancel = () => {
     if (isDirty) {
       setIsCancelModalOpen(true);
@@ -205,8 +244,13 @@ const AdminSafetyEduEdit = () => {
 
   if (!formData) return null;
 
+  // ==================================================================================
+  // 5. UI 렌더링
+  // ==================================================================================
   return (
     <div className="relative flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased">
+
+      {/* Toast Notification */}
       {showToast && (
         <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100]">
           <div className="bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-gray-700">
@@ -217,12 +261,16 @@ const AdminSafetyEduEdit = () => {
       )}
 
       <main className="p-10 text-left">
+        {/* 1. Header Area (Title) */}
         <h2 className="text-[32px] font-bold mb-10 tracking-tight text-[#111]">시민안전교육 수정</h2>
 
+        {/* 2. Content Area (Form) */}
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-14 w-full max-w-[1000px]">
           <h3 className="text-[24px] font-extrabold mb-14 text-[#111] border-b-2 border-gray-100 pb-3">교육 정보 수정</h3>
           
           <div className="flex flex-col space-y-12">
+
+            {/* 기본 정보 */}
             <div className="flex flex-col">
               <label className="font-bold text-[16px] mb-3 text-[#111]">관리번호 (ID)</label>
               <input name="mgmtId" value={formData.mgmtId} readOnly className="w-full max-w-[500px] bg-gray-50 border border-gray-200 rounded-lg px-5 py-4 text-gray-400 outline-none cursor-not-allowed" />
@@ -234,6 +282,7 @@ const AdminSafetyEduEdit = () => {
               <input name="title" value={formData.title} onChange={handleChange} className={`w-full border rounded-lg px-5 py-4 outline-none ${errors.title ? 'border-red-500 bg-red-50' : 'border-gray-300 focus:border-[#2563EB]'}`} />
             </div>
 
+            {/* 출처 정보 */}
             <div className="p-8 bg-blue-50/50 rounded-xl border border-blue-100 flex flex-col gap-6">
               <div className="flex flex-col">
                 <label className="font-bold text-[16px] mb-3 text-[#2563EB]">출처 기관</label>
@@ -245,6 +294,7 @@ const AdminSafetyEduEdit = () => {
               </div>
             </div>
 
+            {/* 내용 요약 및 공지 */}
             <div className="flex flex-col gap-8">
               <div className="flex flex-col">
                 <label className="font-bold text-[16px] mb-3 text-[#111]">내용 요약 (필수)</label>
@@ -256,6 +306,7 @@ const AdminSafetyEduEdit = () => {
               </div>
             </div>
 
+            {/* 교육 세부 내용 (Sections) */}
             <div className="flex flex-col space-y-6">
               <div className="flex justify-between items-center border-b border-gray-200 pb-3">
                 <label className="font-bold text-[18px] text-[#2563EB]">교육 세부 내용 (Sections)</label>
@@ -295,6 +346,7 @@ const AdminSafetyEduEdit = () => {
               ))}
             </div>
 
+            {/* 기타 정보 (링크 및 연락처) */}
             <div className="flex flex-col gap-10">
               <div className="flex flex-col gap-4">
                 <div className="flex justify-between items-center">
@@ -316,6 +368,7 @@ const AdminSafetyEduEdit = () => {
               </div>
             </div>
 
+            {/* 순서 및 노출 여부 */}
             <div className="space-y-10 pt-10 border-t border-gray-100">
               <div className="flex flex-col w-full max-w-[100px]">
                 <label className="font-bold text-[16px] mb-3 text-[#111]">순서</label>
@@ -347,7 +400,8 @@ const AdminSafetyEduEdit = () => {
                   </span>
                 </div>
               </div>
-
+              
+              {/* 메타 정보 (수정 불가) */}
               <div className="pt-10 border-t border-gray-50 flex flex-col space-y-4">
                 <div className="flex flex-col gap-1">
                   <label className="text-[14px] font-bold text-gray-400">등록 일시</label>
@@ -365,15 +419,21 @@ const AdminSafetyEduEdit = () => {
             </div>
           </div>
         </section>
-
+        
+        {/* 3. Action Buttons */}
         <div className="flex justify-end gap-2 mt-12 max-w-[1000px]">
           <button type="button" onClick={handleCancel} className="px-8 py-3.5 border border-gray-300 bg-white text-gray-500 rounded-lg font-bold">취소</button>
           <button type="button" onClick={handleSave} className="px-8 py-3.5 bg-[#2563EB] text-white rounded-lg font-bold">저장</button>
         </div>
       </main>
-
-      <AdminConfirmModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleConfirmSave} title="수정사항을 저장하시겠습니까?" message="수정된 내용은 즉시 도민 안전교육 페이지에 반영됩니다." type="save" />
-      <AdminConfirmModal isOpen={isCancelModalOpen} onClose={() => setIsCancelModalOpen(false)} onConfirm={() => navigate(-1)} title="수정을 취소하시겠습니까?" message="수정 중인 내용은 저장되지 않습니다." type="delete" />
+      
+      {/* Confirm Modals */}
+      <AdminConfirmModal 
+        isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleConfirmSave} 
+        title="수정사항을 저장하시겠습니까?" message="수정된 내용은 즉시 도민 안전교육 페이지에 반영됩니다." type="save" />
+      <AdminConfirmModal 
+        isOpen={isCancelModalOpen} onClose={() => setIsCancelModalOpen(false)} onConfirm={() => navigate(-1)} 
+        title="수정을 취소하시겠습니까?" message="수정 중인 내용은 저장되지 않습니다." type="delete" />
     </div>
   );
 };

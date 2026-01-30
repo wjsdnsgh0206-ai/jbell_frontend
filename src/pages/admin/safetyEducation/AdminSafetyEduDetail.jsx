@@ -1,10 +1,12 @@
 // src/pages/admin/safetyEducation/AdminSafetyEduDetail.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { safetyEduService } from '@/services/api'; // [변경] API 서비스 임포트
+import { safetyEduService } from '@/services/api';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 import { ExternalLink, Calendar, Phone, CheckCircle, Link as LinkIcon } from 'lucide-react';
 
+// [내부용 작은 컴포넌트]
 const SuccessIcon = ({ fill = "#4ADE80" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
     <circle cx="8" cy="8" r="8" fill={fill}/>
@@ -12,17 +14,30 @@ const SuccessIcon = ({ fill = "#4ADE80" }) => (
   </svg>
 );
 
+/**
+ * [관리자] 시민안전교육 상세 조회 페이지
+ */
 const AdminSafetyEduDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
+
+  // ==================================================================================
+  // 1. 상태 관리 (State Management)
+  // ==================================================================================
   
+  // [데이터 상태]
   const [formData, setFormData] = useState(null);
+  // [UI 상태] 모달 및 토스트
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
 
+  // ==================================================================================
+  // 2. API 호출 (API Calls)
+  // ==================================================================================
+
+  // [API 호출] 상세 조회
   useEffect(() => {
-    // 상세 정보 API 호출
     const fetchDetail = async () => {
       try {
         const data = await safetyEduService.getSafetyEduDetail(id);
@@ -39,9 +54,9 @@ const AdminSafetyEduDetail = () => {
     return () => setBreadcrumbTitle("");
   }, [id, navigate, setBreadcrumbTitle]);
 
+  // [API 호출] 삭제
   const handleDelete = async () => {
     try {
-      // 삭제 API 호출
       await safetyEduService.deleteSafetyEdu(id);
       setIsDeleteModalOpen(false);
       setShowToast(true);
@@ -57,8 +72,13 @@ const AdminSafetyEduDetail = () => {
 
   if (!formData) return null;
 
+  // ==================================================================================
+  // 3. UI 렌더링
+  // ==================================================================================
   return (
     <div className="relative flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
+
+      {/* Toast Notification */}
       {showToast && (
         <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500">
           <div className="bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-gray-700">
@@ -69,8 +89,10 @@ const AdminSafetyEduDetail = () => {
       )}
 
       <main className="p-10 text-left">
+        {/* Header Area */}
         <h2 className="text-[32px] font-bold mt-2 mb-2 tracking-tight">시민안전교육 관리</h2>
         
+        {/* Action Buttons */}
         <div className="flex justify-end gap-2 mb-6 max-w-[1000px]">
           <button 
             onClick={() => navigate('/admin/contents/safetyEduList')}
@@ -98,6 +120,7 @@ const AdminSafetyEduDetail = () => {
           </h3>
           
           <div className="flex flex-col space-y-10">
+            {/* 1. 기본 정보 */}
             <div className="flex flex-col">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">관리번호 (ID)</label>
               <div className="w-full bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] font-medium font-mono text-[15px]">
@@ -119,6 +142,7 @@ const AdminSafetyEduDetail = () => {
               </div>
             </div>
 
+            {/* 2. 교육 세부 내용 (Sections) */}
             <div className="flex flex-col">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">교육 세부 내용</label>
               <div className="w-full bg-[#F9FAFB] border border-gray-200 rounded-xl p-8 space-y-8">
@@ -144,6 +168,7 @@ const AdminSafetyEduDetail = () => {
               </div>
             </div>
 
+            {/* 3. 링크 정보 */}
             <div className="grid grid-cols-1 gap-10">
               <div className="flex flex-col">
                 <label className="block font-bold text-[16px] mb-3 text-[#111]">출처 및 원문</label>
@@ -170,7 +195,8 @@ const AdminSafetyEduDetail = () => {
                 </div>
               </div>
             </div>
-   
+
+            {/* 4. 기타 정보 */}
             <div className="flex flex-col">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">안내 사항</label>
               <div className="w-full bg-[#FFFBEB] border border-[#FEF3C7] rounded-lg px-5 py-4 text-[#92400E] font-medium">{formData.footerNotice}</div>
@@ -184,6 +210,7 @@ const AdminSafetyEduDetail = () => {
               </div>
             </div>
 
+            {/* 5. 관리 정보 (순서, 노출여부, 날짜) */}
             <div className="flex flex-col pt-4 border-t border-gray-50">
               <label className="font-bold text-[16px] text-[#111] mb-3">순서</label>
               <div className="flex flex-col gap-2">
@@ -224,7 +251,8 @@ const AdminSafetyEduDetail = () => {
             </div>
           </div>
         </section>
-      
+
+        {/* Modal */}
         <AdminConfirmModal 
           isOpen={isDeleteModalOpen} 
           onClose={() => setIsDeleteModalOpen(false)} 

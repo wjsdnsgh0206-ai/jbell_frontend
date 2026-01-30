@@ -322,7 +322,11 @@ const AdminQnAList = () => {
                 onRowClick={(row) => navigate(`/admin/contents/QnADetail/${row.qnaId}`)} 
               />
               <div className="mt-8">
-                <AdminPagination totalItems={filteredData.length} itemCountPerPage={itemsPerPage} currentPage={currentPage} onPageChange={setCurrentPage} />
+                <AdminPagination 
+                  totalItems={filteredData.length} 
+                  itemCountPerPage={itemsPerPage} 
+                  currentPage={currentPage} 
+                  onPageChange={setCurrentPage} />
               </div>
             </>
           )}

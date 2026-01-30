@@ -2,14 +2,16 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { safetyEduService } from '@/services/api'; // [변경] API 서비스 임포트
+import { safetyEduService } from '@/services/api';
 import { ChevronDown } from 'lucide-react';
 
+// [공통 컴포넌트]
 import AdminDataTable from '@/components/admin/AdminDataTable';
 import AdminPagination from '@/components/admin/AdminPagination';
 import AdminSearchBox from '@/components/admin/AdminSearchBox';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
+// [내부용 작은 컴포넌트]
 const SuccessIcon = ({ fill = "#4ADE80" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
     <circle cx="8" cy="8" r="8" fill={fill}/>
@@ -26,23 +28,35 @@ const ToggleSwitch = ({ isOn, onToggle }) => (
   </button>
 );
 
+/**
+ * [관리자] 시민안전교육 목록 페이지
+ * - 안전교육 콘텐츠 조회, 검색, 상태 변경 및 삭제 기능 제공
+ * - 서버 사이드 페이지네이션 적용
+ */
 const AdminSafetyEduList = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
 
-  // [변경] 데이터 상태 관리
+  // ==================================================================================
+  // 1. 상태 관리 (State Management)
+  // ==================================================================================
+
+  // [데이터 상태]
   const [eduList, setEduList] = useState([]); 
   const [totalItems, setTotalItems] = useState(0); // 전체 개수
 
+  // [선택 및 페이지네이션 상태]
   const [selectedIds, setSelectedIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  // [필터 및 검색 상태]
   const [selectedPublicStatus, setSelectedPublicStatus] = useState("all");
   const [searchType, setSearchType] = useState("all");
   const [searchParams, setSearchParams] = useState({ keyword: '' });
   const [appliedKeyword, setAppliedKeyword] = useState('');
 
+  // [UI 제어 상태: 모달 & 토스트]
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState({ title: '', message: '', type: 'confirm', onConfirm: () => {} });
   const [showToast, setShowToast] = useState(false);
@@ -52,11 +66,15 @@ const AdminSafetyEduList = () => {
     setBreadcrumbTitle(""); 
   }, [setBreadcrumbTitle]);
 
-  // 데이터 조회 함수 (API 호출)
+  // ==================================================================================
+  // 2. API 호출 (API Calls)
+  // ==================================================================================
+
+  // [API 호출] 목록 조회 (서버 사이드 필터링 & 페이징)
   const fetchList = useCallback(async () => {
     try {
       const params = {
-        page: currentPage - 1, // Spring Pageable은 0부터 시작
+        page: currentPage - 1,
         size: itemsPerPage,
         keyword: appliedKeyword,
         searchType: searchType,
@@ -77,22 +95,29 @@ const AdminSafetyEduList = () => {
     fetchList();
   }, [fetchList]);
 
+  // ==================================================================================
+  // 3. 이벤트 핸들러 (Event Handlers)
+  // ==================================================================================
+
+  // [UI] 토스트 메시지 출력
   const triggerToast = (msg) => {
     setToastMessage(msg);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 2000);
   };
 
+  // [이동] 상세 페이지 이동
   const goDetail = useCallback((id) => {
     navigate(`/admin/contents/safetyEduDetail/${id}`); 
   }, [navigate]);
 
+  // [Helper] 선택된 항목들의 타이틀 추출
   const getAllSelectedItemsList = () => {
     const selectedItems = eduList.filter(item => selectedIds.includes(item.id));
     return selectedItems.map(item => item.title).join(", ");
   };
 
-  // 단건 노출 상태 토글 (API 호출)
+  // [API 호출] 단건 노출 상태 토글
   const handleTogglePublic = (id, currentStatus) => {
     const nextStatus = !currentStatus;
     const targetItem = eduList.find(item => item.id === id);
@@ -126,7 +151,7 @@ const AdminSafetyEduList = () => {
     setIsModalOpen(true);
   };
 
-  // 일괄 노출 상태 변경 (API 호출)
+  // [API 호출] 일괄 노출 상태 변경
   const handleBatchStatus = (status) => {
     if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
     const allNames = getAllSelectedItemsList();
@@ -155,7 +180,7 @@ const AdminSafetyEduList = () => {
     setIsModalOpen(true);
   };
 
-  // 일괄 삭제 (API 호출)
+  // [API 호출] 일괄 삭제
   const handleDeleteSelected = () => {
     if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
     const allNames = getAllSelectedItemsList();
@@ -185,6 +210,9 @@ const AdminSafetyEduList = () => {
     setIsModalOpen(true);
   };
 
+  // ==================================================================================
+  // 4. 테이블 컬럼 정의 (Table Columns)
+  // ==================================================================================
   const columns = useMemo(() => [
     { 
       key: 'orderNo', 
@@ -223,7 +251,6 @@ const AdminSafetyEduList = () => {
       header: '등록인', 
       width: '100px', 
       className: 'text-center',
-      // [변경] ADMIN_MASTER가 들어오면 '최고관리자'로 변환하여 표시
       render: (val) => (
         <span>{val === 'ADMIN_MASTER' ? '최고관리자' : val}</span>
       )
@@ -235,7 +262,6 @@ const AdminSafetyEduList = () => {
       className: 'text-center', 
       render: (val) => {
         if (!val) return "-";
-        // 서버에서 ISO 문자열로 오거나 포맷팅된 문자열로 올 수 있음. 
         // "YYYY-MM-DDTHH:mm:ss" 형태라면 T를 공백으로 치환하여 표시
         const displayDate = val.replace('T', ' ');
         const [date, time] = displayDate.split(' ');
@@ -272,10 +298,14 @@ const AdminSafetyEduList = () => {
         </button>
       ) 
     }
-  ], [eduList, goDetail]); // eduList가 바뀌면 렌더링 갱신
+  ], [eduList, goDetail]);
 
+  // ==================================================================================
+  // 5. UI 렌더링
+  // ==================================================================================
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-sans antialiased text-gray-900">
+      {/* Toast Notification */}
       {showToast && (
         <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[9999]">
           <div className="bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-gray-700">
@@ -287,7 +317,8 @@ const AdminSafetyEduList = () => {
 
       <main className="p-10">
         <h2 className="text-[32px] font-bold mt-2 mb-10 text-[#111] tracking-tight">시민안전교육 목록</h2>
-        
+
+        {/* [A] 검색 영역 (White Card) */}
         <section className="bg-white border border-gray-200 rounded-xl p-8 mb-8">
           <AdminSearchBox 
             searchParams={searchParams} 
@@ -299,6 +330,7 @@ const AdminSafetyEduList = () => {
               setCurrentPage(1); setSelectedIds([]); 
             }}
           >
+            {/* 1. 노출여부 필터 */}
             <div className="relative w-full md:w-48">
               <select value={selectedPublicStatus} onChange={(e) => { setSelectedPublicStatus(e.target.value); setCurrentPage(1); }} className="w-full appearance-none h-14 pl-5 pr-10 border border-gray-200 rounded-md bg-white outline-none cursor-pointer text-[15px] focus:border-blue-600 transition-all">
                 <option value="all">노출여부 전체</option>
@@ -307,7 +339,7 @@ const AdminSafetyEduList = () => {
               </select>
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
             </div>
-
+            {/* 2. 검색 타입 선택 */}
             <div className="relative w-full md:w-48">
               <select value={searchType} onChange={(e) => setSearchType(e.target.value)} className="w-full appearance-none h-14 pl-5 pr-10 border border-gray-200 rounded-md bg-white outline-none cursor-pointer text-[15px] focus:border-blue-600 transition-all">
                 <option value="all">전체검색</option>
@@ -319,13 +351,16 @@ const AdminSafetyEduList = () => {
             </div>
           </AdminSearchBox>
         </section>
-
+        
+        {/* [B] 리스트 영역 (White Card) */}
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
+          {/* Action Bar */}
           <div className="flex justify-between items-end mb-6">
             <div className="flex items-center gap-4">
               <span className="font-bold text-gray-500">
                 {selectedIds.length > 0 ? <span className="text-blue-600">{selectedIds.length}개 선택됨</span> : `전체 ${totalItems}건`}
               </span>
+              {/* 일괄 처리 버튼 그룹 */}
               <div className="flex items-center ml-4 gap-4 border-l pl-4 border-gray-200">
                 <button onClick={() => handleBatchStatus(true)} className="flex items-center gap-2 group">
                   <div className="w-5 h-5 rounded-full border-2 border-[#2563EB] flex items-center justify-center group-hover:bg-blue-50 transition-all"><div className="w-2.5 bg-[#2563EB] h-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" /></div>
@@ -338,19 +373,22 @@ const AdminSafetyEduList = () => {
                 </button>
               </div>
             </div>
+            {/* 우측: CRUD 버튼 */}
             <div className="flex gap-2">
               <button onClick={handleDeleteSelected} className="px-8 h-14 bg-[#FF003E] text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm">삭제</button>
               <button onClick={() => navigate('/admin/contents/safetyEduAdd')} className="px-8 h-14 bg-blue-600 text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm">등록</button>
             </div>
           </div>
           
-          {/* 서버에서 받은 데이터(eduList)를 그대로 전달 */}
+          {/* Table */}
           <AdminDataTable columns={columns} data={eduList} selectedIds={selectedIds} onSelectionChange={setSelectedIds} rowKey="id" />
           
-          {/* 전체 아이템 수 기반 페이지네이션 */}
+          {/* Pagination */}
           <AdminPagination totalItems={totalItems} itemCountPerPage={itemsPerPage} currentPage={currentPage} onPageChange={setCurrentPage} />
         </section>
       </main>
+      
+      {/* Modal */}
       <AdminConfirmModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} {...modalConfig} />
     </div>
   );
