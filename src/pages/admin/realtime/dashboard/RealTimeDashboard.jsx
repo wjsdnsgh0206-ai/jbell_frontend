@@ -15,32 +15,38 @@ export const RealTimeDashboard = () => {
   const [allDisasters, setAllDisasters] = useState([]); // 통합 재난 발생 데이터
 
   // 1. 데이터 로드 (한파, 산불, 지진 API 통합 호출)
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [msgRes, warningRes, coldRes, fireRes, eqRes] = await Promise.all([
-          axios.get("http://localhost:8080/api/disaster/dashboard/disasterMessages"),
-          axios.get("http://localhost:8080/api/disaster/dashboard/weatherWarnings"),
-          axios.get("http://localhost:8080/api/disaster/fetch/weather-list?type=3"), // 한파
-          axios.get("http://localhost:8080/api/disaster/fetch/forest-fire-list"),    // 산불
-          axios.get("http://localhost:8080/api/disaster/fetch/earthquake-list")      // 지진
-        ]);
+  // 1. 데이터 로드 부분 수정
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      // 대시보드용 데이터를 충분히 가져오기 위해 limit 파라미터 추가
+      const config = { params: { limit: 1000 } };
 
-        setAllMessages(msgRes.data?.data || msgRes.data || []);
-        setAllWarnings(warningRes.data?.data || warningRes.data || []);
+      const [msgRes, warningRes, coldRes, fireRes, eqRes] = await Promise.all([
+        axios.get("http://localhost:8080/api/disaster/dashboard/disasterMessages", config),
+        axios.get("http://localhost:8080/api/disaster/dashboard/weatherWarnings", config),
+        axios.get("http://localhost:8080/api/disaster/fetch/weather-list?type=3", config),
+        axios.get("http://localhost:8080/api/disaster/fetch/forest-fire-list", config),
+        axios.get("http://localhost:8080/api/disaster/fetch/earthquake-list", config)
+      ]);
 
-        // 데이터 통합 로직: 각기 다른 날짜 필드를 unifiedDate로 통일
-        const coldData = (coldRes.data?.data || coldRes.data || []).map(d => ({ ...d, unifiedDate: d.tmFc }));
-        const fireData = (fireRes.data?.data || fireRes.data || []).map(d => ({ ...d, unifiedDate: d.fireStartTime }));
-        const eqData = (eqRes.data?.data || eqRes.data || []).map(d => ({ ...d, unifiedDate: d.TM_EQK || d.tmEqk || d.tmFc }));
+      // 응답 데이터 추출 (구조에 따라 data.list 또는 data.data 선택)
+      const getListData = (res) => res.data?.list || res.data?.data || res.data || [];
 
-        setAllDisasters([...coldData, ...fireData, ...eqData]);
-      } catch (error) {
-        console.error("데이터 로드 실패:", error);
-      }
-    };
-    fetchData();
-  }, []);
+      setAllMessages(getListData(msgRes));
+      setAllWarnings(getListData(warningRes));
+
+      const coldData = getListData(coldRes).map(d => ({ ...d, unifiedDate: d.tmFc }));
+      const fireData = getListData(fireRes).map(d => ({ ...d, unifiedDate: d.fireStartTime }));
+      const eqData = getListData(eqRes).map(d => ({ ...d, unifiedDate: d.TM_EQK || d.tmEqk || d.tmFc }));
+
+      setAllDisasters([...coldData, ...fireData, ...eqData]);
+    } catch (error) {
+      console.error("데이터 로드 실패:", error);
+    }
+  };
+  fetchData();
+}, []);
 
   // 2. 시간 파싱 공통 함수 (숫자형, 문자열형 날짜 모두 대응)
   const parseDate = (dateVal) => {
@@ -63,7 +69,7 @@ export const RealTimeDashboard = () => {
     return null;
   };
 
-  // 3. 증감 및 필터링 로직 계산 함수
+  // 3. 증감 및 필터링 로직
   const getStatInfo = (data, dateField) => {
     const now = new Date();
     
@@ -132,7 +138,7 @@ export const RealTimeDashboard = () => {
   ];
 
   return (
-    <div className="relative w-full h-[950px] overflow-hidden mx-auto border border-gray-100 font-sans">
+    <div className="relative w-full h-[950px] overflow-hidden mx-auto border border-gray-100 font-sans bg-white">
       <header className="absolute top-[35px] left-[50px] right-[50px] flex items-center justify-between font-bold text-[#1d1d1d] tracking-tight">
         <h1 className="text-[36px]">대시보드</h1>
         <TimeRangeSelectorSection selected={timeRange} setSelected={setTimeRange} />

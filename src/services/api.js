@@ -27,6 +27,94 @@ const kmaWarningApi = axios.create({ baseURL: "/kma-warning-api" });
 const accidentNewsApi = axios.create({ baseURL: "/accidentNews-api" }); // 도로교통 정보 api
 
 
+export const disasterApi = {
+  // 재난 문자 리스트 조회 (GET)
+  getDisasterMessages: async () => {
+    const response = await api.get("/disaster/dashboard/disasterMessages");
+    return response.data; // List<PredictionInfoResponse>
+  },
+
+  // 재난 문자 상세 조회 (GET)
+  getDisasterDetail: async (sn) => {
+    const response = await api.get(`/disaster/dashboard/disasterMessages/${sn}`);
+    return response.data;
+  },
+
+  // 재난 문자 등록 (POST)
+  createDisaster: async (data) => {
+    const response = await api.post("/disaster/dashboard/disasterMessages", data);
+    return response.data;
+  },
+
+  // 재난 문자 수정 (PUT)
+  updateDisaster: async (sn, data) => {
+    const response = await api.put(`/disaster/dashboard/disasterMessages/${sn}`, data);
+    return response.data;
+  },
+
+  // 재난 문자 일괄 노출/비노출 변경 (POST)
+  updateVisibility: async (ids, visibleYn) => {
+    const response = await api.post("/disaster/dashboard/disasterMessages/visibility", {
+      ids,
+      visibleYn
+    });
+    return response.data;
+  },
+
+  // 재난 문자 일괄 삭제 (POST - 논리 삭제)
+  deleteDisasters: async (sns) => {
+    const response = await api.post("/disaster/dashboard/disasterMessages/delete", sns);
+    return response.data;
+  },
+
+  // ===================================== 기상특보 ============================
+  getSavedWeatherWarnings: async (params) => {
+  // params에는 newsType, region, level, startDate, endDate, page 등이 포함됨
+  const response = await api.get("/disaster/dashboard/weatherWarnings", { params });
+  return response.data; // { list: [...], totalCount: 100 }
+},
+
+  // 2. 기상 특보 상세 조회
+  getWeatherDetail: async (key) => {
+    const response = await api.get(`/disaster/dashboard/weatherWarnings/${key}`);
+    return response.data;
+  },
+
+  // 3. 기상 특보 수동 등록
+  createWeather: async (data) => {
+    const response = await api.post("/disaster/dashboard/weatherWarnings", data);
+    return response.data;
+  },
+
+  // 4. 기상 특보 수정
+  updateWeather: async (key, data) => {
+    const response = await api.put(`/disaster/dashboard/weatherWarnings/${key}`, data);
+    return response.data;
+  },
+
+  // 5. 기상 특보 일괄 노출 변경 (DisasterBatchRequest DTO 대응)
+  updateWeatherVisibility: async (ids, visibleYn) => {
+    const response = await api.post("/disaster/dashboard/weatherWarnings/visibility", {
+      ids,        // List<Integer> 또는 List<String>
+      visibleYn   // 'Y' 또는 'N'
+    });
+    return response.data;
+  },
+
+  // 6. 기상 특보 일괄 삭제 (논리 삭제)
+  deleteWeatherWarnings: async (keys) => {
+    const response = await api.post("/disaster/dashboard/weatherWarnings/delete", keys);
+    return response.data;
+  }
+
+
+};
+
+
+
+
+
+
 export const noticeApi = {
   // 공지사항 전체 목록 조회
   getNoticeDTOList: async () => {

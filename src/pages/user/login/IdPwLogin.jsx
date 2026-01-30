@@ -35,42 +35,49 @@ const IdPwLogin = () => {
         userPw: password
       });
 
-    // 2. 로그인 성공 처리 (백엔드 ApiResponse.data.data에 토큰이 들어있음)
-    if (response.data && response.data.data) {
-      const { accessToken, refreshToken , userName} = response.data.data;
-
-      // 토큰 저장 (Access는 인증용, Refresh는 갱신용)
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
-        localStorage.setItem('userId', userId);
-        sessionStorage.setItem('isLoggedIn', 'true');
-
-        login(userId, userName || userId);
+      if (response.data && response.data.data) {
+        // 백엔드 응답 데이터 구조에 따라 userGrade(또는 role)를 가져옵니다.
+        // 백엔드 Map에 담긴 키값이 'userGrade'라고 가정합니다.
+        const { accessToken, refreshToken, userName, userGrade } = response.data.data;
 
         if (rememberId) {
           localStorage.setItem('rememberedId', userId);
         } else {
+          // 체크 해제 상태로 로그인하면 저장된 아이디 삭제
           localStorage.removeItem('rememberedId');
         }
 
+
+        // 1. 토큰 및 세션 정보 저장
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        sessionStorage.setItem('isLoggedIn', 'true');
+
+        // 2. AuthContext의 login 함수 호출 (userId, userName, userGrade 전달)
+        // 이 함수 내부에서 localStorage에 userId, userName, userGrade를 저장합니다.
+        login(userId, userName || userId, userGrade);
+
         alert(`환영합니다, ${userName || userId}님!`);
-        navigate('/'); 
-        // 5. reload() 제거 (Context가 상태를 즉시 업데이트하므로 필요 없음)
+
+        // 4. 권한(userGrade)에 따른 페이지 이동
+        // 관리자 등급 문자열이 'ADMIN'인 경우 dashboard로 이동
+        if (userGrade === 'ADMIN') {
+          navigate('/admin/realtime/realtimeDashboard');
+        } else {
+          navigate('/');
+        }
       }
     } catch (error) {
-    const serverMsg = error.response?.data?.message;
-    
-    // 메시지에 영어나 특수문자가 너무 많거나 기술적인 단어가 포함되어 있다면 기본 메시지로 대체
-    const isTechnicalError = /MyBatis|BindingException|Parameter|SqlSession/i.test(serverMsg);
-    
-    if (isTechnicalError || !serverMsg) {
-        alert("로그인 처리 중 오류가 발생했습니다. 관리자에게 문의하세요.");
-    } else {
-        alert(serverMsg); // "아이디 또는 비밀번호가 틀렸습니다" 등은 정상 출력
+      const serverMsg = error.response?.data?.message;
+      const isTechnicalError = /MyBatis|BindingException|Parameter|SqlSession/i.test(serverMsg);
+      
+      if (isTechnicalError || !serverMsg) {
+          alert("로그인 처리 중 오류가 발생했습니다. 관리자에게 문의하세요.");
+      } else {
+          alert(serverMsg);
+      }
+      setPassword('');
     }
-    
-    setPassword('');
-}
   };
 
   return (
@@ -125,7 +132,14 @@ const IdPwLogin = () => {
                       type="checkbox" 
                       id="saveId" 
                       checked={rememberId} 
-                      onChange={(e) => setRememberId(e.target.checked)} 
+                      onChange={(e) => {
+                        const isChecked = e.target.checked;
+                        setRememberId(isChecked);
+                        // 체크 해제 시 즉시 삭제
+                        if (!isChecked) {
+                          localStorage.removeItem('rememberedId');
+                        }
+                      }} 
                       className="peer appearance-none w-6 h-6 border-2 border-slate-300 rounded-md checked:bg-blue-600 checked:border-blue-600 transition-all cursor-pointer" 
                     />
                     <Check 
