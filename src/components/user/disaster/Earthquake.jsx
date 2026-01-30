@@ -1,23 +1,20 @@
 import React, { useState, useEffect, useMemo } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
 import FacilityCheckGroup from "../modal/FacilityCheckGroup";
-import MapControlBtn from "@/components/user/modal/MapControlBtn";
 import CommonMap from "@/components/user/modal/CommonMap";
 import useEarthquake from "@/hooks/user/useEarthquake";
 
 const Earthquake = () => {
   const {
     eqMarkers,
-    levelMarkers,
     fetchEarthquakeData,
-    fetchEarthquakeLevel,
     clearMarkers,
     isLoading,
     getMapCenter,
     selectedMarker,
   } = useEarthquake();
 
-  const [activeTab, setActiveTab] = useState("지진특보");
+  const [activeTab, setActiveTab] = useState("지진발생정보");
   const [facilities, setFacilities] = useState({
     shelter: true,
     hospital: false,
@@ -30,19 +27,18 @@ const Earthquake = () => {
     { id: "pharmacy", label: "약국" },
   ], []);
 
-  const tabs = ["지진특보", "진도정보조회", "재난안전시설"];
+  // 진도정보조회 제거
+  const tabs = ["지진발생정보", "재난안전시설"];
 
   useEffect(() => {
-    if (activeTab === "지진특보") fetchEarthquakeData();
-    else if (activeTab === "진도정보조회") fetchEarthquakeLevel();
+    if (activeTab === "지진발생정보") fetchEarthquakeData();
     else clearMarkers();
-  }, [activeTab, fetchEarthquakeData, fetchEarthquakeLevel, clearMarkers]);
+  }, [activeTab, fetchEarthquakeData, clearMarkers]);
 
   const displayMarkers = useMemo(() => {
-    if (activeTab === "지진특보") return eqMarkers;
-    if (activeTab === "진도정보조회") return levelMarkers;
+    if (activeTab === "지진발생정보") return eqMarkers;
     return [];
-  }, [activeTab, eqMarkers, levelMarkers]);
+  }, [activeTab, eqMarkers]);
 
   const handleCheck = (key) =>
     setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -53,7 +49,7 @@ const Earthquake = () => {
         <div className="flex justify-between items-center mb-3 flex-shrink-0">
           <h3 className="font-bold text-gray-900 text-[16px] md:text-[20px]">실시간 지진정보</h3>
           <span className={`rounded-xl font-bold text-[10px] px-2.5 py-1 ${displayMarkers.length > 0 ? "bg-red-100 text-red-600" : "bg-gray-100 text-gray-500"}`}>
-            {isLoading ? "조회 중..." : displayMarkers.length > 0 ? "특보발령" : "특보없음"}
+            {isLoading ? "조회 중..." : displayMarkers.length > 0 ? "정보발령" : "정보없음"}
           </span>
         </div>
 
@@ -62,10 +58,9 @@ const Earthquake = () => {
             markers={displayMarkers}
             center={getMapCenter(activeTab)}
             level={8}
-            selectedMarker={activeTab === "지진특보" ? selectedMarker : null}
+            selectedMarker={activeTab === "지진발생정보" ? selectedMarker : null}
           />
 
-          {/* ✅ 1. 체크박스 그룹: 루프 밖으로 독립시켜서 top-5 위치 고정 */}
           {activeTab === "재난안전시설" && (
             <div className="absolute top-5 left-[115px] lg:left-[175px] z-30 scale-[0.75] md:scale-100 origin-left">
               <FacilityCheckGroup
@@ -76,17 +71,16 @@ const Earthquake = () => {
             </div>
           )}
 
-          {!isLoading && displayMarkers.length === 0 && activeTab !== "재난안전시설" && (
+          {!isLoading && displayMarkers.length === 0 && activeTab === "지진발생정보" && (
             <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none pl-[120px] lg:pl-[180px]">
               <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-gray-200 shadow-lg mx-4 pointer-events-auto">
                 <p className="text-gray-600 text-[11px] md:text-sm font-semibold text-center">
-                  최근 전북 지역의 {activeTab} 데이터가 없습니다.
+                  최근 발생한 지진이 없습니다.
                 </p>
               </div>
             </div>
           )}
 
-          {/* ✅ 2. 좌측 탭 버튼: 순수하게 버튼들만 나열 */}
           <div className="absolute top-5 left-3 lg:left-5 flex flex-col gap-3 z-20 w-[110px] lg:w-[140px]">
             {tabs.map((tab) => (
               <button

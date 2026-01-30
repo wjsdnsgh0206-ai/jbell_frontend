@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Edit2, Trash2, List, Eye, EyeOff, Clock, User, Calendar, CheckCircle, AlertCircle, Save, X } from 'lucide-react';
 import { faqService } from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 const cn = (...classes) => classes.filter(Boolean).join(' ');
 
@@ -12,6 +13,17 @@ const FAQ_CATEGORIES = ['회원/계정', '결제/환불', '이용문의', '시�
 const AdminFAQDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // 0. 관리자 권한 체크 (진입 시 실행)
+  useEffect(() => {
+    if (user) {
+        if (user.userGrade !== 'ADMIN') { 
+            alert('관리자 권한이 없습니다.');
+            navigate('/'); // 메인 페이지로 이동
+        }
+    }
+  }, [user, navigate]);
   
   // 초기 상태 설정
   const [data, setData] = useState({

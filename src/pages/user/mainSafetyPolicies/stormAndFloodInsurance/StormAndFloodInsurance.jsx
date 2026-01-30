@@ -1,7 +1,7 @@
 // src/pages/user/mainSafetyPolicies/stormAndFloodInsurance/StormAndFloodInsurance.jsx
 
 import React from 'react';
-import GuidePageTemplate from '@/components/shared/GuidePageTemplate';
+import GuidePageTemplate from '@/components/shared/GuidePageTemplate copy';
 import { Umbrella, Home, Sprout, Store, CheckCircle2, PhoneCall, ArrowRight, ArrowDown } from 'lucide-react'; 
 import { stormAndFloodInsuranceData } from './data';
 

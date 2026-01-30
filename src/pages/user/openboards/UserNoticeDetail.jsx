@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
-import { noticeData } from './BoardData';
+// import { noticeData } from './BoardData';
 import { Button } from '@/components/shared/Button';
 
 // 공지사항 상세페이지 //
@@ -11,28 +12,52 @@ const UserNoticeDetail = () => {
   const { id } = useParams(); // URL 파라미터에서 게시글의 ID를 가져옴
   const navigate = useNavigate(); // 페이지 이동을 위한 훅
 
+  // 1. 상태 변수 설정 (더미 데이터 삭제)
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   // 페이지가 처음 렌더링될 때 스크롤을 최상단(0,0)으로 이동
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+
+    const fetchDetail = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`/api/notice/${id}`);
+        setData(response.data);
+      } catch (err) {
+        console.error("상세 데이터 로드 실패:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) fetchDetail();
+  }, [id]);
 
   // 데이터 원본(noticeData)에서 URL의 id와 일치하는 게시글 찾기
-  const data = noticeData.find(item => item.id === Number(id));
+  // const data = noticeData.find(item => item.id === Number(id));
 
   // --- 파일 다운로드 로직 --- //
-  const handleDownload = (file) => {
-    if (!file.url || file.url === "#") {
-      alert("다운로드 가능한 파일 경로가 없습니다.");
-      return;
+  const handleDownload = async (fileId, fileName) => {
+    try {
+      const response = await axios.get(`/api/notice/file/download/${fileId}`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      alert('파일 다운로드에 실패했습니다.');
     }
-
-    const link = document.createElement('a');
-    link.href = file.url;
-    link.setAttribute('download', file.name);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
   };
+
+  // 3. 로딩 처리
+  if (loading) return <div className="py-20 text-center">로딩 중...</div>;
 
   // --- 예외 처리 (데이터가 없는 경우) --- //
   if (!data) {

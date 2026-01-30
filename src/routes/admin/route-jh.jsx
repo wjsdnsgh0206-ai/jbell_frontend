@@ -7,26 +7,26 @@ import { lazy } from 'react';
 // 제거 이유 : 컴포넌트와 데이터가 섞여서 함께 export되어 경고 메시지가 뜸. 이를 해결하기 위해 데이터만 export하는 방식으로 수정. 
 // ========================
 
-const BehavioralGuideList = lazy(() => import("@/pages/admin/contents/behavioralGuide/BehavioralGuideList"));
-const BehavioralGuideDetail = lazy(() => import("@/pages/admin/contents/behavioralGuide/BehavioralGuideDetail"));
-const BehavioralGuideAdd = lazy(() => import("@/pages/admin/contents/behavioralGuide/BehavioralGuideAdd"));
+const BehaviorMethodList = lazy(() => import("@/pages/admin/behaviorMethod/BehaviorMethodList"));
+const BehaviorMethodDetail = lazy(() => import("@/pages/admin/behaviorMethod/BehaviorMethodDetail"));
+const BehaviorMethodAdd = lazy(() => import("@/pages/admin/behaviorMethod/BehaviorMethodAdd"));
 const PolicyPageEditor = lazy(() => import("@/pages/admin/contents/safetyPolicy/PolicyPageEditor"));
 
 export const jhAdminRoutes = [
   /* 1. 행동요령 관리 */
   {
-    path: "/admin/contents/behavioralGuideList", 
-    element: <BehavioralGuideList />,
+    path: "/admin/contents/behaviorMethodList", 
+    element: <BehaviorMethodList />,
     nowPage: "행동요령 목록",
   },
   {
-    path: "/admin/contents/behavioralGuideDetail/:id", 
-    element: <BehavioralGuideDetail />,
+    path: "/admin/contents/behaviorMethodDetail/:id", 
+    element: <BehaviorMethodDetail />,
     nowPage: "행동요령 상세",
   },
   {
-    path: "/admin/contents/behavioralGuideAdd", 
-    element: <BehavioralGuideAdd />,
+    path: "/admin/contents/behaviorMethodAdd", 
+    element: <BehaviorMethodAdd />,
     nowPage: "행동요령 등록",
   },
 

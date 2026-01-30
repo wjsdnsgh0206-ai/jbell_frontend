@@ -1,11 +1,11 @@
 import React from "react";
-import { MainActionGuide, MainWeather, MainStatistics, MainDisaster, MainBoard } from "@/components/user/main/index.js";
+import { MainBehaviorMethod, MainWeather, MainStatistics, MainDisaster, MainBoard } from "@/components/user/main/index.js";
 
 /*
   UserPageMain 컴포넌트
   > 작성자 : 최지영
   > 컴포넌트 설명 : 재난사고속보 모달창 레이아웃. 
-  > 반응형 가이드 : 
+  > 반응형 가이드 : (주석 수정)
     - 웹(lg 이상): 기존 1200px 중앙 정렬 유지
     - 모바일: 세로 배치 및 터치 친화적 간격 적용
 */
@@ -55,7 +55,7 @@ const UserPageMain = () => {
 
             {/* 행동요령 박스 */}
             <div className="flex flex-col h-full w-full">
-              <MainActionGuide />
+              <MainBehaviorMethod />
             </div>
 
           </div>

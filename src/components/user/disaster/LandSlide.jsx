@@ -6,7 +6,8 @@ import CommonMap from "@/components/user/modal/CommonMap";
 import useLandSlide from "@/hooks/user/useLandSlide";
 
 const LandSlide = () => {
-  const { lsMarkers, isLoading, fetchLandSlideData } = useLandSlide();
+  // lsMarkers 대신 lsData 사용
+  const { lsData, isLoading, fetchLandSlideData } = useLandSlide();
   const [activeTab, setActiveTab] = useState("위험예보");
   const [facilities, setFacilities] = useState({
     shelter: true,
@@ -30,16 +31,16 @@ const LandSlide = () => {
     { id: "pharmacy", label: "약국" },
   ];
 
-  const hasActiveNotice = lsMarkers.some((marker) => marker.isActiveWarning);
+  // 활성 특보 여부 판단
+  const hasActiveNotice = lsData.some((item) => item.isActiveWarning);
+  
   const handleCheck = (key) =>
     setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
 
   return (
-    // 전체 컨테이너: h-full과 min-h-0을 통해 내부 스크롤이 가능하도록 구조화
     <div className="flex-1 flex flex-col min-h-0 gap-5 lg:gap-6 overflow-hidden">
-      {/* 메인 상단 박스 */}
       <div className="bg-white rounded-2xl p-4 lg:p-5 border border-gray-100 flex-1 flex flex-col min-h-0 shadow-sm overflow-hidden">
-        {/* 헤더 섹션: 고정 높이 */}
+        {/* 헤더 섹션 */}
         <div className="flex justify-between items-center mb-4 flex-shrink-0">
           <div className="flex items-center gap-2 lg:gap-3">
             <h3 className="md:text-body-m-bold lg:text-title-m text-body-s-bold text-gray-900">
@@ -64,10 +65,10 @@ const LandSlide = () => {
           </p>
         </div>
 
-        {/* 지도 영역: flex-1과 relative를 사용하여 부모 박스 크기를 벗어나지 않게 함 */}
+        {/* 지도 영역 */}
         <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[300px] md:min-h-[400px] lg:min-h-0">
-          {/* 실제 지도: 부모 높이를 100% 채움 */}
           <div className="absolute inset-0 z-0">
+            {/* 📌 산사태는 마커를 안 넘기기로 했으므로 빈 배열 전달 */}
             <CommonMap markers={[]} />
           </div>
 
@@ -100,8 +101,8 @@ const LandSlide = () => {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 gap-3">
-                    {lsMarkers.length > 0 ? (
-                      lsMarkers.map((item) => (
+                    {lsData.length > 0 ? (
+                      lsData.map((item) => (
                         <div
                           key={item.id}
                           className={`bg-white p-4 rounded-2xl shadow-lg border-l-4 transition-all ${
@@ -162,20 +163,15 @@ const LandSlide = () => {
           )}
 
           {activeTab === "재난안전시설" && (
-            <div
-              className="absolute top-5 left-[115px] lg:left-[180px] z-20 
-                  /* 모바일에서 박스 크기 최소화 및 바깥 박스 제거 */
-                  scale-[0.8] md:scale-100 origin-left"
-            >
+            <div className="absolute top-5 left-[115px] lg:left-[180px] z-20 scale-[0.8] md:scale-100 origin-left">
               <FacilityCheckGroup
-                items={LandSlideItems} // 각 파일의 아이템 변수명으로 변경 (typhoonItems 등)
+                items={LandSlideItems}
                 facilities={facilities}
                 onCheck={handleCheck}
               />
             </div>
           )}
 
-          {/* 좌측 사이드 탭 메뉴 */}
           <div className="absolute top-5 left-3 lg:left-5 flex flex-col gap-3 z-30">
             {["위험예보", "재난안전시설"].map((label) => (
               <button
@@ -194,7 +190,6 @@ const LandSlide = () => {
         </div>
       </div>
 
-      {/* 하단 행동요령: flex-shrink-0으로 지도 영역에 밀리지 않게 함 */}
       <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex-shrink-0 mb-0">
         <ActionTipBox type="산사태" />
       </div>

@@ -20,6 +20,19 @@ const AdminQnADetail = () => {
   const [answerInput, setAnswerInput] = useState('');   // 답변 입력창 데이터
   const [loading, setLoading] = useState(true);         // 로딩 상태
 
+  // 0. 관리자 권한 체크 (진입 시 실행)
+  useEffect(() => {
+    // 유저 정보 로딩이 끝났는데, 유저가 없거나 등급이 ADMIN이 아니면 튕겨냄
+    if (user) {
+        // user_grade 필드명은 DB 컬럼에 따라 userGrade, grade, user_grade 중 하나일 것임 (AuthContext 확인 필요)
+        // 여기서는 userGrade로 가정 (일반적 관례)
+        if (user.userGrade !== 'ADMIN') { 
+            alert('관리자 권한이 없습니다.');
+            navigate('/'); // 메인 페이지로 이동
+        }
+    }
+  }, [user, navigate]);
+
   // 1. 상세 데이터 로드
   const fetchDetail = async () => {
     try {
@@ -58,6 +71,11 @@ const AdminQnADetail = () => {
 
     if (!user || !user.userId) {
       return alert('로그인 정보가 확인되지 않습니다. 다시 로그인해주세요.');
+    }
+
+    // 프론트에서도 한 번 더 체크
+    if (user.userGrade !== 'ADMIN') {
+        return alert('관리자만 답변을 작성할 수 있습니다.');
     }
 
     try {

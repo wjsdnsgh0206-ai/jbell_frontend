@@ -48,13 +48,13 @@ const AllRoutes = (props) => {
   본인 라우터(route-jh.jsx) 등에서 nowPage를 맞춰주세요.
   (참조 비교가 정확하지 않을 수 있으므로 nowPage 텍스트나 별도 키값으로 비교하는 것이 안전합니다)
   [A] 사이드바 그룹 (마이페이지, 행동요령, 대피소 소개, 고객센터, 열린마당)
-  const behavioralRoutes = allUserRoutes.filter(route => route.nowPage === "행동요령");
+  const behaviorMethodRoutes = allUserRoutes.filter(route => route.nowPage === "행동요령");
   [C] 기타 사이드바 그룹 (예: 민주처럼 안전정보지도 등 별도 사이드바가 있다면 추가 필터링)
   const facilityRoutes = allUserRoutes.filter(route => route.nowPage === "대피소안내");
   */
  
  // [A] 행동요령 사이드바 그룹
- const behavioralRoutes = allUserRoutes.filter(
+ const behaviorMethodRoutes = allUserRoutes.filter(
    (route) => route.nowPage === "행동요령"
   );
   
@@ -105,15 +105,15 @@ const AllRoutes = (props) => {
       <Route
         element={
           <UserLayout
-            sidebarData={SIDE_MENU_DATA.BEHAVIORALGUIDE}
+            sidebarData={SIDE_MENU_DATA.BEHAVIOR_METHOD}
             nowPage="행동요령"
             {...props}
           />
         }
       >
-        {behavioralRoutes.map((route, idx) => (
+        {behaviorMethodRoutes.map((route, idx) => (
           <Route
-            key={`behavioral-${idx}`}
+            key={`behaviorMethod-${idx}`}
             path={route.path}
             element={route.element}
           />
@@ -260,8 +260,8 @@ export default AllRoutes;
 * SideMenuData.js에 각자 title과 items 배열에 이름과 경로 지정
   title: '자연재난행동요령', 
   items: [
-        { name: '지진', path: '/earthquakeActionGuide' },
-        { name: '지진', path: '/earthquakeActionGuide' },
+        { name: '지진', path: '/behaviorMethod/earthQuake' },
+        { name: '지진', path: '/behaviorMethod/earthQuake' },
          ...
   ]
 * sidebarData와 nowPage 필수: 페이지를 추가할 때, 어떤 사이드바 그룹에 속하는지 명확히 하기 위해 nowPage 값을 통일한다.
@@ -277,12 +277,12 @@ export default AllRoutes;
 // import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
 // // 페이지 컴포넌트 Lazy Import
-// const EarthquakeActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/earthquake/EarthquakeActionGuide"));
-// const TyphoonActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/typhoon/TyphoonActionGuide"));
-// const FloodActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/flood/FloodActionGuide"));
-// const HeavyRainActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/heavyRain/HeavyRainActionGuide"));
-// const LandslideActionGuide = lazy(() => import("@/pages/user/behavioralGuide/natural/landslide/LandslideActionGuide"));
-// const TrafficAccidentActionGuide = lazy(() => import("@/pages/user/behavioralGuide/social/trafficAccident/TrafficAccidentActionGuide"));
+// const EarthquakeBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/earthquake/EarthquakeBehaviorMethod"));
+// const TyphoonBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/typhoon/TyphoonBehaviorMethod"));
+// const FloodBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/flood/FloodBehaviorMethod"));
+// const HeavyRainBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/heavyRain/HeavyRainBehaviorMethod"));
+// const LandslideBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/landslide/LandslideBehaviorMethod"));
+// const TrafficAccidentBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/social/trafficAccident/TrafficAccidentBehaviorMethod"));
 
 // // Mypage 관련 페이지
 // const MyInquiryList = lazy(() => import("@/pages/user/mypage/MyInquiryList"));
@@ -298,12 +298,12 @@ export default AllRoutes;
 //       {/* 1. 행동요령 그룹 (Sidebar: BEHAVIORALGUIDE) */}
 //       {/* 이 Route 안에 있는 모든 자식은 UserLayout(행동요령 버전)을 타고 보여집니다 */}
 //       <Route element={<UserLayout sidebarData={SIDE_MENU_DATA.BEHAVIORALGUIDE} nowPage="행동요령" />}>
-//         <Route path="/earthquakeActionGuide" element={<EarthquakeActionGuide />} />
-//         <Route path="/typhoonActionGuide" element={<TyphoonActionGuide />} />
-//         <Route path="/floodActionGuide" element={<FloodActionGuide />} />
-//         <Route path="/heavyRainActionGuide" element={<HeavyRainActionGuide />} />
-//         <Route path="/landslideActionGuide" element={<LandslideActionGuide />} />
-//         <Route path="/trafficAccidentActionGuide" element={<TrafficAccidentActionGuide />} />
+//         <Route path="/behaviorMethod/earthQuake" element={<EarthquakeBehaviorMethod />} />
+//         <Route path="/typhoonBehaviorMethod" element={<TyphoonBehaviorMethod />} />
+//         <Route path="/floodBehaviorMethod" element={<FloodBehaviorMethod />} />
+//         <Route path="/heavyRainBehaviorMethod" element={<HeavyRainBehaviorMethod />} />
+//         <Route path="/landslideBehaviorMethod" element={<LandslideBehaviorMethod />} />
+//         <Route path="/trafficAccidentBehaviorMethod" element={<TrafficAccidentBehaviorMethod />} />
 //       </Route>
 
 //       {/* 2. 마이페이지 그룹 (Sidebar: MY_PAGE) */}

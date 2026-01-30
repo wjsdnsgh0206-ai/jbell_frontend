@@ -22,8 +22,8 @@ export const ADMIN_MENU_DATA = {
       path: "/admin/realtime/accidentNewsList",
       isAvailable: true,
       items: [
-        { name: "사고속보 관리", path: "/admin/realtime/accidentNewsList"},
-        { name: "재난 관리", path: "/admin/realtime/disasterManagementList" },
+        // { name: "사고속보 관리", path: "/admin/realtime/accidentNewsList"},
+        { name: "재난 API 관리", path: "/admin/realtime/disasterManagementList" },
         { name: "재난 발생 관리", path: "/admin/realtime/disasterEventManagementList" },
         { name: "기상특보 관리", path: "/admin/realtime/weatherNewsList" },
         { name: "재난문자이력 관리", path: "/admin/realtime/disasterMessageList"},
@@ -69,11 +69,11 @@ export const ADMIN_MENU_DATA = {
   contents: [
     {
       title: "행동요령 관리", // 소분류 그룹 제목
-      path: "/admin/contents/behavioralGuideList", // 대표 경로 추가
+      path: "/admin/contents/behaviorMethodList", // 대표 경로 추가
       isAvailable: true, // 메뉴 활성화 여부 (준비 중일 경우 false)
       items: [
-        { name: "행동요령 목록", path: "/admin/contents/behavioralGuideList" },
-        { name: "행동요령 등록", path: "/admin/contents/behavioralGuideAdd" },
+        { name: "행동요령 목록", path: "/admin/contents/behaviorMethodList" },
+        { name: "행동요령 등록", path: "/admin/contents/behaviorMethodAdd" },
       ],
     },
     {
