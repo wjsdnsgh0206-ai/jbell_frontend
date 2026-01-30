@@ -107,14 +107,15 @@ const AdminBoardDetail = () => {
                 공지
               </span>
             )}
-            {/* 기존 post.isPublic 부분을 아래와 같이 수정 */}
-              <span className={`px-3 py-1 rounded-md text-[12px] font-bold border ${
-                (post.isPublic === true || post.isPublic === 'Y') 
+            {/* 게시 여부 뱃지 부분 */}
+            <span className={`px-3 py-1 rounded-md text-[12px] font-bold border ${
+                // post.isPublic이 문자열 'Y'인지 확인합니다.
+                post.isPublic === 'Y' 
                   ? 'bg-blue-50 text-blue-600 border-blue-200' 
                   : 'bg-gray-50 text-gray-400 border-gray-200'
-                }`}>
-                {(post.isPublic === true || post.isPublic === 'Y') ? '사용' : '미사용'}
-              </span>
+              }`}>
+              {post.isPublic === 'Y' ? '사용' : '미사용'}
+            </span>
           </div>
           
           <h1 className="text-2xl font-bold text-admin-text-primary mb-6">

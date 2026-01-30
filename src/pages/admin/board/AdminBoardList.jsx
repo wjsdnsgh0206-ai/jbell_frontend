@@ -226,7 +226,8 @@ const AdminBoardList = () => {
       width: '80px', 
       className: 'text-center',
       render: (isPublic) => (
-        isPublic ? (
+        // 데이터가 'Y' 문자열인지 확인합니다.
+        isPublic === 'Y' ? (
           <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-blue-50 text-blue-600 text-[12px] font-bold border border-blue-200">사용</span>
         ) : (
           <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-50 text-gray-400 text-[12px] font-bold border border-gray-200">미사용</span>

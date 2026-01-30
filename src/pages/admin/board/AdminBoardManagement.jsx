@@ -42,7 +42,7 @@ const AdminBoardManagement = () => {
               noticeId: data.id, // DTO에서 id로 넘어오므로
               title: data.title || '',
               content: data.content || '',
-              isPublic: data.isPublic ?? true,
+              isPublic: data.isPublic === 'Y',
               author: data.author || 'admin'
             });
             if (data.files) {
@@ -91,35 +91,53 @@ const AdminBoardManagement = () => {
 const handleSubmit = async (e) => {
   e.preventDefault();
 
+  // 1. 전송할 데이터 객체 생성
   const noticeData = {
+    // 수정 모드일 때는 반드시 noticeId가 포함되어야 백엔드에서 UPDATE를 수행합니다.
+    noticeId: isEditMode ? noticeId : null, 
     title: formData.title,
     content: formData.content,
-    // visibleYn 대신 엔티티의 @JsonProperty 설정값인 'isPublic' 사용
     isPublic: formData.isPublic ? 'Y' : 'N', 
     author: 'admin',
-    contentType: formData.contentType || 'NOTICE_INFO', // 요청하신 코드값 사용
+    contentType: formData.contentType || 'NOTICE_INFO',
     ordering: 0
   };
 
   const formDataToSend = new FormData();
+  
+  // JSON 데이터를 Blob으로 추가
   formDataToSend.append('notice', new Blob([JSON.stringify(noticeData)], {
     type: 'application/json'
   }));
 
-  // 파일 추가 로직 (있을 경우)
-  if (formData.files) {
-    formData.files.forEach(file => {
-      formDataToSend.append('files', file);
+  // 2. 새 파일들 추가 (uploadFiles 사용)
+  uploadFiles.forEach(file => {
+    formDataToSend.append('files', file);
+  });
+
+  // 3. 수정 모드일 때 삭제할 파일 ID 목록 추가
+  if (isEditMode && deleteFileIds.length > 0) {
+    // 백엔드 파라미터명에 맞춰서 추가 (deleteFileIds)
+    deleteFileIds.forEach(id => {
+      formDataToSend.append('deleteFileIds', id);
     });
   }
 
   try {
-    await noticeApi.createNotice(formDataToSend);
-    alert('성공적으로 등록되었습니다.');
+    if (isEditMode) {
+      // 수정 API 호출 (noticeApi에 updateNotice가 정의되어 있어야 함)
+      // 만약 없다면 axios.put(`/api/notice/${noticeId}`, formDataToSend) 사용
+      await noticeApi.updateNotice(noticeId, formDataToSend);
+      alert('성공적으로 수정되었습니다.');
+    } else {
+      // 등록 API 호출
+      await noticeApi.createNotice(formDataToSend);
+      alert('성공적으로 등록되었습니다.');
+    }
     navigate('/admin/contents/adminBoardList');
   } catch (error) {
     console.error('저장 실패:', error);
-    alert('저장 중 오류가 발생했습니다.');
+    alert(isEditMode ? '수정 중 오류가 발생했습니다.' : '등록 중 오류가 발생했습니다.');
   }
 };
 // <-------------------------------------------------------------------------------------->
