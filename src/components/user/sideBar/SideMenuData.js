@@ -27,10 +27,11 @@ export const SIDE_MENU_DATA = {
       title: '자연재난행동요령', 
       path: '/behaviorMethod/natural',
       items: [
-        { name: '지진', path: '/behaviorMethod/earthQuake' },
         { name: '태풍', path: '/behaviorMethod/typhoon' },
         { name: '홍수', path: '/behaviorMethod/flood' },
         { name: '호우', path: '/behaviorMethod/heavyRain' },
+        { name: '한파', path: '/behaviorMethod/coldWave' },
+        { name: '지진', path: '/behaviorMethod/earthQuake' },
         { name: '산사태', path: '/behaviorMethod/landslide' },
       ] 
     },
@@ -38,11 +39,11 @@ export const SIDE_MENU_DATA = {
       title: '사회재난행동요령', 
       path: '/behaviorMethod/social', 
       items: [
+        { name: '철도, 지하철 사고', path: '/behaviorMethod/railwaySubwayAccident' },
         { name: '화재', path: '/behaviorMethod/fire' },
         { name: '산불', path: '/behaviorMethod/forestFire' },
         { name: '건축물붕괴', path: '/behaviorMethod/buildingCollapse' },
         { name: '전기, 가스 사고', path: '/behaviorMethod/electricityGasAccident' },
-        { name: '철도, 지하철 사고', path: '/behaviorMethod/railwaySubwayAccident' },
       ] 
     },
     { 
@@ -52,9 +53,9 @@ export const SIDE_MENU_DATA = {
         { name: '응급처치', path: '/behaviorMethod/firstAid' },
         { name: '심폐소생술', path: '/behaviorMethod/cpr' },
         { name: '식중독', path: '/behaviorMethod/foodPoisoning' },
-        { name: '승강기 안전사고', path: '/behaviorMethod/elevatorAccident' },
-        { name: '교통사고', path: '/behaviorMethod/trafficAccident' },
         { name: '산행안전사고', path: '/behaviorMethod/mountainSafety' },
+        { name: '교통사고', path: '/behaviorMethod/trafficAccident' },
+        { name: '승강기 안전사고', path: '/behaviorMethod/elevatorAccident' },
       ] 
     },
   ],

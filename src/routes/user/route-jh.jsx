@@ -3,10 +3,11 @@ import { lazy } from "react";
 import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
 // 자연재난행동요령 import (natural)
-const EarthquakeBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/EarthquakeBehaviorMethod"));
 const TyphoonBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/TyphoonBehaviorMethod"));
 const FloodBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/FloodBehaviorMethod"));
 const HeavyRainBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/HeavyRainBehaviorMethod"));
+const ColdWaveBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/ColdWaveBehaviorMethod"));
+const EarthquakeBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/EarthquakeBehaviorMethod"));
 const LandslideBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/LandslideBehaviorMethod"));
 
 // 사회재난행동요령 import (social)
@@ -40,10 +41,11 @@ const StormAndFloodInsurance = lazy(() => import("@/pages/user/mainSafetyPolicie
 
 export const jhUserRoutes = [
   /* 자연재난행동요령 */
-  { path: "/behaviorMethod/earthQuake", element: <EarthquakeBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
   { path: "/behaviorMethod/typhoon", element: <TyphoonBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
   { path: "/behaviorMethod/flood", element: <FloodBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
   { path: "/behaviorMethod/heavyRain", element: <HeavyRainBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/coldWave", element: <ColdWaveBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/earthQuake", element: <EarthquakeBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
   { path: "/behaviorMethod/landslide", element: <LandslideBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
 
   /* 사회재난행동요령 */

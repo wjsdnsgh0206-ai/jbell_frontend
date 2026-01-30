@@ -821,6 +821,13 @@ export const behaviorMethodService = {
     const response = await api.delete("/behaviorMethod/admin/cleanup");
     return response.data;
   },
+
+  // [신규 등록] - NEW (이 부분을 추가하세요)
+  createBehaviorMethod: async (data) => {
+    const response = await api.post("/behaviorMethod", data);
+    return response.data;
+  },
+
 };
 
 export const fileService = {

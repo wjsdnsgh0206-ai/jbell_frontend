@@ -181,6 +181,36 @@ const BehaviorMethodList = () => {
     setIsModalOpen(true);
   };
 
+  // [추가] 개별 삭제 핸들러
+  const handleDeleteSingle = useCallback((row) => {
+      setModalConfig({
+      title: '항목 삭제',
+      message: (
+        <div className="flex flex-col gap-1 text-left">
+          <p>선택하신 항목 <span className="font-bold">[{row.title}]</span>을(를) 삭제하시겠습니까?</p>
+          <p className="text-body-s text-gray-500">* 삭제된 데이터는 복구할 수 없습니다.</p>
+        </div>
+      ),
+      type: 'delete',
+      onConfirm: async () => {
+        try {
+          await behaviorMethodService.deleteBehaviorMethods([row.contentId]);
+          // 리스트 갱신
+          setGuides(prev => prev.filter(item => item.contentId !== row.contentId));
+          // 체크박스 선택된게 있었다면 제거
+          setSelectedIds(prev => prev.filter(id => id !== row.contentId));
+          
+          setIsModalOpen(false);
+          alert("삭제되었습니다.");
+        } catch (err) {
+          console.error(err);
+          alert("삭제 중 오류가 발생했습니다.");
+        }
+      }
+    });
+    setIsModalOpen(true);
+  }, []); // 의존성 없음
+
   // [일괄 노출/비노출] 핸들러 (API 호출)
   const handleBatchStatus = (isExpose) => {
     if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
@@ -309,28 +339,47 @@ const BehaviorMethodList = () => {
     { 
       key: 'createdAt', 
       header: '등록일', 
-      width: '120px', 
+      width: '160px', // 시간을 표시하기 위해 너비 확장
       className: 'text-center text-gray-500 text-sm',
-      render: (date) => date ? date.substring(0, 10) : '-' 
+      render: (date) => {
+        if (!date) return '-';
+        // DB에서 "2026-01-28 18:03:15" 형태로 넘어오므로 초단위만 제외하고 출력
+        // "2026-01-28 18:03"
+        return date.substring(0, 16); 
+      }
     },
     {
       key: 'actions',
-      header: '상세',
-      width: '80px',
+      header: '관리', // 헤더 이름 변경
+      width: '140px', // 너비 조금 늘림
       className: 'text-center',
       render: (_, row) => (
-        <button 
-          onClick={(e) => {
-            e.stopPropagation();
-            goDetail(row);
-          }} 
-          className="bg-white border border-gray-300 rounded px-3 py-1 text-sm text-gray-700 hover:bg-gray-50 whitespace-nowrap"
-        >
-          보기
-        </button>
+        <div className="flex justify-center gap-2">
+            {/* 보기 버튼 */}
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                goDetail(row);
+              }} 
+              className="bg-white border border-gray-300 rounded px-3 py-1 text-sm text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+            >
+              보기
+            </button>
+            
+            {/* [추가] 삭제 버튼 */}
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteSingle(row);
+              }} 
+              className="bg-red-50 border border-red-200 rounded px-3 py-1 text-sm text-red-600 hover:bg-red-100 whitespace-nowrap"
+            >
+              삭제
+            </button>
+        </div>
       )
     }
-  ], [handleToggleVisible]);
+  ], [handleToggleVisible, handleDeleteSingle]);
 
   // ==================================================================================
   // 6. 렌더링
@@ -386,9 +435,9 @@ const BehaviorMethodList = () => {
 
         {/* [B] 테이블 및 액션 버튼 영역 */}
         <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8">
-          <div className="flex justify-between items-end mb-6">
+          <div className="flex justify-between items-center mb-6"> {/* items-end에서 center로 변경하여 정렬 최적화 */}
             
-            {/* 좌측: 선택 정보 및 일괄 처리 */}
+            {/* 1. 좌측 영역: 선택 정보 및 일괄 처리 */}
             <div className="flex items-center gap-4">
               <span className="text-body-m-bold text-admin-text-secondary">
                 {selectedIds.length > 0 ? (
@@ -400,21 +449,38 @@ const BehaviorMethodList = () => {
 
               {/* 일괄 처리 버튼들 */}
               <div className="flex items-center ml-4 gap-4">
-                <button onClick={() => handleBatchStatus(true)} className="flex items-center gap-2 group">
-                    <span className="text-[15px] font-bold text-[#111]">일괄 노출</span>
+                <button 
+                  onClick={() => handleBatchStatus(true)} 
+                  className="flex items-center gap-2 group hover:opacity-70 transition-opacity"
+                >
+                  <span className="text-[15px] font-bold text-[#111]">일괄 노출</span>
                 </button>
                 <div className="w-[1px] h-3 bg-gray-300" />
-                <button onClick={() => handleBatchStatus(false)} className="flex items-center gap-2 group">
-                    <span className="text-[15px] font-bold text-[#666]">일괄 비노출</span>
+                <button 
+                  onClick={() => handleBatchStatus(false)} 
+                  className="flex items-center gap-2 group hover:opacity-70 transition-opacity"
+                >
+                  <span className="text-[15px] font-bold text-[#666]">일괄 비노출</span>
                 </button>
               </div>
-
-              {/* 우측: 등록/삭제 버튼 */}
-              <div className="flex gap-2">
-                <button onClick={handleDeleteSelected} className="px-8 h-14 bg-[#FF003E] text-white rounded-md font-bold">삭제</button>
-                <button onClick={() => navigate('/admin/contents/behaviorMethodAdd')} className="px-8 h-14 bg-admin-primary text-white rounded-md font-bold">등록</button>
-              </div>
             </div>
+
+            {/* 2. 우측 영역: 삭제/등록 버튼을 우측 끝으로 배치 */}
+            <div className="flex gap-2">
+              <button 
+                onClick={handleDeleteSelected} 
+                className="px-8 h-14 bg-[#FF003E] text-white rounded-md font-bold hover:bg-[#D60034] transition-colors shadow-sm"
+              >
+                삭제
+              </button>
+              <button 
+                onClick={() => navigate('/admin/contents/behaviorMethodAdd')} 
+                className="px-8 h-14 bg-admin-primary text-white rounded-md font-bold hover:opacity-90 transition-opacity shadow-sm"
+              >
+                등록
+              </button>
+            </div>
+
           </div>
 
           {/* [C] 데이터 테이블 (Loading 처리) */}
