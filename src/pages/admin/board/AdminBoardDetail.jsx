@@ -5,9 +5,7 @@ import axios from 'axios';
 
 const AdminBoardDetail = () => {
   const navigate = useNavigate();
-  // const location = useLocation();
   const { noticeId } = useParams();
-  console.log(noticeId)
 
   // 상태 변수 이름
   const [post, setPost] = useState(null);
@@ -21,11 +19,14 @@ const AdminBoardDetail = () => {
 
     axios.get(`/api/notice/${noticeId}`)
       .then(res => {
-        setPost(res.data); // setNotice가 아니라 setPost를 사용해야 합니다.
+        // 데이터가 정상적으로 들어왔는지 로그로 확인해 보세요.
+        console.log("받은 데이터:", res.data);
+        setPost(res.data);
       })
       .catch(err => {
         console.error("데이터 로딩 실패:", err);
-        // 500 에러 등이 발생할 경우 여기서 확인 가능합니다.
+        // 에러 발생 시 알림을 주면 파악이 쉽습니다.
+        alert("게시글을 불러오는 중 오류가 발생했습니다.");
       });
   }, [noticeId]);
 
@@ -106,13 +107,14 @@ const AdminBoardDetail = () => {
                 공지
               </span>
             )}
-            <span className={`px-3 py-1 rounded-md text-[12px] font-bold border ${
-              post.isPublic 
-                ? 'bg-blue-50 text-blue-600 border-blue-200' 
-                : 'bg-gray-50 text-gray-400 border-gray-200'
-            }`}>
-              {post.isPublic ? '사용' : '미사용'}
-            </span>
+            {/* 기존 post.isPublic 부분을 아래와 같이 수정 */}
+              <span className={`px-3 py-1 rounded-md text-[12px] font-bold border ${
+                (post.isPublic === true || post.isPublic === 'Y') 
+                  ? 'bg-blue-50 text-blue-600 border-blue-200' 
+                  : 'bg-gray-50 text-gray-400 border-gray-200'
+                }`}>
+                {(post.isPublic === true || post.isPublic === 'Y') ? '사용' : '미사용'}
+              </span>
           </div>
           
           <h1 className="text-2xl font-bold text-admin-text-primary mb-6">
@@ -137,7 +139,7 @@ const AdminBoardDetail = () => {
             )}
             <div className="flex items-center gap-2">
               <Eye size={16} />
-              <span>조회수: {post.views.toLocaleString()}</span>
+              <span>조회수: {(post.views ?? 0).toLocaleString()}</span>
             </div>
           </div>
         </div>

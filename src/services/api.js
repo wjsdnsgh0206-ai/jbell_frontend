@@ -28,9 +28,9 @@ const accidentNewsApi = axios.create({ baseURL: "/accidentNews-api" }); // 도�
 
 
 export const noticeApi = {
-  // 공지사항 전체 목록 조회
-  getNoticeDTOList: async () => {
-    const response = await api.get("/notice");
+  // 공지사항 목록 조회
+  getNoticeList: async (params) => {
+    const response = await api.get("/notice", { params });
     return response.data;
   },
 
@@ -40,46 +40,35 @@ export const noticeApi = {
     return response.data;
   },
 
-  // 공지사항 등록
-  createNotice: async (noticeData) => {
-    // 백엔드 NoticeController의 @PostMapping과 연결
-    const response = await api.post("/notice", noticeData);
+  // 공지사항 등록 (FormData 사용)
+  createNotice: async (formData) => {
+    const response = await api.post("/notice", formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
     return response.data;
   },
 
-  // 공지사항 수정
-  updateNotice: async (id, noticeData) => {
-    // 백엔드 NoticeController의 @PutMapping("/{id}")과 연결
-    const response = await api.put(`/notice/${id}`, noticeData);
+  // 공지사항 수정 (FormData 사용)
+  updateNotice: async (id, formData) => {
+    const response = await api.put(`/notice/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
     return response.data;
   },
 
   // 공지사항 삭제
   deleteNotice: async (id) => {
-    // 백엔드 NoticeController의 @DeleteMapping("/{id}")과 연결
     const response = await api.delete(`/notice/${id}`);
     return response.data;
   },
 
- // 첨부파일 관련
-  getNoticeList: () => axios.get('/api/notice'),
-  getNoticeDetail: (id) => axios.get(`/api/notice/${id}`),
-  createNotice: (data) => axios.post('/api/notice', data),
-  updateNotice: (id, data) => axios.put(`/api/notice/${id}`, data),
-  deleteNotice: (id) => axios.delete(`/api/notice/${id}`),
-  
-  // 파일 포함 API 추가
-  createNoticeWithFiles: (formData) => axios.post('/api/notice', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  }),
-  
-  updateNoticeWithFiles: (id, formData) => axios.put(`/api/notice/${id}`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  }),
-  
-  downloadFile: (fileId) => axios.get(`/api/notice/file/download/${fileId}`, {
-    responseType: 'blob'
-  })
+  // 파일 다운로드
+  downloadFile: async (fileId) => {
+    const response = await api.get(`/notice/file/download/${fileId}`, {
+      responseType: 'blob'
+    });
+    return response;
+  }
 };
 
 

@@ -206,13 +206,6 @@ const AdminBoardList = () => {
       className: 'text-graygray-40 text-[13px] text-center' 
     },
     { 
-      key: 'views', 
-      header: '조회수', 
-      width: '80px', 
-      className: 'font-mono text-center',
-      render: (value) => value.toLocaleString()
-    },
-    { 
       key: 'files', 
       header: '첨부', 
       width: '60px', 
@@ -240,23 +233,7 @@ const AdminBoardList = () => {
         )
       )
     },
-    {
-      key: 'manage',
-      header: '관리',
-      width: '80px',
-      className: 'text-center',
-      render: (_, row) => (
-        <button 
-          onClick={(e) => {
-            e.stopPropagation(); 
-            navigate(`/admin/board/noticeDetail/${row.id}`);
-          }}
-          className="border border-gray-300 text-[#666] rounded px-3 py-1 text-[12px] font-bold bg-white hover:bg-admin-primary hover:text-white hover:border-admin-primary transition-all"
-        >
-          보기
-        </button>
-      )
-    }
+   
   ];
 
 

@@ -87,66 +87,41 @@ const AdminBoardManagement = () => {
   };
 
 // <-------------------------------------------------------------------------------------->
- // 2. 등록 및 수정 실행
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+// AdminBoardManagement.jsx
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!formData.title.trim() || !formData.content.trim()) {
-      alert("제목과 본문을 모두 입력해주세요.");
-      return;
-    }
-
-    try {
-      const submitData = new FormData();
-    
-      // 1. 공지사항 텍스트 데이터 (JSON을 Blob으로 감싸서 'notice'라는 이름으로 추가)
-      const noticeData = {
-        title: formData.title.trim(),
-        content: formData.content.trim(),
-        isPublic: formData.isPublic,
-        author: formData.author || "admin"
-      };
-      
-      submitData.append('notice', new Blob([JSON.stringify(noticeData)], {
-        type: 'application/json'
-      }));
-      
-      // 2. 새 첨부 파일들 추가 ('files'라는 이름으로 추가)
-      uploadFiles.forEach((file) => {
-        submitData.append('files', file);
-      });
-      
-      // 3. 삭제할 파일 ID 리스트 추가 (수정 모드일 때만)
-      if (isEditMode) {
-        // 백엔드에서 @RequestPart List<Long>으로 받으므로 JSON Blob으로 처리
-        // 만약 삭제할 파일이 없더라도 빈 배열([])을 보내주는 것이 백엔드 에러 방지에 좋습니다.
-        submitData.append('deleteFileIds', new Blob([JSON.stringify(deleteFileIds)], {
-          type: 'application/json'
-        }));
-      }
-
-      // axios 설정 (Content-Type 명시)
-      const config = {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      };
-      
-      if (isEditMode) {
-        // 수정 API 호출
-        await axios.put(`/api/notice/${noticeId}`, submitData, config);
-        alert("공지사항이 수정되었습니다.");
-      } else {
-        // 등록 API 호출
-        await axios.post(`/api/notice`, submitData, config);
-        alert("공지사항이 등록되었습니다.");
-      }
-      navigate('/admin/contents/adminBoardList');
-    } catch (error) {
-      console.error("저장 실패:", error);
-      // 서버에서 보내주는 상세 에러 메시지가 있다면 출력
-      const errorMsg = error.response?.data?.message || error.message;
-      alert(`저장 중 오류가 발생했습니다: ${errorMsg}`);
-    }
+  const noticeData = {
+    title: formData.title,
+    content: formData.content,
+    // visibleYn 대신 엔티티의 @JsonProperty 설정값인 'isPublic' 사용
+    isPublic: formData.isPublic ? 'Y' : 'N', 
+    author: 'admin',
+    contentType: formData.contentType || 'NOTICE_INFO', // 요청하신 코드값 사용
+    ordering: 0
   };
+
+  const formDataToSend = new FormData();
+  formDataToSend.append('notice', new Blob([JSON.stringify(noticeData)], {
+    type: 'application/json'
+  }));
+
+  // 파일 추가 로직 (있을 경우)
+  if (formData.files) {
+    formData.files.forEach(file => {
+      formDataToSend.append('files', file);
+    });
+  }
+
+  try {
+    await noticeApi.createNotice(formDataToSend);
+    alert('성공적으로 등록되었습니다.');
+    navigate('/admin/contents/adminBoardList');
+  } catch (error) {
+    console.error('저장 실패:', error);
+    alert('저장 중 오류가 발생했습니다.');
+  }
+};
 // <-------------------------------------------------------------------------------------->
 
 
