@@ -136,6 +136,16 @@ const AdminBoardList = () => {
     setActiveFilter(resetState);
     setCurrentPage(1);
     setSortOrder('latest'); // 초기화 시 정렬 버튼 UI도 최신순으로 복귀
+
+    // 3. [추가] 서버에서 전체 목록 다시 불러오기
+    // 검색어가 없는 상태로 전체 데이터를 다시 가져와서 posts에 덮어씁니다.
+    axios.get('/api/notice')
+      .then(res => {
+        setPosts(res.data);
+      })
+      .catch(err => {
+        console.error("데이터 초기화 로드 실패:", err);
+      });
   };
 
   // [Event] 삭제 및 상태 변경 핸들러
