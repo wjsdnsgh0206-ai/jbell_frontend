@@ -49,7 +49,7 @@ const mjAdminRoutes = [
             nowPage: "공지사항 등록",
       },
       {
-            path: "/admin/contents/adminBoardEdit/:boardId", 
+            path: "/admin/contents/adminBoardEdit/:noticeId", 
             element: <AdminBoardManagement />,
             nowPage: "공지사항 수정",
       },

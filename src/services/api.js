@@ -27,10 +27,98 @@ const kmaWarningApi = axios.create({ baseURL: "/kma-warning-api" });
 const accidentNewsApi = axios.create({ baseURL: "/accidentNews-api" }); // 도로교통 정보 api
 
 
+export const disasterApi = {
+  // 재난 문자 리스트 조회 (GET)
+  getDisasterMessages: async () => {
+    const response = await api.get("/disaster/dashboard/disasterMessages");
+    return response.data; // List<PredictionInfoResponse>
+  },
+
+  // 재난 문자 상세 조회 (GET)
+  getDisasterDetail: async (sn) => {
+    const response = await api.get(`/disaster/dashboard/disasterMessages/${sn}`);
+    return response.data;
+  },
+
+  // 재난 문자 등록 (POST)
+  createDisaster: async (data) => {
+    const response = await api.post("/disaster/dashboard/disasterMessages", data);
+    return response.data;
+  },
+
+  // 재난 문자 수정 (PUT)
+  updateDisaster: async (sn, data) => {
+    const response = await api.put(`/disaster/dashboard/disasterMessages/${sn}`, data);
+    return response.data;
+  },
+
+  // 재난 문자 일괄 노출/비노출 변경 (POST)
+  updateVisibility: async (ids, visibleYn) => {
+    const response = await api.post("/disaster/dashboard/disasterMessages/visibility", {
+      ids,
+      visibleYn
+    });
+    return response.data;
+  },
+
+  // 재난 문자 일괄 삭제 (POST - 논리 삭제)
+  deleteDisasters: async (sns) => {
+    const response = await api.post("/disaster/dashboard/disasterMessages/delete", sns);
+    return response.data;
+  },
+
+  // ===================================== 기상특보 ============================
+  getSavedWeatherWarnings: async (params) => {
+  // params에는 newsType, region, level, startDate, endDate, page 등이 포함됨
+  const response = await api.get("/disaster/dashboard/weatherWarnings", { params });
+  return response.data; // { list: [...], totalCount: 100 }
+},
+
+  // 2. 기상 특보 상세 조회
+  getWeatherDetail: async (key) => {
+    const response = await api.get(`/disaster/dashboard/weatherWarnings/${key}`);
+    return response.data;
+  },
+
+  // 3. 기상 특보 수동 등록
+  createWeather: async (data) => {
+    const response = await api.post("/disaster/dashboard/weatherWarnings", data);
+    return response.data;
+  },
+
+  // 4. 기상 특보 수정
+  updateWeather: async (key, data) => {
+    const response = await api.put(`/disaster/dashboard/weatherWarnings/${key}`, data);
+    return response.data;
+  },
+
+  // 5. 기상 특보 일괄 노출 변경 (DisasterBatchRequest DTO 대응)
+  updateWeatherVisibility: async (ids, visibleYn) => {
+    const response = await api.post("/disaster/dashboard/weatherWarnings/visibility", {
+      ids,        // List<Integer> 또는 List<String>
+      visibleYn   // 'Y' 또는 'N'
+    });
+    return response.data;
+  },
+
+  // 6. 기상 특보 일괄 삭제 (논리 삭제)
+  deleteWeatherWarnings: async (keys) => {
+    const response = await api.post("/disaster/dashboard/weatherWarnings/delete", keys);
+    return response.data;
+  }
+
+
+};
+
+
+
+
+
+
 export const noticeApi = {
-  // 공지사항 전체 목록 조회
-  getNoticeDTOList: async () => {
-    const response = await api.get("/notice");
+  // 공지사항 목록 조회
+  getNoticeList: async (params) => {
+    const response = await api.get("/notice", { params });
     return response.data;
   },
 
@@ -40,27 +128,38 @@ export const noticeApi = {
     return response.data;
   },
 
-  // 공지사항 등록
-  createNotice: async (noticeData) => {
-    // 백엔드 NoticeController의 @PostMapping과 연결
-    const response = await api.post("/notice", noticeData);
+  // 공지사항 등록 (FormData 사용)
+  createNotice: async (formData) => {
+    const response = await api.post("/notice", formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
     return response.data;
   },
 
-  // 공지사항 수정
-  updateNotice: async (id, noticeData) => {
-    // 백엔드 NoticeController의 @PutMapping("/{id}")과 연결
-    const response = await api.put(`/notice/${id}`, noticeData);
+  // 공지사항 수정 (FormData 사용)
+  updateNotice: async (id, formData) => {
+    const response = await api.put(`/notice/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
     return response.data;
   },
 
   // 공지사항 삭제
   deleteNotice: async (id) => {
-    // 백엔드 NoticeController의 @DeleteMapping("/{id}")과 연결
     const response = await api.delete(`/notice/${id}`);
     return response.data;
   },
+
+  // 파일 다운로드
+  downloadFile: async (fileId) => {
+    const response = await api.get(`/notice/file/download/${fileId}`, {
+      responseType: 'blob'
+    });
+    return response;
+  }
 };
+
+
 
 export const commonService = {
   /**

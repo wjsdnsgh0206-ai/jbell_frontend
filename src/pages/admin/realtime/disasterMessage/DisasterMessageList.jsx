@@ -4,6 +4,9 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { ChevronDown, Search, Calendar } from 'lucide-react';
 import axios from "axios";
+import { disasterApi } from '@/services/api';
+import { DISASTER_OPTIONS } from "./MessagetTypeData";
+
 
 // [공통 컴포넌트]
 import AdminDataTable from '@/components/admin/AdminDataTable';
@@ -11,6 +14,12 @@ import AdminPagination from '@/components/admin/AdminPagination';
 import AdminSearchBox from '@/components/admin/AdminSearchBox';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
+
+
+/**
+ * [관리자] 재난 문자 이력 목록 페이지
+ * 백엔드 API 연동 및 최근 7일 데이터 자동 필터링 적용
+ */
 const DisasterMessageList = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
@@ -46,38 +55,53 @@ const DisasterMessageList = () => {
   const [modalConfig, setModalConfig] = useState({ title: '', message: '', type: 'confirm', onConfirm: () => {} });
 
   // ==================================================================================
-  // 2. 데이터 가져오기
+  // 2. 데이터 가져오기 (API 연동)
   // ==================================================================================
+  const fetchMessages = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await disasterApi.getDisasterMessages();
+      
+      let rawData = [];
+      if (Array.isArray(response)) {
+        rawData = response;
+      } else if (response && Array.isArray(response.data)) {
+        rawData = response.data;
+      } else if (response && Array.isArray(response.list)) {
+        rawData = response.list;
+      }
+
+      const mappedData = rawData.map(item => {
+        // [핵심 수정] 서버 필드명이 visibleYn, useYn, displayYn 중 무엇인지 확인
+        // 값이 아예 없으면 기본적으로 노출('Y')로 설정할지 결정해야 합니다.
+        const rawVisible = item.visibleYn || item.useYn || item.displayYn || 'Y'; 
+        
+        return {
+          id: item.sn || item.id,
+          category: item.emrgStepNm || '안전안내',
+          type: item.dstType || '기타', 
+          sender: item.mngOrgNm || "행정안전부",
+          content: item.msgCn || '',
+          dateTime: item.crtDt || '',
+          region: item.rcptnRgnNm || '',
+          // 'Y' 또는 true인 경우 활성화
+          isVisible: rawVisible === 'Y' || rawVisible === true || rawVisible === 'true'
+        };
+      });
+      
+      setMessages(mappedData);
+    } catch (error) {
+      console.error("데이터 로드 실패:", error);
+      setMessages([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (setBreadcrumbTitle) setBreadcrumbTitle("재난 문자 이력");
-    
-    const fetchMessages = async () => {
-      try {
-        setIsLoading(true);
-        const response = await axios.get("http://localhost:8080/api/disaster/dashboard/disasterMessages");
-        const rawData = response.data?.data || response.data || [];
-        
-        const mappedData = rawData.map(item => ({
-          id: item.sn || item.SN,
-          category: item.emrgStepNm || item.EMRG_STEP_NM || '안전안내',
-          type: (item.dstType || item.DST_TYPE || 'ITEM_001') === 'ITEM_001' ? '일반' : (item.dstType || item.DST_TYPE).split('_')[1] || '일반',
-          sender: "기상청/행정안전부",
-          content: item.msgCn || item.MSG_CN,
-          dateTime: item.crtDt || item.CRT_DT,
-          region: item.rcptnRgnNm || item.RCPTN_RGN_NM,
-          isVisible: true
-        }));
-        
-        setMessages(mappedData);
-      } catch (error) {
-        console.error("데이터 로드 실패:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchMessages();
-  }, [setBreadcrumbTitle]);
+    fetchMessages(); // 이제 안전하게 호출 가능합니다.
+  }, [setBreadcrumbTitle, fetchMessages]);
 
   const goDetail = useCallback((id) => {
     navigate(`/admin/realtime/disasterMessageDetail/${id}`);
@@ -125,14 +149,21 @@ const DisasterMessageList = () => {
     setCurrentPage(1); 
   };
 
-  const handleToggleVisible = (id, currentStatus) => {
+  const handleToggleVisible = async (id, currentStatus) => {
     const nextStatus = !currentStatus;
+    const visibleYn = nextStatus ? 'Y' : 'N';
+
     setModalConfig({
       title: '노출 상태 변경',
-      message: <p>해당 항목의 상태를 [{nextStatus ? '노출' : '비노출'}]로 변경하시겠습니까?</p>,
+      message: <p>해당 항목을 [{nextStatus ? '노출' : '비노출'}] 처리하시겠습니까?</p>,
       type: nextStatus ? 'confirm' : 'delete',
-      onConfirm: () => {
-        setMessages(prev => prev.map(item => item.id === id ? { ...item, isVisible: nextStatus } : item));
+      onConfirm: async () => {
+        try {
+          await disasterApi.updateVisibility([id], visibleYn);
+          setMessages(prev => prev.map(item => item.id === id ? { ...item, isVisible: nextStatus } : item));
+        } catch (error) {
+          alert("상태 변경에 실패했습니다.");
+        }
         setIsModalOpen(false);
       }
     });
@@ -141,28 +172,42 @@ const DisasterMessageList = () => {
 
   const handleBatchStatus = (status) => {
     if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
+    const visibleYn = status ? 'Y' : 'N';
+
     setModalConfig({
       title: `일괄 ${status ? '노출' : '비노출'} 처리`,
-      message: <p>선택하신 {selectedIds.length}건의 항목을 일괄 {status ? '노출' : '비노출'} 처리하시겠습니까?</p>,
+      message: <p>선택하신 {selectedIds.length}건을 일괄 {status ? '노출' : '비노출'} 처리하시겠습니까?</p>,
       type: status ? 'confirm' : 'delete',
-      onConfirm: () => {
-        setMessages(prev => prev.map(item => selectedIds.includes(item.id) ? { ...item, isVisible: status } : item));
-        setSelectedIds([]); 
+      onConfirm: async () => {
+        try {
+          await disasterApi.updateVisibility(selectedIds, visibleYn);
+          setMessages(prev => prev.map(item => selectedIds.includes(item.id) ? { ...item, isVisible: status } : item));
+          setSelectedIds([]);
+        } catch (error) {
+          alert("일괄 변경 중 오류가 발생했습니다.");
+        }
         setIsModalOpen(false);
       }
     });
     setIsModalOpen(true);
   };
 
+  // 일괄 삭제 (논리 삭제)
   const handleDeleteSelected = () => {
     if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
     setModalConfig({
       title: '선택 항목 삭제',
-      message: <p>선택하신 [{selectedIds.length}건] 항목을 정말 삭제하시겠습니까?</p>,
+      message: <p>선택하신 [{selectedIds.length}건] 항목을 비노출 삭제하시겠습니까?</p>,
       type: 'delete',
-      onConfirm: () => {
-        setMessages(prev => prev.filter(c => !selectedIds.includes(c.id)));
-        setSelectedIds([]);
+      onConfirm: async () => {
+        try {
+          await disasterApi.deleteDisasters(selectedIds);
+          // 목록에서 즉시 제거 (논리 삭제이므로 화면에서만 안 보이게 처리하거나 새로고침)
+          setMessages(prev => prev.filter(c => !selectedIds.includes(c.id)));
+          setSelectedIds([]);
+        } catch (error) {
+          alert("삭제 처리 중 오류가 발생했습니다.");
+        }
         setIsModalOpen(false);
       }
     });
@@ -174,7 +219,7 @@ const DisasterMessageList = () => {
     { 
       key: 'category', 
       header: '구분', 
-      width: '100px', 
+      width: '120px', 
       className: 'text-center',
       render: (val) => (
         <span className={`px-2 py-1 rounded text-[11px] font-bold ${val === '긴급재난' ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-600'}`}>
@@ -233,7 +278,7 @@ const DisasterMessageList = () => {
             onSearch={handleSearch}
             onReset={handleReset}
           >
-            {/* 구분 선택 */}
+            {/* 1. 단계(Category) Select */}
             <div className="relative w-full md:w-40">
               <select 
                 value={selectedCategory} 
@@ -241,13 +286,14 @@ const DisasterMessageList = () => {
                 className="w-full appearance-none h-14 pl-5 pr-8 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary focus:border-admin-primary outline-none cursor-pointer"
               >
                 <option value="전체">단계 전체</option>
-                <option value="안전안내">안전안내</option>
-                <option value="긴급재난">긴급재난</option>
+                {DISASTER_OPTIONS.CATEGORIES.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
               </select>
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
             </div>
 
-            {/* 유형 선택 */}
+            {/* 2. 유형(Type) Select */}
             <div className="relative w-full md:w-40">
               <select 
                 value={selectedType} 
@@ -255,10 +301,9 @@ const DisasterMessageList = () => {
                 className="w-full appearance-none h-14 pl-5 pr-8 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary focus:border-admin-primary outline-none cursor-pointer"
               >
                 <option value="전체">유형 전체</option>
-                <option value="EARTHQUAKE">지진</option>
-                <option value="HEAVYRAIN">호우</option>
-                <option value="FLOOD">홍수</option>
-                <option value="TYPHOON">태풍</option>
+                {DISASTER_OPTIONS.TYPES.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
               </select>
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
             </div>
