@@ -20,12 +20,12 @@ export const jhAdminRoutes = [
     nowPage: "행동요령 목록",
   },
   {
-    path: "/admin/behaviorMethodDetail/:id", 
+    path: "/admin/contents/behaviorMethodDetail/:id", 
     element: <BehaviorMethodDetail />,
     nowPage: "행동요령 상세",
   },
   {
-    path: "/admin/behaviorMethodAdd", 
+    path: "/admin/contents/behaviorMethodAdd", 
     element: <BehaviorMethodAdd />,
     nowPage: "행동요령 등록",
   },

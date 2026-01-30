@@ -1,17 +1,18 @@
 // src/pages/admin/behaviorMethod/BehaviorMethodDetail.jsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useOutletContext } from "react-router-dom";
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
-// [API & Components]
-import { behaviorMethodService } from '@/services/api';
-import JsonBodyRenderer from '@/components/user/behaviorMethod/JsonBodyRenderer'; // 위에서 만든 컴포넌트
+// API
+import { behaviorMethodService, fileService } from '@/services/api';
+import JsonBodyRenderer from '@/components/user/behaviorMethod/JsonBodyRenderer';
 
 const BehaviorMethodDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
+  const quillRef = useRef(null); // Quill 인스턴스 접근용
 
   const [isEdit, setIsEdit] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -23,65 +24,114 @@ const BehaviorMethodDetail = () => {
   const [formData, setFormData] = useState({
     contentId: '',
     contentType: '',
+    contentTypeName: '', // 추가: 재난유형명 (태풍)
+    groupName: '',       // 추가: 재난구분명 (자연재난)
     title: '',
     body: '',
     visibleYn: 'Y',
     contentLink: '',
-    createdAt: ''
+    fileIds: []
   });
 
   const [originData, setOriginData] = useState(null);
 
-  // 에디터 툴바 설정
-  const modules = useMemo(() => ({
-    toolbar: isEdit ? [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-      ['link', 'image'],
-      ['clean']
-    ] : false,
-  }), [isEdit]);
+  // =========================================================
+  // 1. 이미지 핸들러 (Quill 커스텀)
+  // =========================================================
+  const imageHandler = useCallback(() => {
+    // 1. 파일 선택창 열기
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
 
-  // 2. 데이터 로드 (API 연동)
+    input.onchange = async () => {
+      const file = input.files[0];
+      if (file) {
+        try {
+          // 2. 서버로 업로드 (FileService 호출)
+          const res = await fileService.uploadEditorImage(file);
+          
+          if (res.status === 'SUCCESS') {
+            const { filePath, fileIdx } = res.data;
+
+            // 3. 에디터에 이미지 태그 삽입
+            const quill = quillRef.current.getEditor();
+            const range = quill.getSelection();
+            // 커서 위치에 이미지 삽입 (URL 사용)
+            quill.insertEmbed(range.index, 'image', filePath); 
+            // 커서 이동
+            quill.setSelection(range.index + 1);
+
+            // 4. ★ 중요: fileId 상태 저장 (나중에 글 저장시 함께 전송)
+            setFormData(prev => ({
+                ...prev,
+                fileIds: [...(prev.fileIds || []), fileIdx]
+            }));
+          }
+        } catch (error) {
+          console.error("이미지 업로드 실패:", error);
+          alert("이미지 업로드 중 오류가 발생했습니다.");
+        }
+      }
+    };
+  }, []);
+
+  // 에디터 모듈 설정
+  const modules = useMemo(() => {
+    // [수정] 수정 모드가 아닐 때는 툴바 자체를 비활성화 (객체 구조 변경)
+    if (!isEdit) {
+      return { toolbar: false };
+    }
+
+    // 수정 모드일 때만 툴바 설정 적용
+    return {
+      toolbar: {
+        container: [
+          [{ 'header': [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+          ['link', 'image'],
+          ['clean']
+        ],
+        handlers: {
+          image: imageHandler
+        }
+      }
+    };
+  }, [isEdit, imageHandler]);
+
+  // =========================================================
+  // 2. 데이터 로드 및 이벤트
+  // =========================================================
   useEffect(() => {
     const getDetailData = async () => {
       setLoading(true);
       try {
-        // [API 호출] contentId로 상세 조회
-        const data = await behaviorMethodService.getBehaviorMethodDetail(id);
+        const response = await behaviorMethodService.getBehaviorMethodDetail(id);
+        if (response && response.status === 'SUCCESS' && response.data) {
+          const realData = response.data;
+          setFormData({ 
+              ...realData, 
+              fileIds: [],
+              // API 응답에 groupName, contentTypeName이 포함되어 있어야 함 (Mapper select 수정됨)
+          });
+          setOriginData(realData);
+          setBreadcrumbTitle(realData.title);
 
-        if (data) {
-          setFormData(data);
-          setOriginData(data);
-          setBreadcrumbTitle(data.title);
-
-          // body가 JSON인지 단순 HTML/Text인지 판단
           try {
-             const parsed = JSON.parse(data.body);
-             // 단순 숫자가 아니고 객체 타입이면 JSON으로 간주
-             if (parsed && typeof parsed === 'object') {
-                 setIsJsonBody(true);
-             }
-          } catch (e) {
-             setIsJsonBody(false); // 파싱 실패 시 일반 텍스트 모드
-          }
-        } else {
-          alert("해당 데이터를 찾을 수 없습니다.");
-          navigate("/admin/contents/behaviorMethodList");
+             const parsed = JSON.parse(realData.body);
+             if (parsed && typeof parsed === 'object') setIsJsonBody(true);
+          } catch (e) { setIsJsonBody(false); }
         }
       } catch (error) {
-        console.error("데이터 로드 실패:", error);
-        alert("데이터를 불러오는 중 오류가 발생했습니다.");
-        navigate("/admin/contents/behaviorMethodList");
+        console.error("로딩 에러", error);
       } finally {
         setLoading(false);
       }
     };
-
     if (id) getDetailData();
-    return () => setBreadcrumbTitle("");
-  }, [id, setBreadcrumbTitle, navigate]);
+  }, [id, setBreadcrumbTitle]);
 
   // 3. 이벤트 핸들러
   const handleChange = (e) => {
@@ -110,27 +160,22 @@ const BehaviorMethodDetail = () => {
     }
   };
 
+  // 저장 핸들러
   const handleSave = async () => {
-    if (!window.confirm("변경 사항을 저장하시겠습니까?")) return;
-
+    if (!window.confirm("저장하시겠습니까?")) return;
     try {
-      // [API 호출] 수정 요청
+      // API 호출 (formData 안에 fileIds가 포함되어 전송됨)
       await behaviorMethodService.updateBehaviorMethod(id, formData);
       
       setOriginData(formData);
       setIsEdit(false);
-      alert("성공적으로 저장되었습니다.");
+      alert("저장되었습니다.");
       
-      // 저장 후 JSON 여부 재판단 (텍스트를 JSON으로 바꿨을 수도 있으니)
-      try {
-         const parsed = JSON.parse(formData.body);
-         if (parsed && typeof parsed === 'object') setIsJsonBody(true);
-      } catch (e) {
-         setIsJsonBody(false);
-      }
+      // 저장 후 fileIds 초기화 (중복 매핑 방지)
+      setFormData(prev => ({ ...prev, fileIds: [] })); 
+      
     } catch (error) {
-      console.error(error);
-      alert("저장 중 오류가 발생했습니다.");
+      alert("저장 실패");
     }
   };
 
@@ -171,20 +216,39 @@ const BehaviorMethodDetail = () => {
         {/* 메인 폼 영역 */}
         <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard overflow-hidden">
           <div className="p-10 space-y-8">
-            
-            {/* 1열: 유형 & 제목 */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              <div className="flex flex-col gap-3 md:col-span-1">
-                <label className="text-body-m-bold text-admin-text-secondary ml-1">재난 유형 코드</label>
+
+            {/* [수정] 1열: 재난 정보 (구분 / 유형 / 코드) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+               <div className="flex flex-col gap-3">
+                <label className="text-body-m-bold text-admin-text-secondary ml-1">재난 구분</label>
+                <input 
+                  value={formData.groupName || ''}
+                  disabled
+                  className="h-14 px-5 rounded-lg border border-admin-border bg-gray-100 text-gray-500 cursor-not-allowed outline-none text-body-m"
+                />
+              </div>
+              <div className="flex flex-col gap-3">
+                <label className="text-body-m-bold text-admin-text-secondary ml-1">재난 유형</label>
+                <input 
+                  value={formData.contentTypeName || ''}
+                  disabled
+                  className="h-14 px-5 rounded-lg border border-admin-border bg-gray-100 text-gray-500 cursor-not-allowed outline-none text-body-m"
+                />
+              </div>
+              <div className="flex flex-col gap-3">
+                <label className="text-body-m-bold text-admin-text-secondary ml-1">유형 코드</label>
                 <input 
                   name="contentType"
                   value={formData.contentType || ''}
                   onChange={handleChange}
-                  disabled={!isEdit} // PK나 타입은 수정 불가 정책일 수 있음
-                  className="h-14 px-5 rounded-lg border border-admin-border bg-graygray-5 text-graygray-50 cursor-not-allowed outline-none text-body-m"
+                  disabled={!isEdit} 
+                  className="h-14 px-5 rounded-lg border border-admin-border bg-gray-50 text-gray-500 cursor-not-allowed outline-none text-body-m"
                 />
               </div>
-              <div className="flex flex-col gap-3 md:col-span-3">
+            </div>
+
+            {/* 2열: 제목 */}
+            <div className="flex flex-col gap-3">
                 <label className="text-body-m-bold text-admin-text-secondary ml-1">제목</label>
                 <input 
                   name="title"
@@ -192,10 +256,10 @@ const BehaviorMethodDetail = () => {
                   onChange={handleChange}
                   disabled={!isEdit}
                   className={`h-14 px-5 rounded-lg border transition-all outline-none text-body-m
-                    ${isEdit ? 'border-admin-primary bg-white focus:ring-2 ring-blue-100' : 'border-admin-border bg-graygray-5 text-graygray-50 cursor-not-allowed'}`}
+                    ${isEdit ? 'border-admin-primary bg-white focus:ring-2 ring-blue-100' : 'border-admin-border bg-gray-50 text-gray-500 cursor-not-allowed'}`}
                 />
-              </div>
             </div>
+            
 
             {/* 2. 본문 내용 (JSON 렌더러 vs Quill 에디터) */}
             <div className="flex flex-col gap-3">
@@ -214,11 +278,12 @@ const BehaviorMethodDetail = () => {
                     // 수정 모드이거나 일반 텍스트일 때는 에디터 사용
                     // (JSON 데이터를 텍스트로 수정할 때는 TextArea가 나을 수 있으나 통일성을 위해 Quill 사용)
                     <ReactQuill 
-                      theme={isEdit ? "snow" : null} 
-                      value={formData.body || ''} 
-                      onChange={handleEditorChange} 
-                      modules={modules} 
-                      readOnly={!isEdit}
+                        ref={quillRef} // ★ ref 필수
+                        theme={isEdit ? "snow" : null} 
+                        value={formData.body || ''} 
+                        onChange={(content) => setFormData(prev => ({ ...prev, body: content }))}
+                        modules={modules} 
+                        readOnly={!isEdit}
                     />
                 )}
               </div>

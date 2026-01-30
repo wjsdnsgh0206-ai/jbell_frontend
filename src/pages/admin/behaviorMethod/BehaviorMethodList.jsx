@@ -1,12 +1,9 @@
 // src/pages/admin/behaviorMethod/BehaviorMethodList.jsx
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { ChevronDown, Loader2 } from 'lucide-react'; // 로딩 아이콘
+import { ChevronDown, Loader2 } from 'lucide-react';
 
-// [API & Utils]
 import { behaviorMethodService } from '@/services/api';
-
-// [공통 컴포넌트]
 import AdminDataTable from '@/components/admin/AdminDataTable';
 import AdminPagination from '@/components/admin/AdminPagination';
 import AdminSearchBox from '@/components/admin/AdminSearchBox';
@@ -40,6 +37,14 @@ const BehaviorMethodList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState({ title: '', message: '', type: 'delete', onConfirm: () => {} });
 
+  // [Helper] HTML 태그 및 엔티티 제거 함수
+  const stripHtml = (html) => {
+    if (!html) return '';
+    const tmp = document.createElement('DIV');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  };
+
   // ==================================================================================
   // 2. 데이터 조회 (API Call)
   // ==================================================================================
@@ -48,9 +53,12 @@ const BehaviorMethodList = () => {
       setLoading(true);
       setError(false);
 
-      // API 호출 시 현재 선택된 카테고리와 토글 상태를 정확히 전달
+      // 관리자 조회 시 visibleYn을 보내지 않아야 전체(Y/N) 조회가 가능함
       const data = await behaviorMethodService.getAdminBehaviorList({ 
-        contentType: selectedCategory, 
+        // contentType 파라미터는 백엔드에서 대분류/중분류 필터가 아니라 
+        // 특정 코드 매칭용으로 쓰이고 있다면 여기서 보내지 말고 클라이언트 필터링 사용 권장
+        // 혹은 백엔드 검색 기능을 강화해야 함. 현재는 전체 로드 후 클라이언트 필터링 방식 유지.
+        contentType: 'all', 
         onlyLatest: onlyLatest ? 'Y' : 'N' 
       });
       
@@ -61,26 +69,27 @@ const BehaviorMethodList = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedCategory, onlyLatest]); // ★ 중요: 의존성 추가 (카테고리나 토글이 바뀔 때 함수 갱신)
+  }, [onlyLatest]); // selectedCategory 의존성 제거 (클라이언트 필터링 사용)
 
   useEffect(() => {
     fetchData();
     setBreadcrumbTitle(""); 
   }, [fetchData, setBreadcrumbTitle]); // ★ fetchData가 위에서 갱신되므로 자동으로 재실행됨
 
-  // 1단 필터: '자연재난', '사회재난' 등 명칭으로 표시
+  // [필터 옵션 생성]
+  // 1단 필터 (구분): 자연재난, 사회재난 등
   const categoryOptions = useMemo(() => {
     if (!guides.length) return [{ value: "all", label: "구분 전체" }];
     const categories = [...new Set(guides.map(item => item.groupName).filter(Boolean))];
     return [{ value: "all", label: "구분 전체" }, ...categories.map(c => ({ value: c, label: c }))];
   }, [guides]);
 
-  // 2단 필터: '태풍', '지진' 등 명칭으로 표시
+  // 2단 필터 (유형): 태풍, 지진 등 (1단 선택에 따라 종속됨)
   const typeOptions = useMemo(() => {
     if (selectedCategory === "all") return [{ value: "all", label: "유형 전체" }];
     const types = guides
       .filter(item => item.groupName === selectedCategory)
-      .map(item => item.contentTypeName)
+      .map(item => item.contentTypeName) // 화면에 보여줄 이름
       .filter(Boolean);
     const uniqueTypes = [...new Set(types)];
     return [{ value: "all", label: "유형 전체" }, ...uniqueTypes.map(t => ({ value: t, label: t }))];
@@ -89,24 +98,19 @@ const BehaviorMethodList = () => {
   // [필터링 실행]
   const filteredData = useMemo(() => {
     return guides.filter(item => {
-      // 1. 카테고리/유형 필터링 (서버에서 이미 필터링해왔으므로 검색어 위주로 수행)
-      // 단, selectedCategory가 'all'일 때는 전체가 서버에서 오므로 클라이언트 필터 유지
-      const [itemCat, itemType] = item.contentType?.split('-') || [];
+      // 1. 카테고리(groupName) 필터
+      const isCategoryMatch = selectedCategory === "all" || item.groupName === selectedCategory;
       
-      const isCategoryMatch = selectedCategory === "all" || itemCat === selectedCategory;
-      const isTypeMatch = selectedType === "all" || itemType === selectedType;
+      // 2. 유형(contentTypeName) 필터
+      const isTypeMatch = selectedType === "all" || item.contentTypeName === selectedType;
       
-      // 검색어 필터링
-      const matchesSearch = item.title.includes(appliedKeyword) || 
-                            (item.body && item.body.includes(appliedKeyword));
+      // 3. 검색어 필터 (제목 + 본문)
+      const plainBody = stripHtml(item.body); // 본문 태그 제거 후 검색
+      const matchesSearch = item.title.includes(appliedKeyword) || plainBody.includes(appliedKeyword);
 
-      // ★ [수정] 클라이언트 측 isLatest 필터링 제거
-      // 서버에서 이미 onlyLatest 조건에 맞춰서 데이터를 보내주므로, 
-      // 프론트에서는 검색어와 타입 일치 여부만 확인하면 됩니다.
-      
       return isCategoryMatch && isTypeMatch && matchesSearch;
     });
-  }, [guides, selectedCategory, selectedType, appliedKeyword]); // onlyLatest 제거 (서버가 이미 처리함)
+  }, [guides, selectedCategory, selectedType, appliedKeyword]);
 
   // [페이지네이션]
   const currentData = useMemo(() => {
@@ -136,7 +140,7 @@ const BehaviorMethodList = () => {
 
   // 상세 페이지 이동
   const goDetail = (row) => {
-    navigate(`/admin/behaviorMethodDetail/${row.contentId}`);
+    navigate(`/admin/contents/behaviorMethodDetail/${row.contentId}`);
   };
 
   // 선택된 항목 이름 가져오기 (메시지용)
@@ -257,24 +261,24 @@ const BehaviorMethodList = () => {
       key: 'contentType', 
       header: '재난구분/유형', 
       className: 'text-center',
-      render: (val, row) => {
-        // 이제 row.groupName(자연재난)과 row.contentTypeName(태풍)을 직접 사용
-        return (
-          <div className="flex flex-col items-center leading-tight">
-            <span className="text-gray-500 text-xs">{row.groupName || '구분 없음'}</span>
-            <span className="font-bold text-admin-primary">{row.contentTypeName || val}</span>
-          </div>
-        );
-      }
+      render: (_, row) => (
+        <div className="flex flex-col items-center leading-tight">
+          <span className="text-gray-500 text-xs">{row.groupName || '-'}</span>
+          <span className="font-bold text-admin-primary">{row.contentTypeName || '-'}</span>
+          {/* 디버깅용 코드 출력 (필요시 제거) */}
+          <span className="text-[10px] text-gray-400">({row.contentType})</span>
+        </div>
+      )
     },
-    { key: 'title', header: '제목', width: '200px', className: 'text-center' },
+    { key: 'title', header: '제목', width: '180px', className: 'text-center' },
     { 
       key: 'body', 
       header: '내용', 
       className: 'text-left',
       render: (text) => (
-        <div className="truncate max-w-[300px] text-gray-600" title={text?.replace(/<[^>]*>?/gm, '')}>
-          {text?.replace(/<[^>]*>?/gm, '')}
+        // stripHtml 함수를 사용하여 태그와 엔티티 제거 후 렌더링
+        <div className="truncate max-w-[300px] text-gray-600" title={stripHtml(text)}>
+          {stripHtml(text)}
         </div>
       )
     },
@@ -288,18 +292,16 @@ const BehaviorMethodList = () => {
           <button
             type="button"
             onClick={(e) => {
-              e.stopPropagation(); // 행 클릭 방지
+              e.stopPropagation();
               handleToggleVisible(row.contentId, val);
             }}
             className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${
               val === 'Y' ? 'bg-admin-primary' : 'bg-gray-300'
             } cursor-pointer hover:shadow-inner`}
           >
-            <div 
-              className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
-                val === 'Y' ? 'translate-x-6' : 'translate-x-0' 
-              }`} 
-            />
+            <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
+              val === 'Y' ? 'translate-x-6' : 'translate-x-0' 
+            }`} />
           </button>
         </div>
       )
@@ -328,7 +330,7 @@ const BehaviorMethodList = () => {
         </button>
       )
     }
-  ], [handleToggleVisible]); // goDetail은 함수라 제외 혹은 의존성 추가
+  ], [handleToggleVisible]);
 
   // ==================================================================================
   // 6. 렌더링
@@ -336,66 +338,51 @@ const BehaviorMethodList = () => {
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
       <main className="p-10">
-        <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight">행동요령 목록</h2>
+      <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight">행동요령 목록</h2>
 
         {/* [A] 검색 영역 (AdminSearchBox) */}
         <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8 mb-8">
-          <AdminSearchBox 
-            searchParams={searchParams} 
-            setSearchParams={setSearchParams} 
-            onSearch={handleSearch}
-            onReset={handleReset}
-          >
-            {/* 1. 커스텀 필터: 카테고리 선택 */}
-            <div className="relative w-full md:w-48">
-              <select 
-                value={selectedCategory} 
-                onChange={(e) => setSelectedCategory(e.target.value)} 
-                className="w-full h-14 pl-5 pr-8 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary focus:border-admin-primary outline-none transition-all cursor-pointer appearance-none"
-              >
-                {categoryOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-              </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
-            </div>
+           <AdminSearchBox 
+             searchParams={searchParams} 
+             setSearchParams={setSearchParams} 
+             onSearch={handleSearch}
+             onReset={handleReset}
+           >
+             {/* 1. 카테고리 선택 */}
+             <div className="relative w-full md:w-48">
+               <select 
+                 value={selectedCategory} 
+                 onChange={(e) => setSelectedCategory(e.target.value)} 
+                 className="w-full h-14 pl-5 pr-8 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary focus:border-admin-primary outline-none transition-all cursor-pointer appearance-none"
+               >
+                 {categoryOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+               </select>
+               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
+             </div>
 
-            {/* 2. 커스텀 필터: 유형 선택 */}
-            <div className="relative w-full md:w-48">
-              <select 
-                value={selectedType} 
-                onChange={(e) => setSelectedType(e.target.value)} 
-                className="w-full h-14 pl-5 pr-8 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary focus:border-admin-primary outline-none transition-all cursor-pointer appearance-none"
-              >
-                {typeOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-              </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
-            </div>
+             {/* 2. 유형 선택 */}
+             <div className="relative w-full md:w-48">
+               <select 
+                 value={selectedType} 
+                 onChange={(e) => setSelectedType(e.target.value)} 
+                 className="w-full h-14 pl-5 pr-8 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary focus:border-admin-primary outline-none transition-all cursor-pointer appearance-none"
+               >
+                 {typeOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+               </select>
+               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
+             </div>
 
-            {/* 3. 커스텀 필터: 이력 보기 토글 (여기에 추가!) */}
-            {/* mb-4 제거, h-14로 높이를 맞춰서 select 박스와 정렬 */}
-            <div className="flex items-center h-14 px-2">
-              <label className="relative inline-flex items-center cursor-pointer select-none">
-                <input 
-                  type="checkbox" 
-                  checked={!onlyLatest} 
-                  onChange={() => setOnlyLatest(!onlyLatest)} 
-                  className="sr-only peer"
-                />
-                {/* 토글 스위치 디자인 */}
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer 
-                              peer-checked:after:translate-x-full peer-checked:after:border-white 
-                              after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
-                              after:bg-white after:border-gray-300 after:border after:rounded-full 
-                              after:h-5 after:w-5 after:transition-all 
-                              peer-checked:bg-admin-primary transition-colors"></div>
-                {/* 라벨 텍스트 */}
-                <span className="ml-3 text-body-m font-medium text-gray-700 whitespace-nowrap">
-                  과거 이력 포함
-                </span>
-              </label>
-            </div>
-
-          </AdminSearchBox>
-        </section>
+             {/* 3. 과거 이력 토글 */}
+             <div className="flex items-center h-14 px-2">
+                {/* ... (기존 토글 코드) ... */}
+                <label className="relative inline-flex items-center cursor-pointer select-none">
+                  <input type="checkbox" checked={!onlyLatest} onChange={() => setOnlyLatest(!onlyLatest)} className="sr-only peer"/>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-admin-primary transition-colors"></div>
+                  <span className="ml-3 text-body-m font-medium text-gray-700 whitespace-nowrap">과거 이력 포함</span>
+                </label>
+             </div>
+           </AdminSearchBox>
+         </section>
 
         {/* [B] 테이블 및 액션 버튼 영역 */}
         <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8">
@@ -414,35 +401,19 @@ const BehaviorMethodList = () => {
               {/* 일괄 처리 버튼들 */}
               <div className="flex items-center ml-4 gap-4">
                 <button onClick={() => handleBatchStatus(true)} className="flex items-center gap-2 group">
-                  <div className="w-5 h-5 rounded-full border-2 border-[#2563EB] flex items-center justify-center group-hover:bg-blue-50 transition-all">
-                    <div className="w-2.5 bg-[#2563EB] h-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <span className="text-[15px] font-bold text-[#111]">일괄 노출</span>
+                    <span className="text-[15px] font-bold text-[#111]">일괄 노출</span>
                 </button>
                 <div className="w-[1px] h-3 bg-gray-300" />
                 <button onClick={() => handleBatchStatus(false)} className="flex items-center gap-2 group">
-                  <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center group-hover:bg-gray-100 transition-all">
-                    <div className="w-2.5 bg-gray-400 h-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <span className="text-[15px] font-bold text-[#666]">일괄 비노출</span>
+                    <span className="text-[15px] font-bold text-[#666]">일괄 비노출</span>
                 </button>
               </div>
-            </div>
 
-            {/* 우측: 등록/삭제 버튼 */}
-            <div className="flex gap-2">
-              <button 
-                onClick={handleDeleteSelected} 
-                className="px-8 h-14 bg-[#FF003E] text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm"
-              >
-                삭제
-              </button>
-               <button 
-                onClick={() => navigate('/admin/contents/behaviorMethodAdd')}
-                className="px-8 h-14 bg-admin-primary text-white rounded-md hover:opacity-90 font-bold active:scale-95 transition-all shadow-sm"
-              >
-                등록
-              </button>
+              {/* 우측: 등록/삭제 버튼 */}
+              <div className="flex gap-2">
+                <button onClick={handleDeleteSelected} className="px-8 h-14 bg-[#FF003E] text-white rounded-md font-bold">삭제</button>
+                <button onClick={() => navigate('/admin/contents/behaviorMethodAdd')} className="px-8 h-14 bg-admin-primary text-white rounded-md font-bold">등록</button>
+              </div>
             </div>
           </div>
 

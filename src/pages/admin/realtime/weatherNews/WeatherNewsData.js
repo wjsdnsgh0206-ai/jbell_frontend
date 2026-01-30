@@ -10,26 +10,6 @@ export const initialWeatherData = [
     isVisible: true 
   },
   { 
-    id: "W-2026-002", 
-    level: "주의", 
-    type: "강풍", 
-    dateTime: "2026-01-23 09:30", 
-    title: "강풍주의보 발효", 
-    content: "전라남도(거문도, 초도), 흑산도, 홍도, 서해5도 지역에 매우 강한 바람이 예상됩니다.", 
-    region: "전라남도", 
-    isVisible: true 
-  },
-  { 
-    id: "W-2026-003", 
-    level: "위험", 
-    type: "대설", 
-    dateTime: "2026-01-22 21:00", 
-    title: "대설경보 발효", 
-    content: "강원도(강원북부산지, 강원중산지), 울릉도, 독도 지역에 많은 눈이 내리고 있습니다.", 
-    region: "강원도", 
-    isVisible: true 
-  },
-  { 
     id: "W-2026-004", 
     level: "보통", 
     type: "황사", 

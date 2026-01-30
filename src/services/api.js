@@ -720,3 +720,22 @@ export const behaviorMethodService = {
     return response.data;
   },
 };
+
+export const fileService = {
+  // 에디터 이미지 업로드
+  uploadEditorImage: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    // [수정 포인트] 3번째 인자에 headers 설정 추가
+    const response = await api.post('/file/upload/editor', formData, {
+        headers: {
+            // 중요: Content-Type을 undefined로 설정해야 
+            // 브라우저가 알아서 'multipart/form-data; boundary=...'를 붙여줍니다.
+            // 만약 'multipart/form-data'라고 직접 적으면 boundary가 없어서 또 에러가 납니다.
+            'Content-Type': undefined 
+        }
+    });
+    return response.data;
+  }
+};
