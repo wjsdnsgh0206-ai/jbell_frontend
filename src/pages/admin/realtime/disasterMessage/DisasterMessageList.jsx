@@ -60,11 +60,8 @@ const DisasterMessageList = () => {
   const fetchMessages = useCallback(async () => {
     try {
       setIsLoading(true);
-      // 1. API 호출
       const response = await disasterApi.getDisasterMessages();
       
-      // 2. 데이터 추출 (공통 DTO 대응)
-      // response가 배열이면 그대로 사용, 객체라면 그 안의 data나 list 필드 확인
       let rawData = [];
       if (Array.isArray(response)) {
         rawData = response;
@@ -74,31 +71,37 @@ const DisasterMessageList = () => {
         rawData = response.list;
       }
 
-      // 3. 매핑 로직 (rawData가 배열인 것이 보장됨)
-      const mappedData = rawData.map(item => ({
-        id: item.sn || item.id,
-        category: item.emrgStepNm || '안전안내',
-        type: item.dstType || '기타', 
-        sender: item.mngOrgNm || "행정안전부", // DB 필드가 있다면 매핑
-        content: item.msgCn || '',
-        dateTime: item.crtDt || '',
-        region: item.rcptnRgnNm || '',
-        isVisible: item.visibleYn === 'Y'
-      }));
+      const mappedData = rawData.map(item => {
+        // [핵심 수정] 서버 필드명이 visibleYn, useYn, displayYn 중 무엇인지 확인
+        // 값이 아예 없으면 기본적으로 노출('Y')로 설정할지 결정해야 합니다.
+        const rawVisible = item.visibleYn || item.useYn || item.displayYn || 'Y'; 
+        
+        return {
+          id: item.sn || item.id,
+          category: item.emrgStepNm || '안전안내',
+          type: item.dstType || '기타', 
+          sender: item.mngOrgNm || "행정안전부",
+          content: item.msgCn || '',
+          dateTime: item.crtDt || '',
+          region: item.rcptnRgnNm || '',
+          // 'Y' 또는 true인 경우 활성화
+          isVisible: rawVisible === 'Y' || rawVisible === true || rawVisible === 'true'
+        };
+      });
       
       setMessages(mappedData);
     } catch (error) {
       console.error("데이터 로드 실패:", error);
-      setMessages([]); // 에러 발생 시 빈 배열로 초기화하여 렌더링 에러 방지
+      setMessages([]);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-  if (setBreadcrumbTitle) setBreadcrumbTitle("재난 문자 이력");
-  fetchMessages(); // 이제 안전하게 호출 가능합니다.
-}, [setBreadcrumbTitle, fetchMessages]);
+    if (setBreadcrumbTitle) setBreadcrumbTitle("재난 문자 이력");
+    fetchMessages(); // 이제 안전하게 호출 가능합니다.
+  }, [setBreadcrumbTitle, fetchMessages]);
 
   const goDetail = useCallback((id) => {
     navigate(`/admin/realtime/disasterMessageDetail/${id}`);
@@ -216,7 +219,7 @@ const DisasterMessageList = () => {
     { 
       key: 'category', 
       header: '구분', 
-      width: '100px', 
+      width: '120px', 
       className: 'text-center',
       render: (val) => (
         <span className={`px-2 py-1 rounded text-[11px] font-bold ${val === '긴급재난' ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-600'}`}>
