@@ -814,18 +814,26 @@ getForestFireRisk: async () => {
     산사태 예보발령 api
 ----------------------------- */
 
-  getLandSlideWarning: async (params) => {
-    const response = await landSlideWarningApi.get("/forecastIssueList", {
-      params: {
-        serviceKey: import.meta.env.VITE_LANDSLIDE_WARNING_SERVICE_KEY,
-        pageNo: params.pageNo || 1,
-        numOfRows: params.numOfRows || 10,
-        _type: "json", // JSON으로 받기 위해 설정
-        ...params,
-      },
-    });
-    return response.data;
-  },
+  // getLandSlideWarning: async (params) => {
+  //   const response = await landSlideWarningApi.get("/forecastIssueList", {
+  //     params: {
+  //       serviceKey: import.meta.env.VITE_LANDSLIDE_WARNING_SERVICE_KEY,
+  //       pageNo: params.pageNo || 1,
+  //       numOfRows: params.numOfRows || 10,
+  //       _type: "json", // JSON으로 받기 위해 설정
+  //       ...params,
+  //     },
+  //   });
+  //   return response.data;
+  // },
+// 예상되는 api.js 내부 구조
+
+
+getLandSlideWarning: (params = {}) => {
+  const { pageNo = 1, numOfRows = 100 } = params;
+  // 주소 앞에 /api가 붙어야 백엔드 프록시가 작동할 확률이 높아!
+  return axios.get('/api/disaster/fetch/landslide-list', { params: { pageNo, numOfRows } });
+},
 
   /* -----------------------------
     사고속보(도로관련) api
