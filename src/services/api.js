@@ -27,6 +27,93 @@ const kmaWarningApi = axios.create({ baseURL: "/kma-warning-api" });
 const accidentNewsApi = axios.create({ baseURL: "/accidentNews-api" }); // 도로교통 정보 api
 
 
+export const disasterApi = {
+  // 재난 문자 리스트 조회 (GET)
+  getDisasterMessages: async () => {
+    const response = await api.get("/disaster/dashboard/disasterMessages");
+    return response.data; // List<PredictionInfoResponse>
+  },
+
+  // 재난 문자 상세 조회 (GET)
+  getDisasterDetail: async (sn) => {
+    const response = await api.get(`/disaster/dashboard/disasterMessages/${sn}`);
+    return response.data;
+  },
+
+  // 재난 문자 등록 (POST)
+  createDisaster: async (data) => {
+    const response = await api.post("/disaster/dashboard/disasterMessages", data);
+    return response.data;
+  },
+
+  // 재난 문자 수정 (PUT)
+  updateDisaster: async (sn, data) => {
+    const response = await api.put(`/disaster/dashboard/disasterMessages/${sn}`, data);
+    return response.data;
+  },
+
+  // 재난 문자 일괄 노출/비노출 변경 (POST)
+  updateVisibility: async (ids, visibleYn) => {
+    const response = await api.post("/disaster/dashboard/disasterMessages/visibility", {
+      ids,
+      visibleYn
+    });
+    return response.data;
+  },
+
+  // 재난 문자 일괄 삭제 (POST - 논리 삭제)
+  deleteDisasters: async (sns) => {
+    const response = await api.post("/disaster/dashboard/disasterMessages/delete", sns);
+    return response.data;
+  },
+
+  // ===================================== 기상특보 ============================
+  getSavedWeatherWarnings: async (params) => {
+  // params에는 newsType, region, level, startDate, endDate, page 등이 포함됨
+  const response = await api.get("/disaster/dashboard/weatherWarnings", { params });
+  return response.data; // { list: [...], totalCount: 100 }
+},
+
+  // 2. 기상 특보 상세 조회
+  getWeatherDetail: async (key) => {
+    const response = await api.get(`/disaster/dashboard/weatherWarnings/${key}`);
+    return response.data;
+  },
+
+  // 3. 기상 특보 수동 등록
+  createWeather: async (data) => {
+    const response = await api.post("/disaster/dashboard/weatherWarnings", data);
+    return response.data;
+  },
+
+  // 4. 기상 특보 수정
+  updateWeather: async (key, data) => {
+    const response = await api.put(`/disaster/dashboard/weatherWarnings/${key}`, data);
+    return response.data;
+  },
+
+  // 5. 기상 특보 일괄 노출 변경 (DisasterBatchRequest DTO 대응)
+  updateWeatherVisibility: async (ids, visibleYn) => {
+    const response = await api.post("/disaster/dashboard/weatherWarnings/visibility", {
+      ids,        // List<Integer> 또는 List<String>
+      visibleYn   // 'Y' 또는 'N'
+    });
+    return response.data;
+  },
+
+  // 6. 기상 특보 일괄 삭제 (논리 삭제)
+  deleteWeatherWarnings: async (keys) => {
+    const response = await api.post("/disaster/dashboard/weatherWarnings/delete", keys);
+    return response.data;
+  }
+
+
+};
+
+
+
+
+
 
 export const noticeApi = {
   // 공지사항 목록 조회
@@ -714,7 +801,15 @@ export const disasterModalService = {
     );
     return response.data;
   },
-
+getForestFireRisk: async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/api/disaster/forest-fire/risk"); 
+      return response.data; // 보통 여기서 List<DisasterAccidentDTO>가 들어옴
+    } catch (error) {
+      console.error("산불 데이터 로딩 에러:", error);
+      throw error;
+    }
+  },
   /* -----------------------------
     산사태 예보발령 api
 ----------------------------- */
@@ -779,17 +874,77 @@ getWeatherList: async (type) => {
 },
 
 };
-/* =========================================================
-  국민행동요령 API (백엔드 DB 연동)
-========================================================= */
+
 export const behaviorMethodService = {
-  // 행동요령 목록 조회
-  // contentType 예: "NATURAL_TYPHOON", "NATURAL_EARTHQUAKE"
-  getBehaviorMethodList: async (contentType) => {
-    // 8080 포트 백엔드 API 호출
-    const response = await api.get("/behaviorMethod/list", {
-      params: { contentType },
+  // [사용자용]
+  getUserBehaviorList: async (contentType) => {
+    const params = { 
+        contentType,
+        visibleYn: 'Y',   
+        onlyLatest: 'Y'   
+    };
+    const response = await api.get("/behaviorMethod/list", { params });
+    return response.data;
+  },
+
+  // [관리자용]
+  getAdminBehaviorList: async (params) => {
+      // 관리자 페이지에서 넘겨주는 page, size, contentType, onlyLatest 등을 그대로 전달
+      const response = await api.get("/behaviorMethod/list", { params });
+      return response.data;
+  },
+
+  // [상세 조회] - NEW
+  getBehaviorMethodDetail: async (contentId) => {
+    const response = await api.get(`/behaviorMethod/${contentId}`);
+    return response.data;
+  },
+
+  // [단건 수정] - NEW
+  updateBehaviorMethod: async (contentId, data) => {
+    const response = await api.put(`/behaviorMethod/${contentId}`, data);
+    return response.data;
+  },
+
+  // 2. 행동요령 삭제
+  deleteBehaviorMethods: async (ids) => {
+    const response = await api.delete("/behaviorMethod", {
+      data: { ids } 
     });
     return response.data;
   },
+
+  // 3. 노출 여부 변경
+  updateVisibility: async (ids, visibleYn) => {
+    const response = await api.patch("/behaviorMethod/visibility", {
+      ids,
+      visibleYn
+    });
+    return response.data;
+  },
+
+  // [추가] 과거 데이터 정리
+  cleanupOldData: async () => {
+    const response = await api.delete("/behaviorMethod/admin/cleanup");
+    return response.data;
+  },
+};
+
+export const fileService = {
+  // 에디터 이미지 업로드
+  uploadEditorImage: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    // [수정 포인트] 3번째 인자에 headers 설정 추가
+    const response = await api.post('/file/upload/editor', formData, {
+        headers: {
+            // 중요: Content-Type을 undefined로 설정해야 
+            // 브라우저가 알아서 'multipart/form-data; boundary=...'를 붙여줍니다.
+            // 만약 'multipart/form-data'라고 직접 적으면 boundary가 없어서 또 에러가 납니다.
+            'Content-Type': undefined 
+        }
+    });
+    return response.data;
+  }
 };
