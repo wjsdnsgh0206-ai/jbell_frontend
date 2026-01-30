@@ -528,7 +528,15 @@ export const disasterModalService = {
     });
     return response.data;
   },
-
+// 지진 리스트 가져오는 함수 수정
+  getEarthquakeList: async () => {
+    // 1. 산불처럼 전체 주소를 다 써서 확실하게 연결하기
+    // 2. 끝에 '-list' 꼭 붙여주기!
+    const response = await axios.get('http://localhost:8080/api/disaster/fetch/earthquake-list'); 
+    
+    // 산불 코드에서 res.data.data로 접근했으니까 똑같이 반환해주자
+    return response.data; 
+  },
   /* -----------------------------
       지진 진도 정보 조회 (전국)
   ----------------------------- */
@@ -658,12 +666,25 @@ export const disasterModalService = {
         numOfRows: 500, // 전북 전체 시군구를 커버하기 위해 넉넉히
         pageNo: 1,
         dataType: "JSON",
-        fromTmFc: dayjs().subtract(5, 'day').format('YYYYMMDD'), // 오늘 기준 6일 전까지만 조회 가능
+        fromTmFc: dayjs().subtract(6, 'day').format('YYYYMMDD'), // 오늘 기준 6일 전까지만 조회 가능
         ...params, // warningType 등 넘어옴
       },
     });
     return response.data;
   },
+
+  /* ---------------------------------------------------------
+     ✅ [추가] 백엔드 DB 저장 데이터 조회 API (한파/호우/태풍 리스트)
+     우리 스프링부트 서버(8080)에서 데이터를 가져옵니다.
+  ---------------------------------------------------------- */
+ // src/services/api.js 내 수정 확인
+getWeatherList: async (type) => {
+  const response = await api.get("/disaster/fetch/weather-list", {
+    params: { type }
+  });
+  return response.data; // 여기서 실제 데이터 배열이 담긴 ApiResponse가 와야 함
+},
+
 };
 /* =========================================================
   국민행동요령 API (백엔드 DB 연동)

@@ -1,4 +1,3 @@
-// src/components/user/disaster/ColdWave.jsx
 import React, { useState, useEffect } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
 import FacilityCheckGroup from "../modal/FacilityCheckGroup";
@@ -32,10 +31,16 @@ const ColdWave = () => {
     fetchColdWaveData();
   }, [fetchColdWaveData]);
 
-  // ✅ 콘솔 확인용 로그
+  // ✅ [수정] 의존성 배열 에러 방지를 위해 하나씩 체크하도록 분리
+  useEffect(() => {
+    if (markers.length > 0) {
+      console.log("📍 지도에 표시될 마커 데이터:", markers);
+    }
+  }, [markers]);
+
   useEffect(() => {
     if (Object.keys(disasterStatus).length > 0) {
-      console.log("❄️ [한파 탭] 실시간 매핑 데이터:", disasterStatus);
+      console.log("🎨 지역별 매핑 상태:", disasterStatus);
     }
   }, [disasterStatus]);
 
@@ -70,7 +75,6 @@ const ColdWave = () => {
             <p className="text-detail-xs md:text-detail-s text-gray-400">
               {new Date().toISOString().slice(0, 10).replace(/-/g, '.')} 기준
             </p>
-            {/* 새로고침 버튼 (함수명 수정) */}
             <button 
               onClick={() => fetchColdWaveData()} 
               className="px-2 py-1 border border-gray-300 rounded text-detail-s text-blue-600 hover:bg-gray-50 transition-colors"
@@ -87,10 +91,18 @@ const ColdWave = () => {
               <span className="animate-pulse font-bold text-blue-500">실시간 데이터 수신 중...</span>
             </div>
           ) : (
-            <CommonMap 
-              markers={markers} // ✅ 여기에 마커 데이터를 넣어줍니다!
-              regionStatus={disasterStatus} 
-            />
+            <>
+              {/* 데이터가 없을 때만 안내 문구 표시 */}
+              {Object.keys(disasterStatus).length === 0 && (
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-white/80 px-4 py-2 rounded-lg shadow-sm border border-gray-100">
+                  <p className="text-gray-500 text-detail-s font-bold">현재 발효 중인 한파 특보가 없습니다.</p>
+                </div>
+              )}
+              <CommonMap 
+                markers={markers} 
+                regionStatus={disasterStatus} 
+              />
+            </>
           )}
 
           {/* 탭 버튼 */}
@@ -129,7 +141,7 @@ const ColdWave = () => {
           </div>
         </div>
 
-        {/* 🔍 개발용 데이터 로그 뷰어 (콘솔을 보지 않아도 화면에서 즉시 확인 가능) */}
+        {/* 🔍 개발용 데이터 로그 뷰어 */}
         <div className="mt-4 p-4 bg-gray-900 rounded-lg overflow-auto max-h-[200px] border-l-4 border-green-500">
           <p className="text-green-400 text-xs mb-2 font-mono font-bold">// 실시간 매핑 결과 (Mapping Table 적용됨)</p>
           <pre className="text-white text-[10px] font-mono leading-relaxed">

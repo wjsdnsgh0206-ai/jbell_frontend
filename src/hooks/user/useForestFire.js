@@ -1,55 +1,37 @@
 import { useState, useCallback } from 'react';
-import { disasterModalService } from "@/services/api";
+import axios from 'axios'; // 직접 호출하거나 disasterModalService에 추가해서 써도 돼
 
 const useForestFire = () => {
-  const [fireData, setFireData] = useState(null);
+  const [fireData, setFireData] = useState([]); // 목록 형태이므로 초기값을 빈 배열로 설정
   const [isFireLoading, setIsFireLoading] = useState(false);
 
   const fetchFireData = useCallback(async () => {
     setIsFireLoading(true);
-    console.log("📡 산불 API 요청 시작..."); // 1단계 확인
+    console.log("📡 백엔드 산불 데이터(GET) 요청 시작...");
 
     try {
-      const res = await disasterModalService.getForestFireWarning();
+      // 우리가 만든 백엔드 GET API 호출
+      const res = await axios.get("http://localhost:8080/api/disaster/fetch/forest-fire-list");
       
-      // 2단계: API 응답 전체 구조 확인
-      console.log("📦 API 전체 응답(res):", res);
-
-      // 3단계: 데이터 경로 추적
-      const responseRoot = res.response; // 보통 공공데이터는 response부터 시작
-      console.log("🔍 response 필드 존재여부:", !!responseRoot);
-
-      const items = responseRoot?.body?.items?.item || [];
-      console.log("📊 추출된 전체 지역 아이템(items):", items);
+      // 백엔드 ApiResponse 구조에 따라 데이터 추출 (res.data.data)
+      const items = res.data?.data || [];
+      console.log("📊 DB에서 가져온 산불 데이터:", items);
 
       if (items.length === 0) {
-        console.warn("⚠️ API는 성공했으나 아이템 배열이 비어있음!");
+        console.warn("⚠️ DB에 산불 데이터가 없습니다.");
       }
 
-      // 4단계: 전북 데이터 필터링 확인
-      const jeonbuk = items.find(item => {
-        // 공공데이터에 따라 '전북' 또는 '전북특별자치도' 등 명칭이 다를 수 있어 확인용 로그
-        if (item.doname && item.doname.includes('전북')) {
-          console.log("📍 전북 매칭 데이터 발견!:", item);
-        }
-        return item.doname === '전북특별자치도';
-      });
+      // 전북 데이터만 필터링 (필요하다면)
+      // 백엔드에서 이미 필터링해서 준다면 바로 setFireData(items) 하면 돼.
+      const jeonbukList = items.filter(item => 
+        item.fireLocVillage && item.fireLocVillage.includes('전북')
+      );
 
-      if (!jeonbuk) {
-        console.error("❌ '전북특별자치도' 이름으로 된 데이터를 찾을 수 없음!");
-        // 혹시 모르니 '전북'으로 시작하는 게 있는지 로그 찍어보자
-        console.log("🧐 현재 들어오는 doname 목록:", items.map(i => i.doname));
-      }
-
-      setFireData(jeonbuk || null);
+      // 전체 목록을 다 쓸 거라면 items를, 전북만 쓸 거라면 jeonbukList를 넣어줘.
+      setFireData(items); 
 
     } catch (error) {
-      // 5단계: 에러 상세 정보
-      console.error("🔥 산불 데이터 로드 실패 상세:", error);
-      if (error.response) {
-        console.error("Server Status:", error.response.status);
-        console.error("Server Data:", error.response.data);
-      }
+      console.error("🔥 산불 데이터 로드 실패:", error);
     } finally {
       setIsFireLoading(false);
       console.log("🏁 산불 API 작업 종료");

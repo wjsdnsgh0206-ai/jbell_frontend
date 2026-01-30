@@ -57,7 +57,7 @@ const DisasterManagementAdd = () => {
         createdAt: new Date().toISOString().split('T')[0] // 오늘 날짜 할당
       });
       
-      alert("새로운 재난 관리 정보가 등록되었습니다.");
+      alert("새로운 재난 API 관리 정보가 등록되었습니다.");
       navigate("/admin/realtime/disasterManagementList"); // 목록으로 이동
       
     } catch (error) {
