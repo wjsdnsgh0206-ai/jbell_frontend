@@ -775,17 +775,77 @@ getWeatherList: async (type) => {
 },
 
 };
-/* =========================================================
-  국민행동요령 API (백엔드 DB 연동)
-========================================================= */
+
 export const behaviorMethodService = {
-  // 행동요령 목록 조회
-  // contentType 예: "NATURAL_TYPHOON", "NATURAL_EARTHQUAKE"
-  getBehaviorMethodList: async (contentType) => {
-    // 8080 포트 백엔드 API 호출
-    const response = await api.get("/behaviorMethod/list", {
-      params: { contentType },
+  // [사용자용]
+  getUserBehaviorList: async (contentType) => {
+    const params = { 
+        contentType,
+        visibleYn: 'Y',   
+        onlyLatest: 'Y'   
+    };
+    const response = await api.get("/behaviorMethod/list", { params });
+    return response.data;
+  },
+
+  // [관리자용]
+  getAdminBehaviorList: async (params) => {
+      // 관리자 페이지에서 넘겨주는 page, size, contentType, onlyLatest 등을 그대로 전달
+      const response = await api.get("/behaviorMethod/list", { params });
+      return response.data;
+  },
+
+  // [상세 조회] - NEW
+  getBehaviorMethodDetail: async (contentId) => {
+    const response = await api.get(`/behaviorMethod/${contentId}`);
+    return response.data;
+  },
+
+  // [단건 수정] - NEW
+  updateBehaviorMethod: async (contentId, data) => {
+    const response = await api.put(`/behaviorMethod/${contentId}`, data);
+    return response.data;
+  },
+
+  // 2. 행동요령 삭제
+  deleteBehaviorMethods: async (ids) => {
+    const response = await api.delete("/behaviorMethod", {
+      data: { ids } 
     });
     return response.data;
   },
+
+  // 3. 노출 여부 변경
+  updateVisibility: async (ids, visibleYn) => {
+    const response = await api.patch("/behaviorMethod/visibility", {
+      ids,
+      visibleYn
+    });
+    return response.data;
+  },
+
+  // [추가] 과거 데이터 정리
+  cleanupOldData: async () => {
+    const response = await api.delete("/behaviorMethod/admin/cleanup");
+    return response.data;
+  },
+};
+
+export const fileService = {
+  // 에디터 이미지 업로드
+  uploadEditorImage: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    // [수정 포인트] 3번째 인자에 headers 설정 추가
+    const response = await api.post('/file/upload/editor', formData, {
+        headers: {
+            // 중요: Content-Type을 undefined로 설정해야 
+            // 브라우저가 알아서 'multipart/form-data; boundary=...'를 붙여줍니다.
+            // 만약 'multipart/form-data'라고 직접 적으면 boundary가 없어서 또 에러가 납니다.
+            'Content-Type': undefined 
+        }
+    });
+    return response.data;
+  }
 };

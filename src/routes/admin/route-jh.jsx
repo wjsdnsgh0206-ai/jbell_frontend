@@ -7,9 +7,9 @@ import { lazy } from 'react';
 // 제거 이유 : 컴포넌트와 데이터가 섞여서 함께 export되어 경고 메시지가 뜸. 이를 해결하기 위해 데이터만 export하는 방식으로 수정. 
 // ========================
 
-const BehaviorMethodList = lazy(() => import("@/pages/admin/contents/behaviorMethod/BehaviorMethodList"));
-const BehaviorMethodDetail = lazy(() => import("@/pages/admin/contents/behaviorMethod/BehaviorMethodDetail"));
-const BehaviorMethodAdd = lazy(() => import("@/pages/admin/contents/behaviorMethod/BehaviorMethodAdd"));
+const BehaviorMethodList = lazy(() => import("@/pages/admin/behaviorMethod/BehaviorMethodList"));
+const BehaviorMethodDetail = lazy(() => import("@/pages/admin/behaviorMethod/BehaviorMethodDetail"));
+const BehaviorMethodAdd = lazy(() => import("@/pages/admin/behaviorMethod/BehaviorMethodAdd"));
 const PolicyPageEditor = lazy(() => import("@/pages/admin/contents/safetyPolicy/PolicyPageEditor"));
 
 export const jhAdminRoutes = [

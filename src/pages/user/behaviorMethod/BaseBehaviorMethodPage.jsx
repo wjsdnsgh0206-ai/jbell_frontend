@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import BehaviorMethodPageTemplate from '@/components/user/behaviorMethod/BehaviorMethodPageTemplate';
-import BehaviorContentRenderer from '@/pages/user/behaviorMethod/BehaviorContentRenderer'; // 분리된 렌더러
+import BehaviorContentRenderer from '@/pages/user/behaviorMethod/BehaviorContentRenderer';
 import { behaviorMethodService } from '@/services/api';
 import { transformData } from '@/utils/behaviorTransform';
 
 const BaseBehaviorMethodPage = ({ 
   disasterType, 
-  pageTitle, 
+  pageTitle: propPageTitle, // props로 받은 타이틀 (우선순위 낮음)
   category,
   categoryPath,
 }) => {
@@ -14,16 +14,31 @@ const BaseBehaviorMethodPage = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  // DB에서 가져온 타이틀 상태 (로딩 후 설정됨)
+  const [dbPageTitle, setDbPageTitle] = useState("");
+
   useEffect(() => {
     let isMounted = true;
     
     const fetchData = async () => {
       try {
         setLoading(true);
-        const dbData = await behaviorMethodService.getBehaviorMethodList(disasterType);
+        setError(false);
+        
+        // api.js에서 params(visibleYn='Y', onlyLatest='Y')를 포함하여 호출
+        const dbData = await behaviorMethodService.getUserBehaviorList(disasterType);
+        
         if (isMounted) {
-          const formattedData = transformData(dbData);
-          setGuideData(formattedData);
+          if (!dbData || dbData.length === 0) {
+             setGuideData(null);
+          } else {
+             const formattedData = transformData(dbData);
+             setGuideData(formattedData);
+             // DB 데이터의 첫 번째 항목에서 추출한 메타 타이틀 설정
+             if (formattedData.meta.pageTitle) {
+                setDbPageTitle(formattedData.meta.pageTitle);
+             }
+          }
         }
       } catch (err) {
         console.error("데이터 로드 실패", err);
@@ -38,17 +53,19 @@ const BaseBehaviorMethodPage = ({
     return () => { isMounted = false; };
   }, [disasterType]);
 
+  // 최종 타이틀 결정: DB값이 있으면 DB값, 없으면 props값, 없으면 기본값
+  const displayTitle = dbPageTitle || propPageTitle || "행동요령";
+
   const breadcrumbItems = [
     { label: "홈", path: "/", hasIcon: true },
-    { label: "행동요령", path: "/behaviorMethod/earthquake" }, 
+    { label: "행동요령", path: null },
     { label: category, path: categoryPath }, 
-    { label: pageTitle, path: null } // 현재 페이지는 보통 클릭 안 되게 null (원하면 path 넣어도 됨)
+    { label: displayTitle, path: null } 
   ];
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
-        {/* 스피너 컴포넌트가 있다면 교체 권장 */}
         <div className="w-10 h-10 border-4 border-gray-200 border-t-secondary-50 rounded-full animate-spin" />
       </div>
     );
@@ -56,9 +73,14 @@ const BaseBehaviorMethodPage = ({
 
   if (error || !guideData) {
     return (
-      <div className="flex justify-center items-center min-h-[60vh] text-graygray-50">
-        데이터를 불러올 수 없습니다.
-      </div>
+      <BehaviorMethodPageTemplate
+        title={displayTitle}
+        breadcrumbItems={breadcrumbItems}
+      >
+        <div className="py-20 text-center text-graygray-60 min-h-[40vh] flex items-center justify-center">
+          {error ? "데이터를 불러오는 중 문제가 발생했습니다." : "등록된 행동요령 정보가 없습니다."}
+        </div>
+      </BehaviorMethodPageTemplate>
     );
   }
 
@@ -66,14 +88,18 @@ const BaseBehaviorMethodPage = ({
 
   return (
     <BehaviorMethodPageTemplate
-      title={pageTitle || "행동요령"}
+      title={displayTitle}
       lastUpdated={meta.lastUpdated}
       breadcrumbItems={breadcrumbItems}
       tabs={meta.tabs}
     >
-      {/* 렌더 프로퍼티 패턴: 현재 활성화된 탭 인덱스를 받아 컨텐츠 렌더링 */}
       {(activeTab) => (
-        <BehaviorContentRenderer content={contents[activeTab]} />
+        // activeTab 인덱스가 contents 길이보다 크면 안전하게 null 처리
+        contents[activeTab] ? (
+            <BehaviorContentRenderer content={contents[activeTab]} />
+        ) : (
+            <div className="py-10 text-center">내용이 없습니다.</div>
+        )
       )}
     </BehaviorMethodPageTemplate>
   );
