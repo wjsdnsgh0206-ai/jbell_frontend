@@ -136,6 +136,16 @@ const AdminBoardList = () => {
     setActiveFilter(resetState);
     setCurrentPage(1);
     setSortOrder('latest'); // 초기화 시 정렬 버튼 UI도 최신순으로 복귀
+
+    // 3. [추가] 서버에서 전체 목록 다시 불러오기
+    // 검색어가 없는 상태로 전체 데이터를 다시 가져와서 posts에 덮어씁니다.
+    axios.get('/api/notice')
+      .then(res => {
+        setPosts(res.data);
+      })
+      .catch(err => {
+        console.error("데이터 초기화 로드 실패:", err);
+      });
   };
 
   // [Event] 삭제 및 상태 변경 핸들러
@@ -206,22 +216,15 @@ const AdminBoardList = () => {
       className: 'text-graygray-40 text-[13px] text-center' 
     },
     { 
-      key: 'views', 
-      header: '조회수', 
-      width: '80px', 
-      className: 'font-mono text-center',
-      render: (value) => value.toLocaleString()
-    },
-    { 
       key: 'files', 
       header: '첨부', 
       width: '60px', 
       className: 'text-center',
-      render: (files) => (
+      render: (_, row) => (
         <div className="flex justify-center text-graygray-40">
-          {files?.length > 0 ? (
+          {row && row.fileCount > 0 ? (
             <div className="flex items-center gap-1 font-mono text-[13px]">
-              <Paperclip size={14} />{files.length}
+              <Paperclip size={14} />{row.fileCount}
             </div>
           ) : "-"}
         </div>
@@ -233,30 +236,15 @@ const AdminBoardList = () => {
       width: '80px', 
       className: 'text-center',
       render: (isPublic) => (
-        isPublic ? (
+        // 데이터가 'Y' 문자열인지 확인합니다.
+        isPublic === 'Y' ? (
           <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-blue-50 text-blue-600 text-[12px] font-bold border border-blue-200">사용</span>
         ) : (
           <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-50 text-gray-400 text-[12px] font-bold border border-gray-200">미사용</span>
         )
       )
     },
-    {
-      key: 'manage',
-      header: '관리',
-      width: '80px',
-      className: 'text-center',
-      render: (_, row) => (
-        <button 
-          onClick={(e) => {
-            e.stopPropagation(); 
-            navigate(`/admin/board/noticeDetail/${row.id}`);
-          }}
-          className="border border-gray-300 text-[#666] rounded px-3 py-1 text-[12px] font-bold bg-white hover:bg-admin-primary hover:text-white hover:border-admin-primary transition-all"
-        >
-          보기
-        </button>
-      )
-    }
+   
   ];
 
 
@@ -270,6 +258,7 @@ const AdminBoardList = () => {
         setPosts(res.data);
         });
   }, []);
+
 /** <================================================== UseEffect ==================================================> **/
 
 
@@ -302,7 +291,7 @@ const AdminBoardList = () => {
                   : `전체 ${filteredData.length}건`}
               </span>
 
-              {/* 🔽 정렬 버튼 위치 */}
+              {/* 정렬 버튼 위치 */}
               <div className="flex gap-2">
                 <button
                   onClick={() => handleSort('latest')}

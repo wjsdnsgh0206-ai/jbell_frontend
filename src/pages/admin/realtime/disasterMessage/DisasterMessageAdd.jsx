@@ -3,15 +3,28 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Clock, ChevronDown, List, FileText, Send } from 'lucide-react';
+import { disasterApi } from '@/services/api';
+import { DISASTER_OPTIONS } from "./MessagetTypeData";
 
 /**
  * [관리자] 재난 문자 수동 등록 페이지
- */
+*/
+// 날짜 생성
+const getNowDateTime = () => {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  const localTime = new Date(now.getTime() - offset);
+  // "2026-01-29 12:27:01" 형태로 바로 만듦
+  return localTime.toISOString().replace('T', ' ').split('.')[0];
+};
+
+
 const DisasterMessageAdd = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
 
   const [submitted, setSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
   // 1. 초기 폼 상태 (오늘 날짜와 기본값 세팅)
   const [formData, setFormData] = useState({
@@ -20,9 +33,11 @@ const DisasterMessageAdd = () => {
     sender: '',
     content: '',
     region: '전라북도 전주시',
-    dateTime: new Date().toISOString().replace('T', ' ').substring(0, 19), // 현재 시간
+    // .replace('T', ' ')를 제거하고 표준 ISO 형식으로 유지하거나, 
+    dateTime: getNowDateTime(),
     isVisible: true
   });
+
 
   // 브레드크럼 설정
   useEffect(() => {
@@ -53,13 +68,42 @@ const DisasterMessageAdd = () => {
     }
 
     if (window.confirm("새로운 재난 문자를 등록하시겠습니까?")) {
+      setIsLoading(true);
       try {
-        // 실제로는 여기서 axios.post 등을 호출하겠지?
-        console.log("등록 데이터:", formData);
+        // [방어 코드] 공백이 사라지는 현상을 원천 차단
+        // 1. 모든 구분자(T 또는 공백)를 기준으로 나눈 뒤 다시 공백으로 합침
+        let rawDate = formData.dateTime.replace('T', ' ').trim();
+        const formattedDate = formData.dateTime.trim().replace(/-/g, '/');
+        
+        // 만약 여전히 공백이 없다면 (예: 2026-01-2912:00:00) 10번째 인덱스에 공백 강제 삽입
+        if (rawDate.length >= 19 && rawDate.charAt(10) !== ' ') {
+          rawDate = rawDate.slice(0, 10) + ' ' + rawDate.slice(10);
+        }
+
+        const postData = {
+          emrgStepNm: formData.category,
+          dstType: formData.type,
+          msgCn: formData.content,
+          rcptnRgnNm: formData.region,
+          crtDt: formattedDate, // 최종: "2026-01-29 03:27:01"
+          visibleYn: formData.isVisible ? 'Y' : 'N'
+        };
+
+        await disasterApi.createDisaster(postData);
+        
         alert("성공적으로 등록되었습니다.");
-        navigate('/admin/realtime/disasterMessageList'); // 리스트로 이동
+        navigate('/admin/realtime/disasterMessageList'); 
       } catch (error) {
-        alert("등록 중 오류가 발생했습니다.");
+        console.error("등록 실패:", error);
+        // 에러 메시지가 JSON 파싱 관련이면 날짜 문제임을 알림
+        const serverMsg = error.response?.data?.message || "";
+        if (serverMsg.includes("LocalDateTime")) {
+          alert("날짜 형식이 올바르지 않습니다. (YYYY-MM-DD HH:mm:ss)");
+        } else {
+          alert("등록 중 오류가 발생했습니다.");
+        }
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -130,8 +174,9 @@ const DisasterMessageAdd = () => {
                       onChange={handleChange}
                       className="w-full h-14 px-5 rounded-lg border border-admin-border bg-white focus:border-admin-primary focus:ring-2 ring-blue-100 outline-none text-body-m appearance-none font-bold cursor-pointer transition-all"
                     >
-                      <option value="안전안내">안전안내</option>
-                      <option value="긴급재난">긴급재난</option>
+                      {DISASTER_OPTIONS.CATEGORIES.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
                     </select>
                     <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
                   </div>
@@ -147,11 +192,9 @@ const DisasterMessageAdd = () => {
                       onChange={handleChange}
                       className="w-full h-14 px-5 rounded-lg border border-admin-border bg-white focus:border-admin-primary focus:ring-2 ring-blue-100 outline-none text-body-m appearance-none font-bold cursor-pointer transition-all"
                     >
-                      <option value="기상">기상특보</option>
-                      <option value="실종자">실종자</option>
-                      <option value="화재">화재</option>
-                      <option value="교통통제">교통통제</option>
-                      <option value="기타">기타</option>
+                      {DISASTER_OPTIONS.TYPES.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
                     </select>
                     <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
                   </div>

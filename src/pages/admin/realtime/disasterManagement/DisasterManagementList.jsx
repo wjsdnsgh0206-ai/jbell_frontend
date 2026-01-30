@@ -12,13 +12,13 @@ const DisasterManagementList = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
 
-  // 1. 상태 관리 (지진 API 추가)
+  // 1. 상태 관리 (기존 디자인 유지, 데이터만 추가)
   const [disasters, setDisasters] = useState([
     {
       id: "WTH_COLD_001",
       apiName: "기상청 한파 영향예보 조회 서비스",
       category: "한파",
-      requestUrl: "/api/disaster/fetch/weather-list?type=3",
+      requestUrl: "/disaster/fetch/weather-list?type=3",
       apiStatus: "체크중",
       visibleYn: "Y",
       updatedAt: "-",
@@ -27,16 +27,25 @@ const DisasterManagementList = () => {
       id: "WTH_FIRE_001",
       apiName: "산불 위험 예보 정보 서비스",
       category: "산불",
-      requestUrl: "/api/disaster/fetch/forest-fire-list",
+      requestUrl: "/disaster/fetch/forest-fire-list",
       apiStatus: "체크중",
       visibleYn: "Y",
       updatedAt: "-",
     },
     {
-      id: "WTH_EQK_001", // ✅ 지진 API 추가
+      id: "WTH_FIRE_002", // 신규 추가된 지수 API
+      apiName: "산림청 실시간 산불 위험 지수",
+      category: "산불",
+      requestUrl: "/disaster/fetch/forest-fire-risk-list",
+      apiStatus: "체크중",
+      visibleYn: "Y",
+      updatedAt: "-",
+    },
+    {
+      id: "WTH_EQK_001",
       apiName: "기상청 국내 지진 통보 서비스",
       category: "지진",
-      requestUrl: "/api/disaster/fetch/earthquake-list",
+      requestUrl: "/disaster/fetch/earthquake-list",
       apiStatus: "체크중",
       visibleYn: "Y",
       updatedAt: "-",
@@ -46,15 +55,13 @@ const DisasterManagementList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState({ title: '', message: '', type: 'confirm', onConfirm: () => {} });
 
-  // 2. 실시간 GET 요청 상태 체크 (200 OK 확인)
+  // 2. 실시간 GET 요청 상태 체크
   const checkApiStatus = useCallback(async () => {
-    // 현재 체크 중임을 표시하기 위해 상태 살짝 변경 (UX)
     setDisasters(prev => prev.map(item => ({ ...item, apiStatus: '체크중' })));
 
     const updatedData = await Promise.all(disasters.map(async (item) => {
       try {
-        // 백엔드 API 호출 (절대 경로 보장)
-        const baseUrl = "http://localhost:8080";
+        const baseUrl = import.meta.env.VITE_API_BASE_URL;
         const res = await axios.get(`${baseUrl}${item.requestUrl}`, { timeout: 5000 });
         
         if (res.status === 200) {
@@ -75,7 +82,7 @@ const DisasterManagementList = () => {
     }));
     
     setDisasters(updatedData);
-  }, [disasters.length]); // disasters 객체 전체를 넣으면 무한루프 위험이 있어 길이로 체크
+  }, [disasters.length]);
 
   useEffect(() => {
     if (setBreadcrumbTitle) setBreadcrumbTitle("재난 API 관리");
@@ -98,7 +105,7 @@ const DisasterManagementList = () => {
     setIsModalOpen(true);
   }, [disasters]);
 
-  // 3. 테이블 컬럼 정의
+  // 3. 테이블 컬럼 정의 (네가 준 디자인 그대로)
   const columns = useMemo(() => [
     { key: 'id', header: 'ID', width: '140px', className: 'text-center font-mono text-[11px]' },
     { 

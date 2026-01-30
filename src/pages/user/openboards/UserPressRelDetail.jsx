@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
-import { pressData } from './BoardData';
+import { pressService } from '@/services/api'; // API 서비스 임포트
 import { Button } from '@/components/shared/Button';
 
 // 보도자료 상세페이지 //
@@ -9,6 +9,10 @@ import { Button } from '@/components/shared/Button';
 const UserPressRelDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
+// --- [추가] 서버 데이터 상태 관리 ---
+  const [data, setData] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);  
 
   // --- 라이프사이클 관리 --- //
   // 페이지 진입 시 스크롤을 최상단으로 이동
@@ -18,20 +22,38 @@ const UserPressRelDetail = () => {
 
   // --- 데이터 매칭 --- //
   // URL의 id와 일치하는 데이터를 pressData에서 검색
-  const data = pressData.find(item => item.id === Number(id));
+  // --- [수정] 데이터 가져오기 ---
+  useEffect(() => {
+    const fetchDetail = async () => {
+      try {
+        setLoading(true);
+        window.scrollTo(0, 0);
+        // 서버 API 호출
+        const result = await pressService.getPressDetail(id);
+        setData(result);
+      } catch (error) {
+        console.error("데이터 로딩 실패:", error);
+        alert("게시글을 찾을 수 없습니다.");
+        navigate('/userPressRelList');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) fetchDetail();
+  }, [id, navigate]);
+
+  // 로딩 중일 때 표시할 화면
+  if (loading) return <div className="py-20 text-center">로딩 중...</div>;
+
+
 
   // --- 핸들러 (Handlers) --- //
   // 첨부파일 다운로드 로직
-  const handleDownload = (file) => {
-    if (!file.url || file.url === "#") {
-      alert("다운로드 가능한 파일 경로가 없습니다.");
-      return;
-    }
-
-    // 가상의 a 태그를 생성하여 다운로드 실행
+ const handleDownload = (file) => {
     const link = document.createElement('a');
     link.href = file.url;
-    link.setAttribute('download', file.name);
+    link.setAttribute('download', file.realName);
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -66,47 +88,39 @@ const UserPressRelDetail = () => {
           <div className="py-8 px-2 text-left">
             <h3 className="text-[20px] font-bold text-black mb-6">제목 : {data.title}</h3>
             <div className="flex items-center gap-x-6 text-[14px] text-[#222]">
-              <div><span className="text-[#444]">등록자 :</span> {data.author}</div>
-              <div className="w-[1px] h-3 bg-gray-300"></div>
-              <div><span className="text-[#444]">등록일 :</span> {data.date}</div>
-            </div>
+  <div><span className="text-[#444]">등록인 :</span> 관리자</div>
+  <div className="w-[1px] h-3 bg-gray-300"></div>
+  <div><span className="text-[#444]">등록일 :</span> {data.createdAt?.split('T')[0]}</div>
+</div>
 
             {/* 첨부파일이 있을 경우에만 렌더링 */}
-            {data.files && data.files.length > 0 && (
-              <div className="mt-6 flex items-start gap-2 text-[16px]">
-                <span className="font-bold text-[#333] shrink-0 flex items-center gap-1">
-                  <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                  </svg>
-                  [첨부파일]
-                </span>
-                <div className="flex flex-wrap items-center">
-                  {data.files.map((file, idx) => (
-                    <React.Fragment key={idx}>
-                      <button 
-                        onClick={() => handleDownload(file)} 
-                        className="text-blue-600 hover:underline font-medium"
-                      >
-                        {file.name}
-                      </button>
-                      {/* 파일이 여러 개일 경우 쉼표로 구분 */}
-                      {idx < data.files.length - 1 && (
-                        <span className="text-gray-400 mx-1.5">,</span>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* --- 첨부파일 리스트 부분 --- */}
+{data.fileList && data.fileList.length > 0 && (
+  <div className="mt-6 flex items-start gap-2 text-[16px]">
+    <span className="font-bold text-[#333] shrink-0"> [첨부파일] </span>
+    <div className="flex flex-wrap items-center">
+      {data.fileList.map((file, idx) => (
+        <React.Fragment key={idx}>
+          <button onClick={() => handleDownload(file)} className="text-blue-600 hover:underline">
+            {file.realName}
+          </button>
+          {idx < data.fileList.length - 1 && <span className="text-gray-400 mx-1.5">,</span>}
+        </React.Fragment>
+      ))}
+    </div>
+  </div>
+)}
           </div>
         </div>
 
         {/* --- 게시글 본문 영역 --- */}    
         <div className="border-t border-black"></div>
-        <div className="py-12 px-2 min-h-[400px] text-left">
-          <div className="text-[16px] leading-[1.8] text-[#222] whitespace-pre-wrap font-normal">
-            {data.content}
-          </div>
+          <div className="py-12 px-2 min-h-[400px] text-left">
+            {/* dangerouslySetInnerHTML를 사용하여 HTML을 렌더링합니다. */}
+            <div 
+              className="text-[16px] leading-[1.8] text-[#222] font-normal ql-editor"
+              dangerouslySetInnerHTML={{ __html: data.body }}
+            />
         </div>
         
         <div className="border-t border-gray-200"></div>

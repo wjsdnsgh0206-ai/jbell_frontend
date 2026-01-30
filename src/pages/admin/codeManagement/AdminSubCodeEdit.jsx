@@ -32,6 +32,10 @@ const AdminSubCodeEdit = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // [추가] 중복 상태 및 원본 명칭 관리
+  const [isNameDuplicate, setIsNameDuplicate] = useState(false);
+  const [originalName, setOriginalName] = useState('');
+
   const [formData, setFormData] = useState({
     groupCode: '',
     groupName: '', // 그룹명 추가
@@ -53,37 +57,73 @@ const AdminSubCodeEdit = () => {
 
   // 데이터 로드 및 필드 매핑
 useEffect(() => {
-  const fetchDetail = async () => {
-    if (!groupId || !itemId) return;
-    try {
-      setIsLoading(true);
-      // 백엔드 수정 후: 이제 이 호출 한 번으로 groupName까지 다 옵니다.
-      const data = await codeService.getCodeItem(groupId, itemId);
-      
-      if (data) {
-        const initialForm = {
-          groupCode: data.groupCode,
-          groupName: data.groupName, // ★ 서버에서 가져온 그룹명 사용
-          subCodeId: data.subCode,
-          subCodeName: data.subName,
-          desc: data.desc,
-          order: data.order,
-          createdAt: data.createdAt,
-          updatedAt: data.updatedAt
-        };
-        setFormData(initialForm);
-        setOriginalData({ ...initialForm, visible: data.visible });
-        setIsRegistered(data.visible);
-        setBreadcrumbTitle(data.subName);
+    const fetchDetail = async () => {
+      if (!groupId || !itemId) return;
+      try {
+        setIsLoading(true);
+        const data = await codeService.getCodeItem(groupId, itemId);
+        
+        if (data) {
+          const initialForm = {
+            groupCode: data.groupCode,
+            groupName: data.groupName,
+            subCodeId: data.subCode,
+            subCodeName: data.subName,
+            desc: data.desc,
+            order: data.order,
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt
+          };
+          setFormData(initialForm);
+          setOriginalData({ ...initialForm, visible: data.visible });
+          setOriginalName(data.subName); // 원본 명칭 저장
+          setIsRegistered(data.visible);
+          setBreadcrumbTitle(data.subName);
+        }
+      } catch (error) {
+        console.error("데이터 로드 실패:", error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("데이터 로드 실패:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  fetchDetail();
-}, [groupId, itemId]);
+    };
+    fetchDetail();
+  }, [groupId, itemId]);
+
+  // [추가] 상세 코드 명 중복 체크 useEffect
+  useEffect(() => {
+    const checkSubName = async () => {
+      const name = formData.subCodeName.trim();
+      
+      // 입력값이 없거나 기존 이름과 같다면 체크 안함
+      if (!name || name === originalName.trim()) {
+        setIsNameDuplicate(false);
+        return;
+      }
+
+      try {
+        // 서버의 checkSubDup API 호출 (groupCode, subCode, subName 전달)
+        const res = await codeService.checkSubDup({ 
+          groupCode: groupId,
+          subCode: itemId,
+          subName: name 
+        });
+        const data = res.data || res;
+        setIsNameDuplicate(!!data.isNameDup);
+      } catch (e) {
+        console.error("상세코드 중복 체크 실패", e);
+      }
+    };
+
+    const timer = setTimeout(checkSubName, 400);
+    return () => clearTimeout(timer);
+  }, [formData.subCodeName, originalName, groupId, itemId]);
+
+  // [추가] 중복 UI 판정 변수
+  const isNameInvalid = useMemo(() => {
+    const currentName = formData.subCodeName.trim();
+    if (!currentName || currentName === originalName.trim()) return false;
+    return isNameDuplicate;
+  }, [formData.subCodeName, originalName, isNameDuplicate]);
 
   // 수정 여부 감지 (Dirty Check)
   const isDirty = useMemo(() => {
@@ -110,50 +150,105 @@ useEffect(() => {
   }, [handlePopState]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+
+    // 순서(order)는 현재 백엔드 미구현으로 수정을 막아두었으므로 로직에서 제외하거나 
+    // 나중에 구현 시 아래 주석을 해제하여 사용하세요.
+    /*
     if (name === "order") {
       const val = value.replace(/[^0-9]/g, "");
-      setFormData(prev => ({ ...prev, [name]: val === "" ? "" : parseInt(val) }));
+      let numVal = val === "" ? "" : parseInt(val);
+      if (numVal !== "" && numVal < 1) numVal = 1;
+      setFormData(prev => ({ ...prev, [name]: numVal }));
+    } 
+    */
+
+    const { name, value } = e.target;
+    
+    if (name === "subCodeName") {
+      // 상세 코드 명: 100자 제한
+      if (value.length <= 100) setFormData(prev => ({ ...prev, [name]: value }));
     } else if (name === "desc") {
-      if (value.length <= 50) setFormData(prev => ({ ...prev, [name]: value }));
-    } else if (name === "subCodeName") {
-      if (value.length <= 20) setFormData(prev => ({ ...prev, [name]: value }));
+      // 상세 코드 설명: 200자 제한
+      if (value.length <= 200) setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
+  // 취소 버튼 클릭 핸들러 추가
+const handleCancelClick = () => {
+  if (isDirty) {
+    // 수정된 내용이 있으면 확인 모달 오픈
+    setIsCancelModalOpen(true);
+  } else {
+    // 수정된 내용이 없으면 즉시 이전 페이지(상세)로 이동
+    navigate(`/admin/system/subCodeDetail/${groupId}/${itemId}`, { replace: true });
+  }
+};
+
   const handleSave = () => {
     setIsSubmitted(true);
-    if (!formData.subCodeName.trim()) return;
+    if (!formData.subCodeName.trim() || isNameDuplicate) {
+      return; 
+    }
     setIsModalOpen(true);
   };
 
   const handleConfirmSave = async () => {
     setIsModalOpen(false);
     try {
+      // 등록(AddItem) API와 필드명을 동일하게 맞추는 것이 핵심입니다.
       const payload = {
-        codeGroupId: groupId,
-        codeItemId: itemId,
-        codeItemName: formData.subCodeName.trim(),
-        description: formData.desc.trim(),
-        sortOrder: formData.order,
-        visibleYn: isRegistered ? 'Y' : 'N'
+        groupCode: groupId,      // URL 파라미터에서 온 값
+        subCode: itemId,        // URL 파라미터에서 온 값
+        subName: formData.subCodeName.trim(),
+        desc: formData.desc.trim(),
+        order: Number(formData.order) || 1,
+        visible: isRegistered   // Add 페이지처럼 boolean 값으로 전송
       };
 
+      // API 호출
       await codeService.updateItem(groupId, itemId, payload);
 
       setToastMessage("상세코드가 성공적으로 수정되었습니다.");
       setShowToast(true);
+      
+      // 이동하기 전 팝스테이트 이벤트 리스너 제거 (이탈 방지 방해 금지)
+      window.removeEventListener('popstate', handlePopState);
+
       setTimeout(() => {
+        // 상세 페이지로 이동 (replace: true로 뒤로가기 시 수정페이지 진입 방지)
         navigate(`/admin/system/subCodeDetail/${groupId}/${itemId}`, { replace: true });
       }, 1500);
     } catch (error) {
-      alert("저장 중 오류가 발생했습니다.");
+      console.error("수정 실패:", error);
+      const serverMsg = error.response?.data?.message || "저장 중 오류가 발생했습니다.";
+      setToastMessage(`오류: ${serverMsg}`);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
     }
   };
 
+ // [추가] 토스트 트리거 함수 (코드의 일관성을 위해 추가)
+  const triggerToast = (msg) => {
+    setToastMessage(msg);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 2000);
+  };
+
   const confirmCancel = () => {
+    // 1. 모달 닫기
     setIsCancelModalOpen(false);
-    navigate(-1);
+    
+    // 2. 취소 토스트 메시지 설정 및 표시
+    setToastMessage("수정이 취소되었습니다.");
+    setShowToast(true);
+    
+    // 3. 이탈 방지 리스너 즉시 제거
+    window.removeEventListener('popstate', handlePopState);
+    
+    // 4. 토스트를 보여줄 시간을 준 뒤 상세 페이지로 이동
+    setTimeout(() => {
+      navigate(`/admin/system/subCodeDetail/${groupId}/${itemId}`, { replace: true });
+    }, 800); // 0.8초 정도 토스트 노출 후 이동
   };
 
   // 1. 로딩 중일 때 메시지 표시
@@ -182,7 +277,8 @@ useEffect(() => {
       {showToast && (
         <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500">
           <div className="bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-gray-700">
-            <SuccessIcon fill="#4ADE80" />
+            {/* 메시지에 '취소'가 포함되지 않았을 때만 체크 아이콘 표시 (그룹수정 페이지와 동일 로직) */}
+            {!toastMessage.includes("취소") && <SuccessIcon fill="#4ADE80" />}
             <span className="font-bold text-[16px]">{toastMessage}</span>
           </div>
         </div>
@@ -216,33 +312,61 @@ useEffect(() => {
 
             {/* 수정 가능한 필드들... */}
             <div className="w-full max-w-[500px]">
-              <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 명 (필수)</label>
-              <input 
-                name="subCodeName" value={formData.subCodeName} onChange={handleChange} autoComplete="off"
-                placeholder="상세 코드 명을 입력하세요"
-                className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${isSubmitted && !formData.subCodeName.trim() ? 'border-[#E15141] ring-1 ring-red-50' : 'border-gray-300 focus:border-[#2563EB]'}`} 
-              />
-              <div className="flex justify-between items-start mt-2">
-                <div className="flex-1">
-                  {isSubmitted && !formData.subCodeName.trim() ? (
-                    <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium"><ErrorIcon /> 상세 코드명을 입력해주세요.</div>
-                  ) : (
-                    <p className="text-[13px] text-gray-400 font-medium">* 최대 20자까지 입력 가능</p>
-                  )}
-                </div>
-                <span className="text-[12px] text-gray-400 font-medium ml-4 shrink-0">{formData.subCodeName?.length || 0} / 20</span>
-              </div>
+      <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 명 (필수)</label>
+      <input 
+        name="subCodeName" 
+        value={formData.subCodeName} 
+        onChange={handleChange} 
+        autoComplete="off"
+        placeholder="상세 코드 명을 입력하세요"
+        className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${
+          (isSubmitted && !formData.subCodeName.trim()) || isNameInvalid
+            ? 'border-[#E15141] ring-1 ring-red-50' 
+            : 'border-gray-300 focus:border-[#2563EB]'
+        }`} 
+      />
+      <div className="flex justify-between items-start mt-2">
+        <div className="flex-1 min-h-[20px]">
+          {isNameInvalid ? (
+            <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium">
+              <ErrorIcon /> 이미 존재하는 상세 코드명입니다.
             </div>
+          ) : (isSubmitted && !formData.subCodeName.trim()) ? (
+            <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium">
+              <ErrorIcon /> 상세 코드명을 입력해주세요.
+            </div>
+          ) : (formData.subCodeName.trim() !== "" && formData.subCodeName.trim() !== originalName.trim()) ? (
+            <div className="text-[#2563EB] text-sm flex items-center gap-2 font-medium">
+              <SuccessIcon /> 사용 가능한 상세 코드명입니다.
+            </div>
+          ) : (
+            <p className="text-[13px] text-gray-400 font-medium">* 최대 100자까지 입력 가능</p>
+          )}
+        </div>
+        <span className="text-[12px] text-gray-400 font-medium ml-4 shrink-0">
+          {formData.subCodeName?.length || 0} / 100
+        </span>
+      </div>
+    </div>
 
             <div className="w-full max-w-[600px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 설명</label>
               <textarea name="desc" value={formData.desc} onChange={handleChange} rows="2" className="w-full bg-white border border-gray-300 rounded-lg px-5 py-4 text-[#111] outline-none focus:border-[#2563EB] resize-none leading-relaxed transition-all font-medium" placeholder="코드 설명을 입력해주세요." />
-              <div className="flex justify-end mt-2"><span className="text-[12px] text-gray-400 font-medium">{formData.desc?.length || 0} / 50</span></div>
+              <div className="flex justify-end mt-2"><span className="text-[12px] text-gray-400 font-medium">{formData.desc?.length || 0} / 200</span></div>
             </div>
-
+            {/*  상세 코드 순서 영역 아직 구현 X  @@*/}
             <div className="w-full">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">순서</label>
-              <input name="order" type="number" min="1" value={formData.order} onChange={handleChange} className="w-[100px] border border-gray-300 rounded-lg px-4 py-3 text-center outline-none focus:border-[#2563EB] font-medium" />
+              <input 
+                name="order" 
+                type="number" 
+                value={formData.order} 
+                readOnly // 읽기 전용 추가
+                className="w-[100px] bg-[#F3F4F7] border border-gray-300 rounded-lg px-4 py-3 text-center text-[#666] cursor-not-allowed outline-none font-medium" 
+                title="순서는 등록 시 자동으로 할당되며, 수정 페이지에서는 변경할 수 없습니다."
+              />
+              <p className="text-[12px] text-gray-400 mt-2 font-medium">* 순서는 등록 시 자동으로 할당되며, 수정 페이지에서는 변경할 수 없습니다.</p>
+              <p className="text-[13px] text-gray-400 font-medium">* 숫자가 낮을수록 리스트 상단에 노출됩니다.</p>
             </div>
 
             <div className="flex items-center gap-5 pt-2">
@@ -269,9 +393,22 @@ useEffect(() => {
           </div> 
         </section>
 
+        {/* 하단 버튼 구역 수정 */}
         <div className="flex justify-end gap-2 mt-12 max-w-[1000px]">
-          <button type="button" onClick={() => navigate(-1)} className="px-8 py-3.5 border border-gray-300 bg-white text-gray-500 rounded-lg font-bold text-[16px] hover:bg-gray-50 transition-colors shadow-sm">취소</button>
-          <button type="button" onClick={handleSave} className="px-8 py-3.5 bg-[#2563EB] text-white rounded-lg font-bold text-[16px] hover:bg-blue-700 shadow-md transition-colors">저장</button>
+          <button 
+            type="button" 
+            onClick={handleCancelClick}
+            className="px-8 py-3.5 border border-gray-300 bg-white text-gray-500 rounded-lg font-bold text-[16px] hover:bg-gray-50 transition-colors shadow-sm"
+          >
+            취소
+          </button>
+          <button 
+            type="button" 
+            onClick={handleSave} 
+            className="px-8 py-3.5 bg-[#2563EB] text-white rounded-lg font-bold text-[16px] hover:bg-blue-700 shadow-md transition-colors"
+          >
+            저장
+          </button>
         </div>
       </main>
 
