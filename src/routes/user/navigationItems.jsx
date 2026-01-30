@@ -14,11 +14,11 @@ const navigationItems = [
   },
   {
     label: "행동요령",
-    path: "/earthquakeActionGuide",
+    path: "/behaviorMethod/earthQuake",
     children: [
-      { label: "자연재난행동요령", path: "/earthquakeActionGuide" },
-      { label: "사회재난행동요령", path: "/trafficAccidentActionGuide" },
-      { label: "생활안전행동요령", path: "/firstAidActionGuide" },
+      { label: "자연재난행동요령", path: "/behaviorMethod/earthQuake" },
+      { label: "사회재난행동요령", path: "/behaviorMethod/fire" },
+      { label: "생활안전행동요령", path: "/behaviorMethod/firstAid" },
     ],
   },
   {

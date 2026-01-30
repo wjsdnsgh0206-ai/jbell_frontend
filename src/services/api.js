@@ -1,6 +1,7 @@
 // src/services/api.js
 import axios from "axios";
 import { JEONBUK_CODE_MAP } from "@/components/user/disaster/disasterCodes";
+import dayjs from 'dayjs';
 
 // 1. 기본 백엔드 인스턴스 (8080 서버용)
 const api = axios.create({
@@ -210,6 +211,75 @@ export const userService = {
   }
 };
 
+/* =========================================================
+   공통 코드 관리 API (System Admin) - [NEW] 추가됨
+========================================================= */
+export const codeService = {
+  // 1. 공통코드 통합 조회
+  getAllCodes: async () => {
+    const response = await api.get("/common/code/all");
+    return response.data;
+  },
+
+  // 2. 그룹 중복 체크
+  checkGroupDup: async (params) => {
+    // params: { groupCode, groupName }
+    const response = await api.get("/common/code/check/group", { params });
+    return response.data;
+  },
+
+  // 3. 상세 중복 체크
+  checkSubDup: async (params) => {
+    // params: { groupCode, subCode, subName }
+    const response = await api.get("/common/code/check/sub", { params });
+    return response.data;
+  },
+
+  // 4. 그룹 관리 (목록, 상세, 등록, 수정, 삭제)
+  getCodeGroups: async () => {
+    const response = await api.get("/common/code/groups");
+    return response.data;
+  },
+  getCodeGroup: async (id) => {
+    const response = await api.get(`/common/code/groups/${id}`);
+    return response.data;
+  },
+  addGroup: async (data) => {
+    const response = await api.post("/common/code/groups", data);
+    return response.data;
+  },
+  updateGroup: async (id, data) => {
+    const response = await api.put(`/common/code/groups/${id}`, data);
+    return response.data;
+  },
+  deleteGroup: async (id) => {
+    const response = await api.delete(`/common/code/groups/${id}`);
+    return response.data;
+  },
+
+  // 5. 상세 코드 관리 (목록, 상세, 등록, 수정, 삭제)
+  getCodeItems: async (groupId) => {
+    const response = await api.get(`/common/code/groups/${groupId}/items`);
+    return response.data;
+  },
+  getCodeItem: async (groupId, itemId) => {
+    const response = await api.get(`/common/code/groups/${groupId}/items/${itemId}`);
+    return response.data;
+  },
+  addItem: async (groupId, data) => {
+    const response = await api.post(`/common/code/groups/${groupId}/items`, data);
+    return response.data;
+  },
+  updateItem: async (groupId, itemId, data) => {
+    const response = await api.put(`/common/code/groups/${groupId}/items/${itemId}`, data);
+    return response.data;
+  },
+  deleteItem: async (groupId, itemId) => {
+    const response = await api.delete(`/common/code/groups/${groupId}/items/${itemId}`);
+    return response.data;
+  }
+};
+
 export const shelterService = {
   getShelters: async (params) => {
     // Vite 프록시 설정 덕분에 /safety-api/DSSP-IF-10941 로 요청하면 됩니다.
@@ -409,6 +479,87 @@ export const qnaService = {
 };
 
 /* =========================================================
+   시민안전교육 관리 API (Admin & User 공용)
+   Backend: SafetyEduController.java
+========================================================= */
+export const safetyEduService = {
+  /**
+   * 1. 목록 조회 (검색 + 페이징)
+   * GET /api/safety-edu
+   * @param {Object} params - { page, size, keyword, searchType, isPublic, sort }
+   */
+  getSafetyEduList: async (params) => {
+    // 백엔드 PageableDefault size=10
+    const response = await api.get("/safety-edu", { params });
+    return response.data;
+  },
+
+  /**
+   * 2. 상세 조회
+   * GET /api/safety-edu/{id}
+   */
+  getSafetyEduDetail: async (id) => {
+    const response = await api.get(`/safety-edu/${id}`);
+    return response.data;
+  },
+
+  /**
+   * 3. 등록
+   * POST /api/safety-edu
+   * @param {Object} data - RequestDto 구조 (title, sections, links 등)
+   */
+  createSafetyEdu: async (data) => {
+    const response = await api.post("/safety-edu", data);
+    return response.data; // 등록된 ID (Long) 반환
+  },
+
+  /**
+   * 4. 수정
+   * PUT /api/safety-edu/{id}
+   * @param {Long} id - 콘텐츠 ID
+   * @param {Object} data - RequestDto 구조
+   */
+  updateSafetyEdu: async (id, data) => {
+    const response = await api.put(`/safety-edu/${id}`, data);
+    return response.data; // 수정된 ID (Long) 반환
+  },
+
+  /**
+   * 5. 단일 삭제
+   * DELETE /api/safety-edu/{id}
+   */
+  deleteSafetyEdu: async (id) => {
+    const response = await api.delete(`/safety-edu/${id}`);
+    return response.data;
+  },
+
+  /**
+   * 6. 일괄 삭제
+   * POST /api/safety-edu/batch-delete
+   * @param {Array<Long>} ids - 삭제할 ID 리스트 (예: [1, 2, 3])
+   * 주의: Controller가 @PostMapping을 사용함 (Delete Method 아님)
+   */
+  deleteSafetyEdus: async (ids) => {
+    const response = await api.post("/safety-edu/batch-delete", ids);
+    return response.data;
+  },
+
+  /**
+   * 7. 노출 상태 변경 (일괄)
+   * PATCH /api/safety-edu/visibility
+   * @param {Array<Long>} ids - 변경할 ID 리스트
+   * @param {Boolean} isPublic - true(공개) / false(비공개)
+   * 주의: ids는 Body(@RequestBody), isPublic은 QueryString(@RequestParam)으로 전송
+   */
+  updateVisibility: async (ids, isPublic) => {
+    const response = await api.patch("/safety-edu/visibility", ids, {
+      params: { isPublic },
+    });
+    return response.data;
+  },
+};
+
+/* =========================================================
    날씨 관련 API - 최지영 * 건드리지 말 것 *
 ========================================================= */
 export const weatherService = {
@@ -470,7 +621,15 @@ export const disasterModalService = {
     });
     return response.data;
   },
-
+// 지진 리스트 가져오는 함수 수정
+  getEarthquakeList: async () => {
+    // 1. 산불처럼 전체 주소를 다 써서 확실하게 연결하기
+    // 2. 끝에 '-list' 꼭 붙여주기!
+    const response = await axios.get('http://localhost:8080/api/disaster/fetch/earthquake-list'); 
+    
+    // 산불 코드에서 res.data.data로 접근했으니까 똑같이 반환해주자
+    return response.data; 
+  },
   /* -----------------------------
       지진 진도 정보 조회 (전국)
   ----------------------------- */
@@ -600,9 +759,36 @@ export const disasterModalService = {
         numOfRows: 500, // 전북 전체 시군구를 커버하기 위해 넉넉히
         pageNo: 1,
         dataType: "JSON",
-        fromTmFc: "20260119", // 오늘 기준 6일 전까지만 조회 가능
+        fromTmFc: dayjs().subtract(6, 'day').format('YYYYMMDD'), // 오늘 기준 6일 전까지만 조회 가능
         ...params, // warningType 등 넘어옴
       },
+    });
+    return response.data;
+  },
+
+  /* ---------------------------------------------------------
+     ✅ [추가] 백엔드 DB 저장 데이터 조회 API (한파/호우/태풍 리스트)
+     우리 스프링부트 서버(8080)에서 데이터를 가져옵니다.
+  ---------------------------------------------------------- */
+ // src/services/api.js 내 수정 확인
+getWeatherList: async (type) => {
+  const response = await api.get("/disaster/fetch/weather-list", {
+    params: { type }
+  });
+  return response.data; // 여기서 실제 데이터 배열이 담긴 ApiResponse가 와야 함
+},
+
+};
+/* =========================================================
+  국민행동요령 API (백엔드 DB 연동)
+========================================================= */
+export const behaviorMethodService = {
+  // 행동요령 목록 조회
+  // contentType 예: "NATURAL_TYPHOON", "NATURAL_EARTHQUAKE"
+  getBehaviorMethodList: async (contentType) => {
+    // 8080 포트 백엔드 API 호출
+    const response = await api.get("/behaviorMethod/list", {
+      params: { contentType },
     });
     return response.data;
   },

@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { faqService } from '@/services/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 // [공통 컴포넌트]
 import AdminDataTable from '@/components/admin/AdminDataTable';
@@ -17,6 +18,19 @@ import AdminSearchBox from '@/components/admin/AdminSearchBox';
  */
 const AdminFAQList = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // ==================================================================================
+  // 0. 관리자 권한 체크 (진입 시 실행)
+  // ==================================================================================
+  useEffect(() => {
+    if (user) {
+        if (user.userGrade !== 'ADMIN') { 
+            alert('관리자 권한이 없습니다.');
+            navigate('/'); // 메인 페이지로 이동
+        }
+    }
+  }, [user, navigate]);
 
   // ==================================================================================
   // 1. 상태 관리 (State Management)
@@ -407,25 +421,30 @@ const AdminFAQList = () => {
               </button>
             </div>
           </div>
+          {loading ?(
+             <div className="text-center py-20 text-gray-500">데이터를 불러오는 중입니다...</div>
+          ) : (
+            <>
+              {/* Table */}
+              <AdminDataTable 
+                columns={columns}
+                data={currentData}
+                selectedIds={selectedIds}
+                onSelectionChange={setSelectedIds}
+                rowKey="faqId"
+              />
 
-          {/* Table */}
-          <AdminDataTable 
-            columns={columns}
-            data={currentData}
-            selectedIds={selectedIds}
-            onSelectionChange={setSelectedIds}
-            rowKey="faqId"
-          />
-
-          {/* Pagination */}
-          <div className="mt-8">
-            <AdminPagination 
-                totalItems={filteredData.length}
-                itemCountPerPage={itemsPerPage}
-                currentPage={currentPage}
-                onPageChange={setCurrentPage}
-            />
-          </div>
+              {/* Pagination */}
+              <div className="mt-8">
+                <AdminPagination 
+                    totalItems={filteredData.length}
+                    itemCountPerPage={itemsPerPage}
+                    currentPage={currentPage}
+                    onPageChange={setCurrentPage}
+                />
+              </div>
+            </>
+          )}
         </section>
       </main>
     </div>

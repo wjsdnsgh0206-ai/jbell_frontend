@@ -1,9 +1,12 @@
+// src/pages/admin/safetyEducation/AdminSafetyEduAdd.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal'; 
-import { safetyEduData } from '@/pages/user/openboards/BoardData'; 
-import { Plus, Trash2, Phone, Link as LinkIcon, AlertCircle } from 'lucide-react';
+import { safetyEduService } from '@/services/api';
+import { Plus, Trash2, Phone } from 'lucide-react';
 
+// [내부용 작은 컴포넌트]
 const SuccessIcon = ({ fill = "#4ADE80" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
     <circle cx="8" cy="8" r="8" fill={fill}/>
@@ -11,18 +14,35 @@ const SuccessIcon = ({ fill = "#4ADE80" }) => (
   </svg>
 );
 
+/**
+ * 시민안전교육 신규 등록 전용 컴포넌트
+ */
 const AdminSafetyEduAdd = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
 
-  // ★ [추가] 고유 ID 생성 함수
-  const generateId = (prefix) => `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  // ==================================================================================
+  // 0. 초기 설정 및 유틸리티
+  // ==================================================================================
 
+  // 프론트에서 임시로 사용하는 ID 생성 함수 (전송시에는 제외하거나 DTO 구조에 맞게 처리)
+  // const generateId = (prefix) => `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+  useEffect(() => {
+    setBreadcrumbTitle("시민안전교육 등록");
+    return () => setBreadcrumbTitle("");
+  }, [setBreadcrumbTitle]);
+
+  // ==================================================================================
+  // 1. 상태 관리 (State Management)
+  // ==================================================================================
+
+  // [UI 상태] 토스트 및 모달 제어
   const [showToast, setShowToast] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
-  // ★ [수정] 초기 상태에 ID 부여
+  // [폼 데이터 상태]
   const [formData, setFormData] = useState({
     mgmtId: '', 
     regType: '직접등록',
@@ -34,6 +54,7 @@ const AdminSafetyEduAdd = () => {
     footerNotice: '',
     contact: '',
     isPublic: true,
+    userId: '', // 필요시 관리자 아이디 바인딩
     sections: [
       { 
         id: generateId('sec'), 
@@ -41,30 +62,27 @@ const AdminSafetyEduAdd = () => {
         items: [{ id: generateId('item'), type: 'text', text: '' }] 
       }
     ],
-    // 초기 상태 수정
     links: [{ id: generateId('link'), label: '', url: '' }]
   });
 
+  // [유효성 검사 에러 상태]
   const [errors, setErrors] = useState({ mgmtId: false, title: false, summary: false });
 
-  useEffect(() => {
-    setBreadcrumbTitle("시민안전교육 등록");
-    return () => setBreadcrumbTitle("");
-  }, [setBreadcrumbTitle]);
+  // ==================================================================================
+  // 2. 핸들러 (Event Handlers)
+  // ==================================================================================
 
-  // --- handleChange 함수 보완 ---
+  // [입력 핸들러] 일반 필드
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
+    // 순서(OrderNo) 필드 예외 처리
     if (name === 'orderNo') {
-      // 빈 값일 때는 일단 허용 (지울 수 있어야 하니까요)
       if (value === '') {
         setFormData(prev => ({ ...prev, [name]: '' }));
         return;
       }
-      
       const val = parseInt(value);
-      // 숫자가 1보다 작으면 1로 고정
       if (val < 1) {
         setFormData(prev => ({ ...prev, [name]: '1' }));
         return;
@@ -72,11 +90,11 @@ const AdminSafetyEduAdd = () => {
     }
     
     setFormData(prev => ({ ...prev, [name]: value }));
+    // 에러 상태 초기화
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: false }));
   };
 
-  // --- 섹션 및 아이템 관리 핸들러 ---
-   // ★ [수정] 섹션 추가 시 고유 ID 생성
+  // [동적 폼 핸들러] 섹션(Section) 추가/삭제/수정
   const addSection = () => {
     setFormData(prev => ({
       ...prev,
@@ -95,7 +113,7 @@ const AdminSafetyEduAdd = () => {
     setFormData(prev => ({ ...prev, sections: prev.sections.filter((_, i) => i !== sIdx) }));
   };
 
-  // ★ [수정] 아이템 추가 시 고유 ID 생성
+  // [동적 폼 핸들러] 아이템(Item) 추가/삭제/수정
   const addItem = (sIdx) => {
     const newSections = [...formData.sections];
     newSections[sIdx] = {
@@ -125,14 +143,13 @@ const AdminSafetyEduAdd = () => {
     setFormData(prev => ({ ...prev, sections: newSections }));
   };
 
-  // --- 링크 관리 핸들러 ---
-  // 링크 추가 함수 수정
-const addLink = () => {
-  setFormData(prev => ({ 
-    ...prev, 
-    links: [...prev.links, { id: generateId('link'), label: '', url: '' }] 
-  }));
-};
+  // [동적 폼 핸들러] 링크(Link) 추가/삭제/수정
+  const addLink = () => {
+    setFormData(prev => ({ 
+      ...prev, 
+      links: [...prev.links, { id: generateId('link'), label: '', url: '' }] 
+    }));
+  };
 
   const updateLink = (lIdx, field, value) => {
     const newLinks = [...formData.links];
@@ -144,49 +161,41 @@ const addLink = () => {
     setFormData(prev => ({ ...prev, links: prev.links.filter((_, i) => i !== lIdx) }));
   };
 
+  // ==================================================================================
+  // 3. API 호출 및 저장 (API Call)
+  // ==================================================================================
+
+  // [저장 전 검증]
   const handleSave = () => {
+    // 필수값 체크
     if (!formData.mgmtId.trim() || !formData.title.trim() || !formData.summary.trim()) {
       setErrors({ mgmtId: !formData.mgmtId.trim(), title: !formData.title.trim(), summary: !formData.summary.trim() });
       alert("필수 항목을 모두 입력해주세요.");
       return;
     }
-    // 저장 전 순서가 비어있다면 '1'로 채워주기
+    // 순서 기본값 처리
     if (!formData.orderNo) {
         setFormData(prev => ({ ...prev, orderNo: '1' }));
     }
     setIsModalOpen(true);
   };
 
- const handleConfirmSave = () => {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
-  
-  const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-
-  const newEntry = { 
-    ...formData, 
-    // orderNo가 비어있으면 문자열 '1' 부여 (데이터 파일 형식 유지)
-    orderNo: formData.orderNo || '1',
-    id: Date.now(), // 또는 String(Date.now())
-    author: '관리자', 
-    createdAt: formattedDate, 
-    updatedAt: formattedDate 
-  };
-    
-  safetyEduData.unshift(newEntry);
-  setShowToast(true);
-  
-  // 이동 전 토스트 메시지를 보여주기 위해 약간의 지연 후 이동
-  setTimeout(() => navigate('/admin/contents/safetyEduList'), 1500);
-};;
+  // [API 호출] 최종 저장
+  const handleConfirmSave = async () => {
+   try {
+     await safetyEduService.createSafetyEdu(formData);
+     setShowToast(true);
+     setTimeout(() => navigate('/admin/contents/safetyEduList'), 1500);
+   } catch (error) {
+     console.error("등록 실패:", error);
+     alert("등록 중 오류가 발생했습니다.");
+     setIsModalOpen(false);
+   }
+};
 
   return (
     <div className="relative flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased">
+      {/* Toast Notification */}
       {showToast && (
         <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100]">
           <div className="bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-gray-700">
@@ -197,13 +206,15 @@ const addLink = () => {
       )}
 
       <main className="p-10 text-left">
+        {/* 1. Header Area */}
         <h2 className="text-[32px] font-bold mb-10 tracking-tight text-[#111]">시민안전교육 등록</h2>
 
+        {/* 2. Content Area (Form) */}
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-14 w-full max-w-[1000px]">
           <h3 className="text-[24px] font-extrabold mb-14 text-[#111] border-b-2 border-gray-100 pb-3">교육 정보 입력</h3>
           
           <div className="flex flex-col space-y-12">
-            {/* 1. 관리 정보 (상하 배열) */}
+            {/* 기본 정보 */}
             <div className="flex flex-col gap-8">
               <div className="flex flex-col">
                 <label className="font-bold text-[16px] mb-3 text-[#111]">관리번호 (ID) (필수)</label>
@@ -216,7 +227,7 @@ const addLink = () => {
               </div>
             </div>
 
-            {/* 2. 출처 정보 (상하 배열) */}
+            {/* 출처 정보 */}
             <div className="p-8 bg-blue-50/50 rounded-xl border border-blue-100 flex flex-col gap-6">
               <div className="flex flex-col">
                 <label className="font-bold text-[16px] mb-3 text-[#2563EB]">출처 기관</label>
@@ -228,7 +239,7 @@ const addLink = () => {
               </div>
             </div>
 
-            {/* 3. 요약 및 하단 공지 */}
+            {/* 내용 요약 및 공지 */}
             <div className="flex flex-col gap-8">
               <div className="flex flex-col">
                 <label className="font-bold text-[16px] mb-3 text-[#111]">내용 요약 (필수)</label>
@@ -240,7 +251,7 @@ const addLink = () => {
               </div>
             </div>
 
-            {/* 4. 세부 내용 (Sections) - 상하 배열 */}
+            {/* 교육 세부 내용 (Sections) */}
             <div className="flex flex-col space-y-6">
               <div className="flex justify-between items-center border-b border-gray-200 pb-3">
                 <label className="font-bold text-[18px] text-[#2563EB]">교육 세부 내용 (Sections)</label>
@@ -302,7 +313,7 @@ const addLink = () => {
               ))}
             </div>
 
-            {/* 5. 관련 사이트 및 문의처 (상하 배열) */}
+            {/* 기타 정보 (링크 및 연락처) */}
             <div className="flex flex-col gap-10">
               <div className="flex flex-col gap-4">
                 <div className="flex justify-between items-center">
@@ -326,30 +337,29 @@ const addLink = () => {
                 </div>
               </div>
             </div>
-
-            {/* --- 순서 설정 input 영역 --- */}
-  <div className="flex flex-col pt-8 border-t border-gray-100">
-    <label className="font-bold text-[16px] text-[#111] mb-3">순서</label>
-    <div className="flex flex-col gap-2">
-      <input 
-        type="number"
-        name="orderNo" 
-        min="1" // ★ 브라우저 수준에서 최소값 제한
-        value={formData.orderNo} 
-        onChange={handleChange} 
-        onKeyDown={(e) => {
-          // 마이너스(-) 기호 입력 방지
-          if (e.key === '-') e.preventDefault();
-        }}
-        className="w-[100px] border border-gray-300 rounded-lg px-4 py-3 text-[#2563EB] font-bold text-[18px] outline-none focus:border-[#2563EB] shadow-sm" 
-      />
-      <p className="text-[13px] text-gray-400">
-        * 1 이상의 숫자만 입력 가능하며, 낮을수록 상단에 노출됩니다.
-      </p>
-    </div>
-  </div>
-
-            {/* 6. 노출 여부 */}
+            
+            {/* 순서 (Order) */}
+            <div className="flex flex-col pt-8 border-t border-gray-100">
+              <label className="font-bold text-[16px] text-[#111] mb-3">순서</label>
+              <div className="flex flex-col gap-2">
+                <input 
+                  type="number"
+                  name="orderNo" 
+                  min="1" 
+                  value={formData.orderNo} 
+                  onChange={handleChange} 
+                  onKeyDown={(e) => {
+                    if (e.key === '-') e.preventDefault();
+                  }}
+                  className="w-[100px] border border-gray-300 rounded-lg px-4 py-3 text-[#2563EB] font-bold text-[18px] outline-none focus:border-[#2563EB] shadow-sm" 
+                />
+                <p className="text-[13px] text-gray-400">
+                  * 1 이상의 숫자만 입력 가능하며, 낮을수록 상단에 노출됩니다.
+                </p>
+              </div>
+            </div>
+            
+            {/* 노출 여부 (Visibility) */}
             <div className="flex items-center gap-5 pt-8 border-t border-gray-100">
               <label className="font-bold text-[16px] text-[#111]">노출 여부</label>
               <button type="button" onClick={() => setFormData(prev => ({...prev, isPublic: !prev.isPublic}))} className={`w-[54px] h-[28px] flex items-center rounded-full p-1 transition-colors duration-300 ${formData.isPublic ? 'bg-[#2563EB]' : 'bg-gray-300'}`}>
@@ -359,13 +369,15 @@ const addLink = () => {
             </div>
           </div>
         </section>
-
+        
+        {/* 3. Action Buttons */}
         <div className="flex justify-end gap-2 mt-12 max-w-[1000px]">
           <button onClick={() => setIsCancelModalOpen(true)} className="px-10 py-4 border border-gray-300 rounded-lg font-bold text-[16px] text-gray-500 bg-white hover:bg-gray-50 transition-colors">취소</button>
           <button onClick={handleSave} className="px-10 py-4 bg-[#2563EB] text-white rounded-lg font-bold text-[16px] hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all">저장</button>
         </div>
       </main>
-
+      
+      {/* Confirm Modals */}
       <AdminConfirmModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleConfirmSave} title="교육 정보를 저장하시겠습니까?" message="입력하신 정보가 시민안전교육 데이터에 반영됩니다." type="save" />
       <AdminConfirmModal isOpen={isCancelModalOpen} onClose={() => setIsCancelModalOpen(false)} onConfirm={() => navigate(-1)} title="등록을 취소하시겠습니까?" message="작성 중인 내용은 저장되지 않습니다." type="delete" />
     </div>
