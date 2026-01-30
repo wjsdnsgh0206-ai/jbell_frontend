@@ -227,18 +227,21 @@ const AdminSafetyEduList = () => {
       header: '등록방식', 
       width: '110px', 
       className: 'text-center',
-      render: (val) => (
-        <div className="flex justify-center">
-          <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[12px] font-bold border ${
-            val === '직접등록' 
-              ? 'bg-purple-50 text-purple-500 border-purple-100' 
-              : 'bg-orange-50 text-orange-500 border-orange-100'
-          }`}>
-            {val || '직접등록'}
-          </span>
-        </div>
-      )
-    },
+      render: (val) => {
+        const displayLabel = val === 'DIRECT' ? '직접등록' : (val || '직접등록');
+        return (
+          <div className="flex justify-center">
+            <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[12px] font-bold border ${
+              displayLabel === '직접등록' 
+                ? 'bg-purple-50 text-purple-500 border-purple-100' 
+                : 'bg-orange-50 text-orange-500 border-orange-100'
+            }`}>
+              {displayLabel}
+            </span>
+          </div>
+        );
+      }
+},
     { key: 'source', header: '출처', width: '180px', className: 'text-center' },
     { 
       key: 'title', 
@@ -252,7 +255,7 @@ const AdminSafetyEduList = () => {
       width: '100px', 
       className: 'text-center',
       render: (val) => (
-        <span>{val === 'ADMIN_MASTER' ? '최고관리자' : val}</span>
+        <span>{val === 'ADMIN_MASTER' ? '관리자' : val}</span>
       )
     },
     { 
