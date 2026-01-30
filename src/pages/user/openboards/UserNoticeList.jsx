@@ -50,7 +50,7 @@ const UserNoticeList = () => {
   // 2. 검색 필터링: activeSearch 상태에 따라 데이터를 필터링
   const filteredData = useMemo(() => {
     // [수정 반영]: 비공개(isPublic: false)인 게시글은 사용자 페이지 목록에서 제외합니다.
-    let result = cleanData.filter(item => item.isPublic !== false); 
+    let result = cleanData.filter(item => item.isPublic === 'Y'); 
 
     const { category, term } = activeSearch;
     const trimmedTerm = term.trim();
