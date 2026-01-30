@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useOutletContext } from "react-router-dom";
 import { AlertTriangle, Clock, ChevronDown, List, Info, FileText } from 'lucide-react';
 // [데이터] 재난 문자 초기 데이터 임포트
-import { initialMessageData } from "./DisasterMessageData";
+import { disasterApi } from '@/services/api';
 
 const DisasterMessageDetail = () => {
   const { id } = useParams();
@@ -29,25 +29,47 @@ const DisasterMessageDetail = () => {
   const [originData, setOriginData] = useState(null);
 
   useEffect(() => {
-    const getDetailData = () => {
+    const fetchDetail = async () => {
       setLoading(true);
       try {
-        const found = initialMessageData.find(item => String(item.id) === String(id));
-        if (found) {
-          setFormData(found);
-          setOriginData(found);
+        const response = await disasterApi.getDisasterDetail(id);
+        
+        // 백엔드 공통 DTO 구조를 고려 (response.data가 실제 데이터인 경우 대응)
+        const item = response.data || response; 
+
+        if (item && (item.sn || item.id)) {
+          const mapped = {
+            id: item.sn || item.id,
+            category: item.emrgStepNm || '안전안내',
+            type: item.dstType || '기타',
+            sender: "행정안전부", 
+            content: item.msgCn || '',
+            region: item.rcptnRgnNm || '',
+            dateTime: item.crtDt || '',
+            isVisible: item.visibleYn === 'Y'
+          };
+          setFormData(mapped);
+          setOriginData(mapped);
           if (setBreadcrumbTitle) setBreadcrumbTitle("재난 문자 상세 정보");
         } else {
-          alert("해당 재난 문자 정보를 찾을 수 없습니다.");
+          // 데이터가 비어있는 경우
+          alert("해당 데이터를 찾을 수 없습니다.");
           navigate(-1);
         }
       } catch (error) {
         console.error("데이터 로드 실패:", error);
+        // 서버가 던진 에러 메시지가 있다면 출력, 없으면 기본 메시지
+        const errorMsg = error.response?.data?.message || "데이터를 불러오는 중 오류가 발생했습니다.";
+        alert(errorMsg);
+        navigate(-1);
       } finally {
         setLoading(false);
       }
     };
-    getDetailData();
+    
+    fetchDetail();
+    
+    // 언마운트 시 브레드크럼 초기화 (선택 사항)
     return () => setBreadcrumbTitle && setBreadcrumbTitle("");
   }, [id, setBreadcrumbTitle, navigate]);
 
@@ -80,12 +102,27 @@ const DisasterMessageDetail = () => {
       alert("입력되지 않은 필수 값이 있습니다.");
       return;
     }
+
     try {
+      // 백엔드 DTO 규격에 맞게 변환
+      const updateData = {
+        sn: formData.id,
+        emrgStepNm: formData.category,
+        dstType: formData.type,
+        msgCn: formData.content,
+        rcptnRgnNm: formData.region,
+        crtDt: formData.dateTime,
+        visibleYn: formData.isVisible ? 'Y' : 'N'
+      };
+
+      await disasterApi.updateDisaster(formData.id, updateData);
+      
       setOriginData(formData);
       alert("성공적으로 저장되었습니다.");
       setIsEdit(false);
       setSubmitted(false);
     } catch (error) {
+      console.error("저장 실패:", error);
       alert("저장 중 오류가 발생했습니다.");
     }
   };

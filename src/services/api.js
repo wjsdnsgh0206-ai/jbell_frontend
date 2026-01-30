@@ -27,10 +27,98 @@ const kmaWarningApi = axios.create({ baseURL: "/kma-warning-api" });
 const accidentNewsApi = axios.create({ baseURL: "/accidentNews-api" }); // 도로교통 정보 api
 
 
+export const disasterApi = {
+  // 재난 문자 리스트 조회 (GET)
+  getDisasterMessages: async () => {
+    const response = await api.get("/disaster/dashboard/disasterMessages");
+    return response.data; // List<PredictionInfoResponse>
+  },
+
+  // 재난 문자 상세 조회 (GET)
+  getDisasterDetail: async (sn) => {
+    const response = await api.get(`/disaster/dashboard/disasterMessages/${sn}`);
+    return response.data;
+  },
+
+  // 재난 문자 등록 (POST)
+  createDisaster: async (data) => {
+    const response = await api.post("/disaster/dashboard/disasterMessages", data);
+    return response.data;
+  },
+
+  // 재난 문자 수정 (PUT)
+  updateDisaster: async (sn, data) => {
+    const response = await api.put(`/disaster/dashboard/disasterMessages/${sn}`, data);
+    return response.data;
+  },
+
+  // 재난 문자 일괄 노출/비노출 변경 (POST)
+  updateVisibility: async (ids, visibleYn) => {
+    const response = await api.post("/disaster/dashboard/disasterMessages/visibility", {
+      ids,
+      visibleYn
+    });
+    return response.data;
+  },
+
+  // 재난 문자 일괄 삭제 (POST - 논리 삭제)
+  deleteDisasters: async (sns) => {
+    const response = await api.post("/disaster/dashboard/disasterMessages/delete", sns);
+    return response.data;
+  },
+
+  // ===================================== 기상특보 ============================
+  getSavedWeatherWarnings: async (params) => {
+  // params에는 newsType, region, level, startDate, endDate, page 등이 포함됨
+  const response = await api.get("/disaster/dashboard/weatherWarnings", { params });
+  return response.data; // { list: [...], totalCount: 100 }
+},
+
+  // 2. 기상 특보 상세 조회
+  getWeatherDetail: async (key) => {
+    const response = await api.get(`/disaster/dashboard/weatherWarnings/${key}`);
+    return response.data;
+  },
+
+  // 3. 기상 특보 수동 등록
+  createWeather: async (data) => {
+    const response = await api.post("/disaster/dashboard/weatherWarnings", data);
+    return response.data;
+  },
+
+  // 4. 기상 특보 수정
+  updateWeather: async (key, data) => {
+    const response = await api.put(`/disaster/dashboard/weatherWarnings/${key}`, data);
+    return response.data;
+  },
+
+  // 5. 기상 특보 일괄 노출 변경 (DisasterBatchRequest DTO 대응)
+  updateWeatherVisibility: async (ids, visibleYn) => {
+    const response = await api.post("/disaster/dashboard/weatherWarnings/visibility", {
+      ids,        // List<Integer> 또는 List<String>
+      visibleYn   // 'Y' 또는 'N'
+    });
+    return response.data;
+  },
+
+  // 6. 기상 특보 일괄 삭제 (논리 삭제)
+  deleteWeatherWarnings: async (keys) => {
+    const response = await api.post("/disaster/dashboard/weatherWarnings/delete", keys);
+    return response.data;
+  }
+
+
+};
+
+
+
+
+
+
 export const noticeApi = {
-  // 공지사항 전체 목록 조회
-  getNoticeDTOList: async () => {
-    const response = await api.get("/notice");
+  // 공지사항 목록 조회
+  getNoticeList: async (params) => {
+    const response = await api.get("/notice", { params });
     return response.data;
   },
 
@@ -40,27 +128,38 @@ export const noticeApi = {
     return response.data;
   },
 
-  // 공지사항 등록
-  createNotice: async (noticeData) => {
-    // 백엔드 NoticeController의 @PostMapping과 연결
-    const response = await api.post("/notice", noticeData);
+  // 공지사항 등록 (FormData 사용)
+  createNotice: async (formData) => {
+    const response = await api.post("/notice", formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
     return response.data;
   },
 
-  // 공지사항 수정
-  updateNotice: async (id, noticeData) => {
-    // 백엔드 NoticeController의 @PutMapping("/{id}")과 연결
-    const response = await api.put(`/notice/${id}`, noticeData);
+  // 공지사항 수정 (FormData 사용)
+  updateNotice: async (id, formData) => {
+    const response = await api.put(`/notice/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
     return response.data;
   },
 
   // 공지사항 삭제
   deleteNotice: async (id) => {
-    // 백엔드 NoticeController의 @DeleteMapping("/{id}")과 연결
     const response = await api.delete(`/notice/${id}`);
     return response.data;
   },
+
+  // 파일 다운로드
+  downloadFile: async (fileId) => {
+    const response = await api.get(`/notice/file/download/${fileId}`, {
+      responseType: 'blob'
+    });
+    return response;
+  }
 };
+
+
 
 export const commonService = {
   /**
@@ -467,6 +566,87 @@ export const qnaService = {
 };
 
 /* =========================================================
+   시민안전교육 관리 API (Admin & User 공용)
+   Backend: SafetyEduController.java
+========================================================= */
+export const safetyEduService = {
+  /**
+   * 1. 목록 조회 (검색 + 페이징)
+   * GET /api/safety-edu
+   * @param {Object} params - { page, size, keyword, searchType, isPublic, sort }
+   */
+  getSafetyEduList: async (params) => {
+    // 백엔드 PageableDefault size=10
+    const response = await api.get("/safety-edu", { params });
+    return response.data;
+  },
+
+  /**
+   * 2. 상세 조회
+   * GET /api/safety-edu/{id}
+   */
+  getSafetyEduDetail: async (id) => {
+    const response = await api.get(`/safety-edu/${id}`);
+    return response.data;
+  },
+
+  /**
+   * 3. 등록
+   * POST /api/safety-edu
+   * @param {Object} data - RequestDto 구조 (title, sections, links 등)
+   */
+  createSafetyEdu: async (data) => {
+    const response = await api.post("/safety-edu", data);
+    return response.data; // 등록된 ID (Long) 반환
+  },
+
+  /**
+   * 4. 수정
+   * PUT /api/safety-edu/{id}
+   * @param {Long} id - 콘텐츠 ID
+   * @param {Object} data - RequestDto 구조
+   */
+  updateSafetyEdu: async (id, data) => {
+    const response = await api.put(`/safety-edu/${id}`, data);
+    return response.data; // 수정된 ID (Long) 반환
+  },
+
+  /**
+   * 5. 단일 삭제
+   * DELETE /api/safety-edu/{id}
+   */
+  deleteSafetyEdu: async (id) => {
+    const response = await api.delete(`/safety-edu/${id}`);
+    return response.data;
+  },
+
+  /**
+   * 6. 일괄 삭제
+   * POST /api/safety-edu/batch-delete
+   * @param {Array<Long>} ids - 삭제할 ID 리스트 (예: [1, 2, 3])
+   * 주의: Controller가 @PostMapping을 사용함 (Delete Method 아님)
+   */
+  deleteSafetyEdus: async (ids) => {
+    const response = await api.post("/safety-edu/batch-delete", ids);
+    return response.data;
+  },
+
+  /**
+   * 7. 노출 상태 변경 (일괄)
+   * PATCH /api/safety-edu/visibility
+   * @param {Array<Long>} ids - 변경할 ID 리스트
+   * @param {Boolean} isPublic - true(공개) / false(비공개)
+   * 주의: ids는 Body(@RequestBody), isPublic은 QueryString(@RequestParam)으로 전송
+   */
+  updateVisibility: async (ids, isPublic) => {
+    const response = await api.patch("/safety-edu/visibility", ids, {
+      params: { isPublic },
+    });
+    return response.data;
+  },
+};
+
+/* =========================================================
    날씨 관련 API - 최지영 * 건드리지 말 것 *
 ========================================================= */
 export const weatherService = {
@@ -528,7 +708,15 @@ export const disasterModalService = {
     });
     return response.data;
   },
-
+// 지진 리스트 가져오는 함수 수정
+  getEarthquakeList: async () => {
+    // 1. 산불처럼 전체 주소를 다 써서 확실하게 연결하기
+    // 2. 끝에 '-list' 꼭 붙여주기!
+    const response = await axios.get('http://localhost:8080/api/disaster/fetch/earthquake-list'); 
+    
+    // 산불 코드에서 res.data.data로 접근했으니까 똑같이 반환해주자
+    return response.data; 
+  },
   /* -----------------------------
       지진 진도 정보 조회 (전국)
   ----------------------------- */
@@ -613,7 +801,15 @@ export const disasterModalService = {
     );
     return response.data;
   },
-
+getForestFireRisk: async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/api/disaster/forest-fire/risk"); 
+      return response.data; // 보통 여기서 List<DisasterAccidentDTO>가 들어옴
+    } catch (error) {
+      console.error("산불 데이터 로딩 에러:", error);
+      throw error;
+    }
+  },
   /* -----------------------------
     산사태 예보발령 api
 ----------------------------- */
@@ -658,24 +854,97 @@ export const disasterModalService = {
         numOfRows: 500, // 전북 전체 시군구를 커버하기 위해 넉넉히
         pageNo: 1,
         dataType: "JSON",
-        fromTmFc: dayjs().subtract(5, 'day').format('YYYYMMDD'), // 오늘 기준 6일 전까지만 조회 가능
+        fromTmFc: dayjs().subtract(6, 'day').format('YYYYMMDD'), // 오늘 기준 6일 전까지만 조회 가능
         ...params, // warningType 등 넘어옴
       },
     });
     return response.data;
   },
+
+  /* ---------------------------------------------------------
+     ✅ [추가] 백엔드 DB 저장 데이터 조회 API (한파/호우/태풍 리스트)
+     우리 스프링부트 서버(8080)에서 데이터를 가져옵니다.
+  ---------------------------------------------------------- */
+ // src/services/api.js 내 수정 확인
+getWeatherList: async (type) => {
+  const response = await api.get("/disaster/fetch/weather-list", {
+    params: { type }
+  });
+  return response.data; // 여기서 실제 데이터 배열이 담긴 ApiResponse가 와야 함
+},
+
 };
-/* =========================================================
-  국민행동요령 API (백엔드 DB 연동)
-========================================================= */
+
 export const behaviorMethodService = {
-  // 행동요령 목록 조회
-  // contentType 예: "NATURAL_TYPHOON", "NATURAL_EARTHQUAKE"
-  getBehaviorMethodList: async (contentType) => {
-    // 8080 포트 백엔드 API 호출
-    const response = await api.get("/behaviorMethod/list", {
-      params: { contentType },
+  // [사용자용]
+  getUserBehaviorList: async (contentType) => {
+    const params = { 
+        contentType,
+        visibleYn: 'Y',   
+        onlyLatest: 'Y'   
+    };
+    const response = await api.get("/behaviorMethod/list", { params });
+    return response.data;
+  },
+
+  // [관리자용]
+  getAdminBehaviorList: async (params) => {
+      // 관리자 페이지에서 넘겨주는 page, size, contentType, onlyLatest 등을 그대로 전달
+      const response = await api.get("/behaviorMethod/list", { params });
+      return response.data;
+  },
+
+  // [상세 조회] - NEW
+  getBehaviorMethodDetail: async (contentId) => {
+    const response = await api.get(`/behaviorMethod/${contentId}`);
+    return response.data;
+  },
+
+  // [단건 수정] - NEW
+  updateBehaviorMethod: async (contentId, data) => {
+    const response = await api.put(`/behaviorMethod/${contentId}`, data);
+    return response.data;
+  },
+
+  // 2. 행동요령 삭제
+  deleteBehaviorMethods: async (ids) => {
+    const response = await api.delete("/behaviorMethod", {
+      data: { ids } 
     });
     return response.data;
   },
+
+  // 3. 노출 여부 변경
+  updateVisibility: async (ids, visibleYn) => {
+    const response = await api.patch("/behaviorMethod/visibility", {
+      ids,
+      visibleYn
+    });
+    return response.data;
+  },
+
+  // [추가] 과거 데이터 정리
+  cleanupOldData: async () => {
+    const response = await api.delete("/behaviorMethod/admin/cleanup");
+    return response.data;
+  },
+};
+
+export const fileService = {
+  // 에디터 이미지 업로드
+  uploadEditorImage: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    // [수정 포인트] 3번째 인자에 headers 설정 추가
+    const response = await api.post('/file/upload/editor', formData, {
+        headers: {
+            // 중요: Content-Type을 undefined로 설정해야 
+            // 브라우저가 알아서 'multipart/form-data; boundary=...'를 붙여줍니다.
+            // 만약 'multipart/form-data'라고 직접 적으면 boundary가 없어서 또 에러가 납니다.
+            'Content-Type': undefined 
+        }
+    });
+    return response.data;
+  }
 };

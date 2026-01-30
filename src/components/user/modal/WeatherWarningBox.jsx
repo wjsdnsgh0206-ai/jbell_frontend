@@ -1,6 +1,6 @@
 import React from 'react';
 import { useWeatherWarning } from '@/hooks/user/useWeatherWarning';
-import { AlertTriangle, Clock, MapPin, RefreshCcw } from 'lucide-react'; // 아이콘 라이브러리 예시
+import { AlertTriangle, Clock, MapPin, RefreshCcw } from 'lucide-react';
 
 const WeatherWarningBox = ({ disasterType }) => {
   const { warnings, isLoading, refetch } = useWeatherWarning(disasterType);
@@ -42,11 +42,14 @@ const WeatherWarningBox = ({ disasterType }) => {
               <div className="flex justify-between items-start mb-2">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
                   <AlertTriangle size={12} className="mr-1" />
-                  {item.TTL.includes('경보') ? '위험' : '주의'}
+                  {item.TTL && item.TTL.includes('경보') ? '위험' : '주의'}
                 </span>
                 <span className="flex items-center text-[11px] text-gray-400 uppercase tracking-tighter">
                   <Clock size={12} className="mr-1" />
-                  {item.SPNE_FRMNT_PRCON_TM.substring(5, 16).replace('-', '/')}
+                  {/* 에러 수정 부분: PRSNTN_TM(202601281400) 형식을 안전하게 자름 */}
+                  {item.PRSNTN_TM ? 
+                    `${item.PRSNTN_TM.substring(4, 6)}/${item.PRSNTN_TM.substring(6, 8)} ${item.PRSNTN_TM.substring(8, 10)}:${item.PRSNTN_TM.substring(10, 12)}` 
+                    : "시간정보없음"}
                 </span>
               </div>
               
@@ -71,7 +74,7 @@ const WeatherWarningBox = ({ disasterType }) => {
         )}
       </div>
 
-      {/* 모바일 하단 안내 (선택사항) */}
+      {/* 모바일 하단 안내 */}
       <p className="text-[10px] text-gray-400 text-center px-4">
         본 정보는 기상청 API를 통해 실시간으로 제공되며, 실제 상황과 다를 수 있습니다.
       </p>

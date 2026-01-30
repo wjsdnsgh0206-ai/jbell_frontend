@@ -10,7 +10,7 @@ const adminMap = {
   "accidentNewsList": "사고속보 관리",
   "accidentNewsDetail": "사고속보 상세",
   "accidentNewsAdd": "사고속보 등록",
-  "disasterManagementList":"재난 관리",
+  "disasterManagementList":"재난 API 관리",
   "disasterManagementDetail": "재난 상세",
   "disasterManagementAdd": "재난 등록",
   "disasterEventManagementList": "재난 발생 관리",

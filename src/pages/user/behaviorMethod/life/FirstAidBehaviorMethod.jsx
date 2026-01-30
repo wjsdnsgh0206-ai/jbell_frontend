@@ -1,9 +1,13 @@
-import React from 'react';
+// src\pages\user\behaviorMethod\life\FirstAidBehaviorMethod.jsx
+import BaseBehaviorMethodPage from '@/pages/user/behaviorMethod/BaseBehaviorMethodPage';
 
 const FirstAidBehaviorMethod = () => {
- 
   return (
-    <div>준비중</div>
+    <BaseBehaviorMethodPage 
+      disasterType="FIRST_AID"
+      category="생활안전"
+      categoryPath="/behaviorMethod/firstAid"
+    />
   );
 };
 

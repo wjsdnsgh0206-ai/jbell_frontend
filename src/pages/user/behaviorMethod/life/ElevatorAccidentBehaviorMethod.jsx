@@ -1,8 +1,13 @@
-import React from 'react';
+// src\pages\user\behaviorMethod\life\ElevatorAccidentBehaviorMethod.jsx
+import BaseBehaviorMethodPage from '@/pages/user/behaviorMethod/BaseBehaviorMethodPage';
 
 const ElevatorAccidentBehaviorMethod = () => {
   return (
-    <div>준비중</div>
+    <BaseBehaviorMethodPage 
+      disasterType="ELEVATOR_ACCIDENT"
+      category="생활안전"
+      categoryPath="/behaviorMethod/firstAid"
+    />
   );
 };
 

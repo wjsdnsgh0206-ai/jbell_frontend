@@ -1,7 +1,13 @@
-import React from 'react';
+// src\pages\user\behaviorMethod\social\ElectricityGasAccidentBehaviorMethod.jsx
+import BaseBehaviorMethodPage from '@/pages/user/behaviorMethod/BaseBehaviorMethodPage';
+
 const ElectricityGasAccidentBehaviorMethod = () => {
   return (
-    <div>준비중</div>
+    <BaseBehaviorMethodPage 
+      disasterType="ELECTRICITY_GAS_ACCIDENT"
+      category="사회재난"
+      categoryPath="/behaviorMethod/fire"
+    />
   );
 };
 

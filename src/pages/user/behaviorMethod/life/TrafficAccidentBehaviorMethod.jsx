@@ -1,14 +1,14 @@
-// src\pages\user\behaviorMethod\life\CprBehaviorMethod.jsx
+// src\pages\user\behaviorMethod\life\TrafficAccidentBehaviorMethod.jsx
 import BaseBehaviorMethodPage from '@/pages/user/behaviorMethod/BaseBehaviorMethodPage';
 
-const CprBehaviorMethod = () => {
+const TrafficAccidentBehaviorMethod = () => {
   return (
     <BaseBehaviorMethodPage 
-      disasterType="CPR"
+      disasterType="TRAFFIC_ACCIDENT"
       category="생활안전"
       categoryPath="/behaviorMethod/firstAid"
     />
   );
 };
 
-export default CprBehaviorMethod;
+export default TrafficAccidentBehaviorMethod;

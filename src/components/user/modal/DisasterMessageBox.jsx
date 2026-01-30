@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 
 /**
@@ -17,61 +17,108 @@ const DisasterMessage = () => {
     ITEM_001: { label: "알림", color: "#94a3b8", bg: "bg-gray-100", text: "text-gray-600" }
   };
 
-  useEffect(() => {
-    const fetchFromBackend = async () => {
-      try {
-        setIsLoading(true);
-        const response = await axios.get("http://localhost:8080/api/disaster/message-list");
-        const rawData = response.data?.data || [];
-        
-        // 💡 오늘 날짜 문자열 생성 (YYYY/MM/DD 형식)
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const todayStr = `${year}/${month}/${day}`;
+// 💡 데이터를 가공하고 오늘 날짜만 필터링하는 함수
+  const formatData = useCallback((rawData) => {
+    const now = new Date();
+    // 비교를 위한 오늘 날짜 문자열 (YYYY/MM/DD)
+    const todayStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
 
-        const formattedData = rawData.map(item => {
-          let fullDateTime = "날짜 정보 없음";
-          let isToday = false;
+    return rawData
+      .map(item => {
+        // 대소문자 및 스네이크 케이스 대응 (DTO 설정에 맞춰 유연하게)
+        const sn = item.sn || item.SN;
+        const crtDt = item.crtDt || item.CRT_DT;
+        const msgCn = item.msgCn || item.MSG_CN;
+        const dstType = item.dstType || item.DST_TYPE || item.DST_SE_NM;
+        const emrgStepNm = item.emrgStepNm || item.EMRG_STEP_NM;
 
-          if (item.crtDt && typeof item.crtDt === 'string') {
-            fullDateTime = item.crtDt.substring(0, 16); // "2026/01/27 16:09"
-            isToday = item.crtDt.startsWith(todayStr); // 오늘 날짜로 시작하는지 확인
-          }
+        let fullDateTime = "날짜 정보 없음";
+        let isToday = false;
 
-          return {
-            id: item.sn,
-            dateTime: fullDateTime,
-            isToday: isToday, // 💡 오늘 날짜 여부 저장
-            content: item.msgCn,
-            dstType: item.dstType,
-            category: item.emrgStepNm,
-            region: item.rcptnRgnNm
-          };
-        });
+        if (crtDt) {
+          // "2026-01-28T10:00:11" 또는 "2026/01/28 10:00:11" 대응
+          const formattedDt = crtDt.replace(/-/g, '/').replace('T', ' ');
+          fullDateTime = formattedDt.substring(0, 16);
+          isToday = formattedDt.startsWith(todayStr); // 오늘 날짜로 시작하는지 체크
+        }
 
-        setMessages(formattedData);
-      } catch (error) {
-        console.error("재난문자 수신 에러:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchFromBackend();
+        return {
+          id: sn,
+          dateTime: fullDateTime,
+          isToday: isToday, // 💡 필터링 기준이 됨
+          content: msgCn,
+          dstType: dstType,
+          category: emrgStepNm,
+        };
+      })
+      // ⭐ 이 부분이 핵심! 오늘 날짜인 데이터만 남김
+      .filter(msg => msg.isToday === true)
+      // (옵션) 최신순 정렬이 안 되어 있다면 여기서 한 번 더 정렬 가능
+      .sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
   }, []);
 
+  // 💡 DB에서 데이터를 가져오는 함수 (GET)
+  const fetchMessages = async () => {
+    try {
+      setIsLoading(true);
+      // 백엔드 GetMapping 주소와 맞춰야 해!
+      const response = await axios.get("http://localhost:8080/api/disaster/dashboard/disasterMessages");
+      
+      // 백엔드 반환 구조가 ApiResponse<T> 형태라면 response.data.data 로 접근
+      const rawData = response.data?.data || response.data || [];
+      setMessages(formatData(rawData));
+    } catch (error) {
+      console.error("재난문자 조회 에러:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 💡 [선택] 최신 데이터로 수집(POST)하고 다시 불러오기
+  const handleRefresh = async () => {
+    try {
+      setIsLoading(true);
+      const today = new Date().toISOString().split('T')[0].replace(/-/g, '/'); // "2026/01/28"
+      
+      await axios.post("http://localhost:8080/api/disaster/dashboard/disasterMessageInfo", {
+        crtDt: `${today} 00:00:00`,
+        rgnNm: "전북",
+        numOfRows: 30,
+        pageNo: 1,
+        type: "json"
+      });
+      
+      // 수집 끝났으면 다시 목록 불러오기
+      await fetchMessages();
+    } catch (error) {
+      console.error("데이터 갱신 실패:", error);
+      alert("최신 데이터를 가져오는 데 실패했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMessages();
+  }, [formatData]);
+
   return (
-    <div className="flex flex-col h-auto lg:h-full max-h-[440px] md:max-h-full bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+    <div className="flex flex-col h-auto lg:h-full max-h-[500px] md:max-h-full bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
       {/* 헤더 영역 */}
-      <div className="px-4 py-3 md:px-6 md:py-4 border-b border-gray-100 bg-white">
+      <div className="px-4 py-3 md:px-6 md:py-4 border-b border-gray-100 bg-white flex justify-between items-center">
         <h3 className="text-base font-bold text-gray-900">전북 실시간 재난문자</h3>
+        <button 
+          onClick={handleRefresh}
+          disabled={isLoading}
+          className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 disabled:bg-gray-300 transition-colors"
+        >
+          {isLoading ? "수집 중..." : "갱신"}
+        </button>
       </div>
 
       {/* 리스트 영역 */}
       <div className="flex-1 overflow-y-auto p-3 md:p-5 space-y-3 md:space-y-4 custom-scrollbar">
-        {isLoading ? (
+        {isLoading && messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-400 py-10">
             <p className="text-sm">데이터 로딩 중...</p>
           </div>
@@ -92,10 +139,9 @@ const DisasterMessage = () => {
                     </span>
                   </div>
                   
-                  {/* 💡 날짜와 시간 표시 + 오늘이면 NEW 텍스트 표시 */}
                   <div className="text-sm text-gray-400 font-medium flex items-center gap-1.5">
                     {msg.isToday && (
-                      <span className="text-red-500 font-bold text-xs">NEW</span>
+                      <span className="text-red-500 font-bold text-xs animate-pulse">NEW</span>
                     )}
                     {msg.dateTime}
                   </div>
@@ -103,7 +149,6 @@ const DisasterMessage = () => {
                 <p className="text-sm text-gray-700 leading-relaxed font-medium">
                   {msg.content}
                 </p>
-                {/* <p className="mt-2 text-sm text-blue-500 font-semibold">{msg.region}</p> */}
               </div>
             );
           })

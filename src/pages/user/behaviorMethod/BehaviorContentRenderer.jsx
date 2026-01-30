@@ -16,7 +16,7 @@ const BehaviorContentRenderer = ({ content }) => {
     <div className="flex flex-col gap-16 animate-fade-in-up">
       {content.sections.map((section, secIdx) => (
         <article key={`sec-${secIdx}`} className="flex flex-col gap-8">
-          
+
           {/* 섹션 헤더 */}
           {section.title && (
             <div className="flex items-center gap-3 pb-2 border-b-2 border-graygray-20">
@@ -53,8 +53,12 @@ const BehaviorContentRenderer = ({ content }) => {
                   <div key={`step-${stepIdx}`} className="bg-white border border-graygray-20 rounded-2xl p-6 lg:p-8 shadow-sm">
                     <ul className="flex flex-col gap-3">
                       {step.guidelines.map((text, txtIdx) => (
-                        <li key={txtIdx} className="text-body-m text-graygray-80 leading-relaxed whitespace-pre-line">
-                          {text}
+                        <li key={txtIdx} className="text-body-m text-graygray-80 leading-relaxed">
+                          {/* [수정 후] HTML 태그를 해석해서 보여줌 */}
+                          <div 
+                             dangerouslySetInnerHTML={{ __html: text }} 
+                             className="[&>p]:mb-1 last:[&>p]:mb-0" // Quill의 p 태그 스타일 보정 (Tailwind)
+                          />
                         </li>
                       ))}
                     </ul>

@@ -1,40 +1,41 @@
 // src/utils/behaviorTransform.js
 
-// 탭 순서(ordering)에 따른 라벨 매핑 상수
+// [중요] 탭 구분을 위한 코드 매핑 (공공데이터 포털 ordering 규칙 참고)
+// 백엔드 DB의 ordering 값을 확인하여 이 맵을 채워주면 가장 정확합니다.
 const TAB_LABEL_MAP = {
-  // 태풍
-  "1001000": "멀티미디어",
-  "1001001": "태풍 예보 시",
-  "1001002": "태풍 특보 중",
-  "1001003": "태풍 이후",
-  // 홍수, 호우 등 다른 재난 코드도 패턴이 발견되면 여기에 추가하거나 정규식으로 처리
-  "DEFAULT": "행동요령"
+  // 예시: 지진 (Ordering 앞자리에 따라 구분)
+  "1001001": "평상시 대비",
+  "1001002": "지진 발생 시",
+  "1001003": "대피 후 행동",
+  "1001004": "장소별 행동요령",
+  "1001005": "상황별 행동요령",
+  // fallback
+  "DEFAULT": "상세 행동요령"
 };
 
 /**
  * 탭 라벨 결정 함수
  */
-const getTabLabel = (tabKey, originalTitle) => {
+const getTabLabel = (item, tabKey) => {
+  // 1순위: 매핑된 코드가 있으면 사용
   if (TAB_LABEL_MAP[tabKey]) return TAB_LABEL_MAP[tabKey];
 
-  // 키워드 기반 추론 (Fallback)
-//   if (!originalTitle) return TAB_LABEL_MAP["DEFAULT"];
-//   if (originalTitle.includes("상황별")) return "상황별 요령";
-//   if (originalTitle.includes("장소별")) return "장소별 요령";
-//   if (originalTitle.includes("대비합니다")) return "평상시 대비";
-//   if (originalTitle.includes("행동합니다")) return "지진 발생 시";
-//   if (originalTitle.includes("대피 후")) return "대피 후 조치";
-  
-  return originalTitle;
+  // 2순위: 제목에서 유추 (예: "지진 발생 시 행동요령" -> "지진 발생 시")
+  // 제목이 너무 길면 그대로 쓰기 애매하므로, 매핑이 없을 때만 제한적으로 사용
+  if (item.title && item.title.length < 15) {
+      return item.title;
+  }
+
+  return TAB_LABEL_MAP["DEFAULT"];
 };
 
 /**
- * 아이템이 미디어(영상/이미지) 타입인지 텍스트인지 판별
+ * 아이템 타입 판별
  */
 const getItemType = (item) => {
   const link = item.contentLink || "";
-  const isVideo = link.includes('safetv') || link.includes('mp4') || link.includes('youtube');
-  const isImage = link.match(/\.(jpg|png|gif)$/i) !== null;
+  const isVideo = link.includes('safetv') || link.includes('mp4') || link.includes('youtube') || link.includes('youtu.be');
+  const isImage = link.match(/\.(jpg|png|gif|jpeg|webp)$/i) !== null;
 
   if (isVideo) return 'VIDEO';
   if (isImage) return 'IMAGE';
@@ -44,15 +45,25 @@ const getItemType = (item) => {
 export const transformData = (dbList) => {
   if (!dbList || dbList.length === 0) return null;
 
+  // 0. 메타 데이터 추출 (페이지 타이틀용)
+  // 리스트의 첫 번째 항목에서 대분류 명칭(예: 지진)을 가져옴
+  const pageTitle = dbList[0].contentTypeName || "행동요령";
+  const lastUpdated = dbList[0].created_at || new Date().toISOString().slice(0, 10).replace(/-/g, '.');
+
   // 1. 탭(Tab) 별로 데이터 그룹화
   const groupedByTab = dbList.reduce((acc, item) => {
-    const fullOrder = String(item.ordering).replace(/,/g, '');
-    const tabKey = fullOrder.substring(0, 7); // ordering의 앞 7자리가 탭 식별자라고 가정
+    // ordering을 문자열로 변환하고 쉼표 제거
+    const fullOrder = String(item.ordering || "0000000000").replace(/,/g, '');
+    
+    // [핵심] 탭 키 생성 전략 
+    // 공공데이터 구조상 보통 앞 5~7자리가 탭(상황)을 의미함. 
+    // 데이터 분포를 보고 substring 길이를 조절하세요 (여기선 7자리 가정)
+    const tabKey = fullOrder.substring(0, 7); 
     
     if (!acc[tabKey]) {
       acc[tabKey] = {
         key: tabKey,
-        label: getTabLabel(tabKey, item.title),
+        label: getTabLabel(item, tabKey), // 수정된 라벨링 함수
         items: []
       };
     }
@@ -60,15 +71,13 @@ export const transformData = (dbList) => {
     return acc;
   }, {});
 
-  // 2. 각 탭 내부의 섹션 및 스텝 정렬/구조화
+  // 2. 각 탭 내부 구조화
   const contents = Object.values(groupedByTab).map(tab => {
-    // 2-1. 섹션(Section) 별 그룹화
+    // 2-1. 섹션 그룹화 (같은 제목끼리 묶기)
     const sectionsMap = tab.items.reduce((secAcc, item) => {
+      // 탭 라벨과 제목이 같다면 섹션 제목 생략(깔끔하게 보이기 위해)
       let sectionTitle = item.title;
-      // 타이틀이 없는 경우 기본 타이틀 부여
-      if (!sectionTitle) {
-        sectionTitle = tab.key.startsWith("1001") ? "사전 준비 및 대피 요령" : "행동요령 상세";
-      }
+      if (sectionTitle === tab.label) sectionTitle = ""; 
 
       if (!secAcc[sectionTitle]) {
         secAcc[sectionTitle] = { title: sectionTitle, rawItems: [] };
@@ -77,23 +86,21 @@ export const transformData = (dbList) => {
       return secAcc;
     }, {});
 
-    // 2-2. 각 섹션 내부 아이템 정렬 및 카드(Card)화
+    // 2-2. 섹션 내부 정렬 및 카드화
     const sections = Object.values(sectionsMap).map(section => {
       // 정렬: ordering -> contentId
       section.rawItems.sort((a, b) => 
         (Number(a.fullOrder) - Number(b.fullOrder)) || (Number(a.contentId) - Number(b.contentId))
       );
 
-      // 연속된 텍스트는 하나의 카드로 묶고, 미디어는 개별 카드로 분리
       const steps = [];
       let currentTextCard = null;
 
       section.rawItems.forEach(item => {
         const type = getItemType(item);
-        const bodyText = item.body ? item.body.trim() : "";
+        const bodyText = item.body ? item.body.trim() : ""; 
 
         if (type === 'VIDEO' || type === 'IMAGE') {
-            // 미디어가 나오면 이전 텍스트 카드를 마감하고 미디어 카드 추가
             currentTextCard = null; 
             steps.push({
                 id: item.contentId,
@@ -103,10 +110,9 @@ export const transformData = (dbList) => {
                 mediaTitle: bodyText
             });
         } else if (bodyText) {
-            // 텍스트인 경우 기존 텍스트 카드에 추가하거나 새로 생성
             if (!currentTextCard) {
                 currentTextCard = {
-                    id: item.contentId, // 첫 번째 아이템 ID 사용
+                    id: item.contentId,
                     type: 'GUIDELINE',
                     guidelines: []
                 };
@@ -119,18 +125,20 @@ export const transformData = (dbList) => {
       return { title: section.title, steps };
     });
 
-    return { tabLabel: tab.label, sections };
+    return { tabLabel: tab.label, sections, key: tab.key };
   });
 
-  // 3. 메타 데이터 생성
-  // (XML 데이터 특성상 ordering 순서 보장이 안될 수 있으므로 tabKey로 정렬이 필요할 수 있음. 여기선 DB리스트 순서 의존)
-  // 필요한 경우 contents.sort(...) 추가
-  
-  const tabs = contents.slice(0, 6).map(c => ({ label: c.tabLabel }));
-  const today = new Date().toISOString().slice(0, 10).replace(/-/g, '.');
+  // 3. 탭 정렬 (Key 기준 오름차순)
+  contents.sort((a, b) => Number(a.key) - Number(b.key));
+
+  const tabs = contents.map(c => ({ label: c.tabLabel }));
 
   return {
-    meta: { lastUpdated: today, tabs },
-    contents: contents.slice(0, 6),
+    meta: { 
+        pageTitle, // 추출한 대분류 타이틀 반환
+        lastUpdated, 
+        tabs 
+    },
+    contents: contents,
   };
 };
