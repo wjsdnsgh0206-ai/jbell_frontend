@@ -7,30 +7,37 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. 앱 시작 시 로컬 스토리지에서 직접 값을 읽어옴
+    // 1. 앱 시작 시 로컬 스토리지에서 모든 정보를 읽어옴
     const savedUserId = localStorage.getItem('userId');
     const savedUserName = localStorage.getItem('userName');
-    const savedUserGrade = localStorage.getItem('userGrade');
+    const savedUserGrade = localStorage.getItem('userGrade'); // 추가됨
 
     if (savedUserId && savedUserName) {
       setUser({ 
         userId: savedUserId, 
-        userName: savedUserName
+        userName: savedUserName,
+        userGrade: savedUserGrade // 객체에 등급 추가
       });
     }
     setLoading(false);
   }, []);
 
-  // 2. 로그인 처리 (컴포넌트에서 호출)
-  const login = (userId, userName) => {
+  // 2. 로그인 처리 (userGrade 매개변수 추가)
+  const login = (userId, userName, userGrade) => {
     localStorage.setItem('userId', userId);
     localStorage.setItem('userName', userName);
-    setUser({ userId, userName });
+    localStorage.setItem('userGrade', userGrade); // 로컬 스토리지 저장
+    
+    setUser({ 
+      userId, 
+      userName, 
+      userGrade // 상태 업데이트
+    });
   };
 
   // 3. 로그아웃 처리
   const logout = () => {
-    localStorage.clear(); // 모든 정보 삭제
+    // localStorage.clear(); 
     setUser(null);
   };
 

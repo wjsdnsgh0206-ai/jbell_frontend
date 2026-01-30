@@ -1,11 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
+import axios from 'axios';
 
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 import BoardListSection from '@/components/shared/BoardListSection';
 import SearchBarTemplate from "@/components/shared/SearchBarTemplate";
-import { noticeData } from './BoardData';
+// import { noticeData } from './BoardData';
 
 // 공지사항 목록 페이지 //
 
@@ -13,6 +14,7 @@ const UserNoticeList = () => {
   const navigate = useNavigate();
 
   // --- 상태 관리 (State) --- //
+  const [content, setContent] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10; // 한 페이지당 보여줄 게시글 수
 
@@ -20,21 +22,35 @@ const UserNoticeList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeSearch, setActiveSearch] = useState({ category: '선택', term: '' });
 
+  // 5. DB 데이터 호출 로직 추가
+  useEffect(() => {
+    const fetchNotices = async () => {
+      try {
+        const response = await axios.get('/api/notice');
+        // 응답 데이터가 배열인지 확인 후 저장
+        setContent(response.data);
+      } catch (error) {
+        console.error("데이터 로드 실패:", error);
+      }
+    };
+    fetchNotices();
+  }, []);
+
   // --- 데이터 전처리 (Data Memoization) --- //
   // 1. 중복 제거: 제목이 중복된 데이터가 있을 경우 하나만 남기고 필터링
   const cleanData = useMemo(() => {
     const seenTitles = new Set();
-    return noticeData.filter(item => {
+    return content.filter(item => {
       if (seenTitles.has(item.title)) return false;
       seenTitles.add(item.title);
       return true;
     });
-  }, []);
+  }, [content]);
 
   // 2. 검색 필터링: activeSearch 상태에 따라 데이터를 필터링
   const filteredData = useMemo(() => {
     // [수정 반영]: 비공개(isPublic: false)인 게시글은 사용자 페이지 목록에서 제외합니다.
-    let result = cleanData.filter(item => item.isPublic !== false); 
+    let result = cleanData.filter(item => item.isPublic === 'Y'); 
 
     const { category, term } = activeSearch;
     const trimmedTerm = term.trim();
@@ -63,7 +79,9 @@ const UserNoticeList = () => {
   const { currentItems, totalPages } = useMemo(() => {
     const sorted = [...filteredData].sort((a, b) => {
       if (a.isPin !== b.isPin) return a.isPin ? -1 : 1;
-      return new Date(b.date) - new Date(a.date);
+      const dateA = new Date(a.createdAt || a.date);
+      const dateB = new Date(b.createdAt || b.date);
+      return dateB - dateA;
     });
     // - 페이지네이션 계산
     const indexOfLastItem = currentPage * itemsPerPage;
