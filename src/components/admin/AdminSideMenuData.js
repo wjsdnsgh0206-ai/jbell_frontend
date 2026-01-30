@@ -22,8 +22,8 @@ export const ADMIN_MENU_DATA = {
       path: "/admin/realtime/accidentNewsList",
       isAvailable: true,
       items: [
-        { name: "사고속보 관리", path: "/admin/realtime/accidentNewsList"},
-        { name: "재난 관리", path: "/admin/realtime/disasterManagementList" },
+        // { name: "사고속보 관리", path: "/admin/realtime/accidentNewsList"},
+        { name: "재난 API 관리", path: "/admin/realtime/disasterManagementList" },
         { name: "재난 발생 관리", path: "/admin/realtime/disasterEventManagementList" },
         { name: "기상특보 관리", path: "/admin/realtime/weatherNewsList" },
         { name: "재난문자이력 관리", path: "/admin/realtime/disasterMessageList"},

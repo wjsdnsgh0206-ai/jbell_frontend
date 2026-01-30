@@ -106,7 +106,7 @@ const DisasterMessage = () => {
     <div className="flex flex-col h-auto lg:h-full max-h-[500px] md:max-h-full bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
       {/* 헤더 영역 */}
       <div className="px-4 py-3 md:px-6 md:py-4 border-b border-gray-100 bg-white flex justify-between items-center">
-        <h3 className="text-base font-bold text-gray-900">전북 실시간 재난문자 (최근 7일)</h3>
+        <h3 className="text-base font-bold text-gray-900">전북 실시간 재난문자</h3>
         <button 
           onClick={handleRefresh}
           disabled={isLoading}

@@ -2,333 +2,202 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { Map, Activity, ChevronDown } from 'lucide-react';
+import { Activity, RefreshCw, Link as LinkIcon, AlertCircle } from 'lucide-react';
+import axios from 'axios';
 
-// [데이터]
-import { DisasterManagementData } from './DisasterManagementData';
-
-// [공통 컴포넌트]
 import AdminDataTable from '@/components/admin/AdminDataTable';
-import AdminPagination from '@/components/admin/AdminPagination';
-import AdminSearchBox from '@/components/admin/AdminSearchBox';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
-/**
- * [관리자] 실시간 재난 관리 목록
- */
 const DisasterManagementList = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
 
-  // ==================================================================================
-  // 1. 상태 관리
-  // ==================================================================================
-  const [disasters, setDisasters] = useState(DisasterManagementData || []);
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-
-  const [selectedCategory, setSelectedCategory] = useState("all"); 
-  const [searchParams, setSearchParams] = useState({ keyword: '' });
-  const [appliedKeyword, setAppliedKeyword] = useState('');
+  // 1. 상태 관리 (지진 API 추가)
+  const [disasters, setDisasters] = useState([
+    {
+      id: "WTH_COLD_001",
+      apiName: "기상청 한파 영향예보 조회 서비스",
+      category: "한파",
+      requestUrl: "/api/disaster/fetch/weather-list?type=3",
+      apiStatus: "체크중",
+      visibleYn: "Y",
+      updatedAt: "-",
+    },
+    {
+      id: "WTH_FIRE_001",
+      apiName: "산불 위험 예보 정보 서비스",
+      category: "산불",
+      requestUrl: "/api/disaster/fetch/forest-fire-list",
+      apiStatus: "체크중",
+      visibleYn: "Y",
+      updatedAt: "-",
+    },
+    {
+      id: "WTH_EQK_001", // ✅ 지진 API 추가
+      apiName: "기상청 국내 지진 통보 서비스",
+      category: "지진",
+      requestUrl: "/api/disaster/fetch/earthquake-list",
+      apiStatus: "체크중",
+      visibleYn: "Y",
+      updatedAt: "-",
+    }
+  ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState({ title: '', message: '', type: 'confirm', onConfirm: () => {} });
 
-  // 브레드크럼 초기화
-  useEffect(() => {
-    if (setBreadcrumbTitle) setBreadcrumbTitle("");
-  }, [setBreadcrumbTitle]);
+  // 2. 실시간 GET 요청 상태 체크 (200 OK 확인)
+  const checkApiStatus = useCallback(async () => {
+    // 현재 체크 중임을 표시하기 위해 상태 살짝 변경 (UX)
+    setDisasters(prev => prev.map(item => ({ ...item, apiStatus: '체크중' })));
 
-  const goDetail = useCallback((id) => {
-    navigate(`/admin/realtime/disasterManagementDetail/${id}`);
-  }, [navigate]);
-
-  // ==================================================================================
-  // 2. 필터 옵션
-  // ==================================================================================
-  const categoryOptions = [
-    { value: "all", label: "유형 전체" },
-    { value: "지진", label: "지진" },
-    { value: "호우·홍수", label: "호우·홍수" },
-    { value: "산사태", label: "산사태" },
-    { value: "태풍", label: "태풍" },
-    { value: "산불", label: "산불" },
-    { value: "한파", label: "한파" },
-  ];
-
-  // ==================================================================================
-  // 3. 데이터 가공
-  // ==================================================================================
-  const filteredData = useMemo(() => {
-    const searchTerm = appliedKeyword.replace(/\s+/g, "").toLowerCase();
-    
-    return disasters.filter(item => {
-      const isCategoryMatch = selectedCategory === "all" || item.category === selectedCategory;
-      if (!searchTerm) return isCategoryMatch;
-
-      const targetString = [item.category, item.dataSource, item.mapLayer]
-        .join("").replace(/\s+/g, "").toLowerCase();
+    const updatedData = await Promise.all(disasters.map(async (item) => {
+      try {
+        // 백엔드 API 호출 (절대 경로 보장)
+        const baseUrl = "http://localhost:8080";
+        const res = await axios.get(`${baseUrl}${item.requestUrl}`, { timeout: 5000 });
         
-      return isCategoryMatch && targetString.includes(searchTerm);
-    });
-  }, [disasters, appliedKeyword, selectedCategory]);
-
-  const currentData = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredData.slice(startIndex, startIndex + itemsPerPage);
-  }, [currentPage, filteredData, itemsPerPage]);
-
-  // ==================================================================================
-  // 4. 테이블 컬럼 정의
-  // ==================================================================================
-  const columns = useMemo(() => [
-    { key: 'id', header: 'No', width: '60px', className: 'text-center' },
-    { 
-      key: 'category', 
-      header: '재난유형', 
-      width: '120px', 
-      className: 'text-center',
-      render: (val) => <span className="text-gray-800 ">{val}</span>
-    },
-    { 
-      key: 'dataSource', 
-      header: '연동 데이터 (API)', 
-      className: 'text-left',
-      render: (val) => (
-        <div className="flex items-center gap-2 truncate max-w-[250px]" title={val}>
-          <Activity size={14} className="text-admin-primary flex-shrink-0" />
-          <span className="truncate text-[14px]">{val}</span>
-        </div>
-      )
-    },
-    { 
-      key: 'mapLayer', 
-      header: '지도 설정 정보', 
-      className: 'text-left',
-      render: (val) => (
-        <div className="flex items-center gap-2 text-gray-700 truncate max-w-[250px]" title={val}>
-          <Map size={14} className="text-blue-500 flex-shrink-0" />
-          <span className="truncate text-[14px]">{val}</span>
-        </div>
-      )
-    },
-    { 
-      key: 'apiStatus', 
-      header: 'API 상태', 
-      width: '100px', 
-      className: 'text-center',
-      render: (val) => (
-        <div className="flex justify-center">
-          <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${
-            val === '정상' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'
-          }`}>
-            {val}
-          </span>
-        </div>
-      )
-    },
-    { 
-      key: 'visibleYn', 
-      header: '노출여부', 
-      width: '100px',
-      render: (val, row) => (
-        <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); handleToggleVisible(row.id, val); }}
-            className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${val === 'Y' ? 'bg-admin-primary' : 'bg-gray-300'}`}
-          >
-            <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${val === 'Y' ? 'translate-x-6' : 'translate-x-0'}`} />
-          </button>
-        </div>
-      )
-    },
-    { key: 'updatedAt', header: '수정일', width: '120px', className: 'text-center text-gray-500' },
-    {
-        key: 'actions',
-        header: '상세/수정',
-        width: '100px',
-        className: 'text-center ',
-        render: (_, row) => (
-          <button onClick={() => goDetail(row.id)} className="border border-gray-300 rounded px-3 py-1 text-sm hover:bg-blue-100 transition-colors whitespace-nowrap">
-            보기
-          </button>
-        )
-    }
-  ], [goDetail]);
-
-  // ==================================================================================
-  // 5. 핸들러 (Handlers)
-  // ==================================================================================
-  const handleSearch = () => { setAppliedKeyword(searchParams.keyword); setCurrentPage(1); };
-  const handleReset = () => { setSearchParams({ keyword: '' }); setAppliedKeyword(''); setSelectedCategory("all"); setCurrentPage(1); };
-
-  const getAllSelectedItemsList = () => {
-    const selectedItems = disasters.filter(item => selectedIds.includes(item.id));
-    return selectedItems.map(item => item.category).join(", ");
-  };
-
-  const handleDeleteSelected = () => {
-    if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
-    const allNames = getAllSelectedItemsList();
-
-    setModalConfig({
-      title: '선택 항목 삭제',
-      message: (
-        <div className="flex flex-col gap-2 text-left">
-          <p>선택하신 <span className="text-red-600 font-bold">[{allNames}]</span> 항목을 정말 삭제하시겠습니까?</p>
-          <p className="text-body-s text-gray-500">* 삭제 시 API 연동 정보가 모두 제거됩니다.</p>
-        </div>
-      ),
-      type: 'delete',
-      onConfirm: () => {
-        setDisasters(prev => prev.filter(c => !selectedIds.includes(c.id)));
-        setSelectedIds([]);
-        setIsModalOpen(false);
+        if (res.status === 200) {
+          return { 
+            ...item, 
+            apiStatus: '정상', 
+            updatedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) 
+          };
+        }
+        return { ...item, apiStatus: '비정상', updatedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+      } catch (error) {
+        return { 
+          ...item, 
+          apiStatus: '비정상', 
+          updatedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+        };
       }
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleBatchStatus = (status) => {
-    if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
-    const targetStatus = status ? 'Y' : 'N';
+    }));
     
-    setModalConfig({
-      title: `일괄 ${status ? '노출' : '비노출'} 처리`,
-      message: (
-        <div className="flex flex-col gap-2 text-left">
-          <p>선택하신 <span className="text-admin-primary font-bold">[{selectedIds.length}개]</span> 항목을</p>
-          <p>일괄 <span className="font-bold underline">{status ? '노출' : '비노출'}</span> 처리하시겠습니까?</p>
-        </div>
-      ),
-      type: status ? 'confirm' : 'delete',
-      onConfirm: () => {
-        setDisasters(prev => prev.map(item => selectedIds.includes(item.id) ? { ...item, visibleYn: targetStatus } : item));
-        setSelectedIds([]); 
-        setIsModalOpen(false);
-      }
-    });
-    setIsModalOpen(true);
-  };
+    setDisasters(updatedData);
+  }, [disasters.length]); // disasters 객체 전체를 넣으면 무한루프 위험이 있어 길이로 체크
 
-  const handleToggleVisible = (id, currentStatus) => {
+  useEffect(() => {
+    if (setBreadcrumbTitle) setBreadcrumbTitle("재난 API 관리");
+    checkApiStatus();
+  }, []);
+
+  const handleToggleVisible = useCallback((id, currentStatus) => {
     const nextStatus = currentStatus === 'Y' ? 'N' : 'Y';
+    const target = disasters.find(d => d.id === id);
+
     setModalConfig({
       title: '노출 상태 변경',
-      message: (
-        <div className="flex flex-col gap-2 text-left">
-          <p>해당 항목의 상태를 <span className={`font-bold ${nextStatus === 'Y' ? 'text-admin-primary' : 'text-gray-500'}`}>[{nextStatus === 'Y' ? '노출' : '비노출'}]</span>로 변경하시겠습니까?</p>
-        </div>
-      ),
-      type: nextStatus === 'Y' ? 'confirm' : 'delete',
+      message: <p>{target?.category} 정보를 지도에서 <b>{nextStatus === 'Y' ? '노출' : '비노출'}</b>하시겠습니까?</p>,
+      type: 'confirm',
       onConfirm: () => {
         setDisasters(prev => prev.map(item => item.id === id ? { ...item, visibleYn: nextStatus } : item));
         setIsModalOpen(false);
       }
     });
     setIsModalOpen(true);
-  };
+  }, [disasters]);
 
-  // ==================================================================================
-  // 6. UI 렌더링
-  // ==================================================================================
-  return (
-    <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
-      <main className="p-10">
-        <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight font-bold">재난 관리</h2>
-        
-        <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8 mb-8">
-          <AdminSearchBox
-            searchParams={searchParams}
-            setSearchParams={setSearchParams}
-            onSearch={handleSearch}
-            onReset={handleReset}
+  // 3. 테이블 컬럼 정의
+  const columns = useMemo(() => [
+    { key: 'id', header: 'ID', width: '140px', className: 'text-center font-mono text-[11px]' },
+    { 
+      key: 'apiName', 
+      header: 'API 명칭', 
+      width: '240px', 
+      className: 'font-left',
+      render: (val) => <span className="font-semibold">{val}</span>
+    },
+    { 
+      key: 'category', 
+      header: '유형', 
+      width: '100px', 
+      className: 'text-center',
+      render: (val) => {
+        const colors = {
+          '한파': 'bg-blue-50 text-blue-600',
+          '산불': 'bg-orange-50 text-orange-600',
+          '지진': 'bg-red-50 text-red-600'
+        };
+        return <span className={`px-2 py-1 rounded text-[12px] font-bold ${colors[val] || 'bg-slate-50'}`}>{val}</span>
+      }
+    },
+    { 
+      key: 'requestUrl', 
+      header: '백엔드 요청 URL', 
+      className: 'text-left',
+      render: (val) => (
+        <div className="flex items-center gap-2 text-slate-400">
+          <LinkIcon size={14} className="flex-shrink-0" />
+          <span className="truncate max-w-[300px] text-[12px] font-mono bg-slate-50 px-2 py-1 rounded" title={val}>{val}</span>
+        </div>
+      )
+    },
+    { 
+      key: 'apiStatus', 
+      header: '상태', 
+      width: '100px', 
+      className: 'text-center',
+      render: (val) => (
+        <span className={`px-3 py-1 rounded text-[12px] font-bold border transition-colors ${
+          val === '정상' ? 'bg-green-100 text-green-700 border-green-200' : 
+          val === '체크중' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' : 'bg-red-100 text-red-700 border-red-200'
+        }`}>
+          {val === '체크중' ? '연결확인' : val}
+        </span>
+      )
+    },
+    { 
+      key: 'visibleYn', 
+      header: '지도노출', 
+      width: '100px',
+      render: (val, row) => (
+        <div className="flex justify-center">
+          <button
+            onClick={(e) => { e.stopPropagation(); handleToggleVisible(row.id, val); }}
+            className={`w-10 h-5 flex items-center rounded-full p-1 transition-all ${val === 'Y' ? 'bg-admin-primary' : 'bg-gray-300'}`}
           >
-            {/* 사고속보 페이지와 동일하게 select 박스 배치 */}
-            <div className="relative w-full md:w-56">
-              <select
-                value={selectedCategory}
-                onChange={(e) => { setSelectedCategory(e.target.value); setCurrentPage(1); }}
-                className="w-full appearance-none h-14 pl-5 pr-8 text-body-m border border-admin-border rounded-md bg-white focus:border-admin-primary outline-none cursor-pointer"
-              >
-                {categoryOptions.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-              </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
-            </div>
-          </AdminSearchBox>
-        </section>
+            <div className={`bg-white w-3 h-3 rounded-full shadow-sm transform transition-transform ${val === 'Y' ? 'translate-x-5' : 'translate-x-0'}`} />
+          </button>
+        </div>
+      )
+    },
+    { key: 'updatedAt', header: '최근 점검', width: '110px', className: 'text-center text-slate-500 text-[12px]' },
+    {
+        key: 'actions',
+        header: '관리',
+        width: '80px',
+        className: 'text-center',
+        render: (_, row) => (
+          <button onClick={() => navigate(`/admin/realtime/disasterManagementDetail/${row.id}`)} className="text-admin-primary hover:underline text-sm font-medium">
+            수정
+          </button>
+        )
+    }
+  ], [handleToggleVisible, navigate]);
+
+  return (
+    <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-slate-900">
+      <main className="p-10">
+        <div className="flex justify-between items-center mb-10">
+          <div>
+            <h2 className="text-heading-l text-admin-text-primary tracking-tight font-bold">재난 API 관리</h2>
+            <p className="text-slate-500 mt-1 text-sm">기상청 및 산림청 외부 API 데이터의 백엔드 연동 상태를 실시간 점검합니다.</p>
+          </div>
+          <button 
+            onClick={checkApiStatus} 
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 rounded-md text-sm hover:bg-slate-50 transition-all active:scale-95 shadow-sm font-medium"
+          >
+            <RefreshCw size={14} className={disasters.some(d => d.apiStatus === '체크중') ? 'animate-spin' : ''} /> 상태 즉시 체크
+          </button>
+        </div>
 
         <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8">
-          <div className="flex justify-between items-end mb-6">
-            
-            <div className="flex items-center gap-4">
-              <span className="text-body-m-bold text-admin-text-secondary">
-                {selectedIds.length > 0 ? (
-                  <span className="text-admin-primary">{selectedIds.length}개 선택됨</span>
-                ) : (
-                  `전체 ${filteredData.length}건`
-                )}
-              </span>
-
-              <div className="flex items-center ml-4 gap-4">
-                <button onClick={() => handleBatchStatus(true)} className="flex items-center gap-2 group cursor-pointer">
-                  <div className="w-5 h-5 rounded-full border-2 border-[#2563EB] flex items-center justify-center group-hover:bg-blue-50 transition-all">
-                    <div className="w-2.5 bg-[#2563EB] h-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <span className="text-[15px] font-bold text-[#111]">일괄 노출</span>
-                </button>
-                <div className="w-[1px] h-3 bg-gray-300" />
-                <button onClick={() => handleBatchStatus(false)} className="flex items-center gap-2 group cursor-pointer">
-                  <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center group-hover:bg-gray-100 transition-all">
-                    <div className="w-2.5 bg-gray-400 h-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <span className="text-[15px] font-bold text-[#666]">일괄 비노출</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <button 
-                onClick={handleDeleteSelected} 
-                className="px-8 h-14 bg-[#FF003E] text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm"
-              >
-                삭제
-              </button>
-              <button 
-                onClick={() => navigate('/admin/realtime/disasterManagementAdd')} 
-                className="px-8 h-14 bg-admin-primary text-white rounded-md font-bold hover:opacity-90 active:scale-95 transition-all shadow-sm"
-              >
-                등록
-              </button>
-            </div>
-          </div>
-
-          <AdminDataTable
-            columns={columns}
-            data={currentData}
-            selectedIds={selectedIds}
-            onSelectionChange={setSelectedIds}
-            rowKey="id"
-          />
-
-          <div className="mt-10">
-            <AdminPagination
-              currentPage={currentPage}
-              totalItems={filteredData.length}
-              itemsPerPage={itemsPerPage}
-              onPageChange={setCurrentPage}
-            />
-          </div>
+          <AdminDataTable columns={columns} data={disasters} rowKey="id" />
         </section>
       </main>
 
-      <AdminConfirmModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        {...modalConfig}
-      />
+      <AdminConfirmModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} {...modalConfig} />
     </div>
   );
 };
