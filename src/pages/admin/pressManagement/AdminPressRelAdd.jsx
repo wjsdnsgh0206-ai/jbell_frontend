@@ -1,28 +1,24 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal'; 
-import { pressData } from '@/pages/user/openboards/BoardData'; 
+import { pressService } from '@/services/api';
 import { Paperclip, X } from 'lucide-react';
 
 // ReactQuill과 Quill 임포트 (중복 제거)
 import ReactQuill, { Quill } from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
-// [에러 해결] 명시적 포맷 및 모듈 등록
-// 1. 기본 블록 포맷 등록
-const Block = Quill.import('blots/block');
-Block.tagName = 'P'; 
-Quill.register(Block, true);
-
-// 2. 폰트 등록
-const Font = Quill.import('formats/font');
-Quill.register(Font, true);
-
-// 3. 리스트 및 불렛 모듈 강제 등록 (질문하신 부분 포함)
-const ListItem = Quill.import('formats/list/item');
-if (ListItem) {
-  Quill.register(ListItem, true);
-}
+// [수정] 중복 등록 방지: Quill 등록 로직을 컴포넌트 외부에서 안전하게 처리
+const registerQuill = () => {
+  const Block = Quill.import('blots/block');
+  Block.tagName = 'P';
+  Quill.register(Block, true);
+  
+  // 이미 등록된 포맷은 다시 등록하지 않도록 방어 로직이 필요할 수 있습니다.
+  // 보통 React-Quill-new는 기본 포맷을 다 포함하고 있으므로, 
+  // 특별한 커스터마이징이 없다면 아래 register들은 생략해도 에러가 사라집니다.
+};
+registerQuill();
 
 // 아이콘 컴포넌트
 const SuccessIcon = ({ fill = "#4ADE80" }) => (
@@ -58,21 +54,18 @@ const AdminPressRelAdd = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
-  // 폼 데이터 초기 상태
+  // 폼 데이터 초기 상태 (rawFiles 추가)
   const [formData, setFormData] = useState({
-    mgmtId: '', 
-    regType: '직접등록',
     title: '',
-    source: '', // [수정] 기본값 제거하여 placeholder가 보이게 함
+    source: '',
     sourceUrl: '',
-    author: '관리자',
     isPublic: true,
-    isPin: false,
     content: '',
-    files: []
+    files: [],      // 화면 목록용 (미리보기)
+    rawFiles: []    // 실제 전송용 (File 객체 원본)
   });
 
-  const [errors, setErrors] = useState({ mgmtId: false, title: false, source: false, content: false });
+  const [errors, setErrors] = useState({ title: false, source: false, content: false });
 
   // Quill에서 허용할 포맷 지정
   const allFormats = [
@@ -88,6 +81,8 @@ const AdminPressRelAdd = () => {
     return () => setBreadcrumbTitle("");
   }, [setBreadcrumbTitle]);
 
+
+
   // 메모리 해제
   useEffect(() => {
     return () => {
@@ -101,10 +96,10 @@ const AdminPressRelAdd = () => {
     };
   }, [formData.files]);
 
-  // [수정] 페이지 이탈 방지 (브라우저 뒤로가기 시 모달창 방지 위해 window 이벤트는 새로고침 방지용으로만 사용)
+ // [수정] 이탈 방지 로직에서 mgmtId 참조 제거
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      const isDirty = formData.title.trim() || formData.content.replace(/<(.|\n)*?>/g, '').trim() || formData.mgmtId.trim();
+      const isDirty = formData.title.trim() || formData.content.replace(/<(.|\n)*?>/g, '').trim();
       if (isDirty) {
         e.preventDefault();
         e.returnValue = ""; 
@@ -112,7 +107,7 @@ const AdminPressRelAdd = () => {
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [formData]);
+  }, [formData.title, formData.content]); // 의존성 배열 최적화
 
   // --- [핸들러 구역] ---
 
@@ -179,43 +174,44 @@ const AdminPressRelAdd = () => {
     },
   }), []);
 
+  const handleEditorChange = (content) => {
+  setFormData(prev => ({ ...prev, content }));
+  if (errors.content) setErrors(prev => ({ ...prev, content: false }));
+};
+
+  // [수정] handleChange에서 mgmtId 제한 제거
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const limits = { title: 100, mgmtId: 20, source: 20 };
+    const limits = { title: 100, source: 20 }; // mgmtId 삭제
     if (limits[name] && value.length > limits[name]) return;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: false }));
   };
 
-  const handleEditorChange = (content) => {
-    setFormData(prev => ({ ...prev, content }));
-    if (errors.content) setErrors(prev => ({ ...prev, content: false }));
-  };
+  // --- [핸들러 구역 수정] ---
 
   const addFiles = (newFiles) => {
     if (!newFiles || newFiles.length === 0) return;
     
-    // 허용 확장자 및 제약 조건 정의
     const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'pdf', 'hwp', 'docx', 'xlsx', 'zip'];
     const MAX_FILE_COUNT = 5;
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
     const currentFiles = formData.files || [];
     const incomingFiles = Array.from(newFiles);
 
-    const validFiles = [];
+    const validFilePreviews = []; // 화면 표시용
+    const validFileObjects = [];  // 백엔드 전송용
 
-    // for...of 문으로 순차적 검증
     for (const file of incomingFiles) {
-      
-      // 1. 중복 체크 (파일명+확장자 일치 여부)
+      // 1. 중복 체크
       const isDuplicate = currentFiles.some(existingFile => existingFile.name === file.name);
       if (isDuplicate) {
         alert(`"${file.name}"은(는) 이미 추가된 파일입니다.`);
         continue; 
       }
 
-      // 2. 전체 개수 체크 (기존 + 새로 추가될 파일)
-      if (currentFiles.length + validFiles.length >= MAX_FILE_COUNT) {
+      // 2. 개수 체크
+      if (currentFiles.length + validFilePreviews.length >= MAX_FILE_COUNT) {
         alert(`파일은 최대 ${MAX_FILE_COUNT}개까지만 등록 가능합니다.`);
         break; 
       }
@@ -223,7 +219,7 @@ const AdminPressRelAdd = () => {
       // 3. 확장자 체크
       const fileExt = file.name.split('.').pop().toLowerCase();
       if (!allowedExtensions.includes(fileExt)) {
-        alert(`${file.name}은(는) 허용되지 않는 파일 형식입니다.\n(허용: JPG, PNG, PDF, HWP, DOCX, XLSX, ZIP)`);
+        alert(`${file.name}은(는) 허용되지 않는 파일 형식입니다.`);
         continue; 
       }
 
@@ -233,42 +229,48 @@ const AdminPressRelAdd = () => {
         continue;
       }
 
-      // 검증 통과한 파일 객체 생성
-      validFiles.push({
+      // 검증 통과: 미리보기 데이터와 실제 파일 객체 각각 저장
+      validFilePreviews.push({
         name: file.name,
         url: URL.createObjectURL(file), 
         size: formatBytes(file.size)
       });
+      validFileObjects.push(file);
     }
 
-    // 유효한 파일이 있을 때만 상태 업데이트 및 토스트 알림
-    if (validFiles.length > 0) {
-      setFormData(prev => ({ ...prev, files: [...prev.files, ...validFiles] }));
-      setToastMessage(`${validFiles.length}개의 파일이 추가되었습니다.`);
+    if (validFilePreviews.length > 0) {
+      setFormData(prev => ({ 
+        ...prev, 
+        files: [...prev.files, ...validFilePreviews],
+        rawFiles: [...(prev.rawFiles || []), ...validFileObjects]
+      }));
+      setToastMessage(`${validFilePreviews.length}개의 파일이 추가되었습니다.`);
       setShowToast(true);
       setTimeout(() => setShowToast(false), 2000);
     }
   };
 
+  // 첨부파일 삭제 핸들러 (이후 코드는 동일)
+
   // 첨부파일 삭제 핸들러
 const handleRemoveFile = (idx) => {
   const fileToRemove = formData.files[idx];
 
-  // 브라우저 메모리 누수 방지
   if (fileToRemove.url && fileToRemove.url.startsWith('blob:')) {
     URL.revokeObjectURL(fileToRemove.url);
   }
 
   setFormData(prev => ({
     ...prev,
-    files: prev.files.filter((_, i) => i !== idx)
+    files: prev.files.filter((_, i) => i !== idx),
+    rawFiles: prev.rawFiles.filter((_, i) => i !== idx) // rawFiles도 함께 삭제
   }));
 };
 
+  // [수정] 저장 시 필수값 체크에서 mgmtId 제외
   const handleSave = () => {
     const pureText = formData.content.replace(/<(.|\n)*?>/g, '').trim();
     const newErrors = {
-      mgmtId: !formData.mgmtId.trim(),
       title: !formData.title.trim(),
       source: !formData.source.trim(),
       content: !pureText 
@@ -282,27 +284,45 @@ const handleRemoveFile = (idx) => {
     setIsModalOpen(true);
   };
 
-  const handleConfirmSave = () => {
+ const handleConfirmSave = async () => {
   setIsModalOpen(false);
-  const now = new Date();
-  const formattedDate = now.toISOString().replace('T', ' ').substring(0, 19);
-
-  const newEntry = {
-    ...formData, // mgmtId, title, content, files 등 모든 데이터 포함
-    id: Date.now(),
-    date: formattedDate.split(' ')[0],
-    createdAt: formattedDate,
-    updatedAt: formattedDate,
-    views: 0,
-    // author: '관리자', // 이미 formData 초기값에 있다면 생략 가능
-  };
-
-  pressData.unshift(newEntry);
-  setToastMessage("보도자료가 성공적으로 등록되었습니다.");
-  setShowToast(true);
   
-  // 토스트 메시지를 보여준 후 페이지 이동
-  setTimeout(() => navigate('/admin/contents/pressRelList'), 1500);
+  try {
+    const submitData = new FormData();
+    
+    // 1. 백엔드 PressDTO 구조와 100% 일치하게 객체 생성
+    const pressDto = {
+      title: formData.title,
+      body: formData.content,          // DTO 필드명 body
+      visibleYn: formData.isPublic ? 'Y' : 'N',
+      source: formData.source,
+      contentLink: formData.sourceUrl, // DTO 필드명 contentLink
+      userId: 'ADMIN_MASTER', 
+      regType: '직접등록'
+    };
+
+    // 2. 중요: 스프링 컨트롤러가 @RequestPart("data")로 받으므로 Blob 처리
+    submitData.append("data", new Blob([JSON.stringify(pressDto)], { type: "application/json" }));
+    
+    // 3. 파일 데이터 추가 (rawFiles에서 원본 파일 꺼내기)
+    if (formData.rawFiles && formData.rawFiles.length > 0) {
+      formData.rawFiles.forEach(file => {
+        submitData.append('files', file); // 컨트롤러의 @RequestPart("files")
+      });
+    }
+
+    // 4. API 호출
+    const response = await pressService.admin.create(submitData);
+
+    if (response) {
+      setToastMessage("보도자료가 성공적으로 등록되었습니다.");
+      setShowToast(true);
+      setTimeout(() => navigate('/admin/contents/pressRelList'), 1500);
+    }
+  } catch (error) {
+    console.error("등록 실패:", error);
+    alert("등록 중 서버 오류가 발생했습니다.");
+  }
 };
 
 // 1. 취소 실행 로직 (별도 함수 분리)
@@ -316,18 +336,15 @@ const confirmCancel = () => {
   }, 1200);
 };
 
-// 2. 취소 버튼 클릭 핸들러
-const handleCancel = () => {
-  // 제목, 관리번호, 본문 중 하나라도 입력값이 있다면 모달을 띄움
-  const isStarted = formData.title.trim() || formData.mgmtId.trim() || formData.content.replace(/<(.|\n)*?>/g, '').trim();
-  
-  if (isStarted) {
-    setIsCancelModalOpen(true);
-  } else {
-    // 아무것도 입력 안 했으면 바로 뒤로 가기 (토스트 없이 즉시 이동)
-    navigate(-1);
-  }
-};
+// [수정] 취소 버튼 클릭 시 mgmtId 참조 제거
+  const handleCancel = () => {
+    const isStarted = formData.title.trim() || formData.content.replace(/<(.|\n)*?>/g, '').trim();
+    if (isStarted) {
+      setIsCancelModalOpen(true);
+    } else {
+      navigate(-1);
+    }
+  };
 
   return (
     <div className="relative flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
@@ -348,22 +365,6 @@ const handleCancel = () => {
           <h3 className="text-[24px] font-extrabold mb-14 text-[#111] tracking-tight border-b-2 border-gray-100 pb-3">보도자료 정보 입력</h3>
           
           <div className="flex flex-col">
-            <div className="mb-10 w-full max-w-[500px]">
-              <label className="block font-bold text-[16px] mb-3">관리번호 (ID) (필수)</label>
-              <input 
-                name="mgmtId"
-                value={formData.mgmtId}
-                onChange={handleChange}
-                maxLength={20}
-                placeholder="W-2025-001"
-                className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${errors.mgmtId ? 'border-[#E15141] ring-1 ring-red-50' : 'border-gray-300 focus:border-[#2563EB]'}`}
-              />
-              <div className="flex justify-between mt-2 px-1">
-                <span className="h-5">{errors.mgmtId && <span className="text-[#E15141] text-sm flex items-center gap-2 font-medium"><ErrorIcon /> 관리번호를 입력해주세요</span>}</span>
-                <span className={`text-[13px] font-medium ${formData.mgmtId.length >= 20 ? 'text-red-500 font-bold' : 'text-gray-400'}`}>{formData.mgmtId.length} / 20자</span>
-              </div>
-            </div>
-
             <div className="mb-10 w-full">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">제목 (필수)</label>
               <input 
