@@ -1,34 +1,40 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { ArrowLeft, Calendar, User, Eye, Paperclip, Edit } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 
 const AdminBoardDetail = () => {
   const navigate = useNavigate();
-  // const location = useLocation();
   const { noticeId } = useParams();
-  console.log(noticeId)
+
+  // 상태 변수 이름
   const [post, setPost] = useState(null);
 
   // location.state로 넘어온 데이터 또는 id로 찾기
   // const post = location.state || noticeData.find(p => p.boardId === parseInt(boardId));
 
+  // 조회수 방어 코드
   useEffect(() => {
+    if (!noticeId) return;
+
     axios.get(`/api/notice/${noticeId}`)
       .then(res => {
+        // 데이터가 정상적으로 들어왔는지 로그로 확인해 보세요.
+        console.log("받은 데이터:", res.data);
         setPost(res.data);
       })
       .catch(err => {
-        console.error(err);
+        console.error("데이터 로딩 실패:", err);
+        // 에러 발생 시 알림을 주면 파악이 쉽습니다.
+        alert("게시글을 불러오는 중 오류가 발생했습니다.");
       });
   }, [noticeId]);
-
 
   // 데이터가 없으면 에러 처리
   if (!post) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center min-h-screen bg-admin-bg">
-        <p className="text-xl text-gray-500 mb-4">게시글을 찾을 수 없습니다.</p>
+        <p className="text-xl text-gray-500 mb-4">게시글을 불러오는 중이거나 찾을 수 없습니다.</p>
         <button 
           onClick={() => navigate('/admin/contents/adminBoardList')}
           className="px-6 py-2 bg-admin-primary text-white rounded-md"
@@ -38,6 +44,43 @@ const AdminBoardDetail = () => {
       </div>
     );
   }
+/** <============================================================ ... ============================================================> **/
+/** <============================================================ ... ============================================================> **/
+  // 파일 다운로드 핸들러
+  const handleDownload = async (fileId) => {
+    try {
+      const response = await axios.get(`/api/notice/file/download/${fileId}`, {
+        responseType: 'blob'
+      });
+      
+      // 파일명 추출
+      const contentDisposition = response.headers['content-disposition'];
+      let fileName = 'download';
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (fileNameMatch && fileNameMatch[1]) {
+          fileName = fileNameMatch[1].replace(/['"]/g, '');
+        }
+      }
+      
+      // 다운로드 트리거
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('다운로드 실패:', error);
+        alert('파일 다운로드에 실패했습니다.');
+      }
+  };
+/** <============================================================ ... ============================================================> **/
+
+
+
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg p-10 font-sans">
@@ -64,12 +107,14 @@ const AdminBoardDetail = () => {
                 공지
               </span>
             )}
+            {/* 게시 여부 뱃지 부분 */}
             <span className={`px-3 py-1 rounded-md text-[12px] font-bold border ${
-              post.isPublic 
-                ? 'bg-blue-50 text-blue-600 border-blue-200' 
-                : 'bg-gray-50 text-gray-400 border-gray-200'
-            }`}>
-              {post.isPublic ? '사용' : '미사용'}
+                // post.isPublic이 문자열 'Y'인지 확인합니다.
+                post.isPublic === 'Y' 
+                  ? 'bg-blue-50 text-blue-600 border-blue-200' 
+                  : 'bg-gray-50 text-gray-400 border-gray-200'
+              }`}>
+              {post.isPublic === 'Y' ? '사용' : '미사용'}
             </span>
           </div>
           
@@ -95,7 +140,7 @@ const AdminBoardDetail = () => {
             )}
             <div className="flex items-center gap-2">
               <Eye size={16} />
-              <span>조회수: {post.views.toLocaleString()}</span>
+              <span>조회수: {(post.views ?? 0).toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -117,7 +162,7 @@ const AdminBoardDetail = () => {
             <ul className="space-y-2">
               {post.files.map((file, index) => (
                 <li 
-                  key={index}
+                  key={file.fileId}
                   className="flex items-center justify-between p-3 bg-graygray-5 rounded-md border border-graygray-10 hover:bg-graygray-10 transition-colors"
                 >
                   <div className="flex items-center gap-3">
@@ -125,11 +170,13 @@ const AdminBoardDetail = () => {
                     <span className="text-[14px] text-graygray-70">{file.name || file}</span>
                     {file.size && (
                       <span className="text-[12px] text-graygray-30">
-                        ({(file.size / 1024).toFixed(1)} KB)
+                        ({(file.fileSize / 1024).toFixed(1)} KB)
                       </span>
                     )}
                   </div>
-                  <button className="text-[13px] text-admin-primary font-bold hover:underline">
+                  <button 
+                  onClick={() => handleDownload(file.fileId)}
+                  className="text-[13px] text-admin-primary font-bold hover:underline">
                     다운로드
                   </button>
                 </li>
