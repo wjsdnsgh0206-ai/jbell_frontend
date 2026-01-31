@@ -12,7 +12,7 @@ const useTyphoon = () => {
   const formatTime = (timeStr) => {
     if (!timeStr) return "-";
     const str = String(timeStr);
-    if (str.length < 12) return str; 
+    if (str.length < 12) return str;
     return `${str.substring(4, 6)}.${str.substring(6, 8)} ${str.substring(8, 10)}:${str.substring(10, 12)}`;
   };
 
@@ -22,22 +22,27 @@ const useTyphoon = () => {
       // 1. 태풍 경로 데이터
       const typhoonRes = await disasterModalService.getTyphoonList();
       if (typhoonRes?.status === "SUCCESS" && Array.isArray(typhoonRes.data)) {
-        const formattedPath = typhoonRes.data
-          .filter(t => t.typhoonLat && t.typhoonLon)
-          .map((t, index) => ({
-            // [해결 1] 키 중복 방지: 연도-번호 뒤에 index를 붙여서 고유성 확보
-            id: `path-${t.typhoonYear}-${t.typhoonNo}-${index}`, 
-            name: t.typhoonName,
-            lat: Number(t.typhoonLat),
-            lng: Number(t.typhoonLon),
-            type: 'typhoon_path'
-          }));
-        setTyphoonList(formattedPath);
+        // src/hooks/user/useTyphoon.js (일부 수정)
+const formattedPath = typhoonRes.data
+  .filter((t) => t.typhoonLat !== null && t.typhoonLon !== null) // null 체크 강화
+  .map((t, index) => ({
+    id: `path-${t.typhoonYear || "2026"}-${t.typhoonNo || index}-${index}`,
+    typhoonName: t.typhoonName,
+    typhoonLat: Number(t.typhoonLat), 
+    typhoonLon: Number(t.typhoonLon), 
+    typhoonActiveYn: t.typhoonActiveYn,
+    typhoonAnalysisDatetime: t.typhoonAnalysisDatetime,
+    type: "typhoon_path",
+  }));
+setTyphoonList(formattedPath);
+
       }
+
+      console.log("태풍 >>>>", typhoonRes);
 
       // 2. 기상특보 7번(태풍) 데이터
       const response = await disasterModalService.getWeatherList(7);
-      
+
       // [해결 2] rawData.map 에러 방지: 데이터가 배열인지 확실히 체크
       const itemList = Array.isArray(response?.data) ? response.data : [];
 

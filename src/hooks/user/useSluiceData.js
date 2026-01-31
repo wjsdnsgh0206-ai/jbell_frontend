@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { disasterModalService } from "@/services/api";
+import { JEONBUK_CODE_MAP } from "@/components/user/disaster/disasterCodes";
 
 const ALL_DAM_LIST = [
   { code: '3031210', name: '용담댐', region: '전북' },
@@ -14,8 +15,60 @@ const ALL_DAM_LIST = [
 
 export const useSluiceData = () => {
   const [damData, setDamData] = useState([]);
+  const [rainMarkers, setRainMarkers] = useState([]); // 호우특보 마커
+  const [rainStatus, setRainStatus] = useState({});   // 호우특보 지역 상태
   const [loading, setLoading] = useState(false);
 
+  const formatTime = (timeStr) => {
+    if (!timeStr) return "-";
+    const str = String(timeStr);
+    return str.length < 12 ? str : `${str.substring(4, 6)}.${str.substring(6, 8)} ${str.substring(8, 10)}:${str.substring(10, 12)}`;
+  };
+
+  // 1. 호우특보 데이터 가져오기 (코드 2번)
+  const fetchRainfallWarning = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await disasterModalService.getWeatherList(2); // 2: 호우
+      const itemList = Array.isArray(response?.data) ? response.data : [];
+      
+      const statusMap = {};
+      const newMarkers = [];
+
+      itemList.forEach((item, index) => {
+        const regionInfo = JEONBUK_CODE_MAP[item.areaCode];
+        if (!regionInfo) return;
+
+        const regionName = regionInfo.name;
+        const isWarning = Number(item.warnStress) === 1; // 1: 경보, 0: 주의보
+
+        statusMap[regionName] = {
+          level: isWarning ? "경보" : "주의보",
+          color: isWarning ? "#FF4D4D" : "#FFA500",
+        };
+
+        newMarkers.push({
+          id: `rain-${item.areaCode}-${index}`,
+          region: regionName,
+          level: isWarning ? "경보" : "주의보",
+          color: isWarning ? "#FF4D4D" : "#FFA500",
+          publishTime: formatTime(item.tmFc),
+          startTime: formatTime(item.startTime),
+          lat: regionInfo.lat,
+          lng: regionInfo.lng,
+        });
+      });
+
+      setRainStatus(statusMap);
+      setRainMarkers(newMarkers);
+    } catch (error) {
+      console.error("🚨 [호우특보 API] 에러:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // 2. 댐 데이터 가져오기 (기존 유지)
   const fetchDamData = async () => {
     if (loading) return;
     setLoading(true);
@@ -27,12 +80,10 @@ export const useSluiceData = () => {
     const eddt = format(now);
     const stdt = format(new Date(now.setDate(now.getDate() - 10)));
 
-    // 1. 우선 빈 데이터(또는 로딩 상태용 리스트)를 먼저 세팅해서 화면을 바로 띄움
     const initialList = ALL_DAM_LIST.map(dam => ({ ...dam, isOffline: true, time: '불러오는 중...' }));
     setDamData(initialList);
 
     try {
-      // 2. [개선 핵심] Promise.all 대신 개별적으로 fetch하고 성공할 때마다 상태 업데이트
       ALL_DAM_LIST.forEach(async (dam, index) => {
         try {
           const res = await disasterModalService.getSluice({
@@ -54,26 +105,21 @@ export const useSluiceData = () => {
             isOffline: !target
           };
 
-          // 성공한 놈부터 하나씩 갈아끼워줌 (체감 속도 대폭 향상)
           setDamData(prev => {
             const newList = [...prev];
             newList[index] = updatedDam;
             return newList;
           });
-
         } catch (err) {
-          console.error(`${dam.name} 데이터 로드 실패:`, err);
+          console.error(`${dam.name} 로드 실패:`, err);
         }
       });
-
     } catch (error) {
-      console.error("🚨 [수문 API] 전체 에러:", error);
+      console.error("🚨 [수문 API] 에러:", error);
     } finally {
-      // API 호출들이 비동기로 돌아가므로 로딩 종료 시점은 적절히 조절
-      // 여기서는 요청을 다 보낸 시점에서 로딩 스피너를 끄게 됨
       setLoading(false);
     }
   };
 
-  return { damData, loading, fetchDamData };
+  return { damData, rainMarkers, rainStatus, loading, fetchDamData, fetchRainfallWarning };
 };
