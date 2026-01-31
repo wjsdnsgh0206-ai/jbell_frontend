@@ -79,9 +79,10 @@ const AllRoutes = (props) => {
   );
   
   // [A] 주요 안전정책 사이드바 그룹
-  const mainSafetyPoliciesPageRoutes = allUserRoutes.filter(
+  const safetyPoliciesRoutes = allUserRoutes.filter(
     (route) => route.nowPage === "주요 안전정책"
   );
+
   // [B] 사이드바 없는 그룹 (메인페이지, 로그인)
   const noSidebarRoutes = allUserRoutes.filter((route) => !route.sidebarData);
 
@@ -160,20 +161,21 @@ const AllRoutes = (props) => {
         ))}
       </Route>
       {/* --------------------------------------------------------- */}
-      {/* 주요 안전정책 레이아웃 그룹 (UserLayout이 한 번만 마운트됨) */}
+      {/* 주요 안전정책 레이아웃 그룹 */}
+      {/* SideMenuData.js의 키값(SAFETY_POLICIES)과 일치시켰습니다. */}
       {/* --------------------------------------------------------- */}
       <Route
         element={
           <UserLayout
-            sidebarData={SIDE_MENU_DATA.MAIN_SAFETY_POLICIES}
+            sidebarData={SIDE_MENU_DATA.SAFETY_POLICIES} 
             nowPage="주요 안전정책"
             {...props}
           />
         }
       >
-        {mainSafetyPoliciesPageRoutes.map((route, idx) => (
+        {safetyPoliciesRoutes.map((route, idx) => (
           <Route
-            key={`mainSafetyPolicies-${idx}`}
+            key={`safetyPolicies-${idx}`}
             path={route.path}
             element={route.element}
           />

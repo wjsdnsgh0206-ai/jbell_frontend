@@ -29,15 +29,8 @@ const MountainSafetyBehaviorMethod = lazy(() => import("@/pages/user/behaviorMet
 const UserFacilityList = lazy(() => import("@/pages/user/facility/UserFacilityList"));
 const UserFacilityDetail = lazy(() => import("@/pages/user/facility/UserFacilityDetail"));
 
-// 도시안전기본계획 import
-const CitySafetyMasterPlan = lazy(() => import("@/pages/user/mainSafetyPolicies/citySafetyMasterPlan/CitySafetyMasterPlan"));
-// 재난별 안전정책 import
-const EarthquakeSafetyPolicy = lazy(() => import("@/pages/user/mainSafetyPolicies/disasterSafetyPolicy/earthquake/EarthquakeSafetyPolicy"));
-const StormAndFloodSafetyPolicy = lazy(() => import("@/pages/user/mainSafetyPolicies/disasterSafetyPolicy/stormAndFlood/StormAndFloodSafetyPolicy"));
-// // 시민 안전보험 import
-const CitizenSafetyInsurance = lazy(() => import("@/pages/user/mainSafetyPolicies/citizenSafetyInsurance/CitizenSafetyInsurance"));
-// // 풍수해 안전보험 import
-const StormAndFloodInsurance = lazy(() => import("@/pages/user/mainSafetyPolicies/stormAndFloodInsurance/StormAndFloodInsurance"));
+// 주요 안전정책 import
+const SafetyPolicyList = lazy(() => import("@/pages/user/safetyPolicy/SafetyPolicyList"));
 
 export const jhUserRoutes = [
   /* 자연재난행동요령 */
@@ -79,32 +72,8 @@ export const jhUserRoutes = [
 
   /* 도시안전기본계획 및 안전정책 (기존 유지) */
   { 
-    path: "/citySafetyMasterPlan",
-    element: <CitySafetyMasterPlan />, 
-    sidebarData: SIDE_MENU_DATA.MAIN_SAFETY_POLICIES,
-    nowPage: "주요 안전정책",
-  },
-  { 
-    path: "/earthquakeSafetyPolicy",
-    element: <EarthquakeSafetyPolicy />, 
-    sidebarData: SIDE_MENU_DATA.MAIN_SAFETY_POLICIES,
-    nowPage: "주요 안전정책",
-  },
-  { 
-    path: "/stormAndFloodSafetyPolicy",
-    element: <StormAndFloodSafetyPolicy />, 
-    sidebarData: SIDE_MENU_DATA.MAIN_SAFETY_POLICIES,
-    nowPage: "주요 안전정책",
-  },
-  { 
-    path: "/citizenSafetyInsurance",
-    element: <CitizenSafetyInsurance />, 
-    sidebarData: SIDE_MENU_DATA.MAIN_SAFETY_POLICIES,
-    nowPage: "주요 안전정책",
-  },
-  { 
-    path: "/stormAndFloodInsurance",
-    element: <StormAndFloodInsurance />, 
+    path: "/safetyPolicyList",
+    element: <SafetyPolicyList />, 
     sidebarData: SIDE_MENU_DATA.MAIN_SAFETY_POLICIES,
     nowPage: "주요 안전정책",
   },
