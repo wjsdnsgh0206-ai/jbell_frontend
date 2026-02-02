@@ -33,7 +33,7 @@ const AdminSideBar = () => {
 
   return (
     /* 배경색 복구: #001529 기반 토큰 적용 */
-    <aside className="w-64 bg-[var(--admin-sidebar-bg)] text-gray-300 flex flex-col min-h-screen">
+    <aside className="w-64 min-w-[16rem] bg-[var(--admin-sidebar-bg)] text-gray-300 flex flex-col min-h-screen">
       {/* 로고 영역: 구조 유지 */}
 
           <div className="px-5 pt-5 flex justify-center cursor-pointer items-center border-b border-white/5"
