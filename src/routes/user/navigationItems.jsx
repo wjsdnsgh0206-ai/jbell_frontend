@@ -32,7 +32,7 @@ const navigationItems = [
   },
   {
     label: "주요 안전정책",
-    path: "/safetyPolicyList",
+    path: "/safetyPolicyPage",
   },
   {
     label: "열린마당",

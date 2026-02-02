@@ -249,7 +249,17 @@ const AdminSafetyPolicyList = () => {
         </div>
       )
     },
-    { key: 'createdAt', header: '등록일', width: '130px', className: 'text-center text-gray-500 text-sm', render: (val) => val ? val.substring(0, 10) : '-' },
+    { 
+      key: 'lastUpdateDate', 
+      header: '최종 수정일시', 
+      width: '180px', // 시간까지 표시되므로 너비 확장
+      className: 'text-center text-gray-500 text-sm',
+      render: (val) => {
+        if (!val) return '-';
+        // "2026-02-02T15:24:57" -> "2026-02-02 15:24"
+        return val.replace('T', ' ').substring(0, 16);
+      }
+    },
     {
       key: 'actions', header: '관리', width: '160px', className: 'text-center',
       render: (_, row) => (

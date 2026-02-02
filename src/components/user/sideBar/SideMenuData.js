@@ -98,7 +98,7 @@ export const SIDE_MENU_DATA = {
   SAFETY_POLICIES: [
     { 
       title: '도시안전기본계획', 
-      path: '/safetyPolicyList',
+      path: '/safetyPolicyPage',
       items: [],
     },
   ]
