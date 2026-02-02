@@ -17,6 +17,7 @@ const PageTabs = ({ tabs, activeTab, onTabChange }) => {
    * 모바일: 무조건 grid-cols-2로 고정하여 가독성 확보
    */
   const getGridConfig = () => {
+    if (totalTabs === 2) return "lg:grid-cols-2 grid-cols-2";
     if (totalTabs === 4) return "lg:grid-cols-4 grid-cols-2";
     if (totalTabs % 3 === 0) return "lg:grid-cols-3 grid-cols-2";
     return "lg:grid-cols-4 grid-cols-2"; // 기본값
