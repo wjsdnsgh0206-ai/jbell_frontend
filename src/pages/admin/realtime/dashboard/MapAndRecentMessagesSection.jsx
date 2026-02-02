@@ -14,6 +14,7 @@ const MapAndRecentMessagesSection = ({ timeRange }) => {
       try {
         const response = await axios.get("http://localhost:8080/api/disaster/dashboard/disasterMessages");
         const rawData = response.data?.list || response.data || [];
+        console.log("재난문자",rawData);
         setDisasterMessages(rawData);
       } catch (error) {
         console.error("데이터 로드 실패:", error);

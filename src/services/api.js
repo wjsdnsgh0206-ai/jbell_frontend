@@ -425,6 +425,53 @@ export const facilityService = {
 };
 
 /* =========================================================
+   보도자료 (Press Release) 관리 API
+   - 공용 조회와 관리자 전용 기능을 객체 구조로 분리 @@
+========================================================= */
+export const pressService = {
+  // --- [공통 및 사용자용] ---
+  
+  // 목록 조회 (사용자 페이지, 관리자 목록에서 공통 사용)
+  getPressList: async (params) => {
+    // params 예시: { offset: 0, limit: 10 }
+    const response = await api.get("/press", { params });
+    return response.data;
+  },
+
+  // 상세 조회 (사용자 상세, 관리자 상세/수정에서 공통 사용)
+  getPressDetail: async (id) => {
+    const response = await api.get(`/press/${id}`);
+    return response.data;
+  },
+
+  // --- [관리자 전용 기능] ---
+  // 서비스 내부에서 admin 객체로 한 번 더 감싸서 실수를 방지합니다.
+  admin: {
+    // [수정] URL을 /admin/press에서 /press로 변경 (서버 @RequestMapping과 일치)
+    create: async (formData) => {
+      const response = await api.post("/press", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data;
+    },
+
+    // [수정] 삭제 URL도 서버와 일치하게 변경
+    delete: async (ids) => {
+      const response = await api.delete("/press", { data: ids });
+      return response.data;
+    },
+
+    // [수정] 수정 URL도 서버 주소 규칙에 맞춰 변경 필요 (필요 시)
+    update: async (id, formData) => {
+      const response = await api.put(`/press/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data;
+    }
+  }
+};
+
+/* =========================================================
    FAQ 관리 API (Admin)
 ========================================================= */
 export const faqService = {
@@ -767,7 +814,8 @@ export const disasterModalService = {
     );
     return response.data;
   },
-
+getWaterLevelList: () => axios.get("/api/disaster/fetch/water-level-list"),
+// api/disaster/fetch/water-level-list
   /* -----------------------------
    기상특보 api 
 ----------------------------- */
@@ -814,18 +862,26 @@ getForestFireRisk: async () => {
     산사태 예보발령 api
 ----------------------------- */
 
-  getLandSlideWarning: async (params) => {
-    const response = await landSlideWarningApi.get("/forecastIssueList", {
-      params: {
-        serviceKey: import.meta.env.VITE_LANDSLIDE_WARNING_SERVICE_KEY,
-        pageNo: params.pageNo || 1,
-        numOfRows: params.numOfRows || 10,
-        _type: "json", // JSON으로 받기 위해 설정
-        ...params,
-      },
-    });
-    return response.data;
-  },
+  // getLandSlideWarning: async (params) => {
+  //   const response = await landSlideWarningApi.get("/forecastIssueList", {
+  //     params: {
+  //       serviceKey: import.meta.env.VITE_LANDSLIDE_WARNING_SERVICE_KEY,
+  //       pageNo: params.pageNo || 1,
+  //       numOfRows: params.numOfRows || 10,
+  //       _type: "json", // JSON으로 받기 위해 설정
+  //       ...params,
+  //     },
+  //   });
+  //   return response.data;
+  // },
+// 예상되는 api.js 내부 구조
+
+
+getLandSlideWarning: (params = {}) => {
+  const { pageNo = 1, numOfRows = 100 } = params;
+  // 주소 앞에 /api가 붙어야 백엔드 프록시가 작동할 확률이 높아!
+  return axios.get('/api/disaster/fetch/landslide-list', { params: { pageNo, numOfRows } });
+},
 
   /* -----------------------------
     사고속보(도로관련) api
@@ -861,6 +917,23 @@ getForestFireRisk: async () => {
     return response.data;
   },
 
+  // 태풍 
+  getTyphoonList: async () => {
+    try {
+      // 주소는 네 백엔드 컨트롤러 @RequestMapping과 @GetMapping 조합에 맞춰야 해
+      const response = await axios.get('/api/disaster/fetch/typhoon-list');
+      return response.data; // ApiResponse 객체가 반환됨
+    } catch (error) {
+      console.error("태풍 리스트 호출 에러:", error);
+      throw error;
+    }
+  },
+
+  // getTyphoonList: async () => {
+  //   // 백엔드 컨트롤러 경로가 /api/disaster/fetch/typhoon-list 인지 확인해봐!
+  //   const response = await axios.get("/api/disaster/fetch/typhoon-list");
+  //   return response.data; // { status: "SUCCESS", data: [...] }
+  // },
   /* ---------------------------------------------------------
      ✅ [추가] 백엔드 DB 저장 데이터 조회 API (한파/호우/태풍 리스트)
      우리 스프링부트 서버(8080)에서 데이터를 가져옵니다.
@@ -928,6 +1001,13 @@ export const behaviorMethodService = {
     const response = await api.delete("/behaviorMethod/admin/cleanup");
     return response.data;
   },
+
+  // [신규 등록] - NEW (이 부분을 추가하세요)
+  createBehaviorMethod: async (data) => {
+    const response = await api.post("/behaviorMethod", data);
+    return response.data;
+  },
+
 };
 
 export const fileService = {
@@ -944,6 +1024,47 @@ export const fileService = {
             // 만약 'multipart/form-data'라고 직접 적으면 boundary가 없어서 또 에러가 납니다.
             'Content-Type': undefined 
         }
+    });
+    return response.data;
+  }
+};
+
+/* =========================================================
+   주요 안전정책 (Safety Policy) 관리 API
+   Backend: SafetyPolicyController.java (/api/safetyPolicy)
+========================================================= */
+export const safetyPolicyService = {
+  // 1. 목록 조회 (User/Admin 공용)
+  // params: { page, size, keyword, visibleYn }
+  getSafetyPolicyList: async (params) => {
+    const response = await api.get("/safetyPolicy", { params });
+    return response.data; // ApiResponse.success(PageResponse)
+  },
+
+  // 2. 상세 조회
+  getSafetyPolicyDetail: async (contentId) => {
+    const response = await api.get(`/safetyPolicy/${contentId}`);
+    return response.data; // ApiResponse.success(SafetyPolicyDTO)
+  },
+
+  // 3. 신규 등록 (Admin)
+  createSafetyPolicy: async (data) => {
+    const response = await api.post("/safetyPolicy", data);
+    return response.data;
+  },
+
+  // 4. 수정 (Admin)
+  updateSafetyPolicy: async (contentId, data) => {
+    const response = await api.put(`/safetyPolicy/${contentId}`, data);
+    return response.data;
+  },
+
+  // 5. 삭제 (Admin - 일괄 삭제 포함)
+  // Controller 구현 방식에 따라 delete 또는 post 사용. 
+  // 여기서는 body에 ids를 담아 보내는 방식을 사용 (axios delete config 주의)
+  deleteSafetyPolicies: async (ids) => {
+    const response = await api.delete("/safetyPolicy", {
+      data: { ids } 
     });
     return response.data;
   }
