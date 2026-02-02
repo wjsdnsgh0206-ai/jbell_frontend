@@ -1,25 +1,59 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useMemo } from "react";
-import { noticeData, pressData } from "../../../pages/user/openboards/BoardData.js";
-
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { noticeApi, pressService } from '@/services/api';
 const MainBoard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("공지사항");
+  // 서버에서 받아온 데이터를 저장할 상태
+  const [noticeData, setNoticeData] = useState([]);
+  const [pressData, setPressData] = useState([]);
 
   const tabPaths = {
     공지사항: "/userNoticeList",
     보도자료: "/userPressRelList",
   };
 
+  // 리스트 클릭용 (상세 페이지)
+  const tabDetailPaths = {
+    "공지사항": "/userNoticeDetail",
+    "보도자료": "/userPressRelDetail",
+  };
+
   // 탭 선택(activeTab)에 따라 공지사항 또는 보도자료 데이터를 최신순으로 5개만 추출.
-  const currentDisplayData = useMemo(() => {
-    let data = [];
-    if (activeTab === "공지사항") data = [...noticeData];
-    else if (activeTab === "보도자료") data = [...pressData];
-    return data
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
-      .slice(0, 5);
-  }, [activeTab]); // 공지사항 탭 클릭시 해당 로직 실행.
+  const fetchBoardData = useCallback(async () => {
+    try {
+      if (activeTab === "공지사항") {
+        const response = await noticeApi.getNoticeList();
+        const formatted = response
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 5)
+          .map(item => ({
+            id: item.id,
+            title: item.title,
+            date: item.createdAt ? item.createdAt.split('T')[0].replace(/-/g, '.') : "",
+            isPin: item.isPinned === 'Y'
+          }));
+        setNoticeData(formatted);
+      } else {
+        const response = await pressService.getPressList({ offset: 0, limit: 5 });
+        const formatted = response.map(item => ({
+          id: item.contentId,
+          title: item.title,
+          date: item.createdAt ? item.createdAt.split('T')[0].replace(/-/g, '.') : "",
+          isPin: false
+        }));
+        setPressData(formatted);
+      }
+    } catch (error) {
+      console.error("데이터 로드 실패:", error);
+    }
+  }, [activeTab]);
+
+useEffect(() => {
+  fetchBoardData();
+}, [fetchBoardData]);
+
+  const currentDisplayData = activeTab === "공지사항" ? noticeData : pressData;
 
   return (
     <div className="bg-white rounded-xl border border-graygray-10 p-6 sm:p-8 h-full">
@@ -57,7 +91,7 @@ const MainBoard = () => {
             <div
               key={item.id}
               className="flex justify-between items-center group cursor-pointer gap-4 p-3 -mx-2 rounded-xl hover:bg-graygray-5/50 transition-all"
-              onClick={() => navigate(`${tabPaths[activeTab]}/${item.id}`)}
+              onClick={() => navigate(`${tabDetailPaths[activeTab]}/${item.id}`)}
             >
               <div className="flex items-center gap-3 overflow-hidden flex-1">
                 <span className={`shrink-0 w-1.5 h-1.5 rounded-full transition-colors ${item.isPin ? 'bg-red-500' : 'bg-graygray-40 group-hover:bg-blue-500'}`} />
@@ -66,7 +100,7 @@ const MainBoard = () => {
                 </span>
               </div>
               <span className="shrink-0 text-detail-m text-graygray-40 tabular-nums">
-                {item.date.replace(/-/g, ".")}
+                {item.date} 
               </span>
             </div>
           ))

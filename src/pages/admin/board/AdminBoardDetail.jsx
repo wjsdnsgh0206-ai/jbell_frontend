@@ -14,18 +14,17 @@ const AdminBoardDetail = () => {
   // const post = location.state || noticeData.find(p => p.boardId === parseInt(boardId));
 
   // 조회수 방어 코드
+  // URL에 있는 noticeId로 서버 가서 게시글 하나 가져와서 화면에 뿌림
   useEffect(() => {
     if (!noticeId) return;
-
+    // noticeId가 없으면(undefined, null, 빈 값이면), 아무것도 하지 말고 그냥 끝냄
     axios.get(`/api/notice/${noticeId}`)
       .then(res => {
-        // 데이터가 정상적으로 들어왔는지 로그로 확인해 보세요.
         console.log("받은 데이터:", res.data);
         setPost(res.data);
       })
       .catch(err => {
         console.error("데이터 로딩 실패:", err);
-        // 에러 발생 시 알림을 주면 파악이 쉽습니다.
         alert("게시글을 불러오는 중 오류가 발생했습니다.");
       });
   }, [noticeId]);
@@ -66,6 +65,7 @@ const AdminBoardDetail = () => {
       // 다운로드 트리거
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
+      // 화면에 안 보이는 가짜 a 태그
         link.href = url;
         link.setAttribute('download', fileName);
         document.body.appendChild(link);
@@ -109,7 +109,7 @@ const AdminBoardDetail = () => {
             )}
             {/* 게시 여부 뱃지 부분 */}
             <span className={`px-3 py-1 rounded-md text-[12px] font-bold border ${
-                // post.isPublic이 문자열 'Y'인지 확인합니다.
+                // post.isPublic이 문자열 'Y'인지 확인
                 post.isPublic === 'Y' 
                   ? 'bg-blue-50 text-blue-600 border-blue-200' 
                   : 'bg-gray-50 text-gray-400 border-gray-200'
@@ -154,36 +154,37 @@ const AdminBoardDetail = () => {
 
         {/* 첨부파일 영역 */}
         {post.files && post.files.length > 0 && (
-          <div className="p-8">
-            <h3 className="text-body-m-bold text-admin-text-primary mb-4 flex items-center gap-2">
-              <Paperclip size={18} />
-              첨부파일 ({post.files.length})
-            </h3>
-            <ul className="space-y-2">
-              {post.files.map((file, index) => (
-                <li 
-                  key={file.fileId}
-                  className="flex items-center justify-between p-3 bg-graygray-5 rounded-md border border-graygray-10 hover:bg-graygray-10 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <Paperclip size={16} className="text-graygray-40" />
-                    <span className="text-[14px] text-graygray-70">{file.name || file}</span>
-                    {file.size && (
-                      <span className="text-[12px] text-graygray-30">
-                        ({(file.fileSize / 1024).toFixed(1)} KB)
-                      </span>
-                    )}
-                  </div>
-                  <button 
+        <div className="p-8">
+          <h3 className="text-body-m-bold text-admin-text-primary mb-4 flex items-center gap-2">
+            <Paperclip size={18} />
+            첨부파일 ({post.files.length})
+          </h3>
+          <ul className="space-y-2">
+            {post.files.map(file => (
+              <li 
+                key={file.fileId}
+                className="flex items-center justify-between p-3 bg-graygray-5 rounded-md border border-graygray-10 hover:bg-graygray-10 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <Paperclip size={16} className="text-graygray-40" />
+                  <span className="text-[14px] text-graygray-70">
+                    {file.fileRealName}
+                  </span>
+                  <span className="text-[12px] text-graygray-30">
+                    ({(file.fileSize / 1024).toFixed(1)} KB)
+                  </span>
+                </div>
+                <button 
                   onClick={() => handleDownload(file.fileId)}
-                  className="text-[13px] text-admin-primary font-bold hover:underline">
-                    다운로드
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+                  className="text-[13px] text-admin-primary font-bold hover:underline"
+                >
+                  다운로드
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       </section>
 
       {/* 하단 버튼 영역 */}

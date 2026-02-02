@@ -1,79 +1,110 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { disasterModalService } from "@/services/api";
-
-const ALL_DAM_LIST = [
-  { code: '3031210', name: '용담댐', region: '전북' },
-  { code: '4011110', name: '섬진강댐', region: '전북' },
-  { code: '1001110', name: '소양강댐', region: '강원' },
-  { code: '1003110', name: '충주댐', region: '충북' },
-  { code: '2022510', name: '대청댐', region: '충남' },
-  { code: '2018110', name: '안동댐', region: '경북' },
-  { code: '2004110', name: '합천댐', region: '경남' },
-  { code: '4013110', name: '주암댐', region: '전남' }
-];
+import { JEONBUK_CODE_MAP } from "@/components/user/disaster/disasterCodes";
 
 export const useSluiceData = () => {
   const [damData, setDamData] = useState([]);
+  const [rainMarkers, setRainMarkers] = useState([]);
+  const [rainStatus, setRainStatus] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const fetchDamData = async () => {
-    if (loading) return;
-    setLoading(true);
-
-    const sluiceKey = import.meta.env.VITE_API_DISATER_SLUICE_KEY;
-    const now = new Date();
-    const format = (d) => d.getFullYear() + (d.getMonth() + 1).toString().padStart(2, '0') + d.getDate().toString().padStart(2, '0');
-    
-    const eddt = format(now);
-    const stdt = format(new Date(now.setDate(now.getDate() - 10)));
-
-    // 1. 우선 빈 데이터(또는 로딩 상태용 리스트)를 먼저 세팅해서 화면을 바로 띄움
-    const initialList = ALL_DAM_LIST.map(dam => ({ ...dam, isOffline: true, time: '불러오는 중...' }));
-    setDamData(initialList);
-
-    try {
-      // 2. [개선 핵심] Promise.all 대신 개별적으로 fetch하고 성공할 때마다 상태 업데이트
-      ALL_DAM_LIST.forEach(async (dam, index) => {
-        try {
-          const res = await disasterModalService.getSluice({
-            serviceKey: sluiceKey,
-            damcode: dam.code,
-            stdt, eddt,
-            _type: 'json'
-          });
-
-          const items = res?.response?.body?.items?.item;
-          const target = Array.isArray(items) ? items[items.length - 1] : items;
-
-          const updatedDam = {
-            ...dam,
-            waterLevel: target?.lowlevel || '-',
-            discharge: target?.totdcwtrqy || '-',
-            storageRate: target?.rsvwtrt || '-',
-            time: target?.obsrdtmnt || '점검 중',
-            isOffline: !target
-          };
-
-          // 성공한 놈부터 하나씩 갈아끼워줌 (체감 속도 대폭 향상)
-          setDamData(prev => {
-            const newList = [...prev];
-            newList[index] = updatedDam;
-            return newList;
-          });
-
-        } catch (err) {
-          console.error(`${dam.name} 데이터 로드 실패:`, err);
-        }
-      });
-
-    } catch (error) {
-      console.error("🚨 [수문 API] 전체 에러:", error);
-    } finally {
-      // API 호출들이 비동기로 돌아가므로 로딩 종료 시점은 적절히 조절
-      // 여기서는 요청을 다 보낸 시점에서 로딩 스피너를 끄게 됨
-      setLoading(false);
-    }
+  const formatTime = (timeStr) => {
+    if (!timeStr) return "-";
+    const str = String(timeStr);
+    return str.length < 12 ? str : `${str.substring(4, 6)}.${str.substring(6, 8)} ${str.substring(8, 10)}:${str.substring(10, 12)}`;
   };
 
-  return { damData, loading, fetchDamData };
+  const fetchRainfallWarning = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await disasterModalService.getWeatherList(2);
+      const itemList = Array.isArray(response?.data) ? response.data : [];
+      const statusMap = {};
+      const newMarkers = [];
+
+      itemList.forEach((item, index) => {
+        const regionInfo = JEONBUK_CODE_MAP[item.areaCode];
+        if (!regionInfo) return;
+        const regionName = regionInfo.name;
+        const isWarning = Number(item.warnStress) === 1;
+
+        statusMap[regionName] = { 
+          level: isWarning ? "경보" : "주의보", 
+          color: isWarning ? "#FF4D4D" : "#FFA500" 
+        };
+
+        newMarkers.push({
+          id: `rain-${item.areaCode}-${index}`,
+          region: regionName,
+          level: isWarning ? "경보" : "주의보",
+          color: isWarning ? "#FF4D4D" : "#FFA500",
+          publishTime: formatTime(item.tmFc),
+          startTime: formatTime(item.startTime),
+          lat: regionInfo.lat,
+          lng: regionInfo.lng,
+        });
+      });
+      setRainStatus(statusMap);
+      setRainMarkers(newMarkers);
+    } catch (error) {
+      console.error("🚨 [호우특보 API] 에러:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchDamData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await disasterModalService.getWaterLevelList();
+      
+      // 1. 백엔드에서 준 진짜 '데이터 배열' 찾기
+      // 응답 구조가 { data: { data: [...] } } 인 경우와 { data: [...] } 인 경우 모두 대응
+      let itemList = [];
+      if (response?.data?.data && Array.isArray(response.data.data)) {
+        itemList = response.data.data;
+      } else if (response?.data && Array.isArray(response.data)) {
+        itemList = response.data;
+      } else if (Array.isArray(response)) {
+        itemList = response;
+      }
+
+      console.log("📥 가공 전 원본 리스트:", itemList);
+
+      if (itemList.length === 0) {
+        console.warn("⚠️ 백엔드에서 빈 배열을 보냈어. DB에 데이터가 있는지 확인해봐!");
+        setDamData([]);
+        return;
+      }
+
+      // 2. 데이터 가공
+      const formattedData = itemList.map((item) => {
+        // 백엔드 필드명이 스네이크 케이스(obs_nm)인지 카멜 케이스(obsNm)인지 확인 필요
+        const obsName = item.obsNm || item.obs_nm || ""; 
+        const isJeonbuk = obsName.includes("진안") || obsName.includes("전주") || (item.bbsnNm?.includes("섬진강") ?? false);
+
+        return {
+          name: obsName || "관측소명 없음",
+          damCode: item.obsCd || item.obs_cd || "-",
+          bbsnNm: item.bbsnNm || item.bbsn_nm || "-",
+          waterLevel: item.waterLevel ?? item.water_level ?? 0,
+          storageRate: (item.waterLevel > 5 || item.water_level > 5) ? "90" : "45",
+          discharge: "-",
+          time: formatTime(item.obsTime || item.obs_time),
+          region: isJeonbuk ? "전북" : "기타",
+          mngOrg: item.mngOrg || item.mng_org || "-"
+        };
+      });
+
+      console.log("✅ 가공 완료 데이터:", formattedData);
+      setDamData(formattedData);
+    } catch (error) {
+      console.error("🚨 [수위 API] 로직 에러:", error);
+      setDamData([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { damData, rainMarkers, rainStatus, loading, fetchDamData, fetchRainfallWarning };
 };
