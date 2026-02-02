@@ -44,12 +44,13 @@ const SafetyPolicyList = () => {
       {/* [추가] 공통 브레드크럼 적용 */}
       <PageBreadcrumb items={breadcrumbItems} />
 
-      <PageTabs 
+      
+      {/* <PageTabs 
         tabs={[
           { id: 'policy', label: '주요 안전정책', active: true, path: '/safety/policy' },
           { id: 'manual', label: '재난 행동요령', active: false, path: '/safety/manual' }
         ]}
-      />
+      /> */}
 
       <div className="mt-8">
         <h3 className="text-2xl font-bold text-graygray-90 mb-6">전라북도 주요 안전정책</h3>

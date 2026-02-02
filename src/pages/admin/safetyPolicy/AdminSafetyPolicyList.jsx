@@ -97,8 +97,12 @@ const AdminSafetyPolicyList = () => {
         </button>
       </div>
 
-      <AdminSearchBox onSearch={(k) => { setKeyword(k); setCurrentPage(1); }} />
-
+      <AdminSearchBox 
+        searchParams={{ keyword }} 
+        onSearch={(k) => { setKeyword(k); setCurrentPage(1); }}
+      >
+        {/* 추가 필터가 있다면 여기에 작성 */}
+      </AdminSearchBox>
       <div className="bg-white rounded-lg border border-admin-border p-4 mt-4">
         <div className="flex justify-end mb-2">
            <button 

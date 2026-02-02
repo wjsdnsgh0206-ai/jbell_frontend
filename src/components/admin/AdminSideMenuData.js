@@ -81,6 +81,7 @@ export const ADMIN_MENU_DATA = {
       path: "/admin/contents/adminSafetyPolicyList",
       isAvailable: true,
       items: [
+        { name: "주요 안전정책 목록", path: "/admin/contents/adminSafetyPolicyList" },
       ],
     },
     {
