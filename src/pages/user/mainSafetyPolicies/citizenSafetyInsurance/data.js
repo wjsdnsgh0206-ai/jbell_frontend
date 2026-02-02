@@ -7,7 +7,7 @@ export const citizenSafetyInsuranceData = {
     lastUpdated: "2025년 12월 16일",
     breadcrumbs: [
       { label: "홈", path: "/", hasIcon: true },
-      { label: "주요안전정책", path: "/safetyPolicy", hasIcon: false },
+      { label: "주요 안전정책", path: "/safetyPolicy", hasIcon: false },
       { label: "시민안전보험", path: "/citizenSafetyInsurance", hasIcon: false },
     ],
     tabs: [

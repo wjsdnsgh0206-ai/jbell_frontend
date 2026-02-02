@@ -15,14 +15,14 @@ import { Search, RotateCcw } from 'lucide-react';
  */
 const AdminSearchBox = ({ 
   options = [],        
-  searchParams,        
+  searchParams = { keyword: '' },  
   setSearchParams,     
   onSearch,            
   onReset,             
   children,
   showDefaultInput = true
 }) => {
-  
+
   // 엔터키 입력 시 검색 실행
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') onSearch();
