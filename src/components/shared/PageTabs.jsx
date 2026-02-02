@@ -1,3 +1,5 @@
+// src\components\shared\PageTabs.jsx
+
 /**
  * PageTabs
  * @param {Array} tabs - [{ label: string }]

@@ -1001,6 +1001,13 @@ export const behaviorMethodService = {
     const response = await api.delete("/behaviorMethod/admin/cleanup");
     return response.data;
   },
+
+  // [신규 등록] - NEW (이 부분을 추가하세요)
+  createBehaviorMethod: async (data) => {
+    const response = await api.post("/behaviorMethod", data);
+    return response.data;
+  },
+
 };
 
 export const fileService = {
@@ -1017,6 +1024,47 @@ export const fileService = {
             // 만약 'multipart/form-data'라고 직접 적으면 boundary가 없어서 또 에러가 납니다.
             'Content-Type': undefined 
         }
+    });
+    return response.data;
+  }
+};
+
+/* =========================================================
+   주요 안전정책 (Safety Policy) 관리 API
+   Backend: SafetyPolicyController.java (/api/safetyPolicy)
+========================================================= */
+export const safetyPolicyService = {
+  // 1. 목록 조회 (User/Admin 공용)
+  // params: { page, size, keyword, visibleYn }
+  getSafetyPolicyList: async (params) => {
+    const response = await api.get("/safetyPolicy", { params });
+    return response.data; // ApiResponse.success(PageResponse)
+  },
+
+  // 2. 상세 조회
+  getSafetyPolicyDetail: async (contentId) => {
+    const response = await api.get(`/safetyPolicy/${contentId}`);
+    return response.data; // ApiResponse.success(SafetyPolicyDTO)
+  },
+
+  // 3. 신규 등록 (Admin)
+  createSafetyPolicy: async (data) => {
+    const response = await api.post("/safetyPolicy", data);
+    return response.data;
+  },
+
+  // 4. 수정 (Admin)
+  updateSafetyPolicy: async (contentId, data) => {
+    const response = await api.put(`/safetyPolicy/${contentId}`, data);
+    return response.data;
+  },
+
+  // 5. 삭제 (Admin - 일괄 삭제 포함)
+  // Controller 구현 방식에 따라 delete 또는 post 사용. 
+  // 여기서는 body에 ids를 담아 보내는 방식을 사용 (axios delete config 주의)
+  deleteSafetyPolicies: async (ids) => {
+    const response = await api.delete("/safetyPolicy", {
+      data: { ids } 
     });
     return response.data;
   }

@@ -27,6 +27,10 @@ const adminMap = {
   "contents": "콘텐츠 관리",
   "behaviorMethod": "행동요령 관리",
   "behaviorMethodList": "행동요령 목록",
+  "behaviorMethodDetail": "행동요령 상세",
+  "behaviorMethodAdd": "행동요령 등록",
+  "adminSafetyPolicyList": "주요안전정책 목록",
+
   "system": "시스템 관리",
   "commonCodeList": "공통코드 목록",
   "groupCodeAdd": "그룹코드 등록",
@@ -46,11 +50,6 @@ const adminMap = {
   "facilityDetail": "시설 상세정보",
   "facilityUpdate": "시설 정보 변경",
 
-  "behaviorMethodDetail": "행동요령 상세",
-  "citySafetyMasterPlan": "도시안전기본계획 관리",
-  "disasterSafetyPolicy": "재난별 안전정책 관리",
-  "citizenSafetyInsurance": "시민 안전보험 관리",
-  "stormAndFloodInsurance": "풍수해 안전보험 관리",
   "pressRelList": "보도자료 목록",
   "pressRelAdd": "보도자료 등록",
   "adminBoardList": "공지사항 관리",  

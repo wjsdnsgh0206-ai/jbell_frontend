@@ -162,12 +162,12 @@ const handleSubmit = async (e) => {
     setUploadFiles(prev => [...prev, ...validFiles]);
   };
 
-  // ✅ 새로 추가한 파일 삭제
+  // 새로 추가한 파일 삭제
   const handleRemoveUploadFile = (index) => {
     setUploadFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  // ✅ 기존 파일 삭제 (수정 모드)
+  // 기존 파일 삭제 (수정 모드)
   const handleRemoveExistingFile = (fileId) => {
     setDeleteFileIds(prev => [...prev, fileId]);
     setExistingFiles(prev => prev.filter(f => f.fileId !== fileId));
