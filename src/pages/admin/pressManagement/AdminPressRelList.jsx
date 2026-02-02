@@ -270,7 +270,7 @@ const columns = useMemo(() => [
                         <div key={idx} className="flex items-start gap-2">
                           <span className="w-1 h-1 bg-blue-400 rounded-full shrink-0 mt-1.5"></span>
                           {/* f.name 또는 f.file_name 둘 다 대응 */}
-                          <span className="break-all">{f.name || f.file_name}</span>
+                          <span className="break-all">{f.realName || f.name}</span>
                         </div>
                       ))}
                     </div>
