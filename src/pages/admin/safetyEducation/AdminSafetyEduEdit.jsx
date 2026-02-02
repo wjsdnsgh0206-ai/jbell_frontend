@@ -5,6 +5,7 @@ import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal'; 
 import { safetyEduService } from '@/services/api';
 import { Plus, Trash2, Calendar } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 // [내부용 작은 컴포넌트]
 const SuccessIcon = ({ fill = "#4ADE80" }) => (
@@ -23,13 +24,24 @@ const AdminSafetyEduEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
+  const { user } = useAuth();
   
   // ==================================================================================
-  // 0. 초기 설정 및 유틸리티
+  // 0. 관리자 권한 체크 및 초기 설정
   // ==================================================================================
 
+  // 관리자 권한 체크
+  useEffect(() => {
+    if (user) {
+        if (user.userGrade !== 'ADMIN') { 
+            alert('관리자 권한이 없습니다.');
+            navigate('/'); // 메인 페이지로 이동
+        }
+    }
+  }, [user, navigate]);
+
   // 프론트에서 임시로 사용하는 ID 생성 함수
-  // const generateId = (prefix) => `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+   const generateId = (prefix) => `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
   // ==================================================================================
   // 1. 상태 관리 (State Management)

@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { safetyEduService } from '@/services/api';
 import { ChevronDown } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 // [공통 컴포넌트]
 import AdminDataTable from '@/components/admin/AdminDataTable';
@@ -36,6 +37,19 @@ const ToggleSwitch = ({ isOn, onToggle }) => (
 const AdminSafetyEduList = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
+  const { user } = useAuth();
+
+  // ==================================================================================
+  // 0. 관리자 권한 체크 (진입 시 실행)
+  // ==================================================================================
+  useEffect(() => {
+    if (user) {
+        if (user.userGrade !== 'ADMIN') { 
+            alert('관리자 권한이 없습니다.');
+            navigate('/'); // 메인 페이지로 이동
+        }
+    }
+  }, [user, navigate]);
 
   // ==================================================================================
   // 1. 상태 관리 (State Management)
