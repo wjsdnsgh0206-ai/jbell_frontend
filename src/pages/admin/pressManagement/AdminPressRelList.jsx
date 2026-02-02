@@ -216,8 +216,8 @@ const columns = useMemo(() => [
       <div className="flex justify-center">
         <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[12px] font-bold border ${
           val === '직접등록' 
-            ? 'bg-purple-100 text-purple-400 border-purple-200' 
-            : 'bg-orange-100 text-orange-400 border-orange-200'
+           ? 'bg-purple-50 text-purple-500 border-purple-100' 
+           : 'bg-orange-50 text-orange-500 border-orange-100'
         }`}>
           {val || '직접등록'}
         </span>
