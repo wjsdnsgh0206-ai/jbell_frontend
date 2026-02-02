@@ -225,13 +225,13 @@ const AdminSafetyEduList = () => {
     { 
       key: 'regType', 
       header: '등록방식', 
-      width: '110px', 
+      width: '120px', 
       className: 'text-center',
       render: (val) => {
         const displayLabel = val === 'DIRECT' ? '직접등록' : (val || '직접등록');
         return (
           <div className="flex justify-center">
-            <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[12px] font-bold border ${
+            <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[12px] font-bold border ${
               displayLabel === '직접등록' 
                 ? 'bg-purple-50 text-purple-500 border-purple-100' 
                 : 'bg-orange-50 text-orange-500 border-orange-100'
@@ -335,7 +335,8 @@ const AdminSafetyEduList = () => {
           >
             {/* 1. 노출여부 필터 */}
             <div className="relative w-full md:w-48">
-              <select value={selectedPublicStatus} onChange={(e) => { setSelectedPublicStatus(e.target.value); setCurrentPage(1); }} className="w-full appearance-none h-14 pl-5 pr-10 border border-gray-200 rounded-md bg-white outline-none cursor-pointer text-[15px] focus:border-blue-600 transition-all">
+              <select value={selectedPublicStatus} onChange={(e) => { setSelectedPublicStatus(e.target.value); setCurrentPage(1); }} 
+                className="w-full appearance-none h-14 pl-5 pr-8 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary focus:border-admin-primary outline-none transition-all cursor-pointer">
                 <option value="all">노출여부 전체</option>
                 <option value="visible">노출</option>
                 <option value="hidden">비노출</option>
@@ -344,7 +345,8 @@ const AdminSafetyEduList = () => {
             </div>
             {/* 2. 검색 타입 선택 */}
             <div className="relative w-full md:w-48">
-              <select value={searchType} onChange={(e) => setSearchType(e.target.value)} className="w-full appearance-none h-14 pl-5 pr-10 border border-gray-200 rounded-md bg-white outline-none cursor-pointer text-[15px] focus:border-blue-600 transition-all">
+              <select value={searchType} onChange={(e) => setSearchType(e.target.value)} 
+                className="w-full appearance-none h-14 pl-5 pr-8 text-body-m border border-admin-border rounded-md bg-white focus:border-admin-primary outline-none cursor-pointer">
                 <option value="all">전체검색</option>
                 <option value="title">시설명(교육명)</option>
                 <option value="source">출처</option>
@@ -360,11 +362,11 @@ const AdminSafetyEduList = () => {
           {/* Action Bar */}
           <div className="flex justify-between items-end mb-6">
             <div className="flex items-center gap-4">
-              <span className="font-bold text-gray-500">
-                {selectedIds.length > 0 ? <span className="text-blue-600">{selectedIds.length}개 선택됨</span> : `전체 ${totalItems}건`}
+              <span className="text-body-m-bold text-admin-text-secondary">
+                {selectedIds.length > 0 ? <span className="text-admin-primary">{selectedIds.length}개 선택됨</span> : `전체 ${totalItems}건`}
               </span>
               {/* 일괄 처리 버튼 그룹 */}
-              <div className="flex items-center ml-4 gap-4 border-l pl-4 border-gray-200">
+              <div className="flex items-center ml-4 gap-4">
                 <button onClick={() => handleBatchStatus(true)} className="flex items-center gap-2 group">
                   <div className="w-5 h-5 rounded-full border-2 border-[#2563EB] flex items-center justify-center group-hover:bg-blue-50 transition-all"><div className="w-2.5 bg-[#2563EB] h-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" /></div>
                   <span className="text-[15px] font-bold text-[#111]">일괄 노출</span>

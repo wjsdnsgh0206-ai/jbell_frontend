@@ -11,7 +11,7 @@ const useForestFire = () => {
 
     try {
       // 우리가 만든 백엔드 GET API 호출
-      const res = await axios.get("http://localhost:8080/api/disaster/fetch/forest-fire-list");
+      const res = await axios.get("/api/disaster/fetch/forest-fire-list");
       
       // 백엔드 ApiResponse 구조에 따라 데이터 추출 (res.data.data)
       const items = res.data?.data || [];
