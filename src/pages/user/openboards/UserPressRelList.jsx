@@ -1,11 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react'; 
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 import BoardListSection from '@/components/shared/BoardListSection';
 import SearchBarTemplate from '@/components/shared/SearchBarTemplate';
-import { pressData } from './BoardData';
+import { pressService } from '@/services/api'; // API 서비스 임포트
+
 
 // 보도자료 목록 페이지 //
 
@@ -13,73 +14,67 @@ const UserPressRelList = () => {
   const navigate = useNavigate();
 
   // --- 상태 관리 ---
+  const [pressList, setPressList] = useState([]); // 서버에서 받은 데이터 저장
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0); // 전체 개수 (페이지네이션용)
   const itemsPerPage = 10; // 한 페이지당 보여줄 게시글 수
 
   const [searchCategory, setSearchCategory] = useState('선택');
   const [searchTerm, setSearchTerm] = useState('');
   const [activeSearch, setActiveSearch] = useState({ category: '선택', term: '' });
 
-  // --- 데이터 전처리 (Data Memoization) --- //
-  // 1. 중복 제거: 제목이 중복된 데이터가 있을 경우 하나만 남기고 필터링
-  const cleanData = useMemo(() => {
-    const seenTitles = new Set();
-    return pressData.filter(item => {
-      if (seenTitles.has(item.title)) return false;
-      seenTitles.add(item.title);
-      return true;
-    });
-  }, []);
+ // --- [추가] 서버에서 데이터 가져오는 함수 ---
+  const fetchList = useCallback(async () => {
+    try {
+      const offset = (currentPage - 1) * itemsPerPage;
+      const data = await pressService.getPressList({ offset, limit: itemsPerPage });
+      
 
-  // 2. 검색 필터링: activeSearch 상태에 따라 데이터를 필터링
-  const filteredData = useMemo(() => {
-    //  비공개(isPublic: false)인 보도자료는 사용자 페이지 목록에서 제외합니다.
-    let result = cleanData.filter(item => item.isPublic !== false);
+      // BoardListSection이 이해할 수 있는 데이터 형식으로 변환
+      const formatted = data.map((item, index) => {
+        // 1. 실제 파일 배열이 있으면 그것을 쓰고, 없으면 빈 배열 생성
+        // 2. 만약 fileCount만 있다면 그 숫자만큼 빈 객체를 채운 배열 생성
+        const fileArray = item.fileList && item.fileList.length > 0 
+          ? item.fileList 
+          : new Array(item.fileCount || 0).fill({});
 
-    const { category, term } = activeSearch;
-    const trimmedTerm = term.trim();
-
-    if (trimmedTerm !== '') {
-      result = result.filter(item => {
-        // '선택' 카테고리일 경우 제목, 내용, 등록자(writer/author) 전체에서 검색
-        if (category === '선택') {
-          return (
-            item.title?.includes(trimmedTerm) ||
-            item.content?.includes(trimmedTerm) ||
-            (item.writer || item.author)?.includes(trimmedTerm)
-          );
-        }
-        // 특정 카테고리가 선택된 경우 해당 필드에서만 검색
-        if (category === '제목') return item.title?.includes(trimmedTerm);
-        if (category === '내용') return item.content?.includes(trimmedTerm);
-        if (category === '등록인') return (item.writer || item.author)?.includes(trimmedTerm);
-        return true;
+        return {
+          ...item,
+          id: item.contentId,
+          date: item.createdAt ? item.createdAt.split('T')[0] : '', 
+          writer: '관리자', 
+          author: '관리자',
+          
+          // 핵심: BoardListSection이 .length를 사용하므로 배열을 넘겨줌
+          files: fileArray, 
+          
+          displayNo: offset + index + 1 
+        };
       });
+
+      // 2. 가공된 최종 데이터 확인 (표 형태로 깔끔하게 출력)
+      console.table(formatted.map(f => ({
+        ID: f.id,
+        제목: f.title.substring(0, 10) + "...",
+        파일수_files: f.files,
+        파일수_fileCount: f.fileCount,
+        파일리스트_길이: f.fileList.length
+      })));
+
+      setPressList(formatted);
+      
+      if(totalItems === 0 && data.length > 0) setTotalItems(data.length); 
+
+    } catch (error) {
+      console.error("보도자료 로딩 실패:", error);
     }
-    return result;
-  }, [cleanData, activeSearch]);
+  }, [currentPage, activeSearch, totalItems]);
 
-  // 3. 정렬 및 페이지네이션 로직
-  const { currentItems, totalPages } = useMemo(() => {
-    // - 최신 등록일 순으로 정렬
-    const sorted = [...filteredData].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    // - 페이지네이션 계산
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const paged = sorted.slice(indexOfFirstItem, indexOfLastItem);
-
-    // - 번호 표시 로직: 현재 페이지와 인덱스를 계산하여 순차적인 번호(displayNo) 부여
-    const finalItems = paged.map((item, index) => ({
-      ...item,
-      displayNo: indexOfFirstItem + index + 1
-    }));
-
-    return { 
-      currentItems: finalItems, 
-      totalPages: Math.ceil(sorted.length / itemsPerPage) || 1 
-    };
-  }, [filteredData, currentPage]);
+  // --- [추가] 페이지가 바뀌면 데이터를 다시 불러옴 ---
+  useEffect(() => {
+    fetchList();
+  }, [fetchList]);
 
   // --- 이벤트 핸들러 (Event Handlers) --- //
 
@@ -140,12 +135,18 @@ const UserPressRelList = () => {
         {/* --- 리스트 테이블 및 페이지네이션 컴포넌트 --- */}
         <div className="mt-2">
           <BoardListSection 
-            items={currentItems}
+            items={pressList}
             currentPage={currentPage}
-            totalPages={totalPages}
+            totalPages={Math.ceil(totalItems / itemsPerPage) || 1} 
             onPageChange={setCurrentPage}
-            // 행 클릭 시 상세 페이지로 이동
-            onRowClick={(id) => navigate(`/userPressRelDetail/${id}`)}
+            // item 자체가 이미 숫자 ID(예: 4476)이므로 바로 navigate에 넣어줍니다.
+            onRowClick={(id) => {
+              if (id) {
+                navigate(`/userPressRelDetail/${id}`);
+              } else {
+                console.error("ID 값이 넘어오지 않았습니다.");
+              }
+            }} 
           />
         </div>
       </main>

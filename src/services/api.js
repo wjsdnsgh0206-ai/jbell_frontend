@@ -425,6 +425,53 @@ export const facilityService = {
 };
 
 /* =========================================================
+   보도자료 (Press Release) 관리 API
+   - 공용 조회와 관리자 전용 기능을 객체 구조로 분리 @@
+========================================================= */
+export const pressService = {
+  // --- [공통 및 사용자용] ---
+  
+  // 목록 조회 (사용자 페이지, 관리자 목록에서 공통 사용)
+  getPressList: async (params) => {
+    // params 예시: { offset: 0, limit: 10 }
+    const response = await api.get("/press", { params });
+    return response.data;
+  },
+
+  // 상세 조회 (사용자 상세, 관리자 상세/수정에서 공통 사용)
+  getPressDetail: async (id) => {
+    const response = await api.get(`/press/${id}`);
+    return response.data;
+  },
+
+  // --- [관리자 전용 기능] ---
+  // 서비스 내부에서 admin 객체로 한 번 더 감싸서 실수를 방지합니다.
+  admin: {
+    // [수정] URL을 /admin/press에서 /press로 변경 (서버 @RequestMapping과 일치)
+    create: async (formData) => {
+      const response = await api.post("/press", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data;
+    },
+
+    // [수정] 삭제 URL도 서버와 일치하게 변경
+    delete: async (ids) => {
+      const response = await api.delete("/press", { data: ids });
+      return response.data;
+    },
+
+    // [수정] 수정 URL도 서버 주소 규칙에 맞춰 변경 필요 (필요 시)
+    update: async (id, formData) => {
+      const response = await api.put(`/press/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data;
+    }
+  }
+};
+
+/* =========================================================
    FAQ 관리 API (Admin)
 ========================================================= */
 export const faqService = {

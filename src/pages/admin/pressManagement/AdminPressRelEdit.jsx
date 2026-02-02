@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal'; 
-import { pressData } from '@/pages/user/openboards/BoardData'; 
+import { pressService } from '@/services/api';
 import { Paperclip, X, Calendar } from 'lucide-react';
 
 // React-Quill 및 Quill 내부 설정 임포트
@@ -49,25 +49,42 @@ const AdminPressRelEdit = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); 
   const [isFileModalOpen, setIsFileModalOpen] = useState(false); 
   const [fileToDeleteIdx, setFileToDeleteIdx] = useState(null); 
-  
+  // [추가] 실제 전송할 파일 객체를 관리할 상태
+  const [rawFiles, setRawFiles] = useState([]);
   const [formData, setFormData] = useState(null);
   const [errors, setErrors] = useState({ mgmtId: false, title: false, source: false, content: false });
   const [isDirty, setIsDirty] = useState(false); 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
+  
   // 1. 데이터 불러오기 및 초기화
+ // 1. [수정] 백엔드에서 실제 데이터 불러오기
   useEffect(() => {
-    const detailData = pressData.find(item => item.id.toString() === id.toString());
-    if (detailData) {
-    setFormData({ 
-      ...detailData,
-      files: detailData.files || [] // 파일이 없어도 에러가 나지 않게 함
-      });
-      setBreadcrumbTitle(detailData.title);
-    } else {
-      alert("해당 데이터를 찾을 수 없습니다.");
-      navigate('/admin/contents/pressRelList', { replace: true });
-    }
+    const fetchDetail = async () => {
+      try {
+        const data = await pressService.getPressDetail(id);
+        if (data) {
+          // 백엔드 DTO 구조를 프론트엔드 state 구조로 매핑
+          setFormData({
+            mgmtId: data.contentId, // 관리번호로 표시
+            title: data.title,
+            content: data.body,    // DTO의 body -> content
+            source: data.source,
+            sourceUrl: data.contentLink || '',
+            isPublic: data.visibleYn === 'Y',
+            createdAt: data.createdAt,
+            updatedAt: data.lastUpdateDate,
+            files: data.fileList || [] // 기존 서버 파일 목록
+          });
+          setBreadcrumbTitle(data.title);
+        }
+      } catch (error) {
+        console.error("Data Load Error:", error);
+        alert("해당 데이터를 찾을 수 없거나 불러오는데 실패했습니다.");
+        navigate('/admin/contents/pressRelList', { replace: true });
+      }
+    };
+    fetchDetail();
   }, [id, navigate, setBreadcrumbTitle]);
 
   // [수정됨] 2. 브레드크럼 초기화 전용 useEffect (추가)
@@ -78,27 +95,21 @@ const AdminPressRelEdit = () => {
     };
   }, [setBreadcrumbTitle]);
 
-  // 3. 이탈 방지 핸들러 및 임시 URL 해제
+    // 3. 이탈 방지 및 Blob URL 정리
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      if (isDirty) {
-        e.preventDefault();
-        e.returnValue = ""; 
-      }
+      if (isDirty) { e.preventDefault(); e.returnValue = ""; }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
-
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      
-      // 수정 페이지 이탈 시 생성된 모든 임시 URL 해제
       if (formData?.files) {
         formData.files.forEach(file => {
           if (file.url?.startsWith('blob:')) URL.revokeObjectURL(file.url);
         });
       }
     };
-  }, [isDirty, formData?.files]); // formData가 변해도 브레드크럼은 초기화되지 않음
+  }, [isDirty, formData?.files]);
 
   // 이미지 핸들러
   const imageHandler = () => {
@@ -164,64 +175,56 @@ const AdminPressRelEdit = () => {
     if (pureText && errors.content) setErrors(prev => ({ ...prev, content: false }));
   };
 
+ // 4. [수정] 파일 추가 로직 (rawFiles 상태 업데이트 추가)
   const addFiles = (newFiles) => {
-  if (!newFiles || newFiles.length === 0) return;
-  
-  const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'pdf', 'hwp', 'docx', 'xlsx', 'zip'];
-  const MAX_FILE_COUNT = 5;
-  const MAX_FILE_SIZE = 10 * 1024 * 1024;
-  const currentFiles = formData.files || [];
-  const incomingFiles = Array.from(newFiles);
+    if (!newFiles || newFiles.length === 0) return;
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'pdf', 'hwp', 'docx', 'xlsx', 'zip'];
+    const MAX_FILE_COUNT = 5;
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
+    const currentFiles = formData.files || [];
+    const incomingFiles = Array.from(newFiles);
 
-  const validFiles = [];
+    const validPreviews = [];
+    const validRawFiles = [];
 
-  // forEach 대신 for...of를 사용하여 흐름을 명확하게 제어합니다.
-  for (const file of incomingFiles) {
-    
-    // 1. 중복 체크 (파일명+확장자)
-    const isDuplicate = currentFiles.some(existingFile => existingFile.name === file.name);
-    if (isDuplicate) {
-      alert(`"${file.name}"은(는) 이미 추가된 파일입니다.`);
-      continue; // 이 파일은 건너뛰고 다음 파일 검사로!
+    for (const file of incomingFiles) {
+      if (currentFiles.some(f => f.name === file.name)) {
+        alert(`"${file.name}"은(는) 이미 추가된 파일입니다.`);
+        continue;
+      }
+      if (currentFiles.length + validPreviews.length >= MAX_FILE_COUNT) {
+        alert(`파일은 최대 ${MAX_FILE_COUNT}개까지만 등록 가능합니다.`);
+        break;
+      }
+      const fileExt = file.name.split('.').pop().toLowerCase();
+      if (!allowedExtensions.includes(fileExt)) {
+        alert(`${file.name}은(는) 허용되지 않는 형식입니다.`);
+        continue;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`${file.name}의 용량이 너무 큽니다. (최대 10MB)`);
+        continue;
+      }
+      
+      validPreviews.push({
+        name : file.name,
+        realName: file.name,
+        url: URL.createObjectURL(file), 
+        size: formatBytes(file.size),
+        isNew: true // 신규 파일임을 표시
+      });
+      console.log(validPreviews);
+      validRawFiles.push(file);
     }
 
-    // 2. 전체 개수 체크
-    if (currentFiles.length + validFiles.length >= MAX_FILE_COUNT) {
-      alert(`파일은 최대 ${MAX_FILE_COUNT}개까지만 등록 가능합니다.`);
-      break; // 5개가 꽉 찼으므로 검사 종료
+    if (validPreviews.length > 0) {
+
+      setFormData(prev => ({ ...prev, files: [...prev.files, ...validPreviews] }));
+      console.log("formData", formData);
+      setRawFiles(prev => [...prev, ...validRawFiles]); // 실제 파일 보관
+      setIsDirty(true);
     }
-
-    // 3. 확장자 체크
-    const fileExt = file.name.split('.').pop().toLowerCase();
-    if (!allowedExtensions.includes(fileExt)) {
-      alert(`${file.name}은(는) 허용되지 않는 파일 형식입니다.\n(허용: JPG, PNG, PDF, HWP, DOCX, XLSX, ZIP)`);
-      continue; 
-    }
-
-    // 4. 용량 체크
-    if (file.size > MAX_FILE_SIZE) {
-      alert(`${file.name}의 용량이 너무 큽니다. (최대 10MB)`);
-      continue;
-    }
-
-    // 모든 통과된 파일만 목록에 담기
-    validFiles.push({
-      name: file.name,
-      url: URL.createObjectURL(file), 
-      size: formatBytes(file.size),
-      rawFile: file // 원본 데이터 보관
-    });
-  }
-
-  // 유효한 파일이 하나라도 있으면 상태 업데이트
-  if (validFiles.length > 0) {
-    setFormData(prev => ({ ...prev, files: [...prev.files, ...validFiles] }));
-    setIsDirty(true);
-    setToastMessage(`${validFiles.length}개의 파일이 추가되었습니다.`);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 2000);
-  }
-};
+  };
 
 const handleFileDeleteClick = (idx) => {
     setFileToDeleteIdx(idx);
@@ -229,25 +232,28 @@ const handleFileDeleteClick = (idx) => {
   };
 
  const confirmFileDelete = () => {
-  const fileToDelete = formData.files[fileToDeleteIdx];
-  if (fileToDelete?.url?.startsWith('blob:')) {
-    URL.revokeObjectURL(fileToDelete.url);
-  }
-  setFormData(prev => ({
-    ...prev,
-    files: prev.files.filter((_, i) => i !== fileToDeleteIdx)
-  }));
-  setIsDirty(true);
-  setIsFileModalOpen(false);
-  setToastMessage("첨부파일이 삭제되었습니다.");
-  setShowToast(true);
-  setTimeout(() => setShowToast(false), 2000);
-};
+    const fileToDelete = formData.files[fileToDeleteIdx];
+    
+    // 신규 추가했던 파일인 경우 rawFiles에서도 제거
+    if (fileToDelete.isNew) {
+      setRawFiles(prev => prev.filter(f => f.name !== fileToDelete.name));
+    }
+    
+    if (fileToDelete?.url?.startsWith('blob:')) {
+      URL.revokeObjectURL(fileToDelete.url);
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      files: prev.files.filter((_, i) => i !== fileToDeleteIdx)
+    }));
+    setIsDirty(true);
+    setIsFileModalOpen(false);
+  };
 
   const handleSave = () => {
     const pureText = formData.content.replace(/<(.|\n)*?>/g, '').trim();
     const newErrors = {
-      mgmtId: !formData.mgmtId.trim(),
       title: !formData.title.trim(),
       source: !formData.source.trim(),
       content: !pureText 
@@ -279,26 +285,56 @@ const handleFileDeleteClick = (idx) => {
     }
   };
 
-  // 저장 확정 시
-  const handleConfirmSave = () => {
+  // 저장 확정 시 백엔드 API 호출
+  const handleConfirmSave = async () => {
     setIsModalOpen(false);
-    const index = pressData.findIndex(item => item.id.toString() === id.toString());
     
-    if (index !== -1) {
-      const now = new Date();
-      const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+    try {
+      const submitData = new FormData();
 
-      pressData[index] = {
-        ...formData,
-        updatedAt: formattedDate
+      // 현재 남아있는 파일 중 '기존 서버 파일'의 ID들만 추출
+    const existingFileIds = formData.files
+      .filter(f => !f.isNew)
+      .map(f => f.id); // getFileList 결과물에 id가 있으므로
+      
+      // JSON 데이터 구성 (DTO 필드명에 맞춤)
+      const pressDto = {
+        contentId: id,
+        title: formData.title,
+        body: formData.content,
+        visibleYn: formData.isPublic ? 'Y' : 'N',
+        source: formData.source,
+        contentLink: formData.sourceUrl,
+        userId: '관리자', // 필요시 실제 로그인 사용자 정보
+        regType: '직접등록',
+        // 백엔드에서 유지할 파일 ID 목록을 받도록 설계되어 있다면 추가
+        existingFileIds: existingFileIds
       };
+
+      // JSON 데이터 추가
+      submitData.append("data", new Blob([JSON.stringify(pressDto)], { type: "application/json" }));
+      
+      // 신규 파일들만 추가
+      if (rawFiles.length > 0) {
+        rawFiles.forEach(file => {
+          submitData.append('files', file);
+        });
+      }
+
+      // API 호출
+      await pressService.admin.update(id, submitData);
+
+      setToastMessage("성공적으로 수정되었습니다.");
+      setShowToast(true);
+      setTimeout(() => navigate(`/admin/contents/pressRelDetail/${id}`, { replace: true }), 1200);
+    } catch (error) {
+      console.error("Update Error:", error);
+      alert("수정 저장 중 오류가 발생했습니다. (사유: " + error.message + ")");
     }
-    setToastMessage("성공적으로 수정되었습니다.");
-    setShowToast(true);
-    setTimeout(() => navigate(`/admin/contents/pressRelDetail/${id}`, { replace: true }), 1200);
   };
 
   if (!formData) return null;
+
 
   return (
     <div className="relative flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
@@ -427,7 +463,7 @@ const handleFileDeleteClick = (idx) => {
                   <div key={idx} className="flex items-center justify-between bg-white border border-gray-200 p-3 rounded-lg w-full shadow-sm">
                     <div className="flex items-center gap-3">
                       <Paperclip size={18} className="text-[#2563EB]" />
-                      <span className="text-[14px] font-bold text-gray-800 truncate">{file.name}</span>
+                      <span className="text-[14px] font-bold text-gray-800 truncate">{file.realName}</span>
                       <span className="text-[12px] text-gray-400">{file.size}</span>
                     </div>
                     <button type="button" onClick={() => handleFileDeleteClick(idx)} className="p-1 hover:bg-red-50 text-red-400 transition-colors"><X size={18}/></button>
@@ -451,17 +487,26 @@ const handleFileDeleteClick = (idx) => {
               <span className={`text-[14px] font-bold ${formData.isPublic ? 'text-[#2563EB]' : 'text-gray-400'}`}>{formData.isPublic ? '노출' : '비노출'}</span>
             </div>
 
-            <div className="pt-10 mt-10 border-t border-gray-100 flex flex-col space-y-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-[14px] font-bold text-gray-400">등록 일시</label>
-                <div className="flex items-center gap-2 text-[#999] font-medium px-1"><Calendar size={16} /> {formData.createdAt || formData.date}</div>
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-[14px] font-bold text-gray-400">수정 일시</label>
-                <div className="flex items-center gap-2 text-[#999] font-medium px-1"><Calendar size={16} /> {formData.updatedAt || '-'}</div>
-              </div>
-            </div> 
-          </div>
+            {/* 로그 정보 영역 수정 */}
+<div className="pt-10 mt-10 border-t border-gray-100 flex flex-col space-y-4">
+  <div className="flex flex-col gap-1">
+    <label className="text-[14px] font-bold text-gray-400">등록 일시</label>
+    <div className="flex items-center gap-2 text-[#999] font-medium px-1">
+      <Calendar size={16} /> 
+      {/* T를 공백으로 치환 */}
+      {(formData.createdAt || formData.date)?.replace('T', ' ')}
+    </div>
+  </div>
+  <div className="flex flex-col gap-1">
+    <label className="text-[14px] font-bold text-gray-400">수정 일시</label>
+    <div className="flex items-center gap-2 text-[#999] font-medium px-1">
+      <Calendar size={16} /> 
+      {/* updatedAt이 있으면 표시, 없으면 createdAt을 표시하며 T 제거 */}
+      {(formData.updatedAt || formData.createdAt)?.replace('T', ' ')}
+    </div>
+  </div>
+</div>
+</div>
         </section>
 
         <div className="flex justify-end gap-2 mt-12 max-w-[1000px]">

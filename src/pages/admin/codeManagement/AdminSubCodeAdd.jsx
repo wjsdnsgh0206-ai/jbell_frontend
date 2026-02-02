@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { codeService } from '@/services/api';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
 // 아이콘 컴포넌트
@@ -41,101 +41,91 @@ const AdminSubCodeAdd = () => {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
   // 이탈 방지 트리거 (사용자가 내용을 입력했는지 여부)
-  const isDirty = useMemo(() => {
+ const isDirty = useMemo(() => {
     return !!(formData.groupCode || formData.subCode.trim() || formData.subName.trim() || formData.desc.trim());
   }, [formData]);
 
-  // 초기 그룹 목록 로드 및 브라우저 종료/새로고침 경고만 유지
-  useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        const res = await axios.get('/api/common/code/groups');
-        setGroupOptions(res.data || []);
-      } catch (err) { console.error("그룹 목록 로드 실패:", err); }
-    };
-    fetchGroups();
+  const fetchGroups = useCallback(async () => {
+    try {
+      const response = await codeService.getCodeGroups();
+      const data = response.data || response;
+      setGroupOptions(data);
+    } catch (error) {
+      console.error('그룹 코드 로드 실패:', error);
+    }
+  }, []);
 
-    // 탭 닫기/새로고침 시에만 브라우저 기본 경고창 노출
-    const handleBeforeUnload = (e) => {
-      if (isDirty) {
-        e.preventDefault();
-        e.returnValue = ""; 
-      }
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  // [수정] 이탈 방지 핸들러를 하나로 고정
+  const handleBeforeUnload = useCallback((e) => {
+    if (isDirty) {
+      e.preventDefault();
+      e.returnValue = ""; 
+    }
   }, [isDirty]);
 
-useEffect(() => {
-  // 1. 그룹코드가 없으면 체크 안 함
-  if (!formData.groupCode) {
-    setIsDuplicate({ subCode: false, subName: false });
-    return;
-  }
-  
-  // 2. ID와 명칭 둘 다 비어있으면 체크 안 함
-  if (!formData.subCode.trim() && !formData.subName.trim()) {
-    setIsDuplicate({ subCode: false, subName: false });
-    return;
-  }
+  // [수정] useEffect 통합 (중복 제거)
+  useEffect(() => {
+    fetchGroups();
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [fetchGroups, handleBeforeUnload]);
 
-  const checkDuplicate = async () => {
-    try {
-      // 값이 있는 것만 골라서 파라미터 구성
-      const params = { groupCode: formData.groupCode };
-      if (formData.subCode.trim()) params.subCode = formData.subCode.trim();
-      if (formData.subName.trim()) params.subName = formData.subName.trim();
-
-      const res = await axios.get('/api/common/code/check/sub', { params });
-      
-      setIsDuplicate({
-        subCode: res.data.isCodeDup || false, 
-        subName: res.data.isNameDup || false
-      });
-    } catch (err) { 
-      console.error("중복 체크 실패:", err.response?.data || err.message); 
+  // 중복 체크 로직
+  useEffect(() => {
+    if (!formData.groupCode || (!formData.subCode.trim() && !formData.subName.trim())) {
+      setIsDuplicate({ subCode: false, subName: false });
+      return;
     }
-  };
 
-  const timer = setTimeout(checkDuplicate, 400);
-  return () => clearTimeout(timer);
-}, [formData.groupCode, formData.subCode, formData.subName]);
+    const checkDuplicate = async () => {
+      try {
+        const params = { groupCode: formData.groupCode };
+        if (formData.subCode.trim()) params.subCode = formData.subCode.trim();
+        if (formData.subName.trim()) params.subName = formData.subName.trim();
 
-  // 입력 핸들러 (기존의 정밀 제약 조건 유지)
+        const res = await codeService.checkSubDup(params);
+        const data = res.data || res;
+        
+        setIsDuplicate({
+          subCode: data.isCodeDup || false, 
+          subName: data.isNameDup || false
+        });
+      } catch (err) { 
+        console.error("중복 체크 실패:", err); 
+      }
+    };
+
+    const timer = setTimeout(checkDuplicate, 400);
+    return () => clearTimeout(timer);
+  }, [formData.groupCode, formData.subCode, formData.subName]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
     if (name === "subCode") {
-      const transformedValue = value.toUpperCase().replace(/[^A-Z0-9_]/g, "").slice(0, 20);
+      // 상세 코드 ID: 50자 제한 (기존 20자에서 변경)
+      const transformedValue = value.toUpperCase().replace(/[^A-Z0-9_]/g, "").slice(0, 50);
       setFormData(prev => ({ ...prev, [name]: transformedValue }));
       setErrors(prev => ({ ...prev, subCode: false }));
-    } 
-    else if (name === "subName") {
-      if (value.length <= 20) {
+    } else if (name === "subName") {
+      // 상세 코드 명: 100자 제한 (기존 20자에서 변경)
+      if (value.length <= 100) {
         setFormData(prev => ({ ...prev, [name]: value }));
         setErrors(prev => ({ ...prev, subName: false }));
       }
-    }
-    else if (name === "order") {
-      const val = value.replace(/[^0-9]/g, "");
-      setFormData(prev => ({ ...prev, [name]: val }));
-    }
-    else if (name === "desc") {
-      if (value.length <= 50) setFormData(prev => ({ ...prev, [name]: value }));
-    }
-    else {
+    } else if (name === "desc") {
+      // 상세 코드 설명: 200자 제한 (기존 50자에서 변경)
+      if (value.length <= 200) setFormData(prev => ({ ...prev, [name]: value }));
+    } else {
       setFormData(prev => ({ ...prev, [name]: value }));
       if (value !== "") setErrors(prev => ({ ...prev, [name]: false }));
     }
   };
 
-  // 취소 처리
   const handleCancel = () => {
     if (isDirty) setIsCancelModalOpen(true);
     else navigate(-1);
   };
 
-  // 저장 처리
   const handleSave = () => {
     const newErrors = {
       groupCode: !formData.groupCode,
@@ -152,17 +142,35 @@ useEffect(() => {
   };
 
   const handleConfirmSave = async () => {
+    setIsModalOpen(false);
     try {
-      const payload = { ...formData, visible: isVisible };
-      await axios.post(`/api/common/code/groups/${formData.groupCode}/items`, payload);
+      const saveData = {
+        groupCode: formData.groupCode,
+        subCode: formData.subCode,
+        subName: formData.subName,
+        desc: formData.desc,
+        order: Number(formData.order) || 1,
+        visible: isVisible 
+      };
 
-      setToastMessage("상세코드가 성공적으로 등록되었습니다.");
+      await codeService.addItem(formData.groupCode, saveData);
+
+      setToastMessage('상세코드가 성공적으로 등록되었습니다.');
       setShowToast(true);
-      setTimeout(() => navigate('/admin/system/commonCodeList', { replace: true }), 1500);
-    } catch (err) {
-      alert(err.response?.data?.message || "저장 중 오류가 발생했습니다.");
-    } finally {
-      setIsModalOpen(false);
+      
+      // [중요] 정확한 함수 참조로 리스너 제거
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      
+      setTimeout(() => {
+        navigate('/admin/system/commonCodeList');
+      }, 1500);
+      
+    } catch (error) {
+      console.error('저장 실패 상세:', error);
+      const serverMsg = error.response?.data?.message || "저장 중 오류가 발생했습니다. 관리자에게 문의하세요.";
+      setToastMessage(serverMsg);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
     }
   };
 
@@ -173,14 +181,14 @@ useEffect(() => {
     setTimeout(() => navigate('/admin/system/commonCodeList'), 1000);
   };
 
-  return (
+
+ return (
     <div className="relative flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
-      {/* 토스트 메시지 */}
       {showToast && (
         <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500">
           <div className="bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-gray-700">
-            {/* 이 부분을 아래처럼 수정하세요 */}
-            {!toastMessage.includes("취소") && <SuccessIcon fill="#4ADE80" />}
+            {!toastMessage.includes("오류") && !toastMessage.includes("취소") && <SuccessIcon fill="#4ADE80" />}
+            {toastMessage.includes("오류") && <ErrorIcon />}
             <span className="font-bold text-[16px]">{toastMessage}</span>
           </div>
         </div>
@@ -207,7 +215,7 @@ useEffect(() => {
                 >
                   <option value="">그룹 코드를 선택해주세요</option>
                   {groupOptions.map(opt => (
-                    <option key={opt.groupCode} value={opt.groupCode}>{`[${opt.groupCode}] ${opt.groupName}`}</option>
+                    <option key={opt.groupCode} value={opt.groupCode}>{`${opt.groupCode} (${opt.groupName})`}</option>
                   ))}
                 </select>
                 <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -220,61 +228,59 @@ useEffect(() => {
             {/* 2. 상세 코드 ID */}
             <div className="mb-10 w-full max-w-[500px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 ID (필수)</label>
-              {/* [수정] 상세 코드 ID 입력창 (약 165라인 근처) */}
-<input 
-  name="subCode"
-  value={formData.subCode}
-  onChange={handleChange}
-  autoComplete="off"
-  className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${
-    // 중복이거나 에러면 빨간색, 입력값이 있으면 파란색, 기본은 회색
-    errors.subCode || isDuplicate.subCode ? 'border-[#E15141] ring-1 ring-red-50' : formData.subCode ? 'border-[#2563EB]' : 'border-gray-300 focus:border-[#2563EB]'
-  }`}
-/>
-<div className="flex justify-between items-start mt-2">
-  <div className="flex-1 min-h-[20px]">
-    {isDuplicate.subCode ? (
-      <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium"><ErrorIcon /> 이미 존재하는 코드 ID입니다.</div>
-    ) : errors.subCode ? (
-      <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium"><ErrorIcon /> 상세 코드 ID를 입력해주세요.</div>
-    ) : formData.subCode ? (
-      // 값이 있고 중복이 아닐 때 "사용 가능" 문구 노출
-      <div className="text-[#2563EB] text-sm flex items-center gap-2 font-medium"><SuccessIcon fill="#2563EB" /> 사용 가능한 코드 ID입니다.</div>
-    ) : (
-      <p className="text-[13px] text-gray-400 font-medium">* 영문 대문자, 숫자, 언더바(_)만 사용 가능</p>
-    )}
-  </div>
-  <span className="text-[12px] text-gray-400 font-medium ml-4 shrink-0">{formData.subCode.length} / 20</span>
-</div>
+              <input 
+                name="subCode"
+                value={formData.subCode}
+                onChange={handleChange}
+                autoComplete="off"
+                placeholder="예: AUTH_USER"
+                className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${
+                  errors.subCode || isDuplicate.subCode ? 'border-[#E15141] ring-1 ring-red-50' : formData.subCode ? 'border-[#2563EB]' : 'border-gray-300 focus:border-[#2563EB]'
+                }`}
+              />
+              <div className="flex justify-between items-start mt-2">
+                <div className="flex-1 min-h-[20px]">
+                  {isDuplicate.subCode ? (
+                    <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium"><ErrorIcon /> 이미 존재하는 코드 ID입니다.</div>
+                  ) : errors.subCode ? (
+                    <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium"><ErrorIcon /> 상세 코드 ID를 입력해주세요.</div>
+                  ) : formData.subCode ? (
+                    <div className="text-[#2563EB] text-sm flex items-center gap-2 font-medium"><SuccessIcon fill="#2563EB" /> 사용 가능한 코드 ID입니다.</div>
+                  ) : (
+                    <p className="text-[13px] text-gray-400 font-medium">* 영문 대문자, 숫자, 언더바(_)만 사용 가능</p>
+                  )}
+                </div>
+                <span className="text-[12px] text-gray-400 font-medium ml-4 shrink-0">{formData.subCode.length} / 50</span>
+              </div>
             </div>
 
             {/* 3. 상세 코드명 */}
             <div className="mb-10 w-full max-w-[500px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드명 (필수)</label>
               <input 
-  name="subName"
-  value={formData.subName}
-  onChange={handleChange}
-  autoComplete="off"
-  className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${
-    errors.subName || isDuplicate.subName ? 'border-[#E15141] ring-1 ring-red-50' : formData.subName ? 'border-[#2563EB]' : 'border-gray-300 focus:border-[#2563EB]'
-  }`}
-/>
-<div className="flex justify-between items-start mt-2">
-  <div className="flex-1 min-h-[20px]">
-    {isDuplicate.subName ? (
-      <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium"><ErrorIcon /> 이미 존재하는 명칭입니다.</div>
-    ) : errors.subName ? (
-      <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium"><ErrorIcon /> 상세 코드명을 입력해주세요.</div>
-    ) : formData.subName ? (
-      // 이 부분을 추가해서 성공 메시지를 띄웁니다
-      <div className="text-[#2563EB] text-sm flex items-center gap-2 font-medium"><SuccessIcon fill="#2563EB" /> 사용 가능한 명칭입니다.</div>
-    ) : (
-      <p className="text-[13px] text-gray-400 font-medium">* 최대 20자까지 입력 가능</p>
-    )}
-  </div>
-  <span className="text-[12px] text-gray-400 font-medium ml-4 shrink-0">{formData.subName.length} / 20</span>
-</div>
+                name="subName"
+                value={formData.subName}
+                onChange={handleChange}
+                autoComplete="off"
+                placeholder="예: 일반 사용자 권한"
+                className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${
+                  errors.subName || isDuplicate.subName ? 'border-[#E15141] ring-1 ring-red-50' : formData.subName ? 'border-[#2563EB]' : 'border-gray-300 focus:border-[#2563EB]'
+                }`}
+              />
+              <div className="flex justify-between items-start mt-2">
+                <div className="flex-1 min-h-[20px]">
+                  {isDuplicate.subName ? (
+                    <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium"><ErrorIcon /> 이미 존재하는 명칭입니다.</div>
+                  ) : errors.subName ? (
+                    <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium"><ErrorIcon /> 상세 코드명을 입력해주세요.</div>
+                  ) : formData.subName ? (
+                    <div className="text-[#2563EB] text-sm flex items-center gap-2 font-medium"><SuccessIcon fill="#2563EB" /> 사용 가능한 명칭입니다.</div>
+                  ) : (
+                    <p className="text-[13px] text-gray-400 font-medium">* 최대 100자까지 입력 가능</p>
+                  )}
+                </div>
+                <span className="text-[12px] text-gray-400 font-medium ml-4 shrink-0">{formData.subName.length} / 100</span>
+              </div>
             </div>
 
             {/* 4. 상세 코드 설명 */}
@@ -285,16 +291,45 @@ useEffect(() => {
                 value={formData.desc}
                 onChange={handleChange}
                 rows="2"
-                placeholder="상세 코드에 대한 설명을 입력해주세요. (최대 50자)"
+                placeholder="상세 코드에 대한 설명을 입력해주세요."
                 className="w-full bg-white border border-gray-300 rounded-lg px-5 py-4 text-[#111] outline-none focus:border-[#2563EB] resize-none leading-relaxed transition-all font-medium"
               />
               <div className="flex justify-end mt-2">
-                <span className="text-[12px] text-gray-400 font-medium">{formData.desc.length} / 50</span>
+                <span className="text-[12px] text-gray-400 font-medium">{formData.desc.length} / 200</span>
               </div>
             </div>
 
+            {/*  상세 코드 순서 영역 아직 구현 X  @@*/}        
+            {/* 5. 순서 섹션 - AdminSubCodeAdd.jsx */}
+<div className="mb-10 w-full group">
+  <label className="block font-bold text-[16px] mb-3 text-[#111]">순서</label>
+  <div className="relative w-[100px]">
+    <input 
+      type="text" 
+      name="order"
+      value={formData.order}
+      readOnly // 키보드 입력 차단
+      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-center font-medium text-gray-400 cursor-not-allowed outline-none transition-all"
+    />
+    
+    {/* 증감 버튼에서 onClick 제거 및 비활성화 스타일 적용 */}
+    <div className="absolute right-[1px] top-[1px] bottom-[1px] flex flex-col w-[24px] opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded-r-lg overflow-hidden border-l border-gray-100">
+      <div className="flex-1 flex items-center justify-center border-b border-gray-100 cursor-not-allowed">
+        <svg width="8" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 5L5 1L9 5" stroke="#CCC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      </div>
+      <div className="flex-1 flex items-center justify-center cursor-not-allowed">
+        <svg width="8" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="#CCC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      </div>
+    </div>
+  </div>
+  <div className="mt-3 space-y-1">
+    <p className="text-[12px] text-gray-400 mt-2 font-medium">* 자동으로 마지막 순서로 지정됩니다.</p>
+              <p className="text-[13px] text-gray-400 font-medium">* 숫자가 낮을수록 리스트 상단에 노출됩니다.</p>
+  </div>
+</div>
+
             {/* 5. 순서 */}
-            <div className="mb-10 w-full group">
+            {/* <div className="mb-10 w-full group">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">순서</label>
               <div className="relative w-[100px]">
                 <input 
@@ -323,7 +358,7 @@ useEffect(() => {
                 </div>
               </div>
               <p className="text-[13px] text-gray-400 mt-3 font-medium">* 숫자가 낮을수록 리스트 상단에 노출됩니다.</p>
-            </div>
+            </div> */}
             
             {/* 6. 사용 여부 */}
             <div className="flex items-center gap-5 pt-2">
@@ -355,7 +390,7 @@ useEffect(() => {
         onClose={() => setIsModalOpen(false)} 
         onConfirm={handleConfirmSave} 
         title="상세코드를 저장하시겠습니까?" 
-        message="작성하신 내용이 즉시 DB에 저장됩니다." 
+        message="작성하신 내용이 즉시 저장됩니다." 
         type="save" 
       />
 

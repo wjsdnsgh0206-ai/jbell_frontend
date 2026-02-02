@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import axios from 'axios'; // API 연동 추가
+import { codeService } from '@/services/api';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 import { Calendar } from 'lucide-react';
 
@@ -27,12 +27,11 @@ const AdminGroupCodeDetail = () => {
     return dateTimeStr.replace('T', ' ');
   };
 
-  // 데이터 로드 로직 (DB 연동)
+  // 데이터 로드 로직 (codeService 사용)
   const fetchDetail = useCallback(async () => {
     try {
-      // 서버에서 특정 그룹 코드 정보를 가져오는 API (엔드포인트는 환경에 맞게 조정)
-      const response = await axios.get(`/api/common/code/groups/${id}`);
-      const data = response.data;
+      // codeService.getCodeGroup(id) 사용
+      const data = await codeService.getCodeGroup(id);
       setFormData(data);
       setBreadcrumbTitle(data.groupName);
     } catch (error) {
@@ -48,13 +47,14 @@ const AdminGroupCodeDetail = () => {
 
   if (!formData) return null;
 
+  // 삭제 로직 (codeService 사용)
   const handleDelete = async () => {
     setIsDeleting(true);
     setIsDeleteModalOpen(false);
 
     try {
-      // [수정] 실제 DB 삭제 API 호출
-      await axios.delete(`/api/common/code/groups/${id}`);
+      // codeService.deleteGroup(id) 사용
+      await codeService.deleteGroup(id);
       setShowToast(true);
       setTimeout(() => {
         setShowToast(false);
@@ -62,7 +62,7 @@ const AdminGroupCodeDetail = () => {
       }, 1500);
     } catch (error) {
       console.error("삭제 실패:", error);
-      alert("삭제 중 오류가 발생했습니다.");
+      alert(error.response?.data?.message || "삭제 중 오류가 발생했습니다.");
       setIsDeleting(false);
     }
   };
@@ -85,7 +85,7 @@ const AdminGroupCodeDetail = () => {
           <button 
             onClick={() => navigate('/admin/system/commonCodeList')}
             className="px-6 py-2 border border-gray-300 bg-white text-[#333] rounded-md font-bold text-[15px] hover:bg-gray-50 shadow-sm transition-all disabled:opacity-50"
-             disabled={isDeleting} 
+            disabled={isDeleting} 
           >
             목록
           </button>
