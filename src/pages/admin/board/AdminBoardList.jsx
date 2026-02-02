@@ -183,9 +183,9 @@ const AdminBoardList = () => {
   const columns = [
     { 
       key: 'id', 
-      header: '번호', 
+      header: 'NO', 
       width: '80px', 
-      className: 'text-graygray-40 font-mono text-center' 
+      className: 'text-center' 
     },
     { 
       key: 'title', 
@@ -213,7 +213,7 @@ const AdminBoardList = () => {
       key: 'createdAt', 
       header: '등록일시', 
       width: '120px', 
-      className: 'text-graygray-40 text-[13px] text-center' 
+      className: 'text-center' 
     },
     { 
       key: 'files', 
@@ -233,15 +233,20 @@ const AdminBoardList = () => {
     { 
       key: 'isPublic', 
       header: '상태', 
-      width: '80px', 
+      width: '100px', // 너비를 조금 더 여유 있게 조정했습니다.
       className: 'text-center',
       render: (isPublic) => (
-        // 데이터가 'Y' 문자열인지 확인합니다.
-        isPublic === 'Y' ? (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-blue-50 text-blue-600 text-[12px] font-bold border border-blue-200">사용</span>
-        ) : (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-50 text-gray-400 text-[12px] font-bold border border-gray-200">미사용</span>
-        )
+        <div className="flex justify-center items-center">
+          {isPublic === 'Y' ? (
+            <span className="inline-flex items-center justify-center px-2 py-1 rounded-md bg-blue-50 text-blue-600 text-[12px] font-bold border border-blue-200 whitespace-nowrap min-w-[50px]">
+              사용
+            </span>
+          ) : (
+            <span className="inline-flex items-center justify-center px-2 py-1 rounded-md bg-gray-50 text-gray-400 text-[12px] font-bold border border-gray-200 whitespace-nowrap min-w-[50px]">
+              미사용
+            </span>
+          )}
+        </div>
       )
     },
    
