@@ -767,7 +767,8 @@ export const disasterModalService = {
     );
     return response.data;
   },
-
+getWaterLevelList: () => axios.get("/api/disaster/fetch/water-level-list"),
+// api/disaster/fetch/water-level-list
   /* -----------------------------
    기상특보 api 
 ----------------------------- */

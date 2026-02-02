@@ -6,7 +6,7 @@ import FloodGeometryMap from "@/components/user/modal/FloodGeometryMap";
 import { useSluiceData } from "@/hooks/user/useSluiceData";
 
 const Flood = () => {
-  const [activeTab, setActiveTab] = useState("침수흔적도");
+  const [activeTab, setActiveTab] = useState("호우특보");
   const [facilities, setFacilities] = useState({
     shelter: true,
     hospital: false,
@@ -16,7 +16,6 @@ const Flood = () => {
   const { damData, rainMarkers, rainStatus, loading, fetchDamData, fetchRainfallWarning } = useSluiceData();
 
   const mapTabs = [
-    { id: "침수흔적도", label: "침수흔적도" },
     { id: "호우특보", label: "호우특보" }, // 새 버튼 추가
     { id: "댐수문", label: "댐수문" },
     { id: "재난안전시설", label: "재난안전시설" },
@@ -77,9 +76,7 @@ const Flood = () => {
         {/* 지도 및 오버레이 영역 */}
         <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[300px] md:min-h-[400px] lg:min-h-0">
           <div className="absolute inset-0 z-0">
-            {activeTab === "침수흔적도" ? (
-              <FloodGeometryMap />
-            ) : activeTab === "호우특보" ? (
+            {activeTab === "호우특보" ? (
               <CommonMap markers={rainMarkers} regionStatus={rainStatus} />
             ) : (
               <CommonMap markers={[]} />
