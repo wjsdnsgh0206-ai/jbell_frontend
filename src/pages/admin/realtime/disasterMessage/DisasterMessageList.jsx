@@ -1,4 +1,4 @@
-'use no memo';
+// src\pages\admin\realtime\disasterMessage\DisasterMessageList.jsx
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useOutletContext } from "react-router-dom";
@@ -47,40 +47,59 @@ const DisasterMessageList = () => {
   // 2. 데이터 가져오기 및 매핑 (대문자 필드 대응 수정)
   // ==================================================================================
   const fetchMessages = useCallback(async () => {
-  try {
-    setIsLoading(true);
-    const response = await disasterApi.getDisasterMessages();
-    
-    // 로그에 찍힌 구조가 { list: [...], totalCount: 21 } 이니까 response.list 사용
-    const rawData = response?.list || [];
+    try {
+      setIsLoading(true);
+      const response = await disasterApi.getDisasterMessages();
 
-    const mappedData = rawData.map(item => ({
-      // DB에서 조회한 id(PK)가 최우선, 없으면 대문자 ID라도 확인
-      id: item.id || item.ID || item.sn || item.SN, 
-      category: item.EMRG_STEP_NM || item.emrgStepNm || '안전안내',
-      type: item.DST_SE_NM || item.dstType || '기타', 
-      sender: item.MNG_ORG_NM || item.mngOrgNm || "행정안전부",
-      content: item.MSG_CN || item.msgCn || '',
-      dateTime: item.CRT_DT || item.crtDt || '',
-      region: item.RCPTN_RGN_NM || item.rcptnRgnNm || ''
-    }));
+      // [디버깅] 전체 구조 확인
+     // console.log("🔍 [STEP 1] API 원본 데이터:", response);
+      
+      const rawData = response?.list || [];
+     // console.log(`🔍 [STEP 2] 데이터 개수: ${rawData.length}개`);
+
+      const mappedData = rawData.map((item, index) => {
+        // [디버깅] 첫 번째 아이템의 ID 구조 확인
+        if(index === 0) console.log("🔍 [STEP 3] 첫 데이터 PK 확인:", { id: item.id, ID: item.ID, sn: item.sn, SN: item.SN });
+
+        return {
+          // 어떤 이름으로 PK가 오든 'id'라는 이름으로 통일해서 저장
+          id: item.id || item.ID || item.sn || item.SN, 
+          category: item.EMRG_STEP_NM || item.emrgStepNm || '안전안내',
+          type: item.DST_SE_NM || item.dstType || '기타', 
+          sender: item.MNG_ORG_NM || item.mngOrgNm || "행정안전부",
+          content: item.MSG_CN || item.msgCn || '',
+          dateTime: item.CRT_DT || item.crtDt || '',
+          region: item.RCPTN_RGN_NM || item.rcptnRgnNm || '',
+          isVisible: item.visibleYn === 'Y'
+        };
+      });
+      
+      //console.log("🔍 [STEP 4] 매핑 완료 데이터(첫행):", mappedData[0]);
+      setMessages(mappedData);
+    } catch (error) {
+      console.error("❌ 데이터 로드 실패:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+const goDetail = useCallback((id) => {
+    // [디버깅] 이동 전 ID 확인
+    //console.log(`🚀 [GO DETAIL] 이동 시도 -> ID: ${id}`);
     
-    setMessages(mappedData);
-  } catch (error) {
-    console.error("데이터 로드 실패:", error);
-  } finally {
-    setIsLoading(false);
-  }
-}, []);
+    if (!id) {
+      console.error("❌ 에러: ID 값이 없습니다!");
+      alert("데이터 ID를 찾을 수 없습니다.");
+      return;
+    }
+    
+    navigate(`/admin/realtime/disasterMessageDetail/${id}`);
+  }, [navigate]);
 
   useEffect(() => {
     if (setBreadcrumbTitle) setBreadcrumbTitle("재난 문자 이력");
     fetchMessages();
   }, [setBreadcrumbTitle, fetchMessages]);
-
-  const goDetail = useCallback((id) => {
-    navigate(`/admin/realtime/disasterMessageDetail/${id}`);
-  }, [navigate]);
 
   const handleSyncData = async () => {
     try {
@@ -105,6 +124,7 @@ const DisasterMessageList = () => {
   // 3. 필터링 로직 (날짜 형식 대응 수정)
   // ==================================================================================
   const filteredData = useMemo(() => {
+    
     return messages.filter((item) => {
       const matchCategory = selectedCategory === "전체" || item.category === selectedCategory;
       const matchType = selectedType === "전체" || item.type.includes(selectedType);
@@ -267,7 +287,11 @@ const columns = useMemo(() => [
         width: '120px',
         className: 'text-center',
         render: (_, row) => (
-          <button onClick={() => goDetail(row.id)} className="border border-gray-300 rounded px-3 py-1 text-sm hover:bg-gray-100 transition-all cursor-pointer font-normal">
+          <button onClick={() => {
+          console.log("이동하려는 ID:", row.id); // <- 이거 찍어봐!
+          goDetail(row.id)
+        }}
+         className="border border-gray-300 rounded px-3 py-1 text-sm hover:bg-gray-100 transition-all cursor-pointer font-normal">
             보기
           </button>
         )

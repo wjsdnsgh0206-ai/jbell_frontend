@@ -53,16 +53,23 @@ export const disasterApi = {
   //   return response.data;
   // },
   // 재난 문자 리스트 조회 (GET)
-  getDisasterMessages: async () => {
-    const response = await api.get("/disaster/dashboard/disasterMessages");
-    return response.data; // List<PredictionInfoResponse>
-  },
+  // getDisasterMessages: async () => {
+  //   const response = await api.get("/disaster/dashboard/disasterMessages");
+  //   return response.data; // List<PredictionInfoResponse>
+  // },
+
+  // src/services/api.js
+getDisasterMessages: async (params = {}) => {
+  const response = await api.get("/disaster/dashboard/disasterMessages", { params });
+  return response.data; // 이제 여기서 { list: [], totalCount: 0 } 가 리턴됨
+},
+
 
   // 재난 문자 상세 조회 (GET)
-  getDisasterDetail: async (sn) => {
+  getDisasterDetail: async (id) => {
     // id로 수정해야할듯
     const response = await api.get(
-      `/disaster/dashboard/disasterMessages/${sn}`,
+      `/disaster/dashboard/disasterMessages/${id}`,
     );
     return response.data;
   },
@@ -77,10 +84,10 @@ export const disasterApi = {
   },
 
   // 재난 문자 수정 (PUT)
-  updateDisaster: async (sn, data) => {
+  updateDisaster: async (id, data) => {
     // id로 수정해야할듯
     const response = await api.put(
-      `/disaster/dashboard/disasterMessages/${sn}`,
+      `/disaster/dashboard/disasterMessages/${id}`,
       data,
     );
     return response.data;
