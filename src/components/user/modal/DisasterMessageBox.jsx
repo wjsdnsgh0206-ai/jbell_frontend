@@ -60,7 +60,7 @@ const DisasterMessage = () => {
   const fetchMessages = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get("http://localhost:8080/api/disaster/dashboard/disasterMessages");
+      const response = await axios.get("/api/disaster/dashboard/disasterMessages");
       
       // [수정 포인트] 데이터 구조를 더 안전하게 파싱
       const rawData = response.data?.data || response.data || [];
@@ -80,7 +80,7 @@ const DisasterMessage = () => {
       setIsLoading(true);
       const today = new Date().toISOString().split('T')[0].replace(/-/g, '/');
       
-      await axios.post("http://localhost:8080/api/disaster/dashboard/disasterMessageInfo", {
+      await axios.post("/api/disaster/dashboard/disasterMessageInfo", {
         crtDt: `${today} 00:00:00`,
         rgnNm: "전북",
         numOfRows: 30,
