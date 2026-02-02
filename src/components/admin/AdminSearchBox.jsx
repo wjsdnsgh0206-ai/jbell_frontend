@@ -35,7 +35,7 @@ const AdminSearchBox = ({
   };
 
   return (
-    <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-center justify-between w-full">
+    <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-end justify-between w-full">
       
       {/* 1. 좌측: 검색 조건 영역 (유동적 필터 + 검색어 입력) */}
       <div className="flex flex-1 flex-wrap items-center gap-3 w-full">
