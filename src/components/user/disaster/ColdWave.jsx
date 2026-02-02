@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
-import FacilityCheckGroup from "../modal/FacilityCheckGroup";
+// import FacilityCheckGroup from "../modal/FacilityCheckGroup";
 import CommonMap from "@/components/user/modal/CommonMap"; 
 import useColdWave from "@/hooks/user/useColdWave"; 
 
@@ -9,21 +9,15 @@ const ColdWave = () => {
   const { disasterStatus, markers, isLoading, fetchColdWaveData } = useColdWave();
 
   const [activeTab, setActiveTab] = useState("한파 특보");
-  const [facilities, setFacilities] = useState({
-    shelter: true,
-    hospital: false,
-    pharmacy: false,
-  });
+  // const [facilities, setFacilities] = useState({
+  //   shelter: true,
+  //   hospital: false,
+  //   pharmacy: false,
+  // });
 
   const mapTabs = [
     { id: "한파 특보", label: "한파 특보" },
-    { id: "재난안전시설", label: "재난안전시설", hasArrow: true },
-  ];
-
-  const coldWaveItems = [
-    { id: "shelter", label: "한파쉼터" },
-    { id: "hospital", label: "병원" },
-    { id: "pharmacy", label: "약국" },
+    { id: "대피소", label: "대피소", hasArrow: true },
   ];
 
   // ✅ 마운트 시 데이터 호출
@@ -46,8 +40,8 @@ const ColdWave = () => {
 
   const handleTabClick = (tabId) =>
     setActiveTab((prev) => (prev === tabId ? null : tabId));
-  const handleCheck = (key) =>
-    setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
+  // const handleCheck = (key) =>
+  //   setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
 
   return (
     <div className="flex-1 flex flex-col min-h-0 gap-5 lg:gap-6">
@@ -120,22 +114,13 @@ const ColdWave = () => {
                   `}
                 >
                   <span className="whitespace-nowrap">{tab.label}</span>
-                  {tab.hasArrow && (
+                  {/* {tab.hasArrow && (
                     <span className={`hidden lg:block ml-2 transition-transform ${activeTab === tab.id ? "rotate-90" : ""}`}>
                       <span className="text-[10px]">▶</span>
                     </span>
-                  )}
+                  )} */}
                 </button>
 
-                {tab.id === "재난안전시설" && activeTab === "재난안전시설" && (
-                  <div className="absolute top-12 left-0 lg:static lg:mt-1">
-                    <FacilityCheckGroup
-                      items={coldWaveItems}
-                      facilities={facilities}
-                      onCheck={handleCheck}
-                    />
-                  </div>
-                )}
               </div>
             ))}
           </div>
@@ -143,8 +128,8 @@ const ColdWave = () => {
 
         {/* 🔍 개발용 데이터 로그 뷰어 */}
         <div className="mt-4 p-4 bg-gray-900 rounded-lg overflow-auto max-h-[200px] border-l-4 border-green-500">
-          <p className="text-green-400 text-xs mb-2 font-mono font-bold">// 실시간 매핑 결과 (Mapping Table 적용됨)</p>
-          <pre className="text-white text-[10px] font-mono leading-relaxed">
+          <p className="text-green-400 text-xs mb-2 font-bold">// 실시간 매핑 결과 (Mapping Table 적용됨)</p>
+          <pre className="text-white text-[10px] leading-relaxed">
             {JSON.stringify(disasterStatus, null, 2)}
           </pre>
         </div>

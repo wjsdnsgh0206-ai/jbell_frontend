@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
-import FacilityCheckGroup from "../modal/FacilityCheckGroup";
+// import FacilityCheckGroup from "../modal/FacilityCheckGroup";
 import CommonMap from "@/components/user/modal/CommonMap";
 import useTyphoon from "@/hooks/user/useTyphoon";
 
@@ -19,14 +19,8 @@ const Typhoon = () => {
   const mapTabs = [
     { id: "태풍특보", label: "태풍특보" },
     { id: "태풍경로도", label: "태풍경로도" },
-    { id: "재난안전시설", label: "재난안전시설" },
+    { id: "대피소", label: "대피소" },
   ];
-
-  const facilityItems = useMemo(() => [
-    { id: "shelter", label: "대피소" },
-    { id: "hospital", label: "병원" },
-    { id: "pharmacy", label: "약국" },
-  ], []);
 
   useEffect(() => {
     fetchTyphoonData();
@@ -213,12 +207,6 @@ const Typhoon = () => {
             ))}
           </div>
 
-          {/* 재난안전시설 체크박스 */}
-          {activeTab === "재난안전시설" && (
-            <div className="absolute top-5 left-[115px] lg:left-[180px] z-20 scale-[0.8] md:scale-100 origin-left">
-              <FacilityCheckGroup items={facilityItems} facilities={facilities} onCheck={handleCheck} />
-            </div>
-          )}
         </div>
       </div>
 

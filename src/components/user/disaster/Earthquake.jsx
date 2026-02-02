@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
-import FacilityCheckGroup from "../modal/FacilityCheckGroup";
 import CommonMap from "@/components/user/modal/CommonMap";
 import useEarthquake from "@/hooks/user/useEarthquake";
 
@@ -15,20 +14,9 @@ const Earthquake = () => {
   } = useEarthquake();
 
   const [activeTab, setActiveTab] = useState("지진발생정보");
-  const [facilities, setFacilities] = useState({
-    shelter: true,
-    hospital: false,
-    pharmacy: false,
-  });
-
-  const EarthquakeItems = useMemo(() => [
-    { id: "shelter", label: "대피소" },
-    { id: "hospital", label: "병원" },
-    { id: "pharmacy", label: "약국" },
-  ], []);
 
   // 진도정보조회 제거
-  const tabs = ["지진발생정보", "재난안전시설"];
+  const tabs = ["지진발생정보", "대피소"];
 
   useEffect(() => {
     if (activeTab === "지진발생정보") fetchEarthquakeData();
@@ -39,9 +27,6 @@ const Earthquake = () => {
     if (activeTab === "지진발생정보") return eqMarkers;
     return [];
   }, [activeTab, eqMarkers]);
-
-  const handleCheck = (key) =>
-    setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
 
   return (
     <div className="flex-1 flex flex-col gap-6 w-full h-full lg:min-h-0">
@@ -60,16 +45,6 @@ const Earthquake = () => {
             level={8}
             selectedMarker={activeTab === "지진발생정보" ? selectedMarker : null}
           />
-
-          {activeTab === "재난안전시설" && (
-            <div className="absolute top-5 left-[115px] lg:left-[175px] z-30 scale-[0.75] md:scale-100 origin-left">
-              <FacilityCheckGroup
-                items={EarthquakeItems}
-                facilities={facilities}
-                onCheck={handleCheck}
-              />
-            </div>
-          )}
 
           {!isLoading && displayMarkers.length === 0 && activeTab === "지진발생정보" && (
             <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none pl-[120px] lg:pl-[180px]">

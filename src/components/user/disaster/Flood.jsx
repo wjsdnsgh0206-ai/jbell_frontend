@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
-import FacilityCheckGroup from "../modal/FacilityCheckGroup";
+// import FacilityCheckGroup from "../modal/FacilityCheckGroup";
 import CommonMap from "@/components/user/modal/CommonMap";
 import FloodGeometryMap from "@/components/user/modal/FloodGeometryMap";
 import { useSluiceData } from "@/hooks/user/useSluiceData";
@@ -18,13 +18,7 @@ const Flood = () => {
   const mapTabs = [
     { id: "호우특보", label: "호우특보" }, // 새 버튼 추가
     { id: "댐수문", label: "댐수문" },
-    { id: "재난안전시설", label: "재난안전시설" },
-  ];
-
-  const floodItems = [
-    { id: "shelter", label: "대피소" },
-    { id: "hospital", label: "병원" },
-    { id: "pharmacy", label: "약국" },
+    { id: "대피소", label: "대피소" },
   ];
 
   const handleTabClick = (tabId) => {
@@ -179,12 +173,6 @@ const Flood = () => {
                   </div>
                 )}
               </div>
-            </div>
-          )}
-
-          {activeTab === "재난안전시설" && (
-            <div className="absolute top-5 left-[115px] lg:left-[180px] z-20 scale-[0.8] md:scale-100 origin-left">
-              <FacilityCheckGroup items={floodItems} facilities={facilities} onCheck={handleCheck} />
             </div>
           )}
 

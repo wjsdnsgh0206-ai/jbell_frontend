@@ -1,10 +1,16 @@
-'use no memo';
+"use no memo";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useOutletContext } from "react-router-dom";
-import { AlertTriangle, Clock, ChevronDown, List, Info, FileText } from 'lucide-react';
-// [데이터] 재난 문자 초기 데이터 임포트
-import { disasterApi } from '@/services/api';
+import {
+  AlertTriangle,
+  Clock,
+  ChevronDown,
+  List,
+  Info,
+  FileText,
+} from "lucide-react";
+import { disasterApi } from "@/services/api";
 
 const DisasterMessageDetail = () => {
   const { id } = useParams();
@@ -14,73 +20,113 @@ const DisasterMessageDetail = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
-  
+
   const [formData, setFormData] = useState({
-    id: '',
-    category: '',
-    type: '',
-    sender: '',
-    content: '',
-    region: '',
-    dateTime: '',
-    isVisible: true
+    id: "",
+    category: "",
+    type: "",
+    sender: "행정안전부",
+    content: "",
+    region: "",
+    dateTime: "",
+    isVisible: true,
   });
 
   const [originData, setOriginData] = useState(null);
 
-  useEffect(() => {
-    const fetchDetail = async () => {
-      setLoading(true);
-      try {
-        const response = await disasterApi.getDisasterDetail(id);
-        
-        // 백엔드 공통 DTO 구조를 고려 (response.data가 실제 데이터인 경우 대응)
-        const item = response.data || response; 
+  // ==================================================================================
+  // 1. 데이터 가져오기 (대문자 필드 매핑 핵심 수정)
+  // ==================================================================================
+  const fetchDetail = useCallback(async () => {
+    setLoading(true);
+    try {
+      console.log("🔍 상세 조회 요청 ID:", id);
+      const response = await disasterApi.getDisasterDetail(id);
 
-        if (item && (item.sn || item.id)) {
-          const mapped = {
-            id: item.sn || item.id,
-            category: item.emrgStepNm || '안전안내',
-            type: item.dstType || '기타',
-            sender: "행정안전부", 
-            content: item.msgCn || '',
-            region: item.rcptnRgnNm || '',
-            dateTime: item.crtDt || '',
-            isVisible: item.visibleYn === 'Y'
-          };
-          setFormData(mapped);
-          setOriginData(mapped);
-          if (setBreadcrumbTitle) setBreadcrumbTitle("재난 문자 상세 정보");
-        } else {
-          // 데이터가 비어있는 경우
-          alert("해당 데이터를 찾을 수 없습니다.");
-          navigate(-1);
-        }
-      } catch (error) {
-        console.error("데이터 로드 실패:", error);
-        // 서버가 던진 에러 메시지가 있다면 출력, 없으면 기본 메시지
-        const errorMsg = error.response?.data?.message || "데이터를 불러오는 중 오류가 발생했습니다.";
-        alert(errorMsg);
+      // 백엔드 공통 DTO 구조를 고려 (response.list가 아닌 단일 객체 대응)
+      const item = response.data || response;
+
+      // item이 존재하고, 주요 필드 중 하나라도 값이 있는지 확인
+      if (item && (item.id || item.SN || item.sn || item.MSG_CN || item.msgCn)) {
+        const mapped = {
+          // 서버 응답의 대문자/소문자 필드 모두 체크
+          id: item.id || item.SN || item.sn,
+          category: item.EMRG_STEP_NM || item.emrgStepNm || "안전안내",
+          type: item.DST_SE_NM || item.dstType || "기타", 
+          sender: item.MNG_ORG_NM || "행정안전부",
+          content: item.MSG_CN || item.msgCn || "",
+          region: item.RCPTN_RGN_NM || item.rcptnRgnNm || "",
+          dateTime: item.CRT_DT || item.crtDt || "",
+          isVisible: (item.visibleYn || item.VISIBLE_YN) === "Y",
+        };
+
+        console.log("✅ 매핑 완료 데이터:", mapped);
+        setFormData(mapped);
+        setOriginData(mapped);
+        if (setBreadcrumbTitle) setBreadcrumbTitle("재난 문자 상세 정보");
+      } else {
+        alert("해당 데이터를 찾을 수 없습니다.");
         navigate(-1);
-      } finally {
-        setLoading(false);
       }
-    };
-    
-    fetchDetail();
-    
-    // 언마운트 시 브레드크럼 초기화 (선택 사항)
-    return () => setBreadcrumbTitle && setBreadcrumbTitle("");
-  }, [id, setBreadcrumbTitle, navigate]);
+    } catch (error) {
+      console.error("❌ 데이터 로드 실패:", error);
+      const errorMsg = error.response?.data?.message || "데이터를 불러오는 중 오류가 발생했습니다.";
+      alert(errorMsg);
+      navigate(-1);
+    } finally {
+      setLoading(false);
+    }
+  }, [id, navigate, setBreadcrumbTitle]);
 
+  useEffect(() => {
+    fetchDetail();
+    return () => setBreadcrumbTitle && setBreadcrumbTitle("");
+  }, [fetchDetail]);
+
+  // ==================================================================================
+  // 2. 데이터 저장 (대문자 @JsonProperty 대응 수정)
+  // ==================================================================================
+  const handleSave = async () => {
+    setSubmitted(true);
+    if (!isFormValid()) {
+      alert("입력되지 않은 필수 값이 있습니다.");
+      return;
+    }
+
+    try {
+      // 백엔드 PredictionInfoResponse.java의 @JsonProperty 규격에 맞게 변환
+      const updateData = {
+        SN: formData.id,                  // @JsonProperty("SN")
+        EMRG_STEP_NM: formData.category,  // @JsonProperty("EMRG_STEP_NM")
+        DST_SE_NM: formData.type,         // @JsonProperty("DST_SE_NM")
+        MSG_CN: formData.content,         // @JsonProperty("MSG_CN")
+        RCPTN_RGN_NM: formData.region,    // @JsonProperty("RCPTN_RGN_NM")
+        CRT_DT: formData.dateTime,        // @JsonProperty("CRT_DT")
+        visibleYn: formData.isVisible ? "Y" : "N", // No Annotation -> 소문자
+      };
+
+      console.log("🚀 업데이트 전송 데이터:", updateData);
+      await disasterApi.updateDisaster(formData.id, updateData);
+
+      setOriginData(formData);
+      alert("성공적으로 저장되었습니다.");
+      setIsEdit(false);
+      setSubmitted(false);
+    } catch (error) {
+      console.error("❌ 저장 실패:", error);
+      alert("저장 중 오류가 발생했습니다.");
+    }
+  };
+
+  // 나머지 로직 (동일)
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleToggle = () => {
-    if (!isEdit) return; 
-    setFormData(prev => ({ ...prev, isVisible: !prev.isVisible }));
+    if (!isEdit) return;
+    setFormData((prev) => ({ ...prev, isVisible: !prev.isVisible }));
   };
 
   const handleCancel = () => {
@@ -92,39 +138,8 @@ const DisasterMessageDetail = () => {
   };
 
   const isFormValid = () => {
-    const requiredFields = ['category', 'type', 'sender', 'content', 'region', 'dateTime'];
-    return requiredFields.every(key => formData[key] !== '' && formData[key] !== null);
-  };
-
-  const handleSave = async () => {
-    setSubmitted(true);
-    if (!isFormValid()) {
-      alert("입력되지 않은 필수 값이 있습니다.");
-      return;
-    }
-
-    try {
-      // 백엔드 DTO 규격에 맞게 변환
-      const updateData = {
-        sn: formData.id,
-        emrgStepNm: formData.category,
-        dstType: formData.type,
-        msgCn: formData.content,
-        rcptnRgnNm: formData.region,
-        crtDt: formData.dateTime,
-        visibleYn: formData.isVisible ? 'Y' : 'N'
-      };
-
-      await disasterApi.updateDisaster(formData.id, updateData);
-      
-      setOriginData(formData);
-      alert("성공적으로 저장되었습니다.");
-      setIsEdit(false);
-      setSubmitted(false);
-    } catch (error) {
-      console.error("저장 실패:", error);
-      alert("저장 중 오류가 발생했습니다.");
-    }
+    const requiredFields = ["category", "type", "content", "region", "dateTime"];
+    return requiredFields.every((key) => formData[key] !== "" && formData[key] !== null);
   };
 
   if (loading) return <div className="p-10 text-center text-admin-text-secondary">데이터를 불러오는 중입니다...</div>;
@@ -132,14 +147,10 @@ const DisasterMessageDetail = () => {
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
       <main className="p-10">
-        
-        {/* 헤더 영역 */}
         <div className="flex justify-between items-end mb-10">
-          <div>
-            <h2 className="text-heading-l text-admin-text-primary tracking-tight font-bold">
-              재난 문자 {isEdit ? '내용 수정' : '상세 내역'}
-            </h2>
-          </div>
+          <h2 className="text-heading-l text-admin-text-primary tracking-tight font-bold">
+            재난 문자 {isEdit ? "내용 수정" : "상세 내역"}
+          </h2>
           <div className="flex gap-3">
             {!isEdit ? (
               <>
@@ -156,12 +167,9 @@ const DisasterMessageDetail = () => {
         </div>
 
         <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard overflow-hidden">
-          
-          {/* 상단 강조 영역: 문자 본문 대신 핵심 요약 정보 노출 */}
           <div className="p-8 border-b border-admin-border bg-graygray-5 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className={`px-4 py-1.5 rounded-full text-sm font-bold shadow-sm 
-                ${formData.category === '긴급재난' ? 'bg-red-500 text-white' : 'bg-admin-primary text-white'}`}>
+              <div className={`px-4 py-1.5 rounded-full text-sm font-bold shadow-sm ${formData.category === "긴급재난" ? "bg-red-500 text-white" : "bg-admin-primary text-white"}`}>
                 {formData.category}
               </div>
               <h3 className="text-xl font-bold text-admin-text-primary">
@@ -175,111 +183,56 @@ const DisasterMessageDetail = () => {
           </div>
 
           <div className="p-10 space-y-12 bg-white">
-            
-            {/* 1. 재난 문자 본문 내용 (가장 중요하므로 상단으로 배치) */}
             <div className="space-y-6">
-              <h3 className="flex items-center gap-2 text-body-m-bold text-admin-text-primary pb-2 border-b border-admin-border">
-                <FileText size={18} /> 재난 문자 본문 내용
-              </h3>
-              <div className="flex flex-col gap-3">
-                <textarea 
-                  name="content"
-                  value={formData.content}
-                  onChange={handleChange}
-                  disabled={!isEdit}
-                  rows={5}
-                  placeholder="재난 문자 본문 내용을 입력하세요"
-                  className={`text-lg font-medium outline-none w-full transition-all resize-none leading-relaxed p-6 rounded-xl border
-                    ${isEdit ? 'border-admin-primary bg-blue-50/10 focus:ring-2 ring-blue-100' : 'border-admin-border bg-graygray-5 text-graygray-70 cursor-not-allowed'}`} 
-                />
-                {submitted && !formData.content && <p className="text-red-500 text-xs ml-1 font-medium">본문 내용은 반드시 입력해야 합니다.</p>}
-              </div>
+              <h3 className="flex items-center gap-2 text-body-m-bold text-admin-text-primary pb-2 border-b border-admin-border"><FileText size={18} /> 재난 문자 본문 내용</h3>
+              <textarea
+                name="content"
+                value={formData.content}
+                onChange={handleChange}
+                disabled={!isEdit}
+                rows={5}
+                className={`text-lg font-medium outline-none w-full transition-all resize-none leading-relaxed p-6 rounded-xl border ${isEdit ? "border-admin-primary bg-blue-50/10 focus:ring-2 ring-blue-100" : "border-admin-border bg-graygray-5 text-graygray-70 cursor-not-allowed"}`}
+              />
             </div>
 
-            {/* 2. 상세 정보 섹션 */}
             <div className="space-y-6">
-              <h3 className="flex items-center gap-2 text-body-m-bold text-admin-text-primary pb-2 border-b border-admin-border">
-                <List size={18} /> 발송 및 분류 상세
-              </h3>
+              <h3 className="flex items-center gap-2 text-body-m-bold text-admin-text-primary pb-2 border-b border-admin-border"><List size={18} /> 발송 및 분류 상세</h3>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                
-                {/* 구분 Select */}
                 <div className="flex flex-col gap-3">
                   <label className="text-body-m-bold text-admin-text-secondary ml-1">구분</label>
-                  <div className="relative">
-                    <select 
-                      name="category"
-                      value={formData.category}
-                      onChange={handleChange}
-                      disabled={!isEdit}
-                      className={`w-full h-14 px-5 rounded-lg border transition-all outline-none text-body-m appearance-none font-bold
-                        ${isEdit ? 'border-admin-primary bg-white focus:ring-2 ring-blue-100 cursor-pointer' : 'border-admin-border bg-graygray-5 text-admin-primary cursor-not-allowed'}`}
-                    >
-                      <option value="안전안내">안전안내</option>
-                      <option value="긴급재난">긴급재난</option>
-                    </select>
-                    {isEdit && <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />}
-                  </div>
+                  <select name="category" value={formData.category} onChange={handleChange} disabled={!isEdit} className={`w-full h-14 px-5 rounded-lg border transition-all outline-none text-body-m appearance-none font-bold ${isEdit ? "border-admin-primary bg-white cursor-pointer" : "border-admin-border bg-graygray-5 text-admin-primary cursor-not-allowed"}`}>
+                    <option value="안전안내">안전안내</option>
+                    <option value="긴급재난">긴급재난</option>
+                  </select>
                 </div>
-
-                {/* 유형 Select */}
                 <div className="flex flex-col gap-3">
                   <label className="text-body-m-bold text-admin-text-secondary ml-1">유형</label>
-                  <div className="relative">
-                    <select 
-                      name="type"
-                      value={formData.type}
-                      onChange={handleChange}
-                      disabled={!isEdit}
-                      className={`w-full h-14 px-5 rounded-lg border transition-all outline-none text-body-m appearance-none font-bold
-                        ${isEdit ? 'border-admin-primary bg-white focus:ring-2 ring-blue-100 cursor-pointer' : 'border-admin-border bg-graygray-5 text-gray-700 cursor-not-allowed'}`}
-                    >
-                      <option value="기상">기상특보</option>
-                      <option value="실종자">실종자</option>
-                      <option value="화재">화재</option>
-                      <option value="교통통제">교통통제</option>
-                      <option value="기타">기타</option>
-                    </select>
-                    {isEdit && <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />}
-                  </div>
+                  <select name="type" value={formData.type} onChange={handleChange} disabled={!isEdit} className={`w-full h-14 px-5 rounded-lg border transition-all outline-none text-body-m appearance-none font-bold ${isEdit ? "border-admin-primary bg-white cursor-pointer" : "border-admin-border bg-graygray-5 text-gray-700 cursor-not-allowed"}`}>
+                    <option value="기상">기상특보</option>
+                    <option value="실종자">실종자</option>
+                    <option value="화재">화재</option>
+                    <option value="교통통제">교통통제</option>
+                    <option value="기타">기타</option>
+                  </select>
                 </div>
-
-                <DetailField label="발송 기관" name="sender" value={formData.sender} isEdit={isEdit} onChange={handleChange} showError={submitted && !formData.sender} />
-                <DetailField label="수신 지역" name="region" value={formData.region} isEdit={isEdit} onChange={handleChange} showError={submitted && !formData.region} />
+                <DetailField label="발송 기관" name="sender" value={formData.sender} isEdit={isEdit} onChange={handleChange} />
+                <DetailField label="수신 지역" name="region" value={formData.region} isEdit={isEdit} onChange={handleChange} />
               </div>
             </div>
 
-            {/* 3. 노출 정보 및 일시 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-4 border-t border-admin-border">
               <div className="flex flex-col gap-3">
                 <label className="text-body-m-bold text-admin-text-secondary ml-1">사용자 앱 노출 설정</label>
                 <div className="flex items-center gap-6 h-14 px-2">
-                  <button
-                    type="button"
-                    onClick={handleToggle}
-                    className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${formData.isVisible ? 'bg-admin-primary' : 'bg-gray-300'} ${isEdit ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
-                  >
-                    <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${formData.isVisible ? 'translate-x-6' : 'translate-x-0'}`} />
+                  <button onClick={handleToggle} className={`w-12 h-6 flex items-center rounded-full p-1 transition-all ${formData.isVisible ? "bg-admin-primary" : "bg-gray-300"} ${isEdit ? "cursor-pointer" : "cursor-not-allowed opacity-60"}`}>
+                    <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${formData.isVisible ? "translate-x-6" : "translate-x-0"}`} />
                   </button>
-                  <div className="flex flex-col">
-                    <span className={`text-body-s-bold ${formData.isVisible ? 'text-admin-primary' : 'text-graygray-40'}`}>
-                      {formData.isVisible ? "노출 중 (ON)" : "미노출 (OFF)"}
-                    </span>
-                  </div>
+                  <span className={`text-body-s-bold ${formData.isVisible ? "text-admin-primary" : "text-graygray-40"}`}>{formData.isVisible ? "노출 중 (ON)" : "미노출 (OFF)"}</span>
                 </div>
               </div>
-
               <div className="flex flex-col gap-3">
                 <label className="text-body-m-bold text-admin-text-secondary ml-1">발송 일시 수정</label>
-                <input 
-                  type="text"
-                  name="dateTime"
-                  value={formData.dateTime}
-                  onChange={handleChange}
-                  disabled={!isEdit}
-                  className={`h-14 px-5 rounded-lg border transition-all outline-none text-body-m
-                    ${isEdit ? 'border-admin-primary bg-white focus:ring-2 ring-blue-100' : 'border-admin-border bg-graygray-5 text-graygray-50 cursor-not-allowed'}`}
-                />
+                <input type="text" name="dateTime" value={formData.dateTime} onChange={handleChange} disabled={!isEdit} className={`h-14 px-5 rounded-lg border transition-all outline-none ${isEdit ? "border-admin-primary bg-white" : "border-admin-border bg-graygray-5 text-graygray-50 cursor-not-allowed"}`} />
               </div>
             </div>
           </div>
@@ -289,21 +242,10 @@ const DisasterMessageDetail = () => {
   );
 };
 
-// 공통 필드 컴포넌트
-const DetailField = ({ label, name, value, isEdit, onChange, highlight = "", showError = false }) => (
+const DetailField = ({ label, name, value, isEdit, onChange }) => (
   <div className="flex flex-col gap-3">
     <label className="text-body-m-bold text-admin-text-secondary ml-1">{label}</label>
-    <input 
-      name={name}
-      value={value || ''}
-      onChange={onChange}
-      disabled={!isEdit}
-      className={`h-14 px-5 rounded-lg border transition-all outline-none text-body-m font-bold
-        ${isEdit ? 'border-admin-primary bg-white focus:ring-2 ring-blue-100' : `border-admin-border bg-graygray-5 text-graygray-70 cursor-not-allowed ${highlight}`} 
-        ${showError && isEdit ? 'border-red-500 ring-red-50' : ''}
-      `}
-    />
-    {showError && isEdit && <p className="text-red-500 text-xs ml-1 font-medium">필수 입력 항목입니다.</p>}
+    <input name={name} value={value || ""} onChange={onChange} disabled={!isEdit} className={`h-14 px-5 rounded-lg border outline-none font-bold ${isEdit ? "border-admin-primary bg-white" : "border-admin-border bg-graygray-5 text-graygray-70 cursor-not-allowed"}`} />
   </div>
 );
 

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { X, AlertCircle } from "lucide-react";
 import ActionTipBox from "../modal/ActionTipBox";
-import FacilityCheckGroup from "../modal/FacilityCheckGroup";
+// import FacilityCheckGroup from "../modal/FacilityCheckGroup";
 import CommonMap from "@/components/user/modal/CommonMap";
 import useForestFire from "@/hooks/user/useForestFire"; // 기존 공공데이터 훅
 import useForestFireRisk from "@/hooks/user/useForestFireRisk"; // 새로 만든 DB 데이터 훅
@@ -21,7 +21,7 @@ const ForestFire = () => {
     pharmacy: false,
   });
 
-  const tabs = ["실시간 산불정보", "산불위험예보", "재난안전시설"];
+  const tabs = ["실시간 산불정보", "산불위험예보", "대피소"];
 
   useEffect(() => {
     // 컴포넌트 마운트 시 두 데이터 모두 로드
@@ -31,12 +31,6 @@ const ForestFire = () => {
 
   const handleCheck = (key) =>
     setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
-
-  const WildfireItems = useMemo(() => [
-    { id: "shelter", label: "대피소" },
-    { id: "hospital", label: "병원" },
-    { id: "pharmacy", label: "약국" },
-  ], []);
 
   // 상황판 지수 상태 컬러 로직
   const getFireStatus = (score) => {
@@ -148,12 +142,6 @@ const ForestFire = () => {
                   )}
                 </div>
               </div>
-            </div>
-          )}
-
-          {activeTab === "재난안전시설" && (
-            <div className="absolute top-5 left-[115px] lg:left-[175px] z-30 scale-[0.75] md:scale-100 origin-left">
-              <FacilityCheckGroup items={WildfireItems} facilities={facilities} onCheck={handleCheck} />
             </div>
           )}
         </div>

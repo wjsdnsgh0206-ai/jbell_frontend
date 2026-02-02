@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
-import FacilityCheckGroup from "../modal/FacilityCheckGroup";
+// import FacilityCheckGroup from "../modal/FacilityCheckGroup";
 import MapControlBtn from "@/components/user/modal/MapControlBtn";
 import CommonMap from "@/components/user/modal/CommonMap";
 import useLandSlide from "@/hooks/user/useLandSlide";
@@ -25,11 +25,6 @@ const LandSlide = () => {
     if (activeTab === "위험예보") fetchLandSlideData();
   }, [activeTab, fetchLandSlideData]);
 
-  const LandSlideItems = [
-    { id: "shelter", label: "대피소" },
-    { id: "hospital", label: "병원" },
-    { id: "pharmacy", label: "약국" },
-  ];
 
   // 활성 특보 여부 판단
   const hasActiveNotice = lsData.some((item) => item.isActiveWarning);
@@ -162,18 +157,8 @@ const LandSlide = () => {
             </div>
           )}
 
-          {activeTab === "재난안전시설" && (
-            <div className="absolute top-5 left-[115px] lg:left-[180px] z-20 scale-[0.8] md:scale-100 origin-left">
-              <FacilityCheckGroup
-                items={LandSlideItems}
-                facilities={facilities}
-                onCheck={handleCheck}
-              />
-            </div>
-          )}
-
           <div className="absolute top-5 left-3 lg:left-5 flex flex-col gap-3 z-30">
-            {["위험예보", "재난안전시설"].map((label) => (
+            {["위험예보", "대피소"].map((label) => (
               <button
                 key={label}
                 onClick={() => setActiveTab(label)}

@@ -185,7 +185,7 @@ const AdminBoardList = () => {
       key: 'id', 
       header: '번호', 
       width: '80px', 
-      className: 'text-graygray-40 font-mono text-center' 
+      className: 'text-graygray-40 text-center' 
     },
     { 
       key: 'title', 

@@ -3,10 +3,8 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { ChevronDown, Search, Calendar } from 'lucide-react';
-import axios from "axios";
 import { disasterApi } from '@/services/api';
 import { DISASTER_OPTIONS } from "./MessagetTypeData";
-
 
 // [공통 컴포넌트]
 import AdminDataTable from '@/components/admin/AdminDataTable';
@@ -14,19 +12,10 @@ import AdminPagination from '@/components/admin/AdminPagination';
 import AdminSearchBox from '@/components/admin/AdminSearchBox';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
-
-
-/**
- * [관리자] 재난 문자 이력 목록 페이지
- * 백엔드 API 연동 및 최근 7일 데이터 자동 필터링 적용
- */
 const DisasterMessageList = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
 
-  // ==================================================================================
-  // 1. 상태 관리 및 날짜 설정 (7일 전 ~ 오늘)
-  // ==================================================================================
   const getFormattedDate = (date) => date.toISOString().split('T')[0];
   const todayStr = getFormattedDate(new Date());
   
@@ -55,60 +44,65 @@ const DisasterMessageList = () => {
   const [modalConfig, setModalConfig] = useState({ title: '', message: '', type: 'confirm', onConfirm: () => {} });
 
   // ==================================================================================
-  // 2. 데이터 가져오기 (API 연동)
+  // 2. 데이터 가져오기 및 매핑 (대문자 필드 대응 수정)
   // ==================================================================================
   const fetchMessages = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const response = await disasterApi.getDisasterMessages();
-      
-      let rawData = [];
-      if (Array.isArray(response)) {
-        rawData = response;
-      } else if (response && Array.isArray(response.data)) {
-        rawData = response.data;
-      } else if (response && Array.isArray(response.list)) {
-        rawData = response.list;
-      }
+  try {
+    setIsLoading(true);
+    const response = await disasterApi.getDisasterMessages();
+    
+    // 로그에 찍힌 구조가 { list: [...], totalCount: 21 } 이니까 response.list 사용
+    const rawData = response?.list || [];
 
-      const mappedData = rawData.map(item => {
-        // [핵심 수정] 서버 필드명이 visibleYn, useYn, displayYn 중 무엇인지 확인
-        // 값이 아예 없으면 기본적으로 노출('Y')로 설정할지 결정해야 합니다.
-        const rawVisible = item.visibleYn || item.useYn || item.displayYn || 'Y'; 
-        
-        return {
-          id: item.sn || item.id,
-          category: item.emrgStepNm || '안전안내',
-          type: item.dstType || '기타', 
-          sender: item.mngOrgNm || "행정안전부",
-          content: item.msgCn || '',
-          dateTime: item.crtDt || '',
-          region: item.rcptnRgnNm || '',
-          // 'Y' 또는 true인 경우 활성화
-          isVisible: rawVisible === 'Y' || rawVisible === true || rawVisible === 'true'
-        };
-      });
-      
-      setMessages(mappedData);
-    } catch (error) {
-      console.error("데이터 로드 실패:", error);
-      setMessages([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    const mappedData = rawData.map(item => ({
+      // DB에서 조회한 id(PK)가 최우선, 없으면 대문자 ID라도 확인
+      id: item.id || item.ID || item.sn || item.SN, 
+      category: item.EMRG_STEP_NM || item.emrgStepNm || '안전안내',
+      type: item.DST_SE_NM || item.dstType || '기타', 
+      sender: item.MNG_ORG_NM || item.mngOrgNm || "행정안전부",
+      content: item.MSG_CN || item.msgCn || '',
+      dateTime: item.CRT_DT || item.crtDt || '',
+      region: item.RCPTN_RGN_NM || item.rcptnRgnNm || ''
+    }));
+    
+    setMessages(mappedData);
+  } catch (error) {
+    console.error("데이터 로드 실패:", error);
+  } finally {
+    setIsLoading(false);
+  }
+}, []);
 
   useEffect(() => {
     if (setBreadcrumbTitle) setBreadcrumbTitle("재난 문자 이력");
-    fetchMessages(); // 이제 안전하게 호출 가능합니다.
+    fetchMessages();
   }, [setBreadcrumbTitle, fetchMessages]);
 
   const goDetail = useCallback((id) => {
     navigate(`/admin/realtime/disasterMessageDetail/${id}`);
   }, [navigate]);
 
+  const handleSyncData = async () => {
+    try {
+      setIsLoading(true);
+      await disasterApi.fetchAndSaveDisasterMessages({
+        pageNo: 1,
+        numOfRows: 30,
+        rgnNm: '전북'
+      });
+      
+      alert("최신 데이터 동기화 완료!");
+      fetchMessages(); 
+    } catch (error) {
+      console.error("동기화 실패:", error);
+      alert("데이터를 가져오는 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // ==================================================================================
-  // 3. 필터링 로직
+  // 3. 필터링 로직 (날짜 형식 대응 수정)
   // ==================================================================================
   const filteredData = useMemo(() => {
     return messages.filter((item) => {
@@ -118,11 +112,16 @@ const DisasterMessageList = () => {
       const matchKeyword = !appliedKeyword || (item.content && item.content.includes(appliedKeyword));
       const matchRegion = selectedRegion === "전체" || (item.region && item.region.includes(selectedRegion));
       
+      // 날짜 비교 (YYYY-MM-DD 형식으로 통일)
       const itemDate = item.dateTime ? item.dateTime.split(" ")[0].replaceAll("/", "-") : "";
-      const matchDate = itemDate >= startDate && itemDate <= endDate;
+      const matchDate = !itemDate || (itemDate >= startDate && itemDate <= endDate);
 
       return matchCategory && matchType && matchSender && matchKeyword && matchRegion && matchDate;
-    }).sort((a, b) => new Date(b.dateTime.replaceAll("/", "-")) - new Date(a.dateTime.replaceAll("/", "-")));
+    }).sort((a, b) => {
+        const dateA = new Date(a.dateTime.replaceAll("/", "-"));
+        const dateB = new Date(b.dateTime.replaceAll("/", "-"));
+        return dateB - dateA;
+    });
   }, [messages, selectedCategory, selectedType, senderName, appliedKeyword, selectedRegion, startDate, endDate]);
 
   const currentData = useMemo(() => {
@@ -131,7 +130,7 @@ const DisasterMessageList = () => {
   }, [currentPage, filteredData]);
 
   // ==================================================================================
-  // 4. 핸들러
+  // 4. 핸들러 (동일)
   // ==================================================================================
   const handleSearch = () => { 
     setAppliedKeyword(searchParams.keyword);
@@ -192,7 +191,6 @@ const DisasterMessageList = () => {
     setIsModalOpen(true);
   };
 
-  // 일괄 삭제 (논리 삭제)
   const handleDeleteSelected = () => {
     if (selectedIds.length === 0) return alert("삭제할 항목을 선택해주세요.");
     setModalConfig({
@@ -202,7 +200,6 @@ const DisasterMessageList = () => {
       onConfirm: async () => {
         try {
           await disasterApi.deleteDisasters(selectedIds);
-          // 목록에서 즉시 제거 (논리 삭제이므로 화면에서만 안 보이게 처리하거나 새로고침)
           setMessages(prev => prev.filter(c => !selectedIds.includes(c.id)));
           setSelectedIds([]);
         } catch (error) {
@@ -213,9 +210,16 @@ const DisasterMessageList = () => {
     });
     setIsModalOpen(true);
   };
+const columns = useMemo(() => [
+    { 
+      key: 'id', 
+      header: 'NO', 
+      width: '100px', 
+      className: 'text-center',
+      // val은 item.id 값이고, row는 해당 행의 전체 데이터야
 
-  const columns = useMemo(() => [
-    { key: 'id', header: 'ID', width: '100px', className: 'text-center text-gray-500 font-mono text-xs' },
+    
+    },
     { 
       key: 'category', 
       header: '구분', 
@@ -223,39 +227,44 @@ const DisasterMessageList = () => {
       className: 'text-center',
       render: (val) => (
         <span className={`px-2 py-1 rounded text-[11px] font-bold ${val === '긴급재난' ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-600'}`}>
-          {val || '안전안내'}
+          {val}
         </span>
       )
     },
-    { key: 'type', header: '유형', width: '100px', className: 'text-center font-bold text-blue-600' },
-    { key: 'sender', header: '발송기관', width: '140px', className: 'text-center font-medium' },
+    { key: 'type', header: '유형', width: '100px', className: 'text-center' },
+    { key: 'sender', header: '발송기관', width: '140px', className: 'text-center' },
     { 
       key: 'content', 
       header: '재난 문자 본문 내용', 
       className: 'text-left px-4 truncate max-w-[500px]',
       render: (val) => <span className="text-gray-700">{val}</span>
     },
-    { key: 'dateTime', header: '발송 일시', width: '160px', className: 'text-center text-gray-400 text-[13px]' },
+    { key: 'dateTime', header: '발송 일시', width: '160px', className: 'text-center' },
     { 
       key: 'isVisible', 
       header: '노출', 
       width: '90px',
+      className: "text-center",
       render: (visible, row) => (
         <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); handleToggleVisible(row.id, visible); }}
-            className={`w-10 h-5 flex items-center rounded-full p-1 transition-all duration-300 cursor-pointer ${visible ? 'bg-admin-primary' : 'bg-gray-300'}`}
-          >
-            <div className={`bg-white w-3 h-3 rounded-full shadow-md transform transition-transform duration-300 ${visible ? 'translate-x-5' : 'translate-x-0'}`} />
-          </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleVisible(row.id, visible);
+              }}
+              className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${visible ? "bg-admin-primary" : "bg-gray-300"}`}
+            >
+              <div
+                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${visible ? "translate-x-6" : "translate-x-0"}`}
+              />
+            </button>
         </div>
       )
     },
     {
         key: 'actions',
-        header: '상세',
-        width: '80px',
+        header: '관리',
+        width: '120px',
         className: 'text-center',
         render: (_, row) => (
           <button onClick={() => goDetail(row.id)} className="border border-gray-300 rounded px-3 py-1 text-sm hover:bg-gray-100 transition-all cursor-pointer font-normal">
@@ -268,9 +277,14 @@ const DisasterMessageList = () => {
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
       <main className="p-10">
-        <h2 className="text-heading-l mt-2 mb-10 text-admin-text-primary tracking-tight font-bold">재난 문자 이력</h2>
-        
-        {/* 검색 섹션 - WeatherNewsList와 동일한 h-14 레이아웃 적용 */}
+        <div className="flex justify-between items-center mb-10">
+            <h2 className="text-heading-l text-admin-text-primary tracking-tight font-bold">재난 문자 이력</h2>
+            <button onClick={handleSyncData} className="px-6 h-12 bg-green-600 text-white rounded-md font-bold hover:bg-green-700 transition-all cursor-pointer shadow-sm flex items-center gap-2">
+                최신 데이터 동기화
+            </button>
+        </div>
+
+        {/* 검색 섹션 */}
         <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8 mb-8">
           <AdminSearchBox 
             searchParams={searchParams}
@@ -278,7 +292,6 @@ const DisasterMessageList = () => {
             onSearch={handleSearch}
             onReset={handleReset}
           >
-            {/* 1. 단계(Category) Select */}
             <div className="relative w-full md:w-40">
               <select 
                 value={selectedCategory} 
@@ -293,7 +306,6 @@ const DisasterMessageList = () => {
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
             </div>
 
-            {/* 2. 유형(Type) Select */}
             <div className="relative w-full md:w-40">
               <select 
                 value={selectedType} 
@@ -308,7 +320,6 @@ const DisasterMessageList = () => {
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
             </div>
 
-            {/* 발송 기관 검색 */}
             <div className="relative w-full md:w-48">
               <input 
                 type="text" 
@@ -320,7 +331,6 @@ const DisasterMessageList = () => {
               <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-30" size={18} />
             </div>
 
-            {/* 기간 선택 - 아이콘 겹침 방지 및 디자인 수정 */}
             <div className="flex items-center border border-admin-border rounded-md px-4 h-14 bg-white focus-within:border-admin-primary transition-all shrink-0">
               <div className="flex items-center gap-2">
                 <div className="group relative flex items-center w-[125px]">
