@@ -814,7 +814,8 @@ export const disasterModalService = {
     );
     return response.data;
   },
-
+getWaterLevelList: () => axios.get("/api/disaster/fetch/water-level-list"),
+// api/disaster/fetch/water-level-list
   /* -----------------------------
    기상특보 api 
 ----------------------------- */
@@ -916,6 +917,23 @@ getLandSlideWarning: (params = {}) => {
     return response.data;
   },
 
+  // 태풍 
+  getTyphoonList: async () => {
+    try {
+      // 주소는 네 백엔드 컨트롤러 @RequestMapping과 @GetMapping 조합에 맞춰야 해
+      const response = await axios.get('/api/disaster/fetch/typhoon-list');
+      return response.data; // ApiResponse 객체가 반환됨
+    } catch (error) {
+      console.error("태풍 리스트 호출 에러:", error);
+      throw error;
+    }
+  },
+
+  // getTyphoonList: async () => {
+  //   // 백엔드 컨트롤러 경로가 /api/disaster/fetch/typhoon-list 인지 확인해봐!
+  //   const response = await axios.get("/api/disaster/fetch/typhoon-list");
+  //   return response.data; // { status: "SUCCESS", data: [...] }
+  // },
   /* ---------------------------------------------------------
      ✅ [추가] 백엔드 DB 저장 데이터 조회 API (한파/호우/태풍 리스트)
      우리 스프링부트 서버(8080)에서 데이터를 가져옵니다.
