@@ -32,13 +32,7 @@ const navigationItems = [
   },
   {
     label: "주요 안전정책",
-    path: "/citySafetyMasterPlan",
-    children: [
-      { label: "도시안전기본계획", path: "/citySafetyMasterPlan" },
-      { label: "재난별 안전정책", path: "/earthquakeSafetyPolicy" },
-      { label: "시민 안전보험", path: "/citizenSafetyInsurance" },
-      { label: "풍수해 안전보험", path: "/stormAndFloodInsurance" },
-    ],
+    path: "/safetyPolicyList",
   },
   {
     label: "열린마당",

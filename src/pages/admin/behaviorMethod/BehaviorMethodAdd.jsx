@@ -1,33 +1,124 @@
 // src/pages/admin/behaviorMethod/BehaviorMethodAdd.jsx
-import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate, useOutletContext } from "react-router-dom";
+import React, { useState, useMemo, useRef, useCallback } from 'react';
+import { useNavigate } from "react-router-dom";
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import { ChevronDown } from 'lucide-react';
 
-// import axios from 'axios'; // Spring Boot 연동 시 사용
+// API
+import { behaviorMethodService, fileService, codeService } from '@/services/api';
 
-const BehaviorMethodFormDataAdd = () => {
-  
+const BehaviorMethodAdd = () => {
   const navigate = useNavigate();
-  const { setBreadcrumbTitle } = useOutletContext();
-  
-  // ==================================================================================
-  // 상태 관리
-  // ==================================================================================
+  const quillRef = useRef(null);
+
+  // =========================================================
+  // 1. 상수 데이터 (DB code_group 기반)
+  // =========================================================
+  const DISASTER_CATEGORIES = [
+    { id: 'BEHAVIOR_METHOD_NATURAL', name: '자연재난국민행동요령' },
+    { id: 'BEHAVIOR_METHOD_SOCIAL', name: '사회재난국민행동요령' },
+    { id: 'BEHAVIOR_METHOD_LIFE', name: '생활안전국민행동요령' }
+  ];
+
+  // =========================================================
+  // 2. 상태 관리
+  // =========================================================
   const [formData, setFormData] = useState({
-    contentType: '', // 재난유형 (예: EQK)
-    title: '',        // 제목
-    body: '',         // 본문 (Quill 에디터 내용)
-    visibleYn: 'Y',  // 노출여부 (Y/N)
-    contentLink: '', // 출처/링크
-    ordering: 0       // 순서
+    contentType: '',      // 재난 유형 코드 (예: 01001 - description 값)
+    contentTypeName: '',  // 재난 유형 명 (예: 태풍)
+    groupName: '',        // 재난 구분 명 (예: 자연재난국민행동요령)
+    title: '',
+    body: '',
+    visibleYn: 'Y',
+    fileIds: []
   });
 
-  // ==================================================================================
-  // 데이터 가공 
-  // ==================================================================================
-  
-  // 에디터 설정 (이미지 핸들러 자리 확보)
+  const [selectedGroupId, setSelectedGroupId] = useState(''); // 선택된 그룹 ID (API 호출용)
+  const [typeList, setTypeList] = useState([]); // API로 불러온 재난 유형 목록
+
+  // =========================================================
+  // 3. 드롭다운 핸들러
+  // =========================================================
+
+  // 1차 분류(재난 구분) 변경
+  const handleCategoryChange = async (e) => {
+    const groupId = e.target.value; // 예: BEHAVIOR_METHOD_NATURAL
+    const selectedCategory = DISASTER_CATEGORIES.find(c => c.id === groupId);
+
+    setSelectedGroupId(groupId);
+    
+    // 폼 데이터 초기화 (구분 변경 시 하위 유형 초기화)
+    setFormData(prev => ({
+      ...prev,
+      groupName: selectedCategory ? selectedCategory.name : '',
+      contentType: '',
+      contentTypeName: ''
+    }));
+
+    if (!groupId) {
+      setTypeList([]);
+      return;
+    }
+
+    // API 호출: 선택된 그룹의 아이템 목록 조회
+    try {
+      const response = await codeService.getCodeItems(groupId);
+      const items = response.data?.data || response.data || response || [];
+      setTypeList(items);;
+    } catch (error) {
+      console.error("재난 유형 로드 실패:", error);
+      setTypeList([]);
+    }
+  };
+
+  // 2차 분류(재난 유형) 변경
+  const handleTypeChange = (e) => {
+    const selectedDesc = e.target.value; // desc 값 (01006)
+    
+    // 백엔드 필드명인 subName과 desc를 사용하도록 변경
+    const selectedItem = typeList.find(item => item.desc === selectedDesc);
+
+    setFormData(prev => ({
+      ...prev,
+      contentType: selectedDesc, // 01006
+      contentTypeName: selectedItem ? selectedItem.subName : '' // 한파
+    }));
+  };
+
+  // =========================================================
+  // 4. 에디터 및 기타 핸들러
+  // =========================================================
+  const imageHandler = useCallback(() => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files[0];
+      if (file) {
+        try {
+          const res = await fileService.uploadEditorImage(file);
+          if (res.status === 'SUCCESS') {
+            const { filePath, fileIdx } = res.data;
+            const quill = quillRef.current.getEditor();
+            const range = quill.getSelection();
+            quill.insertEmbed(range.index, 'image', filePath); 
+            quill.setSelection(range.index + 1);
+            setFormData(prev => ({
+                ...prev,
+                fileIds: [...(prev.fileIds || []), fileIdx]
+            }));
+          }
+        } catch (error) {
+          console.error("이미지 업로드 실패:", error);
+          alert("이미지 업로드 중 오류가 발생했습니다.");
+        }
+      }
+    };
+  }, []);
+
   const modules = useMemo(() => ({
     toolbar: {
       container: [
@@ -37,78 +128,57 @@ const BehaviorMethodFormDataAdd = () => {
         ['link', 'image'],
         ['clean']
       ],
-      // ★ 중요: 나중에 이미지 서버 업로드 기능 넣을 때 여기에 핸들러 추가
-      // handlers: { image: imageHandler } 
+      handlers: { image: imageHandler }
     }
-  }), []);
-  
-  // 브레드크럼 설정
-  useEffect(() => {
-    // 페이지 진입 시 브레드크럼 설정
-    setBreadcrumbTitle("행동요령 등록");
-    return () => setBreadcrumbTitle("");
-  }, [setBreadcrumbTitle]);
-  
-  // ==================================================================================
-  // 이벤트 핸들러
-  // ==================================================================================
+  }), [imageHandler]);
 
-  // 2. 입력 핸들러 (Quill 도입 전 기본 input 기준)
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // 4. 에디터 전용 핸들러 (팀원 방식 적용)
-  // Quill은 이벤트 객체(e)가 아니라 내용(content)을 바로 줍니다.
   const handleEditorChange = (content) => {
     setFormData(prev => ({ ...prev, body: content }));
   };
 
-  // 3. 토글 핸들러 (Boolean <-> Y/N 변환 핵심!)
   const handleToggle = () => {
     setFormData(prev => ({
       ...prev,
-      visibleYn: prev.visibleYn === 'Y' ? 'N' : 'Y' // 토글 로직 변경
+      visibleYn: prev.visibleYn === 'Y' ? 'N' : 'Y'
     }));
   };
 
-  // 5. 저장 핸들러 (POST 요청)
   const handleSave = async () => {
-    // 유효성 검사
-    if (!formData.title || !formData.body) {
-      return alert("제목과 내용은 필수입니다.");
+    if (!formData.title || !formData.contentType || !formData.body) {
+      alert("제목, 재난유형, 본문은 필수입니다.");
+      return;
     }
-    
-    // TODO: 서버 전송 로직 (axios.post)
+    if (!window.confirm("등록하시겠습니까?")) return;
+
     try {
-      // Spring Boot 연동 시: await axios.post('/api/admin/behaviorMethod-formData', formData);
-      console.log("DB 전송 데이터:", formData);
-      alert("새 행동요령이 등록되었습니다.");
-      navigate("/admin/contents/behaviorMethodList"); // 등록 후 목록으로 이동
+      await behaviorMethodService.createBehaviorMethod(formData);
+      alert("등록되었습니다.");
+      navigate("/admin/contents/behaviorMethodList");
     } catch (error) {
-      alert("등록 중 오류가 발생했습니다.");
+      console.error(error);
+      alert("등록 실패: " + (error.response?.data?.message || "서버 오류"));
     }
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
+    <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-gray-900">
       <main className="p-10">
-        {/* 헤더 영역 */}
         <div className="flex justify-between items-end mb-10">
-          <div>
-            <h2 className="text-heading-l text-admin-text-primary tracking-tight">행동요령 신규 등록</h2>
-            <p className="text-body-m text-graygray-50 mt-2">새로운 재난 대응 행동요령을 작성합니다.</p>
-          </div>
-          <div className="flex gap-3">
+          <h2 className="text-heading-l text-admin-text-primary tracking-tight">행동요령 등록</h2>
+          <div className="flex gap-2">
             <button 
-              onClick={() => navigate(-1)}
-              className="px-6 h-12 border border-graygray-30 bg-white text-graygray-70 rounded-md font-bold hover:bg-graygray-10 transition-all"
+              onClick={() => navigate("/admin/contents/behaviorMethodList")} 
+              className="px-6 h-12 border border-gray-300 bg-white text-gray-700 rounded-md font-bold hover:bg-gray-50 transition-all"
             >
               취소
             </button>
             <button 
-              onClick={handleSave}
+              onClick={handleSave} 
               className="px-8 h-12 bg-admin-primary text-white rounded-md font-bold hover:opacity-90 transition-all shadow-md"
             >
               등록하기
@@ -116,95 +186,115 @@ const BehaviorMethodFormDataAdd = () => {
           </div>
         </div>
 
-        {/* 메인 폼 영역 (Detail의 수정 모드 UI와 동일) */}
         <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard overflow-hidden">
           <div className="p-10 space-y-8">
             
-            {/* 1열: 유형 & 제목 (1:3 비율 설정) */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              {/* 첫 번째 섹션: 4칸 중 1칸 차지 */}
-              <div className="flex flex-col gap-3 md:col-span-1">
-                <label className="text-body-m-bold text-admin-text-secondary ml-1">재난 구분/유형 (코드/명칭)</label>
+            {/* 1열: 재난 정보 선택 (드롭다운) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+               
+               {/* 1. 재난 구분 선택 */}
+               <div className="flex flex-col gap-3 relative">
+                <label className="text-body-m-bold text-admin-text-secondary ml-1">재난 구분</label>
+                <div className="relative">
+                    <select 
+                      value={selectedGroupId}
+                      onChange={handleCategoryChange}
+                      className="w-full h-14 pl-5 pr-10 rounded-lg border border-admin-border bg-white focus:border-admin-primary outline-none text-body-m appearance-none cursor-pointer"
+                    >
+                      <option value="">선택하세요</option>
+                      {DISASTER_CATEGORIES.map((cat) => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option> 
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+                </div>
+              </div>
+
+              {/* 2. 재난 유형 선택 */}
+              <div className="flex flex-col gap-3 relative">
+                <label className="text-body-m-bold text-admin-text-secondary ml-1">재난 유형</label>
+                <div className="relative">
+                    <select 
+                      name="contentType"
+                      value={formData.contentType}
+                      onChange={handleTypeChange}
+                      disabled={!selectedGroupId}
+                      className={`w-full h-14 pl-5 pr-10 rounded-lg border border-admin-border outline-none text-body-m appearance-none
+                        ${!selectedGroupId ? 'bg-gray-100 cursor-not-allowed text-gray-400' : 'bg-white focus:border-admin-primary cursor-pointer'}`}
+                    >
+                      <option value="">
+                        {!selectedGroupId ? '재난 구분을 먼저 선택하세요' : '유형을 선택하세요'}
+                      </option>
+                      {typeList.map((item) => (
+                        // key는 subCode, value는 desc, 이름은 subName 사용
+                        <option key={item.subCode} value={item.desc}>
+                          {item.subName}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+                </div>
+              </div>
+
+              {/* 3. 선택된 코드 확인용 (읽기 전용) */}
+              <div className="flex flex-col gap-3">
+                <label className="text-body-m-bold text-admin-text-secondary ml-1">유형 코드 (자동입력)</label>
                 <input 
-                  name="contentType"
                   value={formData.contentType}
-                  onChange={handleChange}
-                  placeholder="예: 자연재난-지진"
-                  className="h-14 px-5 rounded-lg border border-admin-primary bg-white focus:ring-2 ring-blue-100 outline-none text-body-m transition-all"
+                  disabled
+                  placeholder="유형 선택 시 자동 입력"
+                  className="h-14 px-5 rounded-lg border border-admin-border bg-gray-100 text-gray-500 cursor-not-allowed outline-none text-body-m"
                 />
               </div>
-              {/* 두 번째 섹션: 4칸 중 3칸 차지 */}
-              <div className="flex flex-col gap-3 md:col-span-3">
-                <label className="text-body-m-bold text-admin-text-secondary ml-1">행동요령 제목</label>
+            </div>
+
+            {/* 2열: 제목 */}
+            <div className="flex flex-col gap-3">
+                <label className="text-body-m-bold text-admin-text-secondary ml-1">제목</label>
                 <input 
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
-                  placeholder="사용자에게 보여줄 제목을 입력하세요"
-                  className="h-14 px-5 rounded-lg border border-admin-primary bg-white focus:ring-2 ring-blue-100 outline-none text-body-m transition-all"
+                  placeholder="제목을 입력하세요"
+                  className="h-14 px-5 rounded-lg border border-admin-border bg-white focus:border-admin-primary outline-none text-body-m"
                 />
-              </div>
             </div>
 
-            {/* ★ Quill 에디터 영역 (팀원 스타일 적용) */}
-            <div className="w-full">
-              <label className="block font-bold text-[16px] mb-3">내용</label>
-              {/* 배경색이나 테두리는 CSS(index.css)에서 처리됨 */}
-              <div className="bg-white rounded-lg"> 
+            {/* 3열: 본문 */}
+            <div className="flex flex-col gap-3">
+              <label className="text-body-m-bold text-admin-text-secondary ml-1">본문 내용</label>
+              <div className="bg-white rounded-lg">
                 <ReactQuill 
-                  theme="snow" 
-                  value={formData.body}    // DB 컬럼: body
-                  onChange={handleEditorChange} 
-                  modules={modules} 
-                  placeholder="내용을 입력해주세요." 
-                  // className은 index.css의 .ql-container 스타일을 따라갑니다.
+                    ref={quillRef}
+                    theme="snow"
+                    value={formData.body} 
+                    onChange={handleEditorChange}
+                    modules={modules} 
                 />
               </div>
             </div>
 
-            {/* 링크 필드 추가 할 경우*/}
-            {/* <div className="flex flex-col gap-3">
-              <label className="text-body-m-bold text-admin-text-secondary ml-1">관련 링크 (출처)</label>
-              <input 
-                name="contentLink" 
-                value={formData.contentLink} 
-                onChange={handleChange} 
-                placeholder="출처 링크를 입력하세요 (선택)" 
-                className="h-14 px-5 rounded-lg border border-admin-primary bg-white focus:ring-2 ring-blue-100 outline-none text-body-m transition-all"
-              />
-            </div> */}
-
-            {/* 노출 여부 (Y/N 토글 스위치 디자인) */}
+            {/* 4열: 노출 여부 */}
             <div className="flex items-center gap-6 pt-4 border-t border-admin-border">
-              <label className="text-body-m-bold text-admin-text-secondary">즉시 노출 여부</label>
-              
-              <div className="flex items-center gap-3">
+              <label className="text-body-m-bold text-admin-text-secondary">노출 상태 설정</label>
+              <div className="flex items-center gap-4">
                 <button
                   type="button"
-                  onClick={handleToggle} // 상단에서 만든 'Y' <-> 'N' 전환 함수
+                  onClick={handleToggle}
                   className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${
                     formData.visibleYn === 'Y' ? 'bg-admin-primary' : 'bg-gray-300'
                   } cursor-pointer hover:shadow-inner`}
                 >
-                  {/* 스위치 내부 원형 버튼 */}
-                  <div 
-                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
-                      formData.visibleYn === 'Y' ? 'translate-x-6' : 'translate-x-0'
-                    }`} 
-                  />
+                  <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
+                    formData.visibleYn === 'Y' ? 'translate-x-6' : 'translate-x-0'
+                  }`} />
                 </button>
-
-                {/* 상태 표시 (선택 사항) */}
-                <span className={`text-body-s-bold ${formData.visibleYn === 'Y' ? 'text-admin-primary' : 'text-graygray-40'}`}>
-                  {formData.visibleYn === 'Y' ? "활성화 (Y)" : "비활성화 (N)"}
+                <span className={`text-body-s-bold ${formData.visibleYn === 'Y' ? 'text-admin-primary' : 'text-gray-400'}`}>
+                    {formData.visibleYn === 'Y' ? "활성화 (Y)" : "비활성화 (N)"}
                 </span>
-                {/* 상태 안내 문구 (선택 사항) */}
-                <span className="text-sm text-gray-400">
-                  * {formData.visibleYn === 'Y' ? '현재 사용자에게 노출되는 상태입니다.' : '현재 사용자에게 숨겨진 상태입니다.'}
-                </span>
-
               </div>
             </div>
+
           </div>
         </section>
       </main>
@@ -212,4 +302,4 @@ const BehaviorMethodFormDataAdd = () => {
   );
 };
 
-export default BehaviorMethodFormDataAdd;
+export default BehaviorMethodAdd;
