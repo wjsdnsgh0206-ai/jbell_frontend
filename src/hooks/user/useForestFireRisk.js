@@ -7,7 +7,7 @@ const useForestFireRisk = () => {
 
   const fetchRiskData = useCallback(async () => {
     setIsRiskLoading(true);
-    const targetUrl = "http://localhost:8080/api/disaster/fetch/forest-fire-risk-list";
+    const targetUrl = "/api/disaster/fetch/forest-fire-risk-list";
 
     try {
       const res = await axios.get(targetUrl);

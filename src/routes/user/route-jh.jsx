@@ -3,10 +3,11 @@ import { lazy } from "react";
 import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
 // 자연재난행동요령 import (natural)
-const EarthquakeBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/EarthquakeBehaviorMethod"));
 const TyphoonBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/TyphoonBehaviorMethod"));
 const FloodBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/FloodBehaviorMethod"));
 const HeavyRainBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/HeavyRainBehaviorMethod"));
+const ColdWaveBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/ColdWaveBehaviorMethod"));
+const EarthquakeBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/EarthquakeBehaviorMethod"));
 const LandslideBehaviorMethod = lazy(() => import("@/pages/user/behaviorMethod/natural/LandslideBehaviorMethod"));
 
 // 사회재난행동요령 import (social)
@@ -28,22 +29,16 @@ const MountainSafetyBehaviorMethod = lazy(() => import("@/pages/user/behaviorMet
 const UserFacilityList = lazy(() => import("@/pages/user/facility/UserFacilityList"));
 const UserFacilityDetail = lazy(() => import("@/pages/user/facility/UserFacilityDetail"));
 
-// 도시안전기본계획 import
-const CitySafetyMasterPlan = lazy(() => import("@/pages/user/mainSafetyPolicies/citySafetyMasterPlan/CitySafetyMasterPlan"));
-// 재난별 안전정책 import
-const EarthquakeSafetyPolicy = lazy(() => import("@/pages/user/mainSafetyPolicies/disasterSafetyPolicy/earthquake/EarthquakeSafetyPolicy"));
-const StormAndFloodSafetyPolicy = lazy(() => import("@/pages/user/mainSafetyPolicies/disasterSafetyPolicy/stormAndFlood/StormAndFloodSafetyPolicy"));
-// // 시민 안전보험 import
-const CitizenSafetyInsurance = lazy(() => import("@/pages/user/mainSafetyPolicies/citizenSafetyInsurance/CitizenSafetyInsurance"));
-// // 풍수해 안전보험 import
-const StormAndFloodInsurance = lazy(() => import("@/pages/user/mainSafetyPolicies/stormAndFloodInsurance/StormAndFloodInsurance"));
+// 주요 안전정책 import
+const SafetyPolicyList = lazy(() => import("@/pages/user/safetyPolicy/SafetyPolicyList"));
 
 export const jhUserRoutes = [
   /* 자연재난행동요령 */
-  { path: "/behaviorMethod/earthQuake", element: <EarthquakeBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
   { path: "/behaviorMethod/typhoon", element: <TyphoonBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
   { path: "/behaviorMethod/flood", element: <FloodBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
   { path: "/behaviorMethod/heavyRain", element: <HeavyRainBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/coldWave", element: <ColdWaveBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
+  { path: "/behaviorMethod/earthQuake", element: <EarthquakeBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
   { path: "/behaviorMethod/landslide", element: <LandslideBehaviorMethod />, sidebarData: SIDE_MENU_DATA.BEHAVIOR_METHOD, nowPage: "행동요령" },
 
   /* 사회재난행동요령 */
@@ -77,32 +72,8 @@ export const jhUserRoutes = [
 
   /* 도시안전기본계획 및 안전정책 (기존 유지) */
   { 
-    path: "/citySafetyMasterPlan",
-    element: <CitySafetyMasterPlan />, 
-    sidebarData: SIDE_MENU_DATA.MAIN_SAFETY_POLICIES,
-    nowPage: "주요 안전정책",
-  },
-  { 
-    path: "/earthquakeSafetyPolicy",
-    element: <EarthquakeSafetyPolicy />, 
-    sidebarData: SIDE_MENU_DATA.MAIN_SAFETY_POLICIES,
-    nowPage: "주요 안전정책",
-  },
-  { 
-    path: "/stormAndFloodSafetyPolicy",
-    element: <StormAndFloodSafetyPolicy />, 
-    sidebarData: SIDE_MENU_DATA.MAIN_SAFETY_POLICIES,
-    nowPage: "주요 안전정책",
-  },
-  { 
-    path: "/citizenSafetyInsurance",
-    element: <CitizenSafetyInsurance />, 
-    sidebarData: SIDE_MENU_DATA.MAIN_SAFETY_POLICIES,
-    nowPage: "주요 안전정책",
-  },
-  { 
-    path: "/stormAndFloodInsurance",
-    element: <StormAndFloodInsurance />, 
+    path: "/safetyPolicyList",
+    element: <SafetyPolicyList />, 
     sidebarData: SIDE_MENU_DATA.MAIN_SAFETY_POLICIES,
     nowPage: "주요 안전정책",
   },

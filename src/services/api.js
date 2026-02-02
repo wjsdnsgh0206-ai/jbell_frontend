@@ -759,7 +759,7 @@ export const disasterModalService = {
   getEarthquakeList: async () => {
     // 1. 산불처럼 전체 주소를 다 써서 확실하게 연결하기
     // 2. 끝에 '-list' 꼭 붙여주기!
-    const response = await axios.get('http://localhost:8080/api/disaster/fetch/earthquake-list'); 
+    const response = await axios.get('/api/disaster/fetch/earthquake-list'); 
     
     // 산불 코드에서 res.data.data로 접근했으니까 똑같이 반환해주자
     return response.data; 
@@ -814,7 +814,8 @@ export const disasterModalService = {
     );
     return response.data;
   },
-
+getWaterLevelList: () => axios.get("/api/disaster/fetch/water-level-list"),
+// api/disaster/fetch/water-level-list
   /* -----------------------------
    기상특보 api 
 ----------------------------- */
@@ -850,7 +851,7 @@ export const disasterModalService = {
   },
 getForestFireRisk: async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/disaster/forest-fire/risk"); 
+      const response = await axios.get("/api/disaster/forest-fire/risk"); 
       return response.data; // 보통 여기서 List<DisasterAccidentDTO>가 들어옴
     } catch (error) {
       console.error("산불 데이터 로딩 에러:", error);
@@ -916,6 +917,23 @@ getLandSlideWarning: (params = {}) => {
     return response.data;
   },
 
+  // 태풍 
+  getTyphoonList: async () => {
+    try {
+      // 주소는 네 백엔드 컨트롤러 @RequestMapping과 @GetMapping 조합에 맞춰야 해
+      const response = await axios.get('/api/disaster/fetch/typhoon-list');
+      return response.data; // ApiResponse 객체가 반환됨
+    } catch (error) {
+      console.error("태풍 리스트 호출 에러:", error);
+      throw error;
+    }
+  },
+
+  // getTyphoonList: async () => {
+  //   // 백엔드 컨트롤러 경로가 /api/disaster/fetch/typhoon-list 인지 확인해봐!
+  //   const response = await axios.get("/api/disaster/fetch/typhoon-list");
+  //   return response.data; // { status: "SUCCESS", data: [...] }
+  // },
   /* ---------------------------------------------------------
      ✅ [추가] 백엔드 DB 저장 데이터 조회 API (한파/호우/태풍 리스트)
      우리 스프링부트 서버(8080)에서 데이터를 가져옵니다.
@@ -983,6 +1001,13 @@ export const behaviorMethodService = {
     const response = await api.delete("/behaviorMethod/admin/cleanup");
     return response.data;
   },
+
+  // [신규 등록] - NEW (이 부분을 추가하세요)
+  createBehaviorMethod: async (data) => {
+    const response = await api.post("/behaviorMethod", data);
+    return response.data;
+  },
+
 };
 
 export const fileService = {
@@ -999,6 +1024,47 @@ export const fileService = {
             // 만약 'multipart/form-data'라고 직접 적으면 boundary가 없어서 또 에러가 납니다.
             'Content-Type': undefined 
         }
+    });
+    return response.data;
+  }
+};
+
+/* =========================================================
+   주요 안전정책 (Safety Policy) 관리 API
+   Backend: SafetyPolicyController.java (/api/safetyPolicy)
+========================================================= */
+export const safetyPolicyService = {
+  // 1. 목록 조회 (User/Admin 공용)
+  // params: { page, size, keyword, visibleYn }
+  getSafetyPolicyList: async (params) => {
+    const response = await api.get("/safetyPolicy", { params });
+    return response.data; // ApiResponse.success(PageResponse)
+  },
+
+  // 2. 상세 조회
+  getSafetyPolicyDetail: async (contentId) => {
+    const response = await api.get(`/safetyPolicy/${contentId}`);
+    return response.data; // ApiResponse.success(SafetyPolicyDTO)
+  },
+
+  // 3. 신규 등록 (Admin)
+  createSafetyPolicy: async (data) => {
+    const response = await api.post("/safetyPolicy", data);
+    return response.data;
+  },
+
+  // 4. 수정 (Admin)
+  updateSafetyPolicy: async (contentId, data) => {
+    const response = await api.put(`/safetyPolicy/${contentId}`, data);
+    return response.data;
+  },
+
+  // 5. 삭제 (Admin - 일괄 삭제 포함)
+  // Controller 구현 방식에 따라 delete 또는 post 사용. 
+  // 여기서는 body에 ids를 담아 보내는 방식을 사용 (axios delete config 주의)
+  deleteSafetyPolicies: async (ids) => {
+    const response = await api.delete("/safetyPolicy", {
+      data: { ids } 
     });
     return response.data;
   }

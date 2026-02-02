@@ -16,6 +16,12 @@ export const RealTimeDashboard = () => {
 
   // 1. 데이터 로드 (한파, 산불, 지진 API 통합 호출)
   // 1. 데이터 로드 부분 수정
+  // 1. 기본 백엔드 인스턴스 (8080 서버용)
+// const api = axios.create({
+//   baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
+//   headers: { "Content-Type": "application/json" },
+// });
+
 useEffect(() => {
   const fetchData = async () => {
     try {
@@ -23,11 +29,11 @@ useEffect(() => {
       const config = { params: { limit: 1000 } };
 
       const [msgRes, warningRes, coldRes, fireRes, eqRes] = await Promise.all([
-        axios.get("http://localhost:8080/api/disaster/dashboard/disasterMessages", config),
-        axios.get("http://localhost:8080/api/disaster/dashboard/weatherWarnings", config),
-        axios.get("http://localhost:8080/api/disaster/fetch/weather-list?type=3", config),
-        axios.get("http://localhost:8080/api/disaster/fetch/forest-fire-list", config),
-        axios.get("http://localhost:8080/api/disaster/fetch/earthquake-list", config)
+        axios.get("/api/disaster/dashboard/disasterMessages", config),
+        axios.get("/api/disaster/dashboard/weatherWarnings", config),
+        axios.get("/api/disaster/fetch/weather-list?type=3", config),
+        axios.get("/api/disaster/fetch/forest-fire-list", config),
+        axios.get("/api/disaster/fetch/earthquake-list", config)
       ]);
 
       // 응답 데이터 추출 (구조에 따라 data.list 또는 data.data 선택)
