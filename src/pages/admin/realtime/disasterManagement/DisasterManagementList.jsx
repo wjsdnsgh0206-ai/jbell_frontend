@@ -12,8 +12,37 @@ const DisasterManagementList = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
 
-  // 1. 상태 관리 (기존 디자인 유지, 데이터만 추가)
+  // 1. 상태 관리 (기존 데이터 유지 + 요청하신 3가지 항목만 추가)
   const [disasters, setDisasters] = useState([
+    // --- 새로 추가된 항목 ---
+    {
+      id: "WTH_TYPH_001",
+      apiName: "기상청 태풍 통보 서비스",
+      category: "태풍",
+      requestUrl: "/disaster/fetch/typhoon-list", // 기존 스타일대로 /api 생략
+      apiStatus: "체크중",
+      visibleYn: "Y",
+      updatedAt: "-",
+    },
+    {
+      id: "WTH_RAIN_001",
+      apiName: "기상청 호우특보 영향예보",
+      category: "호우",
+      requestUrl: "/disaster/fetch/weather-list?type=2",
+      apiStatus: "체크중",
+      visibleYn: "Y",
+      updatedAt: "-",
+    },
+    {
+      id: "WTH_WATR_001",
+      apiName: "한강홍수통제소 댐/하천 수위 정보",
+      category: "댐수위",
+      requestUrl: "/disaster/fetch/water-level-list",
+      apiStatus: "체크중",
+      visibleYn: "Y",
+      updatedAt: "-",
+    },
+    // --- 기존 항목 유지 ---
     {
       id: "WTH_COLD_001",
       apiName: "기상청 한파 영향예보 조회 서비스",
@@ -33,7 +62,7 @@ const DisasterManagementList = () => {
       updatedAt: "-",
     },
     {
-      id: "WTH_FIRE_002", // 신규 추가된 지수 API
+      id: "WTH_FIRE_002",
       apiName: "산림청 실시간 산불 위험 지수",
       category: "산불",
       requestUrl: "/disaster/fetch/forest-fire-risk-list",
@@ -55,7 +84,7 @@ const DisasterManagementList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalConfig, setModalConfig] = useState({ title: '', message: '', type: 'confirm', onConfirm: () => {} });
 
-  // 2. 실시간 GET 요청 상태 체크
+  // 2. 실시간 GET 요청 상태 체크 (기존 로직 그대로 유지)
   const checkApiStatus = useCallback(async () => {
     setDisasters(prev => prev.map(item => ({ ...item, apiStatus: '체크중' })));
 
@@ -105,7 +134,7 @@ const DisasterManagementList = () => {
     setIsModalOpen(true);
   }, [disasters]);
 
-  // 3. 테이블 컬럼 정의 (네가 준 디자인 그대로)
+  // 3. 테이블 컬럼 정의 (새로 추가된 유형 컬러 매핑 추가)
   const columns = useMemo(() => [
     { key: 'id', header: 'ID', width: '140px', className: 'text-center font-mono text-[11px]' },
     { 
@@ -124,7 +153,10 @@ const DisasterManagementList = () => {
         const colors = {
           '한파': 'bg-blue-50 text-blue-600',
           '산불': 'bg-orange-50 text-orange-600',
-          '지진': 'bg-red-50 text-red-600'
+          '지진': 'bg-red-50 text-red-600',
+          '태풍': 'bg-purple-50 text-purple-600',  // 추가
+          '호우': 'bg-indigo-50 text-indigo-600', // 추가
+          '댐수위': 'bg-cyan-50 text-cyan-600'    // 추가
         };
         return <span className={`px-2 py-1 rounded text-[12px] font-bold ${colors[val] || 'bg-slate-50'}`}>{val}</span>
       }
