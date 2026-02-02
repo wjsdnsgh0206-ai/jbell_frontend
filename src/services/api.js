@@ -759,7 +759,7 @@ export const disasterModalService = {
   getEarthquakeList: async () => {
     // 1. 산불처럼 전체 주소를 다 써서 확실하게 연결하기
     // 2. 끝에 '-list' 꼭 붙여주기!
-    const response = await axios.get('http://localhost:8080/api/disaster/fetch/earthquake-list'); 
+    const response = await axios.get('/api/disaster/fetch/earthquake-list'); 
     
     // 산불 코드에서 res.data.data로 접근했으니까 똑같이 반환해주자
     return response.data; 
@@ -851,7 +851,7 @@ getWaterLevelList: () => axios.get("/api/disaster/fetch/water-level-list"),
   },
 getForestFireRisk: async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/disaster/forest-fire/risk"); 
+      const response = await axios.get("/api/disaster/forest-fire/risk"); 
       return response.data; // 보통 여기서 List<DisasterAccidentDTO>가 들어옴
     } catch (error) {
       console.error("산불 데이터 로딩 에러:", error);

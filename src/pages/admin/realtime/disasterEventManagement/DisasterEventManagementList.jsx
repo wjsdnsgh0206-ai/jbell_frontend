@@ -48,11 +48,11 @@ const DisasterEventManagementList = () => {
     setIsLoading(true);
     try {
       const [kmaRes, fireRes, eqRes, floodRes, typhoonRes] = await Promise.all([
-        axios.get("http://localhost:8080/api/disaster/fetch/weather-list?type=3"),
-        axios.get("http://localhost:8080/api/disaster/fetch/forest-fire-list"),
-        axios.get("http://localhost:8080/api/disaster/fetch/earthquake-list"),
-        axios.get("http://localhost:8080/api/disaster/fetch/weather-list?type=2"),
-        axios.get("http://localhost:8080/api/disaster/fetch/weather-list?type=7"),
+        axios.get("/api/disaster/fetch/weather-list?type=3"),
+        axios.get("/api/disaster/fetch/forest-fire-list"),
+        axios.get("/api/disaster/fetch/earthquake-list"),
+        axios.get("/api/disaster/fetch/weather-list?type=2"),
+        axios.get("/api/disaster/fetch/weather-list?type=7"),
       ]);
 
       const getRawData = (res) => {
