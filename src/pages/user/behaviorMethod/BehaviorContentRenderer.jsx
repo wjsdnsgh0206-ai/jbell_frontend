@@ -1,3 +1,4 @@
+// src\pages\user\behaviorMethod\BehaviorContentRenderer.jsx
 import VideoCardList from '@/components/shared/VideoCardList';
 
 /**
@@ -13,7 +14,7 @@ const BehaviorContentRenderer = ({ content }) => {
   }
 
   return (
-    <div className="flex flex-col gap-16 animate-fade-in-up">
+    <div className="grid grid-cols-1 gap-8 w-full max-w-auto">
       {content.sections.map((section, secIdx) => (
         <article key={`sec-${secIdx}`} className="flex flex-col gap-10">
 
@@ -36,7 +37,7 @@ const BehaviorContentRenderer = ({ content }) => {
                 step.images.forEach(img => mediaItems.push({ image: img }));
                 
                 return (
-                  <div key={`step-${stepIdx}`} className="w-full">
+                  <div key={`step-${stepIdx}`} className="w-full"> {/* 단순 w-full로 복구 */}
                     <VideoCardList videos={mediaItems} />
                   </div>
                 );
