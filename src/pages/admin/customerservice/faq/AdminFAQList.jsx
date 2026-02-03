@@ -13,8 +13,6 @@ import AdminSearchBox from '@/components/admin/AdminSearchBox';
 
 /**
  * [관리자] FAQ 목록 페이지
- * - AdminCommonCodeList.jsx의 구조와 디자인 시스템을 계승
- * - AdminFAQData.js 데이터를 기반으로 렌더링
  */
 const AdminFAQList = () => {
   const navigate = useNavigate();
@@ -78,7 +76,7 @@ const AdminFAQList = () => {
             faqIds: selectedIds, 
             visibleYn: statusBoolean ? "Y" : "N"
         };
-        // [수정] 서비스 함수 호출
+        // 서비스 함수 호출
         await faqService.updateFaqStatus(payload);
         
         alert('상태가 변경되었습니다.');
