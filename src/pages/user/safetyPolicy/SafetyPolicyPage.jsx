@@ -18,8 +18,8 @@ const SafetyPolicyPage = () => {
   // 1. 브레드크럼 정의
   const breadcrumbItems = [
     { label: '홈', path: '/', hasIcon: true },
-    { label: '안전 가이드', path: null },
-    { label: '주요 안전정책', path: null }
+    { label: '주요 안전정책', path: '/safetyPolicyPage' },
+    { label: '전북재난안전대책본부', path: null }
   ];
 
 

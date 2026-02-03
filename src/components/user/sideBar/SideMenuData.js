@@ -97,7 +97,7 @@ export const SIDE_MENU_DATA = {
   ],
   SAFETY_POLICIES: [
     { 
-      title: '도시안전기본계획', 
+      title: '전북재난안전대책본부', 
       path: '/safetyPolicyPage',
       items: [],
     },
