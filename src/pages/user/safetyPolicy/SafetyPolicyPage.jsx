@@ -97,7 +97,7 @@ const SafetyPolicyPage = () => {
 
       <header className="flex flex-col w-full gap-8 lg:gap-10 mb-10">
         <div className="flex flex-col gap-4 border-b border-graygray-20 pb-6">
-          <h1 className="text-heading-xl text-graygray-90">주요 안전정책</h1>
+          <h1 className="text-heading-xl text-graygray-90">전북재난안전대책본부</h1>
           <div className="flex flex-wrap items-center gap-4 text-detail-m text-graygray-60">
             <span className="flex items-center gap-1.5">
                {/* 개별 탭 수정일이 아닌, 페이지 전체의 최신 수정일을 보여주고 싶다면 lastOverallUpdate 사용 */}

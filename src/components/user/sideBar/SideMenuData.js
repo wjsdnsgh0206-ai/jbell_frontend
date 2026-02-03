@@ -25,7 +25,7 @@ export const SIDE_MENU_DATA = {
   BEHAVIOR_METHOD: [
     { 
       title: '자연재난행동요령', 
-      path: '/behaviorMethod/natural',
+      path: '/behaviorMethod/typhoon',
       items: [
         { name: '태풍', path: '/behaviorMethod/typhoon' },
         { name: '홍수', path: '/behaviorMethod/flood' },
@@ -37,7 +37,7 @@ export const SIDE_MENU_DATA = {
     },
     { 
       title: '사회재난행동요령', 
-      path: '/behaviorMethod/social', 
+      path: '/behaviorMethod/railwaySubwayAccident', 
       items: [
         { name: '철도, 지하철 사고', path: '/behaviorMethod/railwaySubwayAccident' },
         { name: '화재', path: '/behaviorMethod/fire' },
