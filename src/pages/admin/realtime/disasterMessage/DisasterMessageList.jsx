@@ -56,7 +56,7 @@ const DisasterMessageList = () => {
 
     const mappedData = rawData.map(item => ({
       // DB에서 조회한 id(PK)가 최우선, 없으면 대문자 ID라도 확인
-      id: item.id || item.ID || item.sn || item.SN, 
+      id: item.id || item.ID,
       category: item.EMRG_STEP_NM || item.emrgStepNm || '안전안내',
       type: item.DST_SE_NM || item.dstType || '기타', 
       sender: item.MNG_ORG_NM || item.mngOrgNm || "행정안전부",
