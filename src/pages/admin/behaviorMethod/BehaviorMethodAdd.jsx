@@ -30,6 +30,7 @@ const BehaviorMethodAdd = () => {
     groupName: '',        // 재난 구분 명 (예: 자연재난국민행동요령)
     title: '',
     body: '',
+    contentLink: '',
     visibleYn: 'Y',
     fileIds: []
   });
@@ -273,8 +274,20 @@ const BehaviorMethodAdd = () => {
                 />
               </div>
             </div>
+            
+            {/* 4열: 관련 링크 */}
+            <div className="flex flex-col gap-3">
+                <label className="text-body-m-bold text-admin-text-secondary ml-1">관련 링크 (URL)</label>
+                <input 
+                  name="contentLink" 
+                  value={formData.contentLink} 
+                  onChange={handleChange} 
+                  placeholder="관련 링크를 입력하세요 (예: https://example.com)" 
+                  className="h-14 px-5 rounded-lg border border-admin-border bg-white focus:border-admin-primary outline-none text-body-m"
+                />
+            </div>
 
-            {/* 4열: 노출 여부 */}
+            {/* 5열: 노출 여부 */}
             <div className="flex items-center gap-6 pt-4 border-t border-admin-border">
               <label className="text-body-m-bold text-admin-text-secondary">노출 상태 설정</label>
               <div className="flex items-center gap-4">

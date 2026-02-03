@@ -154,36 +154,37 @@ const AdminBoardDetail = () => {
 
         {/* 첨부파일 영역 */}
         {post.files && post.files.length > 0 && (
-          <div className="p-8">
-            <h3 className="text-body-m-bold text-admin-text-primary mb-4 flex items-center gap-2">
-              <Paperclip size={18} />
-              첨부파일 ({post.files.length})
-            </h3>
-            <ul className="space-y-2">
-              {post.files.map((file, index) => (
-                <li 
-                  key={file.fileId}
-                  className="flex items-center justify-between p-3 bg-graygray-5 rounded-md border border-graygray-10 hover:bg-graygray-10 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <Paperclip size={16} className="text-graygray-40" />
-                    <span className="text-[14px] text-graygray-70">{file.name || file}</span>
-                    {file.size && (
-                      <span className="text-[12px] text-graygray-30">
-                        ({(file.fileSize / 1024).toFixed(1)} KB)
-                      </span>
-                    )}
-                  </div>
-                  <button 
+        <div className="p-8">
+          <h3 className="text-body-m-bold text-admin-text-primary mb-4 flex items-center gap-2">
+            <Paperclip size={18} />
+            첨부파일 ({post.files.length})
+          </h3>
+          <ul className="space-y-2">
+            {post.files.map(file => (
+              <li 
+                key={file.fileId}
+                className="flex items-center justify-between p-3 bg-graygray-5 rounded-md border border-graygray-10 hover:bg-graygray-10 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <Paperclip size={16} className="text-graygray-40" />
+                  <span className="text-[14px] text-graygray-70">
+                    {file.fileRealName}
+                  </span>
+                  <span className="text-[12px] text-graygray-30">
+                    ({(file.fileSize / 1024).toFixed(1)} KB)
+                  </span>
+                </div>
+                <button 
                   onClick={() => handleDownload(file.fileId)}
-                  className="text-[13px] text-admin-primary font-bold hover:underline">
-                    다운로드
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+                  className="text-[13px] text-admin-primary font-bold hover:underline"
+                >
+                  다운로드
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       </section>
 
       {/* 하단 버튼 영역 */}
