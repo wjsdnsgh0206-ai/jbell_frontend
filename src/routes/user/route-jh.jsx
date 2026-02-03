@@ -30,7 +30,7 @@ const UserFacilityList = lazy(() => import("@/pages/user/facility/UserFacilityLi
 const UserFacilityDetail = lazy(() => import("@/pages/user/facility/UserFacilityDetail"));
 
 // 주요 안전정책 import
-const SafetyPolicyList = lazy(() => import("@/pages/user/safetyPolicy/SafetyPolicyList"));
+const SafetyPolicyPage = lazy(() => import("@/pages/user/safetyPolicy/SafetyPolicyPage"));
 
 export const jhUserRoutes = [
   /* 자연재난행동요령 */
@@ -72,8 +72,8 @@ export const jhUserRoutes = [
 
   /* 도시안전기본계획 및 안전정책 (기존 유지) */
   { 
-    path: "/safetyPolicyList",
-    element: <SafetyPolicyList />, 
+    path: "/safetyPolicyPage",
+    element: <SafetyPolicyPage />, 
     sidebarData: SIDE_MENU_DATA.MAIN_SAFETY_POLICIES,
     nowPage: "주요 안전정책",
   },

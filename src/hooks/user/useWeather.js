@@ -73,7 +73,7 @@ const useWeather = () => {
         if (rawAddr.includes("전북") || rawAddr.includes("전라북도")) {
           finalAddr = rawAddr.replace(/전북특별자치도|전라북도|대한민국/g, "").trim();
         } else {
-          console.warn("지역 이탈 -> 전주 데이터로 전환");
+          // console.warn("지역 이탈 -> 전주 데이터로 전환");
           finalLat = JEONJU_FALLBACK.lat;
           finalLon = JEONJU_FALLBACK.lon;
           finalAddr = JEONJU_FALLBACK.address;

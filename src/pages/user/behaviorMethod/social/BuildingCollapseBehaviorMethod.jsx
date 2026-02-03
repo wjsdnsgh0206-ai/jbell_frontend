@@ -6,7 +6,7 @@ const BuildingCollapseBehaviorMethod = () => {
     <BaseBehaviorMethodPage 
       disasterType="BUILDING_COLLAPSE"
       category="사회재난"
-      categoryPath="/behaviorMethod/fire"
+      categoryPath="/behaviorMethod/railwaySubwayAccident"
     />
   );
 };
