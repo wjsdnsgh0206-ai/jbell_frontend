@@ -1,3 +1,4 @@
+// src\components\user\auth\EmailAuthSection.jsx
 import React, { useState, useEffect } from 'react';
 import { Mail, Check } from 'lucide-react';
 // 상단 import를 사용하므로 props에서는 제거합니다.
