@@ -57,16 +57,34 @@ export const disasterApi = {
   },
 
   // 재난 문자 리스트 조회 (GET)
-  getDisasterMessages: async () => {
-    const response = await api.get("/disaster/dashboard/disasterMessages");
-    return response.data; // List<PredictionInfoResponse>
-  },
+  // getDisasterMessages: async (params = {}) => {
+  //   // 1. 백엔드 컨트롤러 주소와 정확히 일치시켜야 함 (/api/disaster/dashboard/...)
+  //   // 2. 검색 조건(pageNo, numOfRows 등)이 있다면 params로 넘겨줘야 함
+  //   const response = await api.get("/disaster/dashboard/disasterMessages", {
+  //     params: params,
+  //   });
+
+  //   // 백엔드에서 Map으로 담아준 { "list": [...], "totalCount": 100 } 형태를 리턴
+  //   return response.data;
+  // },
+  // 재난 문자 리스트 조회 (GET)
+  // getDisasterMessages: async () => {
+  //   const response = await api.get("/disaster/dashboard/disasterMessages");
+  //   return response.data; // List<PredictionInfoResponse>
+  // },
+
+  // src/services/api.js
+getDisasterMessages: async (params = {}) => {
+  const response = await api.get("/disaster/dashboard/disasterMessages", { params });
+  return response.data; // 이제 여기서 { list: [], totalCount: 0 } 가 리턴됨
+},
+
 
   // 재난 문자 상세 조회 (GET)
-  getDisasterDetail: async (sn) => {
+  getDisasterDetail: async (id) => {
     // id로 수정해야할듯
     const response = await api.get(
-      `/disaster/dashboard/disasterMessages/${sn}`,
+      `/disaster/dashboard/disasterMessages/${id}`,
     );
     return response.data;
   },
@@ -81,10 +99,10 @@ export const disasterApi = {
   },
 
   // 재난 문자 수정 (PUT)
-  updateDisaster: async (sn, data) => {
+  updateDisaster: async (id, data) => {
     // id로 수정해야할듯
     const response = await api.put(
-      `/disaster/dashboard/disasterMessages/${sn}`,
+      `/disaster/dashboard/disasterMessages/${id}`,
       data,
     );
     return response.data;
