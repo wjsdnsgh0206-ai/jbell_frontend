@@ -50,19 +50,18 @@ const DisasterMessageList = () => {
   try {
     setIsLoading(true);
     const response = await disasterApi.getDisasterMessages();
-    
-    // 로그에 찍힌 구조가 { list: [...], totalCount: 21 } 이니까 response.list 사용
     const rawData = response?.list || [];
 
     const mappedData = rawData.map(item => ({
-      // DB에서 조회한 id(PK)가 최우선, 없으면 대문자 ID라도 확인
       id: item.id || item.ID,
       category: item.EMRG_STEP_NM || item.emrgStepNm || '안전안내',
       type: item.DST_SE_NM || item.dstType || '기타', 
       sender: item.MNG_ORG_NM || item.mngOrgNm || "행정안전부",
       content: item.MSG_CN || item.msgCn || '',
       dateTime: item.CRT_DT || item.crtDt || '',
-      region: item.RCPTN_RGN_NM || item.rcptnRgnNm || ''
+      region: item.RCPTN_RGN_NM || item.rcptnRgnNm || '',
+      // [여기가 핵심!] DB의 visible_yn 값을 프론트 변수 isVisible에 넣어줌
+      isVisible: item.visibleYn === 'Y' // 또는 item.visible_yn === 'Y'
     }));
     
     setMessages(mappedData);
@@ -148,26 +147,34 @@ const DisasterMessageList = () => {
     setCurrentPage(1); 
   };
 
-  const handleToggleVisible = async (id, currentStatus) => {
-    const nextStatus = !currentStatus;
-    const visibleYn = nextStatus ? 'Y' : 'N';
+const handleToggleVisible = async (id, currentStatus) => {
+  // currentStatus가 명확히 true일 때만 false로, 그 외(false, null, undefined)는 true로 설정
+  const nextStatus = currentStatus === true ? false : true;
+  const visibleYn = nextStatus ? 'Y' : 'N';
 
-    setModalConfig({
-      title: '노출 상태 변경',
-      message: <p>해당 항목을 [{nextStatus ? '노출' : '비노출'}] 처리하시겠습니까?</p>,
-      type: nextStatus ? 'confirm' : 'delete',
-      onConfirm: async () => {
-        try {
-          await disasterApi.updateVisibility([id], visibleYn);
-          setMessages(prev => prev.map(item => item.id === id ? { ...item, isVisible: nextStatus } : item));
-        } catch (error) {
-          alert("상태 변경에 실패했습니다.");
-        }
-        setIsModalOpen(false);
+  setModalConfig({
+    title: '노출 상태 변경',
+    message: <p>해당 항목을 [{nextStatus ? '노출' : '비노출'}] 처리하시겠습니까?</p>,
+    type: nextStatus ? 'confirm' : 'delete',
+    onConfirm: async () => {
+      try {
+        // 1. 서버 API 호출 (비활성이면 'N'이 날아감)
+        await disasterApi.updateVisibility([id], visibleYn);
+        
+        // 2. 로컬 상태 업데이트 (화면에 즉시 반영)
+        setMessages(prev => prev.map(item => 
+          item.id === id ? { ...item, isVisible: nextStatus } : item
+        ));
+        
+        console.log(`ID ${id} 상태 변경 완료: ${visibleYn}`);
+      } catch (error) {
+        alert("상태 변경에 실패했습니다.");
       }
-    });
-    setIsModalOpen(true);
-  };
+      setIsModalOpen(false);
+    }
+  });
+  setIsModalOpen(true);
+};
 
   const handleBatchStatus = (status) => {
     if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");

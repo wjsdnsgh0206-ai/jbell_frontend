@@ -61,7 +61,7 @@ const WeatherNewsAdd = () => {
         newsType: formData.type
       };
 
-      console.log("최종 전송 데이터:", payload);
+      console.log("⭐최종 전송 데이터:", payload);
 
       await disasterApi.createWeather(payload);
       

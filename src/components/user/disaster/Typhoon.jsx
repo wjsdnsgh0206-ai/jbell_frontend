@@ -1,17 +1,15 @@
 import React, { useState, useEffect, useMemo } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
-// import FacilityCheckGroup from "../modal/FacilityCheckGroup";
 import CommonMap from "@/components/user/modal/CommonMap";
 import useTyphoon from "@/hooks/user/useTyphoon";
+import useShelter from "@/hooks/user/useShelter"; // 대피소 훅 추가
 
 const Typhoon = () => {
   const { typhoonList, disasterStatus, markers, isLoading, fetchTyphoonData } = useTyphoon();
+  // 대피소 관련 훅 추가
+  const { shelterMarkers, fetchShelters, setShelterMarkers } = useShelter();
+
   const [activeTab, setActiveTab] = useState("태풍특보");
-  const [facilities, setFacilities] = useState({
-    shelter: true,
-    hospital: false,
-    pharmacy: false,
-  });
 
   // 영향권 판단 기준 (전북도청 좌표)
   const JEONBUK_OFFICE = { lat: 35.8202, lng: 127.1088 };
@@ -22,11 +20,18 @@ const Typhoon = () => {
     { id: "대피소", label: "대피소" },
   ];
 
+  // 탭 변경 및 데이터 로딩 로직
   useEffect(() => {
-    fetchTyphoonData();
-  }, [fetchTyphoonData]);
+    if (activeTab === "대피소") {
+      // 태풍 시에는 수해/민방위 대피소가 중요하므로 해당 타입 호출
+      fetchShelters("CIVIL_DEFENSE_DISASTER");
+    } else {
+      setShelterMarkers([]); // 다른 탭으로 이동 시 대피소 마커 초기화
+      fetchTyphoonData();
+    }
+  }, [activeTab, fetchTyphoonData, fetchShelters, setShelterMarkers]);
 
-  // 🔥 최근 한 달(30일) 필터링 + 전북 영향권 계산
+  // 1. 최근 한 달 태풍 리스트 필터링
   const recentMonthTyphoonList = useMemo(() => {
     const ONE_MONTH_AGO = new Date();
     ONE_MONTH_AGO.setDate(ONE_MONTH_AGO.getDate() - 30);
@@ -42,7 +47,6 @@ const Typhoon = () => {
         return analysisDate >= ONE_MONTH_AGO;
       })
       .map((tp) => {
-        // 거리 계산 (Haversine 공식)
         const R = 6371;
         const dLat = (tp.typhoonLat - JEONBUK_OFFICE.lat) * (Math.PI / 180);
         const dLon = (tp.typhoonLon - JEONBUK_OFFICE.lng) * (Math.PI / 180);
@@ -54,17 +58,39 @@ const Typhoon = () => {
 
         return {
           ...tp,
-          isJeonbukAffected: distance < 500, // 500km 이내면 영향권
+          isJeonbukAffected: distance < 500,
         };
       });
   }, [typhoonList]);
 
-  const handleCheck = (key) =>
-    setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
+  // 2. 탭에 따른 지도 중심점 결정
+  const mapCenter = useMemo(() => {
+    if (activeTab === "대피소") {
+      return { lat: 35.82422, lng: 127.14795 }; // 전주시청 중심
+    }
+    return JEONBUK_OFFICE;
+  }, [activeTab]);
+
+  // 3. 탭에 따른 지도 확대 레벨 결정
+  const mapLevel = useMemo(() => {
+    if (activeTab === "대피소") return 5;
+    if (activeTab === "태풍경로도") return 11; // 경로도는 더 넓게
+    return 8;
+  }, [activeTab]);
+
+  // 4. 현재 탭에 따라 표시할 마커 결정
+  const displayMarkers = useMemo(() => {
+    if (activeTab === "대피소") return shelterMarkers;
+    if (activeTab === "태풍경로도") {
+      return recentMonthTyphoonList.map(t => ({...t, lat: t.typhoonLat, lng: t.typhoonLon}));
+    }
+    return markers; // 태풍특보 마커
+  }, [activeTab, shelterMarkers, recentMonthTyphoonList, markers]);
 
   return (
     <div className="flex-1 flex flex-col min-h-0 gap-5 lg:gap-6">
-      <div className="bg-white rounded-2xl p-4 lg:p-5 border border-gray-100 flex-1 flex flex-col min-h-0">
+      <div className="bg-white rounded-2xl p-4 lg:p-5 border border-gray-100 flex-1 flex flex-col min-h-0 shadow-sm overflow-hidden">
+        {/* 헤더 섹션 */}
         <div className="flex justify-between items-center mb-4 flex-shrink-0">
           <div className="flex items-center gap-2">
             <h3 className="md:text-body-m-bold lg:text-title-m text-body-s-bold text-gray-900">
@@ -81,15 +107,21 @@ const Typhoon = () => {
           </p>
         </div>
 
+        {/* 지도 영역 */}
         <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[400px] lg:min-h-0">
-          <CommonMap 
-            markers={activeTab === "태풍경로도" ? recentMonthTyphoonList.map(t => ({...t, lat: t.typhoonLat, lng: t.typhoonLon})) : markers} 
-            regionStatus={disasterStatus} 
-          />
+          <div className="absolute inset-0 z-0">
+            <CommonMap 
+              markers={displayMarkers} 
+              center={mapCenter}
+              level={mapLevel}
+              regionStatus={activeTab === "대피소" ? null : disasterStatus} 
+            />
+          </div>
 
+          {/* 오버레이 리스트 (태풍특보, 태풍경로도일 때만 표시) */}
           {(activeTab === "태풍특보" || activeTab === "태풍경로도") && (
-            <div className="absolute inset-0 z-10 bg-black/10 backdrop-blur-[2px] p-4 pl-[120px] lg:pl-[180px] overflow-y-auto no-scrollbar">
-              <div className="flex flex-col gap-4 max-w-4xl">
+            <div className="absolute inset-0 z-10 bg-black/10 backdrop-blur-[2px] p-4 pl-[120px] lg:pl-[180px] overflow-y-auto no-scrollbar pointer-events-none">
+              <div className="flex flex-col gap-4 max-w-4xl pointer-events-auto">
                 <div className="bg-white/95 p-3 rounded-xl shadow-md border border-blue-200 self-start backdrop-blur-md">
                   <p className="text-detail-s-bold text-blue-700 flex items-center gap-2">
                     <span className="animate-pulse">🌀</span> 
@@ -104,7 +136,6 @@ const Typhoon = () => {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* 1. 태풍특보 리스트 */}
                     {activeTab === "태풍특보" && markers.map((item) => (
                       <div key={item.id} className="bg-white p-5 rounded-2xl shadow-xl border-2 border-blue-500 ring-4 ring-blue-50 transition-all hover:scale-[1.01]">
                         <div className="flex justify-between items-start mb-3">
@@ -129,7 +160,6 @@ const Typhoon = () => {
                       </div>
                     ))}
 
-                    {/* 2. 태풍경로도 리스트 */}
                     {activeTab === "태풍경로도" && recentMonthTyphoonList.map((tp) => {
                       const isClosed = tp.typhoonActiveYn !== "Y";
                       return (
@@ -140,15 +170,11 @@ const Typhoon = () => {
                             <div>
                               <div className="flex items-center gap-2 mb-1">
                                 <h4 className="text-body-m-bold text-gray-900">{tp.typhoonName || "태풍정보"}</h4>
-                                <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${
-                                  isClosed ? "bg-gray-200 text-gray-500" : "bg-green-100 text-green-600"
-                                }`}>
+                                <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold ${isClosed ? "bg-gray-200 text-gray-500" : "bg-green-100 text-green-600"}`}>
                                   {isClosed ? "소멸/종료" : "진행중"}
                                 </span>
                                 {tp.isJeonbukAffected && !isClosed && (
-                                  <span className="bg-red-100 text-red-600 text-[9px] px-1.5 py-0.5 rounded font-bold animate-bounce">
-                                    전북 영향권
-                                  </span>
+                                  <span className="bg-red-100 text-red-600 text-[9px] px-1.5 py-0.5 rounded font-bold animate-bounce">전북 영향권</span>
                                 )}
                               </div>
                               <p className="text-[10px] text-gray-400 font-medium">
@@ -157,9 +183,6 @@ const Typhoon = () => {
                                   : "정보 없음"}
                               </p>
                             </div>
-                            <span className="bg-slate-100 text-slate-600 text-[10px] px-2 py-1 rounded font-bold shadow-sm">
-                              위치정보
-                            </span>
                           </div>
                           <div className="grid grid-cols-2 gap-3 mt-4">
                             <div className="p-2 bg-slate-50 rounded-lg border border-gray-100 text-center">
@@ -175,7 +198,6 @@ const Typhoon = () => {
                       );
                     })}
 
-                    {/* 데이터가 없을 때 */}
                     {((activeTab === "태풍특보" && markers.length === 0) || 
                       (activeTab === "태풍경로도" && recentMonthTyphoonList.length === 0)) && (
                       <div className="col-span-full py-20 bg-white/60 rounded-3xl text-center border-2 border-dashed border-gray-200 flex flex-col items-center gap-3">
@@ -206,7 +228,6 @@ const Typhoon = () => {
               </button>
             ))}
           </div>
-
         </div>
       </div>
 

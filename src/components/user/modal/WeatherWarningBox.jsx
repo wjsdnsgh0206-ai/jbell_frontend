@@ -1,9 +1,30 @@
-import React from 'react';
+// src/components/user/modal/WeatherWarningBox.jsx
+import React, { useMemo } from 'react';
 import { useWeatherWarning } from '@/hooks/user/useWeatherWarning';
 import { AlertTriangle, Clock, MapPin, RefreshCcw } from 'lucide-react';
 
+// ✅ disasterType을 props로 받음
 const WeatherWarningBox = ({ disasterType }) => {
-  const { warnings, isLoading, refetch } = useWeatherWarning(disasterType);
+  const { warnings, isLoading, refetch } = useWeatherWarning();
+
+  // ✅ 현재 재난 탭에 맞는 데이터만 필터링
+  const filteredWarnings = useMemo(() => {
+    if (!disasterType) return [];
+
+    // URL 경로명(영문)과 훅의 카테고리(한글) 매칭
+    const typeMap = {
+      earthquake: "지진",
+      flood: "호우홍수",
+      heavyrain: "호우홍수",
+      landslide: "산사태",
+      typhoon: "태풍",
+      forestfire: "산불",
+      coldwave: "한파",
+    };
+
+    const targetCategory = typeMap[disasterType.toLowerCase()];
+    return warnings.filter((item) => item.CATEGORY === targetCategory);
+  }, [warnings, disasterType]);
 
   if (isLoading) {
     return (
@@ -20,7 +41,7 @@ const WeatherWarningBox = ({ disasterType }) => {
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
           <div className="bg-red-500 w-2 h-2 rounded-full animate-pulse" />
-          <h3 className="text-lg font-bold text-gray-800">실시간 특보</h3>
+          <h3 className="text-lg font-bold text-gray-800">전북 실시간 특보</h3>
         </div>
         <button 
           onClick={refetch}
@@ -31,22 +52,23 @@ const WeatherWarningBox = ({ disasterType }) => {
         </button>
       </div>
 
-      {/* 특보 카드 리스트 */}
+      {/* 특보 카드 리스트 - filteredWarnings를 사용 */}
       <div className="grid grid-cols-1 gap-3 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200">
-        {warnings.length > 0 ? (
-          warnings.map((item) => (
+        {filteredWarnings.length > 0 ? (
+          filteredWarnings.map((item) => (
             <div 
               key={item.PRSNTN_SN}
               className="group bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-blue-200 transition-all"
             >
               <div className="flex justify-between items-start mb-2">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                  item.TTL?.includes('경보') ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+                }`}>
                   <AlertTriangle size={12} className="mr-1" />
-                  {item.TTL && item.TTL.includes('경보') ? '위험' : '주의'}
+                  {item.TTL?.includes('경보') ? '위험(경보)' : '주의(주의보)'}
                 </span>
                 <span className="flex items-center text-[11px] text-gray-400 uppercase tracking-tighter">
                   <Clock size={12} className="mr-1" />
-                  {/* 에러 수정 부분: PRSNTN_TM(202601281400) 형식을 안전하게 자름 */}
                   {item.PRSNTN_TM ? 
                     `${item.PRSNTN_TM.substring(4, 6)}/${item.PRSNTN_TM.substring(6, 8)} ${item.PRSNTN_TM.substring(8, 10)}:${item.PRSNTN_TM.substring(10, 12)}` 
                     : "시간정보없음"}
@@ -69,12 +91,11 @@ const WeatherWarningBox = ({ disasterType }) => {
           ))
         ) : (
           <div className="py-12 flex flex-col items-center justify-center bg-gray-50 rounded-2xl border border-gray-100">
-            <p className="text-gray-400 text-sm">현재 발효된 관련 기상특보가 없습니다.</p>
+            <p className="text-gray-400 text-sm font-medium">현재 발효된 관련 기상특보가 없습니다.</p>
           </div>
         )}
       </div>
 
-      {/* 모바일 하단 안내 */}
       <p className="text-[10px] text-gray-400 text-center px-4">
         본 정보는 기상청 API를 통해 실시간으로 제공되며, 실제 상황과 다를 수 있습니다.
       </p>

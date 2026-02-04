@@ -38,7 +38,7 @@ const DisasterModalLayout = () => {
   ];
 
   const hostname = window.location.hostname;
-  if(hostname !== 'localhost') menuList.shift();
+  if (hostname !== "localhost") menuList.shift();
 
   return (
     <div className="fixed inset-0 z-[100] flex flex-col md:items-center md:justify-center bg-black/60 md:p-5 overflow-y-auto lg:overflow-hidden">
@@ -166,7 +166,7 @@ const DisasterModalLayout = () => {
 
                 {/* 하단 박스 영역: 분기 처리 로직 수정 */}
                 <div className="hidden lg:flex flex-1 min-h-[400px] lg:min-h-0 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex-col">
-                  {/* currentPath를 사용하여 분기 처리 (사고속보 경로인 accident일 때) */}
+                  {/* currentPath를 사용하여 분기 처리 */}
                   {currentPath === "accident" ? (
                     <DisasterMessageBox />
                   ) : (

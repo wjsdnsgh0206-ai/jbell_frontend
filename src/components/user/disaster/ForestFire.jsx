@@ -3,34 +3,55 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { X, AlertCircle } from "lucide-react";
 import ActionTipBox from "../modal/ActionTipBox";
-// import FacilityCheckGroup from "../modal/FacilityCheckGroup";
 import CommonMap from "@/components/user/modal/CommonMap";
 import useForestFire from "@/hooks/user/useForestFire"; // 기존 공공데이터 훅
 import useForestFireRisk from "@/hooks/user/useForestFireRisk"; // 새로 만든 DB 데이터 훅
+import useShelter from "@/hooks/user/useShelter"; // 대피소 훅 추가
 
 const ForestFire = () => {
-  // 1. 공공데이터 예보 훅 (warningData로 명칭 구분)
+  // 1. 공공데이터 예보 훅
   const { fireData: warningData, fetchFireData: fetchWarning, isFireLoading } = useForestFire();
-  // 2. 백엔드 DB 지수 훅 (riskData로 명칭 구분)
+  // 2. 백엔드 DB 지수 훅
   const { riskData, fetchRiskData, isRiskLoading } = useForestFireRisk();
+  // 3. 대피소 관련 훅 추가
+  const { shelterMarkers, fetchShelters, setShelterMarkers } = useShelter();
 
   const [activeTab, setActiveTab] = useState("실시간 산불정보");
-  const [facilities, setFacilities] = useState({
-    shelter: false,
-    hospital: false,
-    pharmacy: false,
-  });
 
   const tabs = ["실시간 산불정보", "산불위험예보", "대피소"];
 
+  // 탭 변경 시 데이터 로딩 로직
   useEffect(() => {
-    // 컴포넌트 마운트 시 두 데이터 모두 로드
-    fetchWarning();
-    fetchRiskData();
-  }, [fetchWarning, fetchRiskData]);
+    if (activeTab === "대피소") {
+      // 산불 시에도 민방위 대피소를 사용하므로 타입 지정 호출
+      fetchShelters("CIVIL_DEFENSE_DISASTER");
+    } else {
+      setShelterMarkers([]); // 다른 탭 이동 시 대피소 마커 초기화
+      fetchWarning();
+      fetchRiskData();
+    }
+  }, [activeTab, fetchWarning, fetchRiskData, fetchShelters, setShelterMarkers]);
 
-  const handleCheck = (key) =>
-    setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
+  // 1. 탭에 따른 지도 중심점 결정
+  const mapCenter = useMemo(() => {
+    if (activeTab === "대피소") {
+      return { lat: 35.82422, lng: 127.14795 }; // 전주시청 중심
+    }
+    // 기본 중심점 (전북도청 근처)
+    return { lat: 35.8202, lng: 127.1088 };
+  }, [activeTab]);
+
+  // 2. 탭에 따른 지도 확대 레벨 결정
+  const mapLevel = useMemo(() => {
+    // 대피소는 주변 건물을 잘 봐야 하니 레벨 5로 확대
+    return activeTab === "대피소" ? 5 : 8;
+  }, [activeTab]);
+
+  // 3. 현재 탭에 따라 표시할 마커 결정
+  const displayMarkers = useMemo(() => {
+    // 대피소 탭일 때만 마커 표시 (산불은 리스트/카드 오버레이 방식)
+    return activeTab === "대피소" ? shelterMarkers : [];
+  }, [activeTab, shelterMarkers]);
 
   // 상황판 지수 상태 컬러 로직
   const getFireStatus = (score) => {
@@ -43,21 +64,32 @@ const ForestFire = () => {
 
   return (
     <div className="flex-1 flex flex-col gap-6 w-full h-full lg:min-h-0 relative">
-      <div className="bg-white rounded-2xl p-4 lg:p-5 border border-gray-100 flex flex-col lg:flex-1 min-h-0 relative">
+      <div className="bg-white rounded-2xl p-4 lg:p-5 border border-gray-100 flex flex-col lg:flex-1 min-h-0 relative shadow-sm overflow-hidden">
         <div className="flex justify-between items-center mb-3 flex-shrink-0">
-          <h3 className="md:text-body-m-bold lg:text-title-m text-body-s-bold text-gray-900 font-bold">전북 산불 현황</h3>
+          <h3 className="md:text-body-m-bold lg:text-title-m text-body-s-bold text-gray-900 font-bold">
+            전북 산불 현황
+          </h3>
         </div>
 
         <div className="relative w-full h-[280px] md:h-[350px] lg:h-full lg:flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden">
-          <CommonMap markers={[]} level={8} />
+          <div className="absolute inset-0 z-0">
+            <CommonMap 
+              markers={displayMarkers} 
+              center={mapCenter} 
+              level={mapLevel} 
+            />
+          </div>
 
-          <div className="absolute top-5 left-3 lg:left-5 flex flex-col gap-3 z-20 w-[110px] lg:w-[140px]">
+          {/* 탭 버튼 세로 배치 */}
+          <div className="absolute top-5 left-3 lg:left-5 flex flex-col gap-3 z-30 w-[110px] lg:w-[140px]">
             {tabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`w-full flex items-center justify-center px-2 py-2 lg:px-4 text-center lg:py-3 rounded-2xl lg:rounded-xl text-[11px] font-bold lg:text-body-m transition-all border shadow-md ${
-                  activeTab === tab ? "bg-blue-600 text-white border-blue-600" : "bg-white/95 text-gray-600 border-gray-100 hover:bg-gray-50"
+                  activeTab === tab 
+                    ? "bg-blue-600 text-white border-blue-600 translate-x-1" 
+                    : "bg-white/95 backdrop-blur-md text-gray-600 border-gray-100 hover:bg-gray-50"
                 }`}
               >
                 {tab}
@@ -72,7 +104,9 @@ const ForestFire = () => {
                 <div className="flex flex-col gap-5">
                   <div className="flex items-center justify-between border-b border-gray-100 pb-4">
                     <div className="flex flex-col">
-                      <span className="text-xs text-blue-600 font-bold uppercase">{riskData.doName || riskData.doname || "전북"} 산불위험지수</span>
+                      <span className="text-xs text-blue-600 font-bold uppercase">
+                        {riskData.doName || riskData.doname || "전북"} 산불위험지수
+                      </span>
                       <span className={`text-heading-l font-bold ${getFireStatus(riskData.avgIndex || riskData.avg_index).text}`}>
                         {riskData.avgIndex || riskData.avg_index || 0}
                       </span>
@@ -104,8 +138,7 @@ const ForestFire = () => {
           {activeTab === "산불위험예보" && (
             <div className="absolute inset-0 z-[100] flex items-center justify-center p-4 lg:p-6">
               <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={() => setActiveTab("실시간 산불정보")} />
-              
-              <div className="relative bg-white w-full max-w-5xl h-[100%] mt-2 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-top-4 duration-300">
+              <div className="relative bg-white w-full max-w-5xl h-[100%] mt-2 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-top-4 duration-300 pointer-events-auto">
                 <div className="px-8 py-3 border-b border-gray-100 flex justify-between items-start bg-white">
                   <h4 className="text-[16px] font-bold text-gray-900">전북 산불 위험 예보 기록</h4>
                   <button onClick={() => setActiveTab("실시간 산불정보")} className="group p-1.5 bg-gray-50 hover:bg-gray-900 rounded-xl transition-all shadow-sm">
@@ -124,7 +157,6 @@ const ForestFire = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-3 mb-1">
-                            {/* 공공데이터 필드는 소문자(avgindex)인 경우가 많음 */}
                             <span className="text-[12px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded">지수 {item.avgindex || item.avgIndex}</span>
                             <span className="text-[12px] text-gray-400 font-medium">기준: {item.analdate || item.analDate}</span>
                           </div>
@@ -136,8 +168,8 @@ const ForestFire = () => {
                     ))
                   ) : (
                     <div className="h-full flex flex-col items-center justify-center text-gray-400 py-20 text-center">
-                        <AlertCircle size={48} className="mb-3 opacity-20" />
-                        <p className="font-medium text-gray-500">조회된 예보 데이터가 없습니다.</p>
+                      <AlertCircle size={48} className="mb-3 opacity-20" />
+                      <p className="font-medium text-gray-500">조회된 예보 데이터가 없습니다.</p>
                     </div>
                   )}
                 </div>
@@ -147,7 +179,7 @@ const ForestFire = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+      <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex-shrink-0">
         <ActionTipBox type="산불" />
       </div>
     </div>

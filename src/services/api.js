@@ -26,32 +26,36 @@ const forestFireWarningApi = axios.create({
 const kmaWarningApi = axios.create({ baseURL: "/kma-warning-api" });
 const accidentNewsApi = axios.create({ baseURL: "/accidentNews-api" }); // 도로교통 정보 api
 
+// 대피소
+export const facilityApi = {
+  // 대피소 목록 조회 (유형별 필터링)
+  getShelters: async (type) => {
+    const response = await api.get("/facility/list", {
+      params: {
+        fcltSeCd: type,
+        size: 1000,
+        offset: 0,
+      },
+    });
+    // axios 응답객체(.data) -> 백엔드 ApiResponse(.data) -> FacilityListResponse
+    return response.data.data;
+  },
+};
+
 export const disasterApi = {
-  // ✨ [추가] 외부 API로부터 재난문자 수집 및 DB 저장 요청 (POST)
   // src/services/api.js
   fetchAndSaveDisasterMessages: async (params = {}) => {
     return await api.post("/disaster/dashboard/disasterMessages", null, {
       params: {
         pageNo: 1,
         numOfRows: 30,
-        type: "json", 
+        type: "json",
         rgnNm: "전북",
         ...params,
       },
     });
   },
 
-  // 재난 문자 리스트 조회 (GET)
-  // getDisasterMessages: async (params = {}) => {
-  //   // 1. 백엔드 컨트롤러 주소와 정확히 일치시켜야 함 (/api/disaster/dashboard/...)
-  //   // 2. 검색 조건(pageNo, numOfRows 등)이 있다면 params로 넘겨줘야 함
-  //   const response = await api.get("/disaster/dashboard/disasterMessages", {
-  //     params: params,
-  //   });
-
-  //   // 백엔드에서 Map으로 담아준 { "list": [...], "totalCount": 100 } 형태를 리턴
-  //   return response.data;
-  // },
   // 재난 문자 리스트 조회 (GET)
   getDisasterMessages: async () => {
     const response = await api.get("/disaster/dashboard/disasterMessages");
@@ -879,15 +883,16 @@ export const disasterModalService = {
   /* -----------------------------
    기상특보 api 
 ----------------------------- */
-  getWeatherWarning: async (params) => {
-    const response = await weatherWarningApi.get("/DSSP-IF-00045", {
-      params: {
-        serviceKey: import.meta.env.VITE_API_SPECIAL_NOTICE_KEY,
-        ...params,
-      },
-    });
-    return response.data;
-  },
+getWeatherWarning: async (params) => {
+  const response = await weatherWarningApi.get("/DSSP-IF-00045", {
+    params: {
+      serviceKey: import.meta.env.VITE_API_SPECIAL_NOTICE_KEY,
+      numOfRows: 100, // 기본값을 100으로 고정
+      ...params,      // 외부에서 params로 넘기면 덮어쓰기 가능
+    },
+  });
+  return response.data;
+},
 
   /* -----------------------------
     산불위험예보정보  api

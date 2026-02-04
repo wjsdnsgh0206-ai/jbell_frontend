@@ -1,19 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
-// import FacilityCheckGroup from "../modal/FacilityCheckGroup";
-import MapControlBtn from "@/components/user/modal/MapControlBtn";
 import CommonMap from "@/components/user/modal/CommonMap";
 import useLandSlide from "@/hooks/user/useLandSlide";
+import useShelter from "@/hooks/user/useShelter"; // 대피소 훅 추가
 
 const LandSlide = () => {
-  // lsMarkers 대신 lsData 사용
   const { lsData, isLoading, fetchLandSlideData } = useLandSlide();
+  // 대피소 관련 훅 추가
+  const { shelterMarkers, fetchShelters, setShelterMarkers } = useShelter();
+
   const [activeTab, setActiveTab] = useState("위험예보");
-  const [facilities, setFacilities] = useState({
-    shelter: true,
-    hospital: false,
-    pharmacy: false,
-  });
 
   const todayStr = new Date().toLocaleDateString("ko-KR", {
     year: "numeric",
@@ -21,16 +17,41 @@ const LandSlide = () => {
     day: "2-digit",
   });
 
+  // 탭 변경 시 데이터 로딩 로직
   useEffect(() => {
-    if (activeTab === "위험예보") fetchLandSlideData();
-  }, [activeTab, fetchLandSlideData]);
+    if (activeTab === "위험예보") {
+      setShelterMarkers([]); // 탭 이동 시 마커 초기화
+      fetchLandSlideData();
+    } else if (activeTab === "대피소") {
+      // 산사태 시에도 민방위 대피소를 사용하므로 타입 지정 호출
+      fetchShelters("CIVIL_DEFENSE_DISASTER");
+    }
+  }, [activeTab, fetchLandSlideData, fetchShelters, setShelterMarkers]);
 
+  // 1. 탭에 따른 지도 중심점 결정
+  const mapCenter = useMemo(() => {
+    if (activeTab === "대피소") {
+      // 대피소 탭 클릭 시 전주시청 중심으로 이동
+      return { lat: 35.82422, lng: 127.14795 };
+    }
+    // 기본 중심점
+    return { lat: 35.82422, lng: 127.14795 };
+  }, [activeTab]);
+
+  // 2. 탭에 따른 지도 확대 레벨 결정
+  const mapLevel = useMemo(() => {
+    // 대피소는 주변 건물을 잘 봐야 하니 레벨 5로 확대
+    return activeTab === "대피소" ? 5 : 8;
+  }, [activeTab]);
+
+  // 3. 현재 탭에 따라 표시할 마커 결정
+  const displayMarkers = useMemo(() => {
+    // 위험예보는 리스트 오버레이 방식이라 마커가 없고, 대피소 탭일 때만 마커 표시
+    return activeTab === "대피소" ? shelterMarkers : [];
+  }, [activeTab, shelterMarkers]);
 
   // 활성 특보 여부 판단
   const hasActiveNotice = lsData.some((item) => item.isActiveWarning);
-  
-  const handleCheck = (key) =>
-    setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
 
   return (
     <div className="flex-1 flex flex-col min-h-0 gap-5 lg:gap-6 overflow-hidden">
@@ -63,14 +84,18 @@ const LandSlide = () => {
         {/* 지도 영역 */}
         <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[300px] md:min-h-[400px] lg:min-h-0">
           <div className="absolute inset-0 z-0">
-            {/* 📌 산사태는 마커를 안 넘기기로 했으므로 빈 배열 전달 */}
-            <CommonMap markers={[]} />
+            {/* 공통 지도 컴포넌트에 마커와 설정값 전달 */}
+            <CommonMap 
+              markers={displayMarkers} 
+              center={mapCenter} 
+              level={mapLevel} 
+            />
           </div>
 
           {/* 위험예보 리스트 오버레이 */}
           {activeTab === "위험예보" && (
-            <div className="absolute inset-0 z-10 bg-black/5 backdrop-blur-[1.5px] p-4 pl-[110px] md:pl-[140px] lg:pl-[180px] overflow-y-auto no-scrollbar">
-              <div className="flex flex-col gap-4 max-w-2xl">
+            <div className="absolute inset-0 z-10 bg-black/5 backdrop-blur-[1.5px] p-4 pl-[110px] md:pl-[140px] lg:pl-[180px] overflow-y-auto no-scrollbar pointer-events-none">
+              <div className="flex flex-col gap-4 max-w-2xl pointer-events-auto">
                 <div
                   className={`bg-white/95 p-3 rounded-xl shadow-md border self-start backdrop-blur-md ${
                     hasActiveNotice ? "border-orange-200" : "border-gray-200"
@@ -106,39 +131,19 @@ const LandSlide = () => {
                               : "border-gray-300 opacity-80"
                           }`}
                         >
+                          {/* 리스트 아이템 내용 생략 (기본 코드와 동일) */}
                           <div className="flex justify-between items-start mb-2">
                             <div>
-                              <span
-                                className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
-                                  item.isActiveWarning
-                                    ? "bg-orange-100 text-orange-600"
-                                    : "bg-gray-100 text-gray-500"
-                                }`}
-                              >
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${item.isActiveWarning ? "bg-orange-100 text-orange-600" : "bg-gray-100 text-gray-500"}`}>
                                 {item.info.grade}
                               </span>
-                              <h4 className="text-gray-900 font-bold text-base mt-1">
-                                {item.info.name}
-                              </h4>
+                              <h4 className="text-gray-900 font-bold text-base mt-1">{item.info.name}</h4>
                             </div>
-                            <span className="text-[10px] text-gray-400 font-medium">
-                              {item.info.date}
-                            </span>
+                            <span className="text-[10px] text-gray-400 font-medium">{item.info.date}</span>
                           </div>
                           <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-50">
-                            <span className="text-detail-s text-gray-500">
-                              📞 연락처:{" "}
-                              <span className="text-gray-800 font-semibold">
-                                {item.info.tel}
-                              </span>
-                            </span>
-                            <span
-                              className={`text-detail-s font-extrabold ${
-                                item.isActiveWarning
-                                  ? "text-red-600 animate-pulse"
-                                  : "text-blue-500"
-                              }`}
-                            >
+                            <span className="text-detail-s text-gray-500">📞 연락처: <span className="text-gray-800 font-semibold">{item.info.tel}</span></span>
+                            <span className={`text-detail-s font-extrabold ${item.isActiveWarning ? "text-red-600 animate-pulse" : "text-blue-500"}`}>
                               {item.info.status}
                             </span>
                           </div>
@@ -146,9 +151,7 @@ const LandSlide = () => {
                       ))
                     ) : (
                       <div className="bg-white/80 p-10 rounded-2xl text-center border border-dashed border-gray-300">
-                        <p className="text-gray-400 text-detail-s">
-                          조회된 데이터가 없습니다.
-                        </p>
+                        <p className="text-gray-400 text-detail-s">조회된 데이터가 없습니다.</p>
                       </div>
                     )}
                   </div>
@@ -157,6 +160,7 @@ const LandSlide = () => {
             </div>
           )}
 
+          {/* 탭 버튼 */}
           <div className="absolute top-5 left-3 lg:left-5 flex flex-col gap-3 z-30">
             {["위험예보", "대피소"].map((label) => (
               <button
