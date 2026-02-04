@@ -17,5 +17,4 @@ export const WEATHER_OPTIONS = {
     { value: '주의', label: '주의' },
     { value: '보통', label: '보통' }
   ],
-  REGIONS: ["전주시", "서울", "경기도", "전라북도"] // 자주 쓰는 지역
 };

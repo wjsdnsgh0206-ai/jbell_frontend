@@ -283,48 +283,14 @@ const DisasterManagementList = () => {
           </span>
         ),
       },
-      {
-        key: "visibleYn",
-        header: "지도노출",
-        width: "100px",
-        render: (val, row) => (
-          <div className="flex justify-center">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleToggleVisible(row.id, val);
-              }}
-              className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${val === "Y" ? "bg-admin-primary" : "bg-gray-300"}`}
-            >
-              <div
-                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${val === "Y" ? "translate-x-6" : "translate-x-0"}`}
-              />
-            </button>
-          </div>
-        ),
-      },
+
       {
         key: "updatedAt",
         header: "최근 점검",
         width: "110px",
         className: "text-center",
       },
-      {
-        key: "actions",
-        header: "관리",
-        width: "120px",
-        className: "text-center",
-        render: (_, row) => (
-          <button
-            onClick={() =>
-              navigate(`/admin/realtime/disasterManagementDetail/${row.id}`)
-            }
-            className="border border-gray-300 rounded px-3 py-1 text-sm hover:bg-gray-100 transition-colors font-normal"
-          >
-            보기
-          </button>
-        ),
-      },
+
     ],
     [handleToggleVisible, navigate],
   );

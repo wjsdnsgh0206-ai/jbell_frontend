@@ -179,7 +179,7 @@ const DisasterMessageAdd = () => {
               <h3 className="flex items-center gap-2 text-body-m-bold text-admin-text-primary pb-2 border-b border-admin-border">
                 <List size={18} /> 발송 및 분류 정보
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* 구분 Select */}
                 <div className="flex flex-col gap-3">
                   <label className="text-body-m-bold text-admin-text-secondary ml-1">
@@ -230,14 +230,6 @@ const DisasterMessageAdd = () => {
                   </div>
                 </div>
 
-                <InputField
-                  label="발송 기관"
-                  name="sender"
-                  value={formData.sender}
-                  onChange={handleChange}
-                  placeholder="예: 전주시청"
-                  showError={submitted && !formData.sender}
-                />
                 <InputField
                   label="수신 지역"
                   name="region"

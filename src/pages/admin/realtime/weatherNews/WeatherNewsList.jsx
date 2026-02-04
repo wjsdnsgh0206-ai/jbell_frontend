@@ -110,16 +110,12 @@ const WeatherNewsList = () => {
 
       const response = await disasterApi.getSavedWeatherWarnings(params);
 
-      // [수정 핵심] 백엔드 XML의 AS 별칭(대문자)과 일치시킵니다.
       const mappedData = (response.list || []).map((item) => ({
-        // item.PRSNTN_SN 등 대문자 키값으로 변경
         id: String(item.PRSNTN_SN || item.prsntnSn),
-        type: item.TTL || "기상특보",
+        type: item.weatherType || "기타",
         title: item.TTL || "-",
-        // XML에서 content AS SPNE_FRMNT_PRCON_CN 했으므로 아래 키 사용
         content: item.SPNE_FRMNT_PRCON_CN || "-",
         dateTime: item.PRSNTN_TM || "",
-        // visibleYn은 XML에서 소문자로 별칭을 줬으므로 그대로 유지
         isVisible: item.visibleYn === "Y",
       }));
 
@@ -344,7 +340,7 @@ const WeatherNewsList = () => {
                 }}
                 className="w-full appearance-none h-14 pl-5 pr-8 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary focus:border-admin-primary outline-none cursor-pointer"
               >
-                <option value="전체">특보 유형 전체</option>
+                <option value="전체">특보 유형</option>
                 {WEATHER_OPTIONS.WEATHER_TYPES.map((type) => (
                   <option key={type.value} value={type.value}>
                     {type.label}
@@ -357,28 +353,6 @@ const WeatherNewsList = () => {
               />
             </div>
 
-            {/* 지역 선택 (WEATHER_OPTIONS 활용) */}
-            <div className="relative w-full md:w-40">
-              <select
-                value={filters.region}
-                onChange={(e) => {
-                  setFilters({ ...filters, region: e.target.value });
-                  setCurrentPage(1);
-                }}
-                className="w-full appearance-none h-14 pl-5 pr-8 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary focus:border-admin-primary outline-none cursor-pointer"
-              >
-                <option value="전체">지역 전체</option>
-                {WEATHER_OPTIONS.REGIONS.map((region) => (
-                  <option key={region} value={region}>
-                    {region}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none"
-                size={18}
-              />
-            </div>
 
             {/* 경보 수준 선택 (WEATHER_OPTIONS 활용) */}
             <div className="relative w-full md:w-40">
@@ -390,7 +364,7 @@ const WeatherNewsList = () => {
                 }}
                 className="w-full appearance-none h-14 pl-5 pr-8 text-body-m border border-admin-border rounded-md bg-white text-admin-primary font-bold focus:border-admin-primary outline-none cursor-pointer"
               >
-                <option value="전체">수준 전체</option>
+                <option value="전체">경보 수준</option>
                 {WEATHER_OPTIONS.WEATHER_LEVELS.map((level) => (
                   <option key={level.value} value={level.value}>
                     {level.label}

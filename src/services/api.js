@@ -109,9 +109,9 @@ getDisasterMessages: async (params = {}) => {
   },
 
   // 재난 문자 일괄 노출/비노출 변경 (POST)
-  updateVisibility: async (ids, visibleYn) => {
+  updateMessageVisibility: async (ids, visibleYn) => {
     const response = await api.post(
-      "/disaster/dashboard/disasterMessages/visibility",
+      "/disaster/dashboard/updateMessageVisibility",
       {
         ids,
         visibleYn,
@@ -119,6 +119,7 @@ getDisasterMessages: async (params = {}) => {
     );
     return response.data;
   },
+
 
   // 재난 문자 일괄 삭제 (POST - 논리 삭제)
   deleteDisasters: async (sns) => {
