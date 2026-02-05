@@ -103,7 +103,7 @@ const renderFaqContent = (contentJson) => {
     });
 
   } catch (e) {
-      console.error("FAQ parsing error:", e);
+      //console.error("FAQ parsing error:", e);
       // 파싱 실패 시 원본 텍스트라도 보여주도록 처리
       return <p className="whitespace-pre-wrap">{String(contentJson)}</p>;
     }
@@ -135,7 +135,7 @@ const renderFaqContent = (contentJson) => {
             setError(true);
         }
       } catch (err) {
-        console.error("FAQ 상세 조회 실패:", err);
+        //console.error("FAQ 상세 조회 실패:", err);
         setError(true);
       } finally {
         setLoading(false);

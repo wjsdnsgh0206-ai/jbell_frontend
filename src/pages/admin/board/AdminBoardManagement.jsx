@@ -226,7 +226,7 @@ const handleSubmit = async (e) => {
               name="title"
               value={formData.title}
               onChange={handleInputChange}
-              placeholder="공지사항 제목을 입력하세요"
+              placeholder="공지사항 제목을 입력하세요."
               className="w-full h-14 px-5 border border-admin-border rounded-md text-body-m outline-none focus:border-admin-primary transition-all"
             />
           </div>
@@ -237,7 +237,7 @@ const handleSubmit = async (e) => {
               name="content"
               value={formData.content}
               onChange={handleInputChange}
-              placeholder="내용을 작성해주세요"
+              placeholder="내용을 작성해주세요."
               className="w-full h-80 p-5 border border-admin-border rounded-md text-body-m outline-none focus:border-admin-primary transition-all resize-none"
             />
           </div>

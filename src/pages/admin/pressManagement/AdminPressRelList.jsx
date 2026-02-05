@@ -216,8 +216,8 @@ const columns = useMemo(() => [
       <div className="flex justify-center">
         <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[12px] font-bold border ${
           val === '직접등록' 
-            ? 'bg-purple-100 text-purple-400 border-purple-200' 
-            : 'bg-orange-100 text-orange-400 border-orange-200'
+           ? 'bg-purple-50 text-purple-500 border-purple-100' 
+           : 'bg-orange-50 text-orange-500 border-orange-100'
         }`}>
           {val || '직접등록'}
         </span>
@@ -270,7 +270,7 @@ const columns = useMemo(() => [
                         <div key={idx} className="flex items-start gap-2">
                           <span className="w-1 h-1 bg-blue-400 rounded-full shrink-0 mt-1.5"></span>
                           {/* f.name 또는 f.file_name 둘 다 대응 */}
-                          <span className="break-all">{f.name || f.file_name}</span>
+                          <span className="break-all">{f.realName || f.name}</span>
                         </div>
                       ))}
                     </div>

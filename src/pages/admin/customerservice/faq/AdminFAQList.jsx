@@ -13,8 +13,6 @@ import AdminSearchBox from '@/components/admin/AdminSearchBox';
 
 /**
  * [관리자] FAQ 목록 페이지
- * - AdminCommonCodeList.jsx의 구조와 디자인 시스템을 계승
- * - AdminFAQData.js 데이터를 기반으로 렌더링
  */
 const AdminFAQList = () => {
   const navigate = useNavigate();
@@ -61,7 +59,7 @@ const AdminFAQList = () => {
         setFaqs(response.data);
       }
     } catch (error) {
-      console.error("목록 로드 실패:", error);
+      //console.error("목록 로드 실패:", error);
     } finally {
       setLoading(false);
     }
@@ -78,14 +76,14 @@ const AdminFAQList = () => {
             faqIds: selectedIds, 
             visibleYn: statusBoolean ? "Y" : "N"
         };
-        // [수정] 서비스 함수 호출
+        // 서비스 함수 호출
         await faqService.updateFaqStatus(payload);
         
         alert('상태가 변경되었습니다.');
         fetchFaqs();
         setSelectedIds([]);
       } catch (error) {
-        console.error("상태 변경 실패:", error);
+        //console.error("상태 변경 실패:", error);
         alert("오류가 발생했습니다.");
       }
     }
@@ -105,7 +103,7 @@ const AdminFAQList = () => {
         fetchFaqs();
         setSelectedIds([]);
       } catch (error) {
-        console.error("삭제 실패:", error);
+        //console.error("삭제 실패:", error);
         alert("삭제 중 오류가 발생했습니다.");
       }
     }
@@ -310,7 +308,7 @@ const AdminFAQList = () => {
           : item
       ));
     } catch (error) {
-      console.error("상태 변경 실패:", error);
+      //console.error("상태 변경 실패:", error);
       alert("상태 변경 중 오류가 발생했습니다.");
     }
   };

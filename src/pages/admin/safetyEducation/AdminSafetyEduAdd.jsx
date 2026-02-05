@@ -5,6 +5,7 @@ import { useNavigate, useOutletContext } from 'react-router-dom';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal'; 
 import { safetyEduService } from '@/services/api';
 import { Plus, Trash2, Phone } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 // [내부용 작은 컴포넌트]
 const SuccessIcon = ({ fill = "#4ADE80" }) => (
@@ -20,13 +21,24 @@ const SuccessIcon = ({ fill = "#4ADE80" }) => (
 const AdminSafetyEduAdd = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
+  const { user } = useAuth();
 
   // ==================================================================================
-  // 0. 초기 설정 및 유틸리티
+  // 0. 관리자 권한 체크 및 초기 설정
   // ==================================================================================
+
+  // 관리자 권한 체크
+  useEffect(() => {
+    if (user) {
+        if (user.userGrade !== 'ADMIN') { 
+            alert('관리자 권한이 없습니다.');
+            navigate('/'); // 메인 페이지로 이동
+        }
+    }
+  }, [user, navigate]);
 
   // 프론트에서 임시로 사용하는 ID 생성 함수 (전송시에는 제외하거나 DTO 구조에 맞게 처리)
-  // const generateId = (prefix) => `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+   const generateId = (prefix) => `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
   useEffect(() => {
     setBreadcrumbTitle("시민안전교육 등록");
@@ -187,7 +199,7 @@ const AdminSafetyEduAdd = () => {
      setShowToast(true);
      setTimeout(() => navigate('/admin/contents/safetyEduList'), 1500);
    } catch (error) {
-     console.error("등록 실패:", error);
+     //console.error("등록 실패:", error);
      alert("등록 중 오류가 발생했습니다.");
      setIsModalOpen(false);
    }

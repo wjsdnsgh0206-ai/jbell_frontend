@@ -70,7 +70,7 @@ const AdminQnAList = () => {
       // 백엔드에서 최신순 정렬해서 주지만, 혹시 모르니 프론트에서도 정렬 가능
       setInquiries(data); 
     } catch (error) {
-      console.error("QnA 목록 조회 실패:", error);
+      //console.error("QnA 목록 조회 실패:", error);
       alert("데이터를 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);
@@ -247,7 +247,7 @@ const AdminQnAList = () => {
         setSelectedIds([]);
         fetchQnaList(); // 목록 새로고침
       } catch (error) {
-        console.error("삭제 실패:", error);
+        //console.error("삭제 실패:", error);
         alert("삭제 중 오류가 발생했습니다.");
       }
     }

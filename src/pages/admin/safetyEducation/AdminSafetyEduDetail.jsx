@@ -5,6 +5,7 @@ import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { safetyEduService } from '@/services/api';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 import { ExternalLink, Calendar, Phone, CheckCircle, Link as LinkIcon } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 // [내부용 작은 컴포넌트]
 const SuccessIcon = ({ fill = "#4ADE80" }) => (
@@ -21,6 +22,19 @@ const AdminSafetyEduDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
+  const { user } = useAuth();
+
+  // ==================================================================================
+  // 0. 관리자 권한 체크
+  // ==================================================================================
+  useEffect(() => {
+    if (user) {
+        if (user.userGrade !== 'ADMIN') { 
+            alert('관리자 권한이 없습니다.');
+            navigate('/'); // 메인 페이지로 이동
+        }
+    }
+  }, [user, navigate]);
 
   // ==================================================================================
   // 1. 상태 관리 (State Management)
@@ -44,7 +58,7 @@ const AdminSafetyEduDetail = () => {
         setFormData(data);
         setBreadcrumbTitle(data.title);
       } catch (error) {
-        console.error("상세 조회 실패:", error);
+        //console.error("상세 조회 실패:", error);
         alert("해당 교육 정보를 찾을 수 없습니다.");
         navigate('/admin/contents/safetyEduList');
       }
@@ -65,7 +79,7 @@ const AdminSafetyEduDetail = () => {
         navigate('/admin/contents/safetyEduList');
       }, 1500);
     } catch (error) {
-      console.error("삭제 실패:", error);
+      //console.error("삭제 실패:", error);
       alert("삭제 중 오류가 발생했습니다.");
     }
   };

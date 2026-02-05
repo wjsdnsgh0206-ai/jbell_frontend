@@ -11,6 +11,8 @@ const BehaviorMethodList = lazy(() => import("@/pages/admin/behaviorMethod/Behav
 const BehaviorMethodDetail = lazy(() => import("@/pages/admin/behaviorMethod/BehaviorMethodDetail"));
 const BehaviorMethodAdd = lazy(() => import("@/pages/admin/behaviorMethod/BehaviorMethodAdd"));
 const AdminSafetyPolicyList = lazy(() => import("@/pages/admin/safetyPolicy/AdminSafetyPolicyList"));
+const AdminSafetyPolicyDetail = lazy(() => import("@/pages/admin/safetyPolicy/AdminSafetyPolicyDetail"));
+const AdminSafetyPolicyAdd = lazy(() => import("@/pages/admin/safetyPolicy/AdminSafetyPolicyAdd"));
 export const jhAdminRoutes = [
   /* 1. 행동요령 관리 */
   {
@@ -33,5 +35,13 @@ export const jhAdminRoutes = [
   { 
     path: "/admin/contents/adminSafetyPolicyList", 
     element: <AdminSafetyPolicyList /> 
+  },
+  { 
+    path: "/admin/contents/adminSafetyPolicyDetail/:id", 
+    element: <AdminSafetyPolicyDetail /> 
+  },
+  { 
+    path: "/admin/contents/adminSafetyPolicyAdd", 
+    element: <AdminSafetyPolicyAdd /> 
   },
 ];

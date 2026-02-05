@@ -33,19 +33,18 @@ const AdminSideBar = () => {
 
   return (
     /* 배경색 복구: #001529 기반 토큰 적용 */
-    <aside className="w-64 bg-[var(--admin-sidebar-bg)] text-gray-300 flex flex-col min-h-screen">
+    <aside className="w-64 min-w-[16rem] bg-[var(--admin-sidebar-bg)] text-gray-300 flex flex-col min-h-screen">
       {/* 로고 영역: 구조 유지 */}
-
-          <div className="px-5 pt-5 flex justify-center cursor-pointer items-center border-b border-white/5"
-                      onClick={() => navigate('/admin/realtime/realtimeDashboard')}
-            >
-            <img
-              className="w-[40px] sm:w-[40px] h-auto"
-              alt="전북안전누리 로고"
-              src={jeonbuk}
-            />
-            <h1 className="text-heading-m py-4 text-white">전북안전누리</h1>
-          </div>
+      <div className="px-5 pt-5 flex justify-center cursor-pointer items-center border-b border-white/5"
+        onClick={() => navigate('/admin/realtime/realtimeDashboard')}
+        >
+        <img
+          className="w-[40px] sm:w-[40px] h-auto"
+          alt="전북안전누리 로고"
+          src={jeonbuk}
+        />
+        <h1 className="text-heading-m py-4 text-white">전북안전누리</h1>
+      </div>
 
       <nav className="flex-1 mt-4 overflow-y-auto custom-scrollbar">
         {menuCategories.map((cat) => (
