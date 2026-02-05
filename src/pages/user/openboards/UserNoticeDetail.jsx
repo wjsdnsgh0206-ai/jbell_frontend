@@ -4,6 +4,7 @@ import axios from 'axios';
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 // import { noticeData } from './BoardData';
 import { Button } from '@/components/shared/Button';
+import dayjs from "dayjs";
 
 // 공지사항 상세페이지 //
 
@@ -24,7 +25,11 @@ const UserNoticeDetail = () => {
       try {
         setLoading(true);
         const response = await axios.get(`/api/notice/${id}`);
-        setData(response.data);
+        const notice = response.data;
+        console.log(notice)
+        notice.date = dayjs(notice.createdAt).format('YYYY-MM-DD HH:mm:ss');
+        
+        setData(notice);
       } catch (err) {
         console.error("상세 데이터 로드 실패:", err);
       } finally {

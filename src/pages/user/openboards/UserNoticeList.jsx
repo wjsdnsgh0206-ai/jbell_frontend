@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import axios from 'axios';
+import dayjs from "dayjs";
 
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 import BoardListSection from '@/components/shared/BoardListSection';
@@ -28,7 +29,12 @@ const UserNoticeList = () => {
       try {
         const response = await axios.get('/api/notice');
         // 응답 데이터가 배열인지 확인 후 저장
-        setContent(response.data);
+        const contentData = response.data?.map(notice => {
+          notice.date = dayjs(notice.createdAt).format('YYYY-MM-DD');
+          return notice;
+        });
+        
+        setContent(contentData);
       } catch (error) {
         console.error("데이터 로드 실패:", error);
       }
@@ -95,7 +101,7 @@ const UserNoticeList = () => {
       const normalIndex = normalItemsOnly.findIndex(n => n.id === item.id);
       return { ...item, displayNo: normalIndex + 1 };
     });
-
+    
     return {
       currentItems: finalItems,
       totalPages: Math.ceil(sorted.length / itemsPerPage) || 1
