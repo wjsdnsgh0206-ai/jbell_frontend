@@ -37,7 +37,6 @@ export const facilityApi = {
         offset: 0,
       },
     });
-    // axios 응답객체(.data) -> 백엔드 ApiResponse(.data) -> FacilityListResponse
     return response.data.data;
   },
 };
@@ -56,29 +55,13 @@ export const disasterApi = {
     });
   },
 
-  // 재난 문자 리스트 조회 (GET)
-  // getDisasterMessages: async (params = {}) => {
-  //   // 1. 백엔드 컨트롤러 주소와 정확히 일치시켜야 함 (/api/disaster/dashboard/...)
-  //   // 2. 검색 조건(pageNo, numOfRows 등)이 있다면 params로 넘겨줘야 함
-  //   const response = await api.get("/disaster/dashboard/disasterMessages", {
-  //     params: params,
-  //   });
-
-  //   // 백엔드에서 Map으로 담아준 { "list": [...], "totalCount": 100 } 형태를 리턴
-  //   return response.data;
-  // },
-  // 재난 문자 리스트 조회 (GET)
-  // getDisasterMessages: async () => {
-  //   const response = await api.get("/disaster/dashboard/disasterMessages");
-  //   return response.data; // List<PredictionInfoResponse>
-  // },
-
   // src/services/api.js
-getDisasterMessages: async (params = {}) => {
-  const response = await api.get("/disaster/dashboard/disasterMessages", { params });
-  return response.data; // 이제 여기서 { list: [], totalCount: 0 } 가 리턴됨
-},
-
+  getDisasterMessages: async (params = {}) => {
+    const response = await api.get("/disaster/dashboard/disasterMessages", {
+      params,
+    });
+    return response.data; // 이제 여기서 { list: [], totalCount: 0 } 가 리턴됨
+  },
 
   // 재난 문자 상세 조회 (GET)
   getDisasterDetail: async (id) => {
@@ -120,7 +103,6 @@ getDisasterMessages: async (params = {}) => {
     return response.data;
   },
 
-
   // 재난 문자 일괄 삭제 (POST - 논리 삭제)
   deleteDisasters: async (sns) => {
     const response = await api.post(
@@ -136,7 +118,7 @@ getDisasterMessages: async (params = {}) => {
     const response = await api.get("/disaster/dashboard/weatherWarnings", {
       params,
     });
-    return response.data; // { list: [...], totalCount: 100 }
+    return response.data;
   },
 
   // 2. 기상 특보 상세 조회
@@ -902,16 +884,16 @@ export const disasterModalService = {
   /* -----------------------------
    기상특보 api 
 ----------------------------- */
-getWeatherWarning: async (params) => {
-  const response = await weatherWarningApi.get("/DSSP-IF-00045", {
-    params: {
-      serviceKey: import.meta.env.VITE_API_SPECIAL_NOTICE_KEY,
-      numOfRows: 100, // 기본값을 100으로 고정
-      ...params,      // 외부에서 params로 넘기면 덮어쓰기 가능
-    },
-  });
-  return response.data;
-},
+  getWeatherWarning: async (params) => {
+    const response = await weatherWarningApi.get("/DSSP-IF-00045", {
+      params: {
+        serviceKey: import.meta.env.VITE_API_SPECIAL_NOTICE_KEY,
+        numOfRows: 100, // 기본값을 100으로 고정
+        ...params, // 외부에서 params로 넘기면 덮어쓰기 가능
+      },
+    });
+    return response.data;
+  },
 
   /* -----------------------------
     산불위험예보정보  api

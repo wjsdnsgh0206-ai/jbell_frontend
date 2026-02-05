@@ -57,7 +57,7 @@ const DisasterMessageAdd = () => {
     const requiredFields = [
       "category",
       "type",
-      "sender",
+      // "sender",
       "content",
       "region",
       "dateTime",

@@ -218,22 +218,23 @@ const DisasterMessageDetail = () => {
                 <DetailField label="수신 지역" name="region" value={formData.region} isEdit={isEdit} onChange={handleChange} />
               </div>
             </div>
+{/* 시스템 관리 설정 */}
+            <div className="space-y-6">
+              <h3 className="flex items-center gap-2 text-body-m-bold text-admin-text-primary pb-2 border-b border-admin-border font-bold">
+                <Clock size={18} /> 시스템 관리 설정
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-4 border-t border-admin-border">
-              <div className="flex flex-col gap-3">
-                <label className="text-body-m-bold text-admin-text-secondary ml-1">사용자 앱 노출 설정</label>
-                <div className="flex items-center gap-6 h-14 px-2">
-                  <button onClick={handleToggle} className={`w-12 h-6 flex items-center rounded-full p-1 transition-all ${formData.isVisible ? "bg-admin-primary" : "bg-gray-300"} ${isEdit ? "cursor-pointer" : "cursor-not-allowed opacity-60"}`}>
-                    <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${formData.isVisible ? "translate-x-6" : "translate-x-0"}`} />
-                  </button>
-                  <span className={`text-body-s-bold ${formData.isVisible ? "text-admin-primary" : "text-graygray-40"}`}>{formData.isVisible ? "노출 중 (ON)" : "미노출 (OFF)"}</span>
-                </div>
-              </div>
-              <div className="flex flex-col gap-3">
-                <label className="text-body-m-bold text-admin-text-secondary ml-1">발송 일시 수정</label>
-                <input type="text" name="dateTime" value={formData.dateTime} onChange={handleChange} disabled={!isEdit} className={`h-14 px-5 rounded-lg border transition-all outline-none ${isEdit ? "border-admin-primary bg-white" : "border-admin-border bg-graygray-5 text-graygray-50 cursor-not-allowed"}`} />
-              </div>
-            </div>
+                {/* 관리자 등록 여부 */}
+                <div className="flex flex-col gap-3">
+                  <label className="text-body-m-bold text-admin-text-secondary ml-1 font-bold">등록 유형</label>
+                  <div className="h-14 px-5 flex items-center rounded-lg border border-admin-border bg-graygray-5 font-bold">
+                    {formData.isManual === 'Y' ? '관리자 등록' : 'API 수집'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </section>
       </main>
