@@ -59,7 +59,7 @@ const AdminFAQList = () => {
         setFaqs(response.data);
       }
     } catch (error) {
-      console.error("목록 로드 실패:", error);
+      //console.error("목록 로드 실패:", error);
     } finally {
       setLoading(false);
     }
@@ -83,7 +83,7 @@ const AdminFAQList = () => {
         fetchFaqs();
         setSelectedIds([]);
       } catch (error) {
-        console.error("상태 변경 실패:", error);
+        //console.error("상태 변경 실패:", error);
         alert("오류가 발생했습니다.");
       }
     }
@@ -103,7 +103,7 @@ const AdminFAQList = () => {
         fetchFaqs();
         setSelectedIds([]);
       } catch (error) {
-        console.error("삭제 실패:", error);
+        //console.error("삭제 실패:", error);
         alert("삭제 중 오류가 발생했습니다.");
       }
     }
@@ -308,7 +308,7 @@ const AdminFAQList = () => {
           : item
       ));
     } catch (error) {
-      console.error("상태 변경 실패:", error);
+      //console.error("상태 변경 실패:", error);
       alert("상태 변경 중 오류가 발생했습니다.");
     }
   };
