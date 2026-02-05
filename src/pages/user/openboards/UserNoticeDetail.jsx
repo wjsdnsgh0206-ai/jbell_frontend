@@ -43,24 +43,6 @@ const UserNoticeDetail = () => {
   // 데이터 원본(noticeData)에서 URL의 id와 일치하는 게시글 찾기
   // const data = noticeData.find(item => item.id === Number(id));
 
-  // --- 파일 다운로드 로직 --- //
-  const handleDownload = async (fileId, fileName) => {
-    try {
-      const response = await axios.get(`/api/notice/file/download/${fileId}`, {
-        responseType: 'blob'
-      });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', fileName);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (error) {
-      alert('파일 다운로드에 실패했습니다.');
-    }
-  };
-
   // 3. 로딩 처리
   if (loading) return <div className="py-20 text-center">로딩 중...</div>;
 
@@ -95,8 +77,17 @@ const UserNoticeDetail = () => {
               <div className="w-[1px] h-3 bg-gray-300"></div>
               <div><span className="text-[#444]">등록일 :</span> {data.date}</div>
             </div>
-
-            {/* --- 첨부파일 영역 --- */}
+          </div>
+        </div>
+        
+        {/* --- 본문 영역 --- */}
+        <div className="border-t border-black"></div>
+        <div className="py-12 px-2 min-h-[400px] text-left">
+          <div className="text-[16px] leading-[1.8] text-[#222] whitespace-pre-wrap font-normal">
+            {data.content}
+          </div>
+          
+           {/* --- 첨부파일 영역 --- */}
             {data.files && data.files.length > 0 && (
               <div className="mt-6 flex items-start gap-2 text-[16px]">
                 <span className="font-bold text-[#333] shrink-0 flex items-center gap-1">
@@ -108,12 +99,14 @@ const UserNoticeDetail = () => {
                 <div className="flex flex-wrap items-center">
                   {data.files.map((file, idx) => (
                     <React.Fragment key={idx}>
-                      <button 
-                        onClick={() => handleDownload(file)} 
+                      <a 
+                        key={idx} 
+                        href={file.filePath} 
+                        download={file.fileRealName} 
                         className="text-blue-600 hover:underline font-medium"
                       >
-                        {file.name}
-                      </button>
+                        {file.fileRealName}
+                      </a>
                       {idx < data.files.length - 1 && (
                         <span className="text-gray-400 mx-1.5">,</span>
                       )}
@@ -122,15 +115,6 @@ const UserNoticeDetail = () => {
                 </div>
               </div>
             )}
-          </div>
-        </div>
-        
-        {/* --- 본문 영역 --- */}
-        <div className="border-t border-black"></div>
-        <div className="py-12 px-2 min-h-[400px] text-left">
-          <div className="text-[16px] leading-[1.8] text-[#222] whitespace-pre-wrap font-normal">
-            {data.content}
-          </div>
         </div>
         
         <div className="border-t border-gray-200"></div>

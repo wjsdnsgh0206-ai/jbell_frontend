@@ -31,6 +31,7 @@ const UserNoticeList = () => {
         // 응답 데이터가 배열인지 확인 후 저장
         const contentData = response.data?.map(notice => {
           notice.date = dayjs(notice.createdAt).format('YYYY-MM-DD');
+          if(notice?.fileCount) notice.files = Array.from({length : notice.fileCount}, (_ , idx) => idx + 1);
           return notice;
         });
         
