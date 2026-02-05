@@ -8,16 +8,38 @@ import { Activity, Clock, ChevronDown, List, PlusCircle } from "lucide-react";
 import { disasterApi } from "@/services/api"; 
 import { WEATHER_OPTIONS } from "./WeatherTypeData";
 
+/**
+ * 한국 시간(KST) 기준으로 현재 날짜와 시간을 반환하는 함수
+ * YYYY-MM-DD HH:mm 형식
+ */
+const getKSTNow = () => {
+  const now = new Date();
+  // 한국 시간은 UTC보다 9시간 빠름
+  const kstOffset = 9 * 60 * 60 * 1000; 
+  const kstDate = new Date(now.getTime() + kstOffset);
+  return kstDate.toISOString().slice(0, 16).replace("T", " ");
+};
+
+/**
+ * 한국 날짜(YYYYMMDD)를 반환하는 함수 (MAAS_OBNT_DT용)
+ */
+const getKSTDateString = () => {
+  const now = new Date();
+  const kstOffset = 9 * 60 * 60 * 1000;
+  const kstDate = new Date(now.getTime() + kstOffset);
+  return kstDate.toISOString().slice(0, 10).replace(/-/g, "");
+};
+
 const WeatherNewsAdd = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
   const [submitted, setSubmitted] = useState(false);
 
-  // 1. 상태 관리
+  // 1. 상태 관리 - 초기값에 한국 시간 적용
   const [formData, setFormData] = useState({
     level: "보통",
     type: "한파", 
-    dateTime: new Date().toISOString().slice(0, 16).replace("T", " "),
+    dateTime: getKSTNow(), 
     title: "",
     content: "",
     isVisible: true,
@@ -36,7 +58,7 @@ const WeatherNewsAdd = () => {
     setFormData((prev) => ({ ...prev, isVisible: !prev.isVisible }));
   };
 
-  // 2. 저장 로직 (제공해주신 disasterApi.createWeather 기반)
+  // 2. 저장 로직
   const handleSave = async () => {
     setSubmitted(true);
     
@@ -47,21 +69,24 @@ const WeatherNewsAdd = () => {
 
     try {
       const payload = {
-        // DTO의 @JsonProperty 설정에 맞춰 대문자로 구성
-        TTL: formData.title,                            // String ttl
-        PRSNTN_TM: formData.dateTime.replace(/[^0-9]/g, ""), // String prsntnTm (숫자만)
-        RLVT_ZONE: "전라북도",                           // String rlvtZone
-        SPNE_FRMNT_PRCON_CN: formData.content,           // String content
-        TIME_TXT: formData.dateTime,                    // String timeTxt
-        MAAS_OBNT_DT: new Date().toISOString().slice(0, 10).replace(/-/g, ""), // String maasObntDt
-        
-        // 이 필드들은 JsonProperty가 없으므로 CamelCase 그대로 사용
-        visibleYn: formData.isVisible ? 'Y' : 'N',
+        // DTO의 @JsonProperty 설정에 맞춰 구성
+        TTL: formData.title,
+        PRSNTN_TM: formData.dateTime.replace(/[^0-9]/g, ""), // 숫자만 (YYYYMMDDHHmm)
+        RLVT_ZONE: "전라북도",
+        SPNE_FRMNT_PRCON_CN: formData.content,
+        TIME_TXT: formData.dateTime,
+        MAAS_OBNT_DT: getKSTDateString(), // 💡 한국 기준 날짜 (YYYYMMDD)
+        visible_yn: formData.isVisible ? 'Y' : 'N',
+        // visibleYn: formData.isVisible ? 'Y' : 'N',
         level: formData.level,
-        newsType: formData.type
+        newsType: formData.type,
+        is_manual: 'Y',
+        warningType: formData.type,
       };
 
-      console.log("최종 전송 데이터:", payload);
+
+
+      console.log("⭐최종 전송 데이터(KST 반영):", payload);
 
       await disasterApi.createWeather(payload);
       
@@ -159,7 +184,7 @@ const WeatherNewsAdd = () => {
             </div>
 
             <div className="space-y-6">
-              <h3 className="flex items-center gap-2 text-body-m-bold text-admin-text-primary pb-2 border-b border-admin-border font-bold"><Clock size={18} /> 시스템 설정</h3>
+              <h3 className="flex items-center gap-2 text-body-m-bold text-admin-text-primary pb-2 border-b border-admin-border font-bold"><Clock size={18} />노출 상태 설정</h3>
               <div className="flex items-center gap-6 h-14 px-2">
                 <button
                   type="button"
@@ -169,7 +194,7 @@ const WeatherNewsAdd = () => {
                   <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${formData.isVisible ? "translate-x-6" : "translate-x-0"}`} />
                 </button>
                 <span className={`text-body-s-bold font-bold ${formData.isVisible ? "text-admin-primary" : "text-graygray-40"}`}>
-                  {formData.isVisible ? "등록 후 즉시 노출" : "등록 후 비노출(숨김)"}
+                  {formData.isVisible ? "활성화 (Y)" : "비활성화 (N)"}
                 </span>
               </div>
             </div>
