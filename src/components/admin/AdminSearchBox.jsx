@@ -15,14 +15,14 @@ import { Search, RotateCcw } from 'lucide-react';
  */
 const AdminSearchBox = ({ 
   options = [],        
-  searchParams,        
+  searchParams = { keyword: '' },  
   setSearchParams,     
   onSearch,            
   onReset,             
   children,
   showDefaultInput = true
 }) => {
-  
+
   // 엔터키 입력 시 검색 실행
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') onSearch();
@@ -35,7 +35,7 @@ const AdminSearchBox = ({
   };
 
   return (
-    <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-center justify-between w-full">
+    <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-end justify-between w-full">
       
       {/* 1. 좌측: 검색 조건 영역 (유동적 필터 + 검색어 입력) */}
       <div className="flex flex-1 flex-wrap items-center gap-3 w-full">

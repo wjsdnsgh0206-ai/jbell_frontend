@@ -1067,5 +1067,15 @@ export const safetyPolicyService = {
       data: { ids } 
     });
     return response.data;
-  }
+  },
+
+  // [추가] 노출 상태 변경 (일괄/단건 공용)
+  // Backend: PATCH /api/safetyPolicy/visibility
+  updateVisibility: async (ids, visibleYn) => {
+    const response = await api.patch("/safetyPolicy/visibility", {
+      ids,
+      visibleYn
+    });
+    return response.data;
+  },
 };

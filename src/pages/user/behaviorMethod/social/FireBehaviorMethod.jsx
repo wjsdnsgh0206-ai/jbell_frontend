@@ -6,7 +6,7 @@ const FireBehaviorMethod = () => {
     <BaseBehaviorMethodPage 
       disasterType="FIRE"
       category="사회재난"
-      categoryPath="/behaviorMethod/fire"
+      categoryPath="/behaviorMethod/railwaySubwayAccident"
     />
   );
 };

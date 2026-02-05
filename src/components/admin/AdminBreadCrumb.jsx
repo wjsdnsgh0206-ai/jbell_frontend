@@ -29,7 +29,10 @@ const adminMap = {
   "behaviorMethodList": "행동요령 목록",
   "behaviorMethodDetail": "행동요령 상세",
   "behaviorMethodAdd": "행동요령 등록",
-  "adminSafetyPolicyList": "주요안전정책 목록",
+
+  "adminSafetyPolicyList": "주요 안전정책 목록",
+  "adminSafetyPolicyDetail": "주요 안전정책 상세",
+  "adminSafetyPolicyAdd": "주요 안전정책 등록",
 
   "system": "시스템 관리",
   "commonCodeList": "공통코드 목록",
