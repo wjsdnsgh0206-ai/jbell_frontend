@@ -10,7 +10,7 @@ const FacilityAdd = () => {
   // 1. 백엔드 FacilityDTO 필드명과 100% 일치시킴
   const [formData, setFormData] = useState({
     fcltNm: '',
-    fcltSeCd: '',
+    fcltSeCd: 'TEMPORARY_HOUSING',
     ctpvNm: '전북특별자치도',
     sggNm: '',
     roadNmAddr: '',
@@ -119,11 +119,12 @@ const FacilityAdd = () => {
                   onChange={handleChange}
                   className="w-full h-12 px-4 border border-gray-300 rounded-lg outline-none appearance-none bg-white focus:border-blue-500 cursor-pointer"
                 >
-                  <option value="DSSP-IF-10945">임시주거시설</option>
-                  <option value="DSSP-IF-10943">지진옥외대피소</option>
-                  <option value="DSSP-IF-00195">민방위대피소</option>
-                  <option value="DSSP-IF-10942">무더위쉼터</option>
-                  <option value="DSSP-IF-10804">한파쉼터</option>
+                  <option value="TEMPORARY_HOUSING">임시주거시설</option>
+                  <option value="EARTHQUAKE_SHELTER">지진옥외대피소</option>
+                  <option value="CIVIL_DEFENSE_COMMITTE">민방위-원자력</option>
+                  <option value="CIVIL_DEFENSE_DISASTER">민방위-재난</option>
+                  <option value="HEAT_SHELTER">무더위쉼터</option>
+                  <option value="COLD_SHELTER">한파쉼터</option>
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
               </div>
