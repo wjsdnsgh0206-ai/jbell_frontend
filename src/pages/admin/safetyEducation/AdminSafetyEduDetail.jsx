@@ -58,7 +58,7 @@ const AdminSafetyEduDetail = () => {
         setFormData(data);
         setBreadcrumbTitle(data.title);
       } catch (error) {
-        console.error("상세 조회 실패:", error);
+        //console.error("상세 조회 실패:", error);
         alert("해당 교육 정보를 찾을 수 없습니다.");
         navigate('/admin/contents/safetyEduList');
       }
@@ -79,7 +79,7 @@ const AdminSafetyEduDetail = () => {
         navigate('/admin/contents/safetyEduList');
       }, 1500);
     } catch (error) {
-      console.error("삭제 실패:", error);
+      //console.error("삭제 실패:", error);
       alert("삭제 중 오류가 발생했습니다.");
     }
   };

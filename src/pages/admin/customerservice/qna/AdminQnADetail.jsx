@@ -50,7 +50,7 @@ const AdminQnADetail = () => {
         setAnswerInput('');
       }
     } catch (error) {
-      console.error("상세 조회 실패:", error);
+      //console.error("상세 조회 실패:", error);
       alert("데이터를 불러올 수 없습니다.");
       navigate('/admin/contents/QnAList');
     } finally {
@@ -97,7 +97,7 @@ const AdminQnADetail = () => {
       await fetchDetail();
 
     } catch (error) {
-      console.error("답변 저장 실패:", error);
+      //console.error("답변 저장 실패:", error);
       alert("처리에 실패했습니다. (로그를 확인해주세요)");
     }
   };
@@ -116,7 +116,7 @@ const AdminQnADetail = () => {
       // 삭제 후 데이터 갱신 (입력 모드로 전환됨)
       await fetchDetail();
     } catch (error) {
-      console.error("답변 삭제 실패:", error);
+      //console.error("답변 삭제 실패:", error);
       alert("삭제 처리에 실패했습니다.");
     }
   };
@@ -130,7 +130,7 @@ const AdminQnADetail = () => {
         alert('문의글이 삭제되었습니다.');
         navigate('/admin/contents/QnAList');
       } catch (error) {
-        console.error("문의 삭제 실패:", error);
+        //console.error("문의 삭제 실패:", error);
         alert("삭제 중 오류가 발생했습니다.");
       }
     }

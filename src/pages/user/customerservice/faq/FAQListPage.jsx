@@ -75,7 +75,7 @@ const FAQListPage = () => {
           setFaqs([]);
         }
       } catch (error) {
-        console.error("FAQ 목록 로딩 실패:", error);
+        //console.error("FAQ 목록 로딩 실패:", error);
         setFaqs([]); 
       } finally {
         setLoading(false);
