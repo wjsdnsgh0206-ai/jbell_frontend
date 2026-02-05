@@ -71,7 +71,7 @@ const FacilityList = () => {
       sortOrder: sortConfig.direction
     });
 
-    console.log("백엔드 요청 파라미터:", appliedParams);
+    // console.log("백엔드 요청 파라미터:", appliedParams);
 
     const resultData = response.data; 
     if (resultData) {

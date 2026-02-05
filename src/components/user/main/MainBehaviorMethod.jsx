@@ -49,7 +49,7 @@ const MainBehaviorMethod = () => {
           </h2>
                   <button
           className="shrink-0 text-detail-m text-graygray-50 hover:text-graygray-90 transition-colors font-bold"
-          onClick={() => navigate('/behaviorMethod/earthQuake')}
+          onClick={() => navigate('/behaviorMethod/typhoon')}
         >
           더보기 +
         </button>

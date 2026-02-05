@@ -6,7 +6,7 @@ const ElectricityGasAccidentBehaviorMethod = () => {
     <BaseBehaviorMethodPage 
       disasterType="ELECTRICITY_GAS_ACCIDENT"
       category="사회재난"
-      categoryPath="/behaviorMethod/fire"
+      categoryPath="/behaviorMethod/railwaySubwayAccident"
     />
   );
 };
