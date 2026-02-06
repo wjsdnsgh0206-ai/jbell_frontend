@@ -69,15 +69,13 @@ const WeatherNewsAdd = () => {
 
     try {
       const payload = {
-        // DTO의 @JsonProperty 설정에 맞춰 구성
         TTL: formData.title,
-        PRSNTN_TM: formData.dateTime.replace(/[^0-9]/g, ""), // 숫자만 (YYYYMMDDHHmm)
+        PRSNTN_TM: formData.dateTime.replace(/[^0-9]/g, ""), 
         RLVT_ZONE: "전라북도",
         SPNE_FRMNT_PRCON_CN: formData.content,
         TIME_TXT: formData.dateTime,
-        MAAS_OBNT_DT: getKSTDateString(), // 💡 한국 기준 날짜 (YYYYMMDD)
+        MAAS_OBNT_DT: getKSTDateString(),
         visible_yn: formData.isVisible ? 'Y' : 'N',
-        // visibleYn: formData.isVisible ? 'Y' : 'N',
         level: formData.level,
         newsType: formData.type,
         is_manual: 'Y',

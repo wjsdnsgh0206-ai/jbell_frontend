@@ -1,7 +1,7 @@
 "use no memo";
 
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, useOutletContext } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Activity, Clock, List, ShieldCheck, ChevronDown } from "lucide-react";
 import { disasterApi } from "@/services/api";
 import { WEATHER_OPTIONS } from "./WeatherTypeData";
@@ -97,7 +97,7 @@ const WeatherNewsDetail = () => {
     try {
       await disasterApi.updateWeather(id, formData);
       alert("성공적으로 수정되었습니다.");
-            navigate("/admin/realtime/weatherNewsList"); 
+      navigate("/admin/realtime/weatherNewsList");
       setOriginData(formData);
       setIsEdit(false);
       setSubmitted(false);
@@ -116,6 +116,33 @@ const WeatherNewsDetail = () => {
     위험: "bg-red-100 text-red-700 border-red-300",
     주의: "bg-yellow-100 text-yellow-700 border-yellow-300",
     보통: "bg-green-100 text-green-700 border-green-300",
+  };
+
+  const handleToggleVisible = async (id, currentStatus) => {
+    const nextStatus = !currentStatus;
+    const visibleYn = nextStatus ? "Y" : "N";
+
+    setModalConfig({
+      title: "노출 상태 변경",
+      message: (
+        <p>해당 항목을 [{nextStatus ? "노출" : "비노출"}] 처리하시겠습니까?</p>
+      ),
+      type: nextStatus ? "confirm" : "delete",
+      onConfirm: async () => {
+        try {
+          await disasterApi.updateMessageVisibility([id], visibleYn);
+          setMessages((prev) =>
+            prev.map((item) =>
+              item.id === id ? { ...item, isVisible: nextStatus } : item,
+            ),
+          );
+        } catch (error) {
+          alert("서버 통신에 실패했습니다.");
+        }
+        setIsModalOpen(false);
+      },
+    });
+    setIsModalOpen(true);
   };
 
   return (

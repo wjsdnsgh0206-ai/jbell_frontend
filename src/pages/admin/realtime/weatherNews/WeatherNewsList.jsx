@@ -161,15 +161,42 @@ const isVisible = vYn === "Y";
     setCurrentPage(1);
   };
 
-  // 개별 노출 토글
-  const handleToggleVisible = async (id, currentStatus) => {
-    const nextVisibleYn = currentStatus ? "N" : "Y";
-    try {
-      await disasterApi.updateWeatherVisibility([id], nextVisibleYn);
-      setWeatherNews((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, isVisible: !currentStatus } : item))
-      );
-    } catch (e) { alert("상태 변경 실패"); }
+// 개별 노출 토글 핸들러
+  const handleToggleVisible = (id, currentStatus) => {
+    const nextStatus = !currentStatus;
+    const visibleYn = nextStatus ? "Y" : "N";
+
+    setModalConfig({
+      title: "노출 상태 변경",
+      message: (
+        <div className="flex flex-col gap-2 text-left">
+          <p>해당 항목을 <span className={`font-bold ${nextStatus ? "text-admin-primary" : "text-[#FF003E]"}`}>
+            [{nextStatus ? "노출" : "비노출"}]
+          </span> 처리하시겠습니까?</p>
+        </div>
+      ),
+      // 노출일 때는 일반 confirm(파랑), 비노출일 때는 경고 의미로 delete(빨강) 타입 적용
+      type: nextStatus ? "confirm" : "delete",
+      onConfirm: async () => {
+        try {
+          // 1. API 호출 (기상 특보 전용 API 확인 필요)
+          await disasterApi.updateWeatherVisibility([id], visibleYn);
+          
+          // 2. 로컬 상태 업데이트 (setMessages -> setWeatherNews로 수정)
+          setWeatherNews((prev) =>
+            prev.map((item) => 
+              item.id === id ? { ...item, isVisible: nextStatus } : item
+            )
+          );
+          
+          setIsModalOpen(false);
+        } catch (error) {
+          console.error("상태 변경 실패:", error);
+          alert("서버 통신에 실패했습니다.");
+        }
+      },
+    });
+    setIsModalOpen(true);
   };
 
   // 일괄 처리
