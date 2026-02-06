@@ -174,12 +174,13 @@ const AdminBoardDetail = () => {
                     ({(file.fileSize / 1024).toFixed(1)} KB)
                   </span>
                 </div>
-                <button 
-                  onClick={() => handleDownload(file.fileId)}
-                  className="text-[13px] text-admin-primary font-bold hover:underline"
+                <a 
+                  href={file.filePath} 
+                  download={file.fileRealName} 
+                  className="text-blue-600 hover:underline font-medium"
                 >
                   다운로드
-                </button>
+                </a>
               </li>
             ))}
           </ul>
