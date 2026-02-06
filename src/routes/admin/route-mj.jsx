@@ -1,5 +1,5 @@
 import { lazy } from "react";
-import AdminMemberEdit from "../../pages/admin/member/AdminMemberEdit";
+// import AdminMemberEdit from "../../pages/admin/member/AdminMemberEdit";
 import AdminMemberDetail from "../../pages/admin/member/AdminMemberDetail";
 import AdminBoardManagement from "../../pages/admin/board/AdminBoardManagement";
 
@@ -78,11 +78,12 @@ const mjAdminRoutes = [
             element: <AdminMemberRegister />,
             nowPage: "회원 등록",
       },
-      {
+      /*{
             path: "/admin/member/adminMemberEdit/:memberId", 
             element: <AdminMemberEdit />,
             nowPage: "회원 수정",
       },
+      */
 
 ];
 

@@ -4,17 +4,16 @@ import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal'; 
 import { pressService } from '@/services/api';
 import { Paperclip, X, Calendar } from 'lucide-react';
-
 // React-Quill 및 Quill 내부 설정 임포트
 import ReactQuill, { Quill } from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
-// [필수] 에디터에서 P 태그 및 리스트가 깨지지 않도록 등록
+// 관리자 보도자료 수정 페이지 //
+
 const Block = Quill.import('blots/block');
 Block.tagName = 'P'; 
 Quill.register(Block, true);
 
-// 아이콘 및 유틸리티 함수
 const SuccessIcon = ({ fill = "#4ADE80" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
     <circle cx="8" cy="8" r="8" fill={fill}/>
@@ -49,32 +48,27 @@ const AdminPressRelEdit = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); 
   const [isFileModalOpen, setIsFileModalOpen] = useState(false); 
   const [fileToDeleteIdx, setFileToDeleteIdx] = useState(null); 
-  // [추가] 실제 전송할 파일 객체를 관리할 상태
   const [rawFiles, setRawFiles] = useState([]);
   const [formData, setFormData] = useState(null);
   const [errors, setErrors] = useState({ mgmtId: false, title: false, source: false, content: false });
   const [isDirty, setIsDirty] = useState(false); 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
-  
-  // 1. 데이터 불러오기 및 초기화
- // 1. [수정] 백엔드에서 실제 데이터 불러오기
   useEffect(() => {
     const fetchDetail = async () => {
       try {
         const data = await pressService.getPressDetail(id);
         if (data) {
-          // 백엔드 DTO 구조를 프론트엔드 state 구조로 매핑
           setFormData({
-            mgmtId: data.contentId, // 관리번호로 표시
+            mgmtId: data.contentId,
             title: data.title,
-            content: data.body,    // DTO의 body -> content
+            content: data.body,
             source: data.source,
             sourceUrl: data.contentLink || '',
             isPublic: data.visibleYn === 'Y',
             createdAt: data.createdAt,
             updatedAt: data.lastUpdateDate,
-            files: data.fileList || [] // 기존 서버 파일 목록
+            files: data.fileList || []
           });
           setBreadcrumbTitle(data.title);
         }
@@ -87,15 +81,12 @@ const AdminPressRelEdit = () => {
     fetchDetail();
   }, [id, navigate, setBreadcrumbTitle]);
 
-  // [수정됨] 2. 브레드크럼 초기화 전용 useEffect (추가)
-  // 의존성 배열이 비어있으므로 컴포넌트가 언마운트(페이지 이동) 될 때만 실행됩니다.
   useEffect(() => {
     return () => {
       setBreadcrumbTitle("");
     };
   }, [setBreadcrumbTitle]);
 
-    // 3. 이탈 방지 및 Blob URL 정리
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (isDirty) { e.preventDefault(); e.returnValue = ""; }
@@ -111,7 +102,6 @@ const AdminPressRelEdit = () => {
     };
   }, [isDirty, formData?.files]);
 
-  // 이미지 핸들러
   const imageHandler = () => {
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
@@ -175,7 +165,6 @@ const AdminPressRelEdit = () => {
     if (pureText && errors.content) setErrors(prev => ({ ...prev, content: false }));
   };
 
- // 4. [수정] 파일 추가 로직 (rawFiles 상태 업데이트 추가)
   const addFiles = (newFiles) => {
     if (!newFiles || newFiles.length === 0) return;
     const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'pdf', 'hwp', 'docx', 'xlsx', 'zip'];
@@ -234,7 +223,6 @@ const handleFileDeleteClick = (idx) => {
  const confirmFileDelete = () => {
     const fileToDelete = formData.files[fileToDeleteIdx];
     
-    // 신규 추가했던 파일인 경우 rawFiles에서도 제거
     if (fileToDelete.isNew) {
       setRawFiles(prev => prev.filter(f => f.name !== fileToDelete.name));
     }
@@ -266,7 +254,6 @@ const handleFileDeleteClick = (idx) => {
     setIsModalOpen(true);
   };
 
-  // 취소 확정 시
   const confirmCancel = () => {
     setIsCancelModalOpen(false);
     setToastMessage("수정이 취소되었습니다.");
@@ -285,19 +272,45 @@ const handleFileDeleteClick = (idx) => {
     }
   };
 
+  const searchSpecificTags = () => {
+    const quill = quillRef.current.getEditor();
+    const editorRoot = quill.root; // 에디터의 컨텐츠 root DOM
+    console.log(editorRoot.innerHTML);
+    // li 태그 검색
+    const olList = editorRoot.querySelectorAll('ol');
+
+    olList.forEach(ol => {
+      const firstLi = ol.querySelector('li');
+      const type = firstLi.dataset.list;
+      
+      if(type === 'bullet'){
+        ol.classList.add('list-disc');
+        ol.classList.add('list-inside');
+      }
+      if(type === 'ordered'){
+        ol.classList.add('list-decimal');
+        ol.classList.add('list-inside');
+      }
+
+    });
+    
+    formData.content = editorRoot.innerHTML;
+    console.log(formData.content);
+    setFormData(formData);
+    
+  };
+
   // 저장 확정 시 백엔드 API 호출
   const handleConfirmSave = async () => {
     setIsModalOpen(false);
-    
+    searchSpecificTags();
     try {
       const submitData = new FormData();
 
-      // 현재 남아있는 파일 중 '기존 서버 파일'의 ID들만 추출
-    const existingFileIds = formData.files
+      const existingFileIds = formData.files
       .filter(f => !f.isNew)
-      .map(f => f.id); // getFileList 결과물에 id가 있으므로
+      .map(f => f.id);
       
-      // JSON 데이터 구성 (DTO 필드명에 맞춤)
       const pressDto = {
         contentId: id,
         title: formData.title,
@@ -307,7 +320,6 @@ const handleFileDeleteClick = (idx) => {
         contentLink: formData.sourceUrl,
         userId: '관리자', // 필요시 실제 로그인 사용자 정보
         regType: '직접등록',
-        // 백엔드에서 유지할 파일 ID 목록을 받도록 설계되어 있다면 추가
         existingFileIds: existingFileIds
       };
 
@@ -355,7 +367,7 @@ const handleFileDeleteClick = (idx) => {
           
           <div className="flex flex-col">
             <div className="mb-10 w-full max-w-[500px]">
-              <label className="block font-bold text-[16px] mb-3 text-[#111]">관리번호 (ID)</label>
+              <label className="block font-bold text-[16px] mb-3 text-[#111]">관리번호 ID</label>
               <input 
                 name="mgmtId"
                 value={formData.mgmtId}
@@ -412,30 +424,26 @@ const handleFileDeleteClick = (idx) => {
               />
             </div>
 
-{/* 내용 입력 영역 */}
-<div className="w-full text-left mb-10">
-  <label className="block font-bold text-[16px] mb-3 text-[#111]">내용 (필수)</label>
-  
-  {/* [핵심] 에디터 하단의 기본 여백을 강제로 제거하여 input창들과 간격을 맞춥니다. */}
-  <div className={`custom-quill-wrapper ${errors.content ? 'error-border' : ''}`} style={{ marginBottom: '0px' }}>
-    <ReactQuill
-      ref={quillRef} 
-      theme="snow" 
-      value={formData.content} 
-      onChange={handleEditorChange} 
-      modules={modules}
-      placeholder="내용을 입력해주세요."
-      className="custom-quill bg-white"
-    />
-  </div>
+              <div className="w-full text-left mb-10">
+              <label className="block font-bold text-[16px] mb-3 text-[#111]">내용 (필수)</label>          
+              <div className={`custom-quill-wrapper ${errors.content ? 'error-border' : ''}`} style={{ marginBottom: '0px' }}>
+                <ReactQuill
+                  ref={quillRef} 
+                  theme="snow" 
+                  value={formData.content} 
+                  onChange={handleEditorChange} 
+                  modules={modules}
+                  placeholder="내용을 입력해주세요."
+                  className="custom-quill bg-white"
+                />
+              </div>
 
-  {/* 이제 위쪽 제목/출처 에러 메시지와 동일한 간격(mt-2)으로 출력됩니다. */}
-  {errors.content && (
-    <div className="text-[#E15141] text-[13px] font-medium mt-2 px-1 flex items-center gap-1">
-      <ErrorIcon /> 내용을 입력해주세요
-    </div>
-  )}
-</div>
+              {errors.content && (
+                <div className="text-[#E15141] text-[13px] font-medium mt-2 px-1 flex items-center gap-1">
+                  <ErrorIcon /> 내용을 입력해주세요
+                </div>
+              )}
+            </div>
             <div className="mb-10 w-full">
               <label className="block font-bold text-[16px] mb-3">첨부파일 관리</label>
               <div 
@@ -447,15 +455,15 @@ const handleFileDeleteClick = (idx) => {
                   <Paperclip className="text-gray-400 mb-2" size={24} />
                   <span className="text-[14px] font-bold text-gray-600">파일을 드래그하거나 클릭하여 추가</span>
                   <input 
-  type="file" 
-  multiple 
-  className="hidden" 
-  accept=".jpg,.jpeg,.png,.webp,.pdf,.hwp,.docx,.xlsx,.zip" 
-  onChange={(e) => {
-    addFiles(e.target.files);
-    e.target.value = ''; // "중복" 알람
-  }} 
-/>
+                    type="file" 
+                    multiple 
+                    className="hidden" 
+                    accept=".jpg,.jpeg,.png,.webp,.pdf,.hwp,.docx,.xlsx,.zip" 
+                    onChange={(e) => {
+                      addFiles(e.target.files);
+                      e.target.value = ''; // "중복" 알람
+                    }} 
+                  />
                 </label>
               </div>
               <div className="flex flex-col gap-2 mt-4">
@@ -487,26 +495,23 @@ const handleFileDeleteClick = (idx) => {
               <span className={`text-[14px] font-bold ${formData.isPublic ? 'text-[#2563EB]' : 'text-gray-400'}`}>{formData.isPublic ? '노출' : '비노출'}</span>
             </div>
 
-            {/* 로그 정보 영역 수정 */}
-<div className="pt-10 mt-10 border-t border-gray-100 flex flex-col space-y-4">
-  <div className="flex flex-col gap-1">
-    <label className="text-[14px] font-bold text-gray-400">등록 일시</label>
-    <div className="flex items-center gap-2 text-[#999] font-medium px-1">
-      <Calendar size={16} /> 
-      {/* T를 공백으로 치환 */}
-      {(formData.createdAt || formData.date)?.replace('T', ' ')}
-    </div>
-  </div>
-  <div className="flex flex-col gap-1">
-    <label className="text-[14px] font-bold text-gray-400">수정 일시</label>
-    <div className="flex items-center gap-2 text-[#999] font-medium px-1">
-      <Calendar size={16} /> 
-      {/* updatedAt이 있으면 표시, 없으면 createdAt을 표시하며 T 제거 */}
-      {(formData.updatedAt || formData.createdAt)?.replace('T', ' ')}
-    </div>
-  </div>
-</div>
-</div>
+            <div className="pt-10 mt-10 border-t border-gray-100 flex flex-col space-y-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-[14px] font-bold text-gray-400">등록 일시</label>
+                <div className="flex items-center gap-2 text-[#999] font-medium px-1">
+                  <Calendar size={16} /> 
+                  {(formData.createdAt || formData.date)?.replace('T', ' ')}
+                </div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[14px] font-bold text-gray-400">수정 일시</label>
+                <div className="flex items-center gap-2 text-[#999] font-medium px-1">
+                  <Calendar size={16} /> 
+                  {(formData.updatedAt || formData.createdAt)?.replace('T', ' ')}
+                </div>
+              </div>
+            </div>
+           </div>
         </section>
 
         <div className="flex justify-end gap-2 mt-12 max-w-[1000px]">

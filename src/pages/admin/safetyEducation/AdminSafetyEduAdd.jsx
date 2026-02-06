@@ -199,7 +199,7 @@ const AdminSafetyEduAdd = () => {
      setShowToast(true);
      setTimeout(() => navigate('/admin/contents/safetyEduList'), 1500);
    } catch (error) {
-     console.error("등록 실패:", error);
+     //console.error("등록 실패:", error);
      alert("등록 중 오류가 발생했습니다.");
      setIsModalOpen(false);
    }

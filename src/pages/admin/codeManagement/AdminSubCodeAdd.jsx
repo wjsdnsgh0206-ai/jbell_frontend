@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { codeService } from '@/services/api';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
-// 아이콘 컴포넌트
+// 관리자 상세코드 등록 페이지 //
+
 const SuccessIcon = ({ fill = "#2563EB" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="8" cy="8" r="8" fill={fill}/>
@@ -21,7 +22,7 @@ const ErrorIcon = () => (
 const AdminSubCodeAdd = () => {
   const navigate = useNavigate();
   
-  // 1. 상태 관리
+  // 상태 관리
   const [formData, setFormData] = useState({ 
     groupCode: '', 
     subCode: '',   
@@ -40,6 +41,12 @@ const AdminSubCodeAdd = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
+  // 선택된 그룹의 사용 여부를 실시간으로 감시
+  const selectedGroupVisible = useMemo(() => {
+    const selectedGroup = groupOptions.find(g => g.groupCode === formData.groupCode);
+    return selectedGroup ? (selectedGroup.visible === true || selectedGroup.visible === 'Y') : true;
+  }, [formData.groupCode, groupOptions]);
+
   // 이탈 방지 트리거 (사용자가 내용을 입력했는지 여부)
  const isDirty = useMemo(() => {
     return !!(formData.groupCode || formData.subCode.trim() || formData.subName.trim() || formData.desc.trim());
@@ -55,7 +62,7 @@ const AdminSubCodeAdd = () => {
     }
   }, []);
 
-  // [수정] 이탈 방지 핸들러를 하나로 고정
+  // 이탈 방지 핸들러를 하나로 고정
   const handleBeforeUnload = useCallback((e) => {
     if (isDirty) {
       e.preventDefault();
@@ -63,7 +70,7 @@ const AdminSubCodeAdd = () => {
     }
   }, [isDirty]);
 
-  // [수정] useEffect 통합 (중복 제거)
+  // useEffect 통합 (중복 제거)
   useEffect(() => {
     fetchGroups();
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -99,21 +106,59 @@ const AdminSubCodeAdd = () => {
     return () => clearTimeout(timer);
   }, [formData.groupCode, formData.subCode, formData.subName]);
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value } = e.target;
-    if (name === "subCode") {
-      // 상세 코드 ID: 50자 제한 (기존 20자에서 변경)
+
+    // 그룹 코드 선택 시 (순번 자동 계산)
+     if (name === "groupCode") {
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (value !== "") setErrors(prev => ({ ...prev, [name]: false }));
+
+    if (value) {
+      try {
+        const response = await codeService.getCodeItems(value);
+        const allData = response.data || response;
+
+        const realSubCodes = Array.isArray(allData) 
+        ? allData.filter(item => 
+            String(item.groupCode) === String(value) && // 선택한 그룹 코드와 일치하는지 확인
+            item.subCode !== '-' &&                     // 그룹 정보 행 제외
+            item.subCode !== ''                         // 빈 코드 제외
+          )
+        : [];
+
+        // 데이터가 있으면 (최대값 + 1), 없으면 1
+        const nextOrder = realSubCodes.length > 0 
+          ? Math.max(...realSubCodes.map(i => Number(i.order) || 0)) + 1 
+          : 1;
+
+        setFormData(prev => ({ 
+          ...prev, 
+          groupCode: value, 
+          order: nextOrder 
+        }));
+      } catch (err) {
+        setFormData(prev => ({ ...prev, groupCode: value, order: 1 }));
+      }
+    } else {
+      setFormData(prev => ({ ...prev, groupCode: value, order: 1 }));
+    }
+  }
+ 
+    // 상세 코드 ID 입력 시
+    else if (name === "subCode") {
+      // 상세 코드 ID: 50자 제한
       const transformedValue = value.toUpperCase().replace(/[^A-Z0-9_]/g, "").slice(0, 50);
       setFormData(prev => ({ ...prev, [name]: transformedValue }));
       setErrors(prev => ({ ...prev, subCode: false }));
     } else if (name === "subName") {
-      // 상세 코드 명: 100자 제한 (기존 20자에서 변경)
+      // 상세 코드 명: 100자 제한
       if (value.length <= 100) {
         setFormData(prev => ({ ...prev, [name]: value }));
         setErrors(prev => ({ ...prev, subName: false }));
       }
     } else if (name === "desc") {
-      // 상세 코드 설명: 200자 제한 (기존 50자에서 변경)
+      // 상세 코드 설명: 200자 제한
       if (value.length <= 200) setFormData(prev => ({ ...prev, [name]: value }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -138,18 +183,50 @@ const AdminSubCodeAdd = () => {
       alert("입력 사항을 다시 확인해주세요.");
       return;
     }
+    // 상위 그룹이 미사용인데 '사용'으로 등록하려는 경우 차단
+    if (selectedGroupVisible === false && isVisible === true) {
+      setToastMessage("상위 그룹이 미사용 상태이므로 '사용'으로 저장할 수 없습니다.");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2000);
+      return;
+    }
     setIsModalOpen(true);
   };
 
   const handleConfirmSave = async () => {
     setIsModalOpen(false);
+
     try {
-      const saveData = {
+      // 1. 최신 순번 계산 (서버에서 목록 다시 조회)
+      let targetOrder = 1;
+ 
+    try {
+      const response = await codeService.getCodeItems(formData.groupCode);
+      const subCodes = response.data || response;
+
+      if (Array.isArray(subCodes)) {
+        const onlyItems = subCodes.filter(item => 
+          String(item.groupCode) === String(formData.groupCode) && 
+          item.subCode !== '-' && 
+          item.subCode !== ''
+        );
+        
+        if (onlyItems.length > 0) {
+          const maxOrder = Math.max(...onlyItems.map(item => Number(item.order) || 0));
+          targetOrder = maxOrder + 1;
+        }
+      }
+    } catch (e) {
+      console.error("최종 순번 계산 실패:", e);
+      targetOrder = 1; 
+    }
+
+    const saveData = {
         groupCode: formData.groupCode,
         subCode: formData.subCode,
         subName: formData.subName,
         desc: formData.desc,
-        order: Number(formData.order) || 1,
+        order: targetOrder,
         visible: isVisible 
       };
 
@@ -158,7 +235,6 @@ const AdminSubCodeAdd = () => {
       setToastMessage('상세코드가 성공적으로 등록되었습니다.');
       setShowToast(true);
       
-      // [중요] 정확한 함수 참조로 리스너 제거
       window.removeEventListener('beforeunload', handleBeforeUnload);
       
       setTimeout(() => {
@@ -201,7 +277,7 @@ const AdminSubCodeAdd = () => {
           <h3 className="text-[24px] font-extrabold mb-14 text-[#111] tracking-tight border-b-2 border-gray-100 pb-3">상세코드 정보 입력</h3>
           
           <div className="flex flex-col">
-            {/* 1. 그룹 코드 선택 */}
+            {/* 그룹 코드 선택 */}
             <div className="mb-10 w-full max-w-[500px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">그룹 코드 (필수)</label>
               <div className="relative">
@@ -225,7 +301,7 @@ const AdminSubCodeAdd = () => {
               {errors.groupCode && <div className="text-[#E15141] text-sm mt-3 flex items-center gap-2 font-medium"><ErrorIcon /> 그룹코드를 선택해주세요.</div>}
             </div>
 
-            {/* 2. 상세 코드 ID */}
+            {/* 상세 코드 ID */}
             <div className="mb-10 w-full max-w-[500px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 ID (필수)</label>
               <input 
@@ -254,7 +330,7 @@ const AdminSubCodeAdd = () => {
               </div>
             </div>
 
-            {/* 3. 상세 코드명 */}
+            {/* 상세 코드명 */}
             <div className="mb-10 w-full max-w-[500px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드명 (필수)</label>
               <input 
@@ -283,7 +359,7 @@ const AdminSubCodeAdd = () => {
               </div>
             </div>
 
-            {/* 4. 상세 코드 설명 */}
+            {/* 상세 코드 설명 */}
             <div className="mb-10 w-full max-w-[600px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 설명</label>
               <textarea 
@@ -301,32 +377,32 @@ const AdminSubCodeAdd = () => {
 
             {/*  상세 코드 순서 영역 아직 구현 X  @@*/}        
             {/* 5. 순서 섹션 - AdminSubCodeAdd.jsx */}
-<div className="mb-10 w-full group">
-  <label className="block font-bold text-[16px] mb-3 text-[#111]">순서</label>
-  <div className="relative w-[100px]">
-    <input 
-      type="text" 
-      name="order"
-      value={formData.order}
-      readOnly // 키보드 입력 차단
-      className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-center font-medium text-gray-400 cursor-not-allowed outline-none transition-all"
-    />
+            <div className="mb-10 w-full group">
+              <label className="block font-bold text-[16px] mb-3 text-[#111]">순서</label>
+              <div className="relative w-[100px]">
+                <input 
+                  type="text" 
+                  name="order"
+                  value={formData.order}
+                  readOnly // 키보드 입력 차단
+                  className="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 text-center font-medium text-gray-400 cursor-not-allowed outline-none transition-all"
+                />
     
-    {/* 증감 버튼에서 onClick 제거 및 비활성화 스타일 적용 */}
-    <div className="absolute right-[1px] top-[1px] bottom-[1px] flex flex-col w-[24px] opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded-r-lg overflow-hidden border-l border-gray-100">
-      <div className="flex-1 flex items-center justify-center border-b border-gray-100 cursor-not-allowed">
-        <svg width="8" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 5L5 1L9 5" stroke="#CCC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-      </div>
-      <div className="flex-1 flex items-center justify-center cursor-not-allowed">
-        <svg width="8" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="#CCC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-      </div>
-    </div>
-  </div>
-  <div className="mt-3 space-y-1">
-    <p className="text-[12px] text-gray-400 mt-2 font-medium">* 자동으로 마지막 순서로 지정됩니다.</p>
+              {/* 증감 버튼에서 onClick 제거 및 비활성화 스타일 적용
+              <div className="absolute right-[1px] top-[1px] bottom-[1px] flex flex-col w-[24px] opacity-0 group-hover:opacity-100 transition-opacity bg-gray-50 rounded-r-lg overflow-hidden border-l border-gray-100">
+                <div className="flex-1 flex items-center justify-center border-b border-gray-100 cursor-not-allowed">
+                  <svg width="8" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 5L5 1L9 5" stroke="#CCC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </div>
+                <div className="flex-1 flex items-center justify-center cursor-not-allowed">
+                  <svg width="8" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="#CCC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </div>
+              </div> */}
+            </div>
+            <div className="mt-3 space-y-1">
+              <p className="text-[12px] text-gray-400 mt-2 font-medium">* 자동으로 마지막 순서로 지정됩니다.</p>
               <p className="text-[13px] text-gray-400 font-medium">* 숫자가 낮을수록 리스트 상단에 노출됩니다.</p>
-  </div>
-</div>
+            </div>
+          </div>
 
             {/* 5. 순서 */}
             {/* <div className="mb-10 w-full group">
@@ -361,18 +437,29 @@ const AdminSubCodeAdd = () => {
             </div> */}
             
             {/* 6. 사용 여부 */}
-            <div className="flex items-center gap-5 pt-2">
-               <label className="font-bold text-[16px] text-[#111]">사용 여부</label>
-               <div className="flex items-center gap-3">
-                 <button 
-                   type="button"
-                   onClick={() => setIsVisible(!isVisible)}
-                   className={`w-[54px] h-[28px] flex items-center rounded-full p-1 transition-colors duration-300 ${isVisible ? 'bg-[#2563EB]' : 'bg-gray-300'}`}
-                 >
-                   <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${isVisible ? 'translate-x-[26px]' : 'translate-x-0'}`} />
-                 </button>
-                 <span className={`text-[14px] font-bold ${isVisible ? 'text-[#2563EB]' : 'text-gray-400'}`}>{isVisible ? '사용' : '미사용'}</span>
-               </div>
+            <div className="flex flex-col gap-3 pt-2">
+              <div className="flex items-center gap-5">
+                <label className="font-bold text-[16px] text-[#111]">사용 여부</label>
+                <div className="flex items-center gap-3">
+                  <button 
+                    type="button"
+                    onClick={() => setIsVisible(!isVisible)}
+                    className={`w-[54px] h-[28px] flex items-center rounded-full p-1 transition-colors duration-300 ${isVisible ? 'bg-[#2563EB]' : 'bg-gray-300'}`}
+                  >
+                    <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${isVisible ? 'translate-x-[26px]' : 'translate-x-0'}`} />
+                  </button>
+                  <span className={`text-[14px] font-bold ${isVisible ? 'text-[#2563EB]' : 'text-gray-400'}`}>{isVisible ? '사용' : '미사용'}</span>
+                </div>
+              </div>
+
+              {/* 상위 그룹이 미사용일 때 안내 문구 노출 */}
+              {selectedGroupVisible === false && isVisible && (
+                <div className="mt-2 p-4 bg-amber-50 border border-amber-100 rounded-lg max-w-[600px]">
+                  <p className="text-amber-600 text-[13px] font-bold flex items-center gap-2">
+                    <ErrorIcon /> 선택한 상위 그룹이 '미사용' 상태입니다. 현재 상세 코드를 '사용'으로 설정해도 저장되지 않습니다.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </section>

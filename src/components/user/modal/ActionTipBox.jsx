@@ -1,11 +1,4 @@
-import React from "react";
-
-/*
-  ActionTipBox 컴포넌트
-  - 숫자 컬러: 확실한 파란색 체감을 위해 표준 blue-400에 투명도 15% 적용 (text-blue-400/15)
-  - 위치: 박스 내부 안착 (right-1 bottom-1)
-  - 모바일: 아이콘 hidden, 텍스트 중앙 정렬
-*/
+// 재난사고속봅 > 각 재난 탭의 행동요령에 표시될 데이터 
 
 const Icons = {
   Earthquake: [
@@ -43,6 +36,13 @@ const Icons = {
     () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full text-orange-600"><path d="M17 10l-5-5-5 5M12 5v14" strokeLinecap="round" strokeLinejoin="round" /><path d="M5 14c-2 0-3 1-3 3s1 3 3 3h14c2 0 3-1 3-3s-1-3-3-3" /></svg>,
     () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full text-green-700"><path d="M12 19V5M5 13l7-8 7 8M8 19h8" strokeLinecap="round" strokeLinejoin="round" /></svg>,
     () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full text-rose-700"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" fill="currentColor" fillOpacity="0.2" /></svg>
+  ],
+  // 한파 아이콘 추가
+  ColdWave: [
+    () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full text-blue-500"><path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 14" strokeLinecap="round" /><circle cx="12" cy="12" r="2" fill="currentColor" /></svg>,
+    () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full text-cyan-500"><path d="M12 3v4M12 17v4M5.64 5.64l2.82 2.82M15.54 15.54l2.82 2.82M3 12h4M17 12h4M5.64 18.36l2.82-2.82M15.54 8.46l2.82-2.82" strokeLinecap="round" /></svg>,
+    () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full text-blue-400"><path d="M14 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V8l-6-4z" /><path d="M14 4v4h4" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+    () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full text-blue-600"><path d="M12 22a7 7 0 007-7c0-2-1-3.9-3-5.5s-4-4.5-4-4.5-2 2.9-4 4.5S5 13 5 15a7 7 0 007 7z" fill="currentColor" fillOpacity="0.2" /></svg>
   ]
 };
 
@@ -84,6 +84,13 @@ const ActionTipBox = ({ type = "지진" }) => {
       { id: "03", text: "대피가 어렵다면 이미 탄 지역이나 공터로 대피하세요.", icon: Icons.ForestFire[2] },
       { id: "04", text: "산불 발견 즉시 119나 산림청에 신고하세요.", icon: Icons.ForestFire[3] },
     ],
+    // 한파 데이터 추가
+    한파: [
+      { id: "01", text: "노약자, 영유아 등은 외출을 자제하고 보온에 유의하세요.", icon: Icons.ColdWave[0] },
+      { id: "02", text: "외출 시에는 목도리, 장갑 등 방한용품을 반드시 착용하세요.", icon: Icons.ColdWave[1] },
+      { id: "03", text: "수도계량기, 배관은 헌 옷 등으로 감싸 동파를 예방하세요.", icon: Icons.ColdWave[2] },
+      { id: "04", text: "장시간 집을 비울 때는 수도꼭지를 조금 열어두세요.", icon: Icons.ColdWave[3] },
+    ],
   };
 
   const currentTips = tipsData[type] || tipsData["지진"];
@@ -99,7 +106,7 @@ const ActionTipBox = ({ type = "지진" }) => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 lg:gap-4 flex-1 min-h-0">
         {currentTips.map((tip) => (
           <div key={tip.id} className="group relative flex flex-col items-center justify-center lg:items-start lg:justify-start bg-white border border-graygray-10 rounded-xl p-3.5 lg:p-5 shadow-sm hover:border-blue-400 transition-all duration-300 overflow-hidden">
-            <span className="absolute right-1 bottom-0 md:right-2 md:bottom-1 text-3xl md:text-5xl font-black italic text-blue-400/10 group-hover:text-blue-500/20 pointer-events-none tabular-nums">{tip.id}</span>
+            <span className="absolute right-1 bottom-0 md:right-2 md:bottom-1 text-3xl md:text-5xl font-black italic text-blue-400/15 group-hover:text-blue-500/20 pointer-events-none tabular-nums">{tip.id}</span>
             <div className="hidden lg:flex relative z-10 w-12 h-12 bg-graygray-5 rounded-xl items-center justify-center p-3 mb-4 group-hover:bg-blue-50 transition-colors"><tip.icon /></div>
             <p className="relative z-10 text-detail-s lg:text-body-m lg:font-medium text-graygray-80 leading-snug break-keep text-center lg:text-left">{tip.text}</p>
           </div>

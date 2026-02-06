@@ -4,6 +4,7 @@ import axios from 'axios';
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 // import { noticeData } from './BoardData';
 import { Button } from '@/components/shared/Button';
+import dayjs from "dayjs";
 
 // 공지사항 상세페이지 //
 
@@ -24,7 +25,11 @@ const UserNoticeDetail = () => {
       try {
         setLoading(true);
         const response = await axios.get(`/api/notice/${id}`);
-        setData(response.data);
+        const notice = response.data;
+        console.log(notice)
+        notice.date = dayjs(notice.createdAt).format('YYYY-MM-DD HH:mm:ss');
+        
+        setData(notice);
       } catch (err) {
         console.error("상세 데이터 로드 실패:", err);
       } finally {
@@ -37,24 +42,6 @@ const UserNoticeDetail = () => {
 
   // 데이터 원본(noticeData)에서 URL의 id와 일치하는 게시글 찾기
   // const data = noticeData.find(item => item.id === Number(id));
-
-  // --- 파일 다운로드 로직 --- //
-  const handleDownload = async (fileId, fileName) => {
-    try {
-      const response = await axios.get(`/api/notice/file/download/${fileId}`, {
-        responseType: 'blob'
-      });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', fileName);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (error) {
-      alert('파일 다운로드에 실패했습니다.');
-    }
-  };
 
   // 3. 로딩 처리
   if (loading) return <div className="py-20 text-center">로딩 중...</div>;
@@ -103,12 +90,14 @@ const UserNoticeDetail = () => {
                 <div className="flex flex-wrap items-center">
                   {data.files.map((file, idx) => (
                     <React.Fragment key={idx}>
-                      <button 
-                        onClick={() => handleDownload(file)} 
+                      <a 
+                        key={idx} 
+                        href={file.filePath} 
+                        download={file.fileRealName} 
                         className="text-blue-600 hover:underline font-medium"
                       >
-                        {file.name}
-                      </button>
+                        {file.fileRealName}
+                      </a>
                       {idx < data.files.length - 1 && (
                         <span className="text-gray-400 mx-1.5">,</span>
                       )}
@@ -126,7 +115,10 @@ const UserNoticeDetail = () => {
           <div className="text-[16px] leading-[1.8] text-[#222] whitespace-pre-wrap font-normal">
             {data.content}
           </div>
+          
+           
         </div>
+        
         
         <div className="border-t border-gray-200"></div>
 

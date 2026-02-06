@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { codeService } from '@/services/api';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
+// 관리자 그룹코드 등록페이지 //
+
 const SuccessIcon = ({ fill = "#2563EB" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="8" cy="8" r="8" fill={fill}/>
@@ -25,13 +27,35 @@ const AdminGroupCodeAdd = () => {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isRegistered, setIsRegistered] = useState(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isSaving, setIsSaving] = useState(false); // 저장 중 상태 추가
+  const [isSaving, setIsSaving] = useState(false);
 
   const [formData, setFormData] = useState({
     groupCodeId: '', groupName: '', desc: '', order: 1
   });
 
   const [isDuplicate, setIsDuplicate] = useState({ id: false, name: false });
+
+  // 초기 순번 계산 로직
+  const fetchNextOrder = useCallback(async () => {
+    try {
+      const response = await codeService.getCodeGroups();
+      const groups = response.data || response;
+      if (Array.isArray(groups)) {
+        // 기존 그룹 중 가장 큰 order 값을 찾거나, 데이터가 없으면 0
+        const maxOrder = groups.length > 0 
+          ? Math.max(...groups.map(g => Number(g.order) || 0)) 
+          : 0;
+        // 다음 순번인 maxOrder + 1을 화면에 표시
+        setFormData(prev => ({ ...prev, order: maxOrder + 1 }));
+      }
+    } catch (error) {
+      console.error("순번 로드 실패:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchNextOrder();
+  }, [fetchNextOrder]);
 
   // 수정 여부 감지
   const isDirty = useMemo(() => {
@@ -114,11 +138,16 @@ const AdminGroupCodeAdd = () => {
     setIsSaving(true); // 저장 프로세스 시작 (이탈 방지 비활성화)
 
     try {
+       // 현재 전체 그룹 목록을 조회하여 다음 순번 계산
+      const response = await codeService.getCodeGroups();
+      const groups = response.data || response;
+      const nextOrder = groups.length + 1; // 현재 개수 + 1
+
       const payload = {
         groupCode: formData.groupCodeId,
         groupName: formData.groupName,
         desc: formData.desc,
-        order: formData.order,
+        order: formData.order, // 계산된 순번 적용
         visible: isRegistered
       };
 

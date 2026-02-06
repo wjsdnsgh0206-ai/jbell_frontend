@@ -104,7 +104,7 @@ const FaqRegisterPage = ({ onCancel }) => {
         alert('FAQ가 정상적으로 등록되었습니다.');
         navigate('/admin/contents/FAQList'); // 목록 페이지로 이동
     } catch (error) {
-        console.error("등록 실패:", error);
+        //console.error("등록 실패:", error);
         alert("등록 중 오류가 발생했습니다.");
     }
   };

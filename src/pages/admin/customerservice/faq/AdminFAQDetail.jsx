@@ -63,7 +63,7 @@ const AdminFAQDetail = () => {
           setData({ ...item, faqContent: parsedContent || [] });
         })
         .catch(err => {
-            console.error(err);
+            //console.error(err);
             alert("데이터 조회 실패");
             navigate('/admin/contents/FAQList');
         });
@@ -88,7 +88,7 @@ const AdminFAQDetail = () => {
             alert('저장되었습니다.');
             setIsEditing(false);
         } catch (error) {
-            console.error("수정 실패:", error);
+            //console.error("수정 실패:", error);
             alert("수정 중 오류가 발생했습니다.");
         }
     }

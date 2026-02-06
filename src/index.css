@@ -285,7 +285,7 @@
 }
 
 .error-border .ql-container.ql-snow {
-  min-height: 400px !important; /* 👈 여기서 높이가 줄어들지 않게 강제 고정 */
+  min-height: 400px !important; /*  여기서 높이가 줄어들지 않게 강제 고정 */
   border-top: none !important;
   background-color: #FFFFFF !important;
 }
@@ -295,6 +295,11 @@
   box-shadow: 0 0 0 1px rgba(225, 81, 65, 0.05); 
   
 }
+/* Quill 편집기 내용 개행 작성시 사용자 페이지 <p></p> 일경우 개행 적용 @@*/
+  .ql-editor p:empty::before {
+    content: "";
+    display: inline-block;
+  }
 
 /*============================================================
    [관리자] Quill 에디터 이미지 및 추가 보정 @@
@@ -566,5 +571,7 @@
   .custom-date-container:hover .custom-date-input {
     color: #111111 !important;
   }
+
+  
 
 }
