@@ -193,7 +193,7 @@ const columns = useMemo(() => [
       return <span>{calculatedNo}</span>;
     }
   },
-  { key: 'contentId', header: '관리번호ID', width: '130px', className: 'text-center' }, 
+  { key: 'contentId', header: '관리번호ID', width: '120px', className: 'text-center' }, 
   { 
     key: 'regType', 
     header: '등록방식', 
@@ -211,17 +211,18 @@ const columns = useMemo(() => [
       </div>
     )
   }, 
-  { key: 'source', header: '출처', width: '180px', className: 'text-center' },
+  { key: 'source', header: '출처', width: '130px', className: 'text-center' },
   { key: 'title', header: '제목', className: 'text-center' },
   { 
-  key: 'userId', 
+  key: 'userName', 
   header: '등록인', 
   className: 'text-center',
-  render: () => <span>관리자</span> 
+  render: (value) => <span>{value}</span> 
 },
   { 
     key: 'fileList', 
-    header: '파일', 
+    header: '파일',
+    width: '30px', 
     className: 'text-center',
     render: (fileList, row) => {
       const files = Array.isArray(fileList) ? fileList : [];
@@ -288,7 +289,7 @@ const columns = useMemo(() => [
   { 
     key: 'visibleYn', 
     header: '노출여부', 
-    width: '100px',
+    width: '80px',
     className: 'text-center',
     render: (val) => (
       <div className="flex justify-center">
@@ -307,7 +308,7 @@ const columns = useMemo(() => [
   {
     key: 'actions',
     header: '상세',
-    width: '80px',
+    width: '60px',
     className: 'text-center',
     render: (_, row) => (
       <button 

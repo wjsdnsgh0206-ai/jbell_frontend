@@ -27,6 +27,7 @@ const UserPressRelDetail = () => {
         window.scrollTo(0, 0);
         // 서버 API 호출
         const result = await pressService.getPressDetail(id);
+        
         setData(result);
       } catch (error) {
         console.error("데이터 로딩 실패:", error);
@@ -83,7 +84,7 @@ const UserPressRelDetail = () => {
         <div className="py-8 px-2 text-left">
           <h3 className="text-[20px] font-bold text-black mb-6">제목 : {data.title}</h3>
           <div className="flex items-center gap-x-6 text-[14px] text-[#222]">
-          <div><span className="text-[#444]">등록인 :</span> 관리자</div>
+          <div><span className="text-[#444]">등록인 :</span> {data.userName} </div>
           <div className="w-[1px] h-3 bg-gray-300"></div>
           <div><span className="text-[#444]">등록일 :</span> {data.createdAt?.split('T')[0]}</div>
         </div>
