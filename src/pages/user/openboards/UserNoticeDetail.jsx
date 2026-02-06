@@ -77,17 +77,8 @@ const UserNoticeDetail = () => {
               <div className="w-[1px] h-3 bg-gray-300"></div>
               <div><span className="text-[#444]">등록일 :</span> {data.date}</div>
             </div>
-          </div>
-        </div>
-        
-        {/* --- 본문 영역 --- */}
-        <div className="border-t border-black"></div>
-        <div className="py-12 px-2 min-h-[400px] text-left">
-          <div className="text-[16px] leading-[1.8] text-[#222] whitespace-pre-wrap font-normal">
-            {data.content}
-          </div>
-          
-           {/* --- 첨부파일 영역 --- */}
+
+            {/* --- 첨부파일 영역 --- */}
             {data.files && data.files.length > 0 && (
               <div className="mt-6 flex items-start gap-2 text-[16px]">
                 <span className="font-bold text-[#333] shrink-0 flex items-center gap-1">
@@ -115,7 +106,19 @@ const UserNoticeDetail = () => {
                 </div>
               </div>
             )}
+          </div>
         </div>
+        
+        {/* --- 본문 영역 --- */}
+        <div className="border-t border-black"></div>
+        <div className="py-12 px-2 min-h-[400px] text-left">
+          <div className="text-[16px] leading-[1.8] text-[#222] whitespace-pre-wrap font-normal">
+            {data.content}
+          </div>
+          
+           
+        </div>
+        
         
         <div className="border-t border-gray-200"></div>
 
