@@ -25,50 +25,61 @@ const BoardListSection = ({ items, currentPage, totalPages, onPageChange, onRowC
             </tr>
           </thead>
           {/* 테이블 본문 */}
-          <tbody className="divide-y divide-gray-200 bg-white border-b border-gray-300"> 
-            {items.map((notice, index) => (
-              <tr 
-                /* key: 고유 ID와 인덱스를 조합하여 리렌더링 최적화 */
-                key={`${notice.id}-${index}`} 
-                onClick={() => onRowClick(notice.id)}
-                /* 스타일: 
-                   - hover:bg-gray-50: 마우스 올리면 배경색 변경
-                   - notice.isPin: 고정 게시글(공지)인 경우 연한 파란색 배경 적용 
-                */
-                className={`hover:bg-gray-50 transition cursor-pointer group ${notice.isPin ? 'bg-blue-50/40' : ''}`}
-              >
-                {/* 1. 번호 열 */}
-                <td className="py-4 text-center text-sm">
-                  {notice.isPin ? (
-                    /* 고정글일 경우 '공지' 뱃지 표시 */
-                    <span className="inline-block border border-blue-500 text-blue-600 bg-white px-2 py-0.5 rounded-sm text-[11px] font-bold">공지</span>
-                  ) : (
-                    /* 일반글일 경우 계산된 번호 표시 */
-                    <span className="text-gray-500 font-medium">{notice.displayNo}</span>
-                  )}
+          <tbody className="divide-y divide-gray-200 bg-white border-b border-gray-300">
+            {items.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="py-20 text-center text-gray-400">
+                  검색 결과가 없습니다.
                 </td>
-                {/* 2. 제목 열 */}
-                <td className="py-4 px-4">
-                  <div className="flex flex-col items-start ml-4">
-                    {/* line-clamp-1: 제목이 너무 길면 한 줄 처리 후 말줄임표(...) */}
-                    <span className={`font-medium group-hover:text-blue-700 group-hover:underline line-clamp-1 transition-all ${notice.isPin ? 'text-blue-900 font-semibold' : 'text-gray-900'}`}>
-                      {notice.title}
-                    </span>
-                    {/* 모바일 전용 정보: sm:hidden을 통해 작은 화면에서만 작성자|날짜를 제목 아래 표시 */}
-                    <div className="flex gap-2 text-detail-xs md:text-detail-s text-gray-400 mt-1 sm:hidden">
-                      <span>{notice.author}</span>
-                      <span>|</span>
-                      <span>{notice.date}</span>
-                    </div>
-                  </div>
-                </td>
-                {/* 3~5. 기타 정보 열 (반응형에 따라 숨김 처리) */}
-                <td className="py-4 text-sm text-gray-600 hidden sm:table-cell">{notice.author}</td>
-                {/* 파일이 있을 경우 개수 표시, 없으면 0 */}
-                <td className="py-4 text-sm text-gray-500 hidden md:table-cell">{notice.files ? notice.files.length : 0}</td>
-                <td className="py-4 text-sm text-gray-500 hidden sm:table-cell">{notice.date}</td>
               </tr>
-            ))}
+            ) : (
+              items.map((notice, index) => (
+                <tr 
+                  key={`${notice.id}-${index}`} 
+                  onClick={() => onRowClick(notice.id)}
+                  className={`hover:bg-gray-50 transition cursor-pointer group ${
+                    notice.isPin ? 'bg-blue-50/40' : ''
+                  }`}
+                >
+                  <td className="py-4 text-center text-sm">
+                    {notice.isPin ? (
+                      <span className="inline-block border border-blue-500 text-blue-600 bg-white px-2 py-0.5 rounded-sm text-[11px] font-bold">
+                        공지
+                      </span>
+                    ) : (
+                      <span className="text-gray-500 font-medium">
+                        {notice.displayNo}
+                      </span>
+                    )}
+                  </td>
+
+                  <td className="py-4 px-4">
+                    <div className="flex flex-col items-start ml-4">
+                      <span className={`font-medium group-hover:text-blue-700 group-hover:underline line-clamp-1 transition-all ${
+                        notice.isPin ? 'text-blue-900 font-semibold' : 'text-gray-900'
+                      }`}>
+                        {notice.title}
+                      </span>
+                      <div className="flex gap-2 text-detail-xs md:text-detail-s text-gray-400 mt-1 sm:hidden">
+                        <span>{notice.author}</span>
+                        <span>|</span>
+                        <span>{notice.date}</span>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td className="py-4 text-sm text-gray-600 hidden sm:table-cell">
+                    {notice.author}
+                  </td>
+                  <td className="py-4 text-sm text-gray-500 hidden md:table-cell">
+                    {notice.files ? notice.files.length : 0}
+                  </td>
+                  <td className="py-4 text-sm text-gray-500 hidden sm:table-cell">
+                    {notice.date}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
