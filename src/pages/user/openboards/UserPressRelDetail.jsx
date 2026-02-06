@@ -4,18 +4,17 @@ import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 import { pressService } from '@/services/api';
 import { Button } from '@/components/shared/Button';
 
-// 보도자료 상세페이지 //
+// 사용자 보도자료 상세페이지 //
 
 const UserPressRelDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-// --- 서버 데이터 상태 관리 ---
+// 서버 데이터 상태 관리
   const [data, setData] = React.useState(null);
   const [loading, setLoading] = React.useState(true);  
 
-  // --- 라이프사이클 관리 --- //
-  // 페이지 진입 시 스크롤을 최상단으로 이동
+  // 라이프사이클 관리
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);

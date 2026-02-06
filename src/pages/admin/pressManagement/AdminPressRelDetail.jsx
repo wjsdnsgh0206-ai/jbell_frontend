@@ -5,8 +5,8 @@ import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 import { Paperclip, ExternalLink, Calendar, Eye, Download } from 'lucide-react';
 import 'react-quill-new/dist/quill.snow.css';
 
+// 관리자 보도자료 상세페이지 //
 
-//  토스트용 성공 아이콘 컴포넌트 
 const SuccessIcon = ({ fill = "#4ADE80" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
     <circle cx="8" cy="8" r="8" fill={fill}/>
@@ -20,22 +20,16 @@ const AdminPressRelDetail = () => {
   const { setBreadcrumbTitle } = useOutletContext();
   
   const [formData, setFormData] = useState(null);
-  const [loading, setLoading] = useState(true); // 로딩 상태 추가
+  const [loading, setLoading] = useState(true);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const [isDeleting, setIsDeleting] = useState(false); // 삭제 진행 중 상태 
-
-  //  토스트 알림 상태 추가
+  const [isDeleting, setIsDeleting] = useState(false);
   const [showToast, setShowToast] = useState(false);
 
-// 데이터 불러오기 (백엔드 연동)
-  // AdminPressRelDetail.jsx 수정 부분
-// 1. 데이터 불러오기 (fetchDetail)
   useEffect(() => {
     const fetchDetail = async () => {
       try {
         setLoading(true);
-        // API 서비스 함수명이 getPressDetail인지 확인 필요
         const response = await pressService.getPressDetail(id);
         
         if (response) {
@@ -58,11 +52,9 @@ const AdminPressRelDetail = () => {
     return () => setBreadcrumbTitle("");
   }, [id, navigate, setBreadcrumbTitle]);
 
-  // 2. 삭제 함수 (반드시 이 위치 - 컴포넌트 레벨에 선언되어야 함)
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
-      // admin.delete가 배열을 받는지, id 단일 값을 받는지 확인 필요
       await pressService.admin.delete([id]); 
       
       setIsDeleteModalOpen(false);
@@ -100,12 +92,11 @@ const AdminPressRelDetail = () => {
       <main className="p-10 text-left">
         <h2 className="text-[32px] font-bold mt-2 mb-2 tracking-tight">보도자료 관리</h2>
         
-        {/* 상단 버튼 영역 - 기존 스타일 유지 */}
         <div className="flex justify-end gap-2 mb-6 max-w-[1000px]">
           <button 
             onClick={() => navigate('/admin/contents/pressRelList')}
             className="px-6 py-2 border border-gray-300 bg-white text-[#333] rounded-md font-bold text-[15px] hover:bg-gray-50 shadow-sm transition-all"
-            disabled={isDeleting} // 삭제 중 클릭 방지
+            disabled={isDeleting}
           >
             목록
           </button>
@@ -113,32 +104,28 @@ const AdminPressRelDetail = () => {
             onClick={() => setIsDeleteModalOpen(true)}
             className="px-6 py-2 bg-[#E1421F] text-white rounded-md font-bold text-[15px] hover:bg-[#c1381a] shadow-sm transition-all
             disabled:opacity-50"
-            disabled={isDeleting} // 삭제 중일 때 버튼 비활성화
+            disabled={isDeleting}
           >
             삭제
           </button>
-          {/* 수정 버튼 (주석 처리 변경) */}
-<button 
-  onClick={() => navigate(`/admin/contents/pressRelEdit/${id}`)}
-  className="px-6 py-2 bg-[#2563EB] text-white rounded-md font-bold text-[15px] hover:bg-blue-700 shadow-sm transition-all disabled:opacity-50" // disabled:opacity-50 추가
-  disabled={isDeleting}
->
-  수정
-</button>
+          <button 
+            onClick={() => navigate(`/admin/contents/pressRelEdit/${id}`)}
+            className="px-6 py-2 bg-[#2563EB] text-white rounded-md font-bold text-[15px] hover:bg-blue-700 shadow-sm transition-all disabled:opacity-50" // disabled:opacity-50 추가
+            disabled={isDeleting}
+          >
+            수정
+          </button>
         </div>
 
-        {/* 상세 정보 카드 섹션 */}
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-14 w-full max-w-[1000px]">
           <div className="flex flex-col space-y-10">
-            {/* 관리번호 (DB: contentId) */}
             <div className="flex flex-col">
-              <label className="block font-bold text-[16px] mb-3 text-[#111]">관리번호 (ID)</label>
+              <label className="block font-bold text-[16px] mb-3 text-[#111]">관리번호 ID</label>
               <div className="w-full bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] font-medium">
                 {formData.contentId}
               </div>
             </div>
 
-            {/* 등록 방식 (DB: regType) */}
             <div className="flex flex-col">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">등록 방식</label>
               <div className="w-full bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] font-medium">
@@ -149,12 +136,10 @@ const AdminPressRelDetail = () => {
             <div className="flex flex-col">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">제목</label>
               <div className="w-full bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] font-medium leading-relaxed">
-                {/* ✅ 필드명 매핑 확인 */}
                 {formData.title || formData.contentTitle} 
               </div>
             </div>
 
-            {/* 출처 */}
             <div className="flex flex-col">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">출처</label>
               <div className="w-full bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] font-medium">
@@ -162,7 +147,6 @@ const AdminPressRelDetail = () => {
               </div>
             </div>
 
-            {/* 원문 링크 (DB: contentLink) */}
             <div className="flex flex-col">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">원문 링크</label>
               {formData.contentLink ? (
@@ -186,14 +170,12 @@ const AdminPressRelDetail = () => {
                 <div className="ql-snow !border-none">
                   <div 
                     className="ql-editor !p-10 !leading-relaxed text-[17px] text-[#333]" 
-                    // ✅ 필드명 매핑 확인 (body 또는 contentBody)
                     dangerouslySetInnerHTML={{ __html: formData.body || formData.contentBody }} 
                   />
                 </div>
               </div>
             </div>
 
-            {/* 첨부파일 (DB: fileList) */}
             <div className="flex flex-col">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">
                 첨부파일 ({formData.fileList?.length || 0})
@@ -232,7 +214,6 @@ const AdminPressRelDetail = () => {
               </div>
             </div>
 
-            {/* 노출 여부 (DB: visibleYn) */}
             <div className="flex flex-col pt-4">
               <label className="font-bold text-[16px] text-[#111] mb-3">노출 여부</label>
               <div className="flex items-center gap-3">
@@ -245,7 +226,6 @@ const AdminPressRelDetail = () => {
               </div>
             </div>
 
-            {/* 로그 정보 */}
             <div className="pt-10 border-t border-gray-100 flex flex-col space-y-6">
               <div className="flex flex-col gap-2">
                 <label className="text-[14px] font-bold text-gray-400">등록 일시</label>
@@ -254,15 +234,13 @@ const AdminPressRelDetail = () => {
                 </div>
               </div>
               <div className="flex flex-col gap-1">
-  <label className="text-[14px] font-bold text-gray-400">수정 일시</label>
-  <div className="flex items-center gap-2 text-[#666] font-medium px-1">
-    <Calendar size={16} /> 
-    {/* DB 컬럼 last_update_date가 MyBatis를 통해 lastUpdateDate로 넘어옵니다 */}
-    {(formData.lastUpdateDate || formData.createdAt)?.replace('T', ' ')}
-  </div>
-   </div>             
-             
-            </div>
+              <label className="text-[14px] font-bold text-gray-400">수정 일시</label>
+              <div className="flex items-center gap-2 text-[#666] font-medium px-1">
+                <Calendar size={16} /> 
+                {(formData.lastUpdateDate || formData.createdAt)?.replace('T', ' ')}
+              </div>
+             </div>       
+           </div>
           </div>
         </section>
       
