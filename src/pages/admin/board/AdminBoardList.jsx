@@ -98,7 +98,7 @@ const AdminBoardList = () => {
 
   // [Event] 검색 관련 핸들러
   const handleSearch = () => {
-    axios.get('/api/notice', {
+    axios.get('/api/notice/admin', {
       params: {
         keyword: searchParams.keyword
       }
@@ -139,7 +139,7 @@ const AdminBoardList = () => {
 
     // 3. [추가] 서버에서 전체 목록 다시 불러오기
     // 검색어가 없는 상태로 전체 데이터를 다시 가져와서 posts에 덮어씁니다.
-    axios.get('/api/notice')
+    axios.get('/api/notice/admin')
       .then(res => {
         setPosts(res.data);
       })
@@ -257,8 +257,9 @@ const AdminBoardList = () => {
 /** <================================================== UseEffect ==================================================> **/
   // axios for backend
   // 1) 공지사항(notice)
+  // [/admin] - 관리자 페이지에서는 사용, 미사용 게시물을 모두 조회하기 위함(+ 검색, 초기화)
   useEffect(() => {
-    axios.get('/api/notice')
+    axios.get('/api/notice/admin')
       .then(res => {
         setPosts(res.data);
         });
