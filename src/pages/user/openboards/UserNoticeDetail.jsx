@@ -28,6 +28,9 @@ const UserNoticeDetail = () => {
         const notice = response.data;
         console.log(notice)
         notice.date = dayjs(notice.createdAt).format('YYYY-MM-DD HH:mm:ss');
+        notice.updatedDate = notice.updatedAt
+          ? dayjs(notice.updatedAt).format('YYYY-MM-DD HH:mm:ss')
+          : null;
         
         setData(notice);
       } catch (err) {
@@ -76,6 +79,13 @@ const UserNoticeDetail = () => {
               <div><span className="text-[#444]">등록자 :</span> {data.author}</div>
               <div className="w-[1px] h-3 bg-gray-300"></div>
               <div><span className="text-[#444]">등록일 :</span> {data.date}</div>
+               {data.updatedDate && data.updatedDate !== data.createdDate && (
+                  <>
+                    <div>
+                      <span className="text-[#444]">수정일 :</span> {data.updatedDate}
+                    </div>
+                  </>
+                )}
             </div>
 
             {/* --- 첨부파일 영역 --- */}
