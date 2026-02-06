@@ -28,6 +28,9 @@ const AdminMemberDetail = () => {
             // 아닐 경우 res를 바로 사용합니다. 
             // 또한 status가 1/0(숫자)으로 올 경우를 대비해 처리합니다.
             const userData = res.data || res; 
+            const currentStatus = (userData.status !== undefined && userData.status !== null) 
+                                  ? Number(userData.status) 
+                                  : (userData.userStatus ? 1 : 0);
             
             setFormData({
                 ...userData,
@@ -162,15 +165,21 @@ const AdminMemberDetail = () => {
                                     <button
                                         type="button"
                                         disabled={!isEdit}
-                                        // status 필드 (1: 활성, 0: 정지) 연동
-                                        onClick={() => setFormData(prev => ({ ...prev, status: prev.status === 1 ? 0 : 1 }))}
-                                        className={`relative inline-flex h-7 w-14 rounded-full transition ${
-                                            formData.status === 1 ? 'bg-green-500' : 'bg-gray-300'
+                                        // 클릭 시 1 <-> 0 반전
+                                        onClick={() => setFormData(prev => ({ ...prev, status: Number(prev.status) === 1 ? 0 : 1 }))}
+                                        className={`relative inline-flex h-7 w-14 rounded-full transition-colors duration-200 ease-in-out ${
+                                            Number(formData.status) === 1 ? 'bg-green-500' : 'bg-gray-300'
                                         } ${!isEdit && 'opacity-50 cursor-not-allowed'}`}
                                     >
-                                        <span className={`inline-block w-6 h-6 bg-white rounded-full transform transition mt-0.5 ${formData.status === 1 ? 'translate-x-7' : 'translate-x-1'}`} />
+                                        <span 
+                                            className={`inline-block w-6 h-6 bg-white rounded-full transform transition-transform duration-200 ease-in-out mt-0.5 ${
+                                                Number(formData.status) === 1 ? 'translate-x-7' : 'translate-x-1'
+                                            }`} 
+                                        />
                                     </button>
-                                    <span className="ml-3 text-sm font-medium">{formData.status === 1 ? '활성' : '정지(휴면)'}</span>
+                                    <span className="ml-3 text-sm font-medium text-gray-700">
+                                        {Number(formData.status) === 1 ? '활성' : '정지(휴면)'}
+                                    </span>
                                 </div>
                             </div>
                         </div>

@@ -1,5 +1,6 @@
+// src/components/shared/VideoCardList.jsx
 import { useState } from 'react';
-import { Play } from 'lucide-react'; // 아이콘 라이브러리 활용 예시
+import { Play } from 'lucide-react';
 
 const VideoCard = ({ title, description, image, videoLink }) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -13,8 +14,7 @@ const VideoCard = ({ title, description, image, videoLink }) => {
   const fallbackImage = "https://dummyimage.com/600x400/e0e0e0/757575.png&text=No+Image";
 
   return (
-    <article className="flex flex-col bg-white rounded-2xl border border-graygray-20 overflow-hidden hover:shadow-md transition-shadow group h-full">
-      {/* 미디어 영역 */}
+    <article className="w-full max-w-[500px] mx-auto flex flex-col bg-white rounded-2xl border border-graygray-20 overflow-hidden hover:shadow-md transition-shadow group h-full">
       <div 
         className={`relative w-full bg-graygray-10 overflow-hidden ${hasContent ? 'aspect-video' : 'h-full min-h-[200px]'} ${videoLink ? 'cursor-pointer' : ''}`}
         onClick={videoLink ? handlePlay : undefined}
@@ -36,8 +36,6 @@ const VideoCard = ({ title, description, image, videoLink }) => {
               referrerPolicy="no-referrer"
               onError={(e) => { e.target.src = fallbackImage; }}
             />
-            
-            {/* 플레이 버튼 오버레이 */}
             {videoLink && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/30 transition-colors">
                 <div className="w-14 h-14 rounded-full bg-secondary-50/90 text-white flex items-center justify-center shadow-xl backdrop-blur-sm transform group-hover:scale-110 transition-transform duration-300">
@@ -49,10 +47,9 @@ const VideoCard = ({ title, description, image, videoLink }) => {
         )}
       </div>
 
-      {/* 텍스트 영역 */}
       {hasContent && (
         <div className="flex flex-col gap-2 p-5 border-t border-graygray-10 bg-white">
-          {title && <h3 className="text-title-m text-graygray-90 line-clamp-2 leading-snug">{title}</h3>}
+          {title && <h3 className="text-title-m text-graygray-90 line-clamp-2 leading-snug font-bold">{title}</h3>}
           {description && <p className="text-body-s text-graygray-70 line-clamp-2">{description}</p>}
         </div>
       )}
@@ -63,7 +60,8 @@ const VideoCard = ({ title, description, image, videoLink }) => {
 const VideoCardList = ({ videos = [] }) => {
   if (!videos.length) return null;
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+    /* flex-col을 사용하여 무조건 1열 배치 */
+    <div className="flex flex-col gap-8 w-full">
       {videos.map((video, index) => (
         <VideoCard key={`video-${index}`} {...video} />
       ))}

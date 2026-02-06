@@ -33,7 +33,8 @@ const BehaviorMethodDetail = () => {
     contentTypeName: '',  // 화면용 이름 (subName 필드: 예 '태풍')
     groupName: '',        // 1차 분류 명 (예: '자연재난국민행동요령')
     title: '',
-    body: '',
+    contentLink: '', // 링크
+    body: '', 
     visibleYn: 'Y',
     fileIds: []
   });
@@ -52,22 +53,28 @@ const BehaviorMethodDetail = () => {
       setLoading(true);
       try {
         const response = await behaviorMethodService.getBehaviorMethodDetail(id);
+        
         if (response && response.status === 'SUCCESS' && response.data) {
           const realData = response.data;
-          setFormData({ ...realData, fileIds: [] });
-          setOriginData(realData);
-          setBreadcrumbTitle(realData.title);
-
-          // 1. 기존 groupName을 기반으로 Group ID(BEHAVIOR_METHOD_...) 찾기
+          
+          // [핵심 1] 1차 분류(Group ID) 먼저 매칭
           const matchedCategory = DISASTER_CATEGORIES.find(c => c.name === realData.groupName);
           
           if (matchedCategory) {
-            setSelectedGroupId(matchedCategory.id);
-            // 2. 해당 그룹의 하위 아이템(SubCode 리스트) 로드
+            // 2차 분류 목록 로드
             const codeRes = await codeService.getCodeItems(matchedCategory.id);
             const items = Array.isArray(codeRes) ? codeRes : (codeRes.data || []);
-            setTypeList(items);
+            
+            // 상태 업데이트 순서: 목록 먼저, 그 다음 선택값
+            setTypeList(items); 
+            setSelectedGroupId(matchedCategory.id);
           }
+
+          // [핵심 2] 폼 데이터 세팅
+          // API에서 준 contentType("BUILDING_COLLAPSE")이 드롭다운의 value가 됩니다.
+          setFormData({ ...realData, fileIds: [] });
+          setOriginData(realData);
+          setBreadcrumbTitle(realData.title);
 
           try {
              const parsed = JSON.parse(realData.body);
@@ -119,13 +126,13 @@ const BehaviorMethodDetail = () => {
 
   // 재난 유형 변경 (2차 분류)
   const handleTypeChange = (e) => {
-    const selectedDesc = e.target.value; // desc (숫자코드)
-    const selectedItem = typeList.find(item => item.desc === selectedDesc);
+    const selectedSubCode = e.target.value; // 이제 value는 subCode("BUILDING_COLLAPSE")입니다.
+    const selectedItem = typeList.find(item => item.subCode === selectedSubCode);
     
     setFormData(prev => ({
       ...prev,
-      contentType: selectedDesc,           // desc 저장
-      contentTypeName: selectedItem ? selectedItem.subName : '' // subName 저장
+      contentType: selectedSubCode, // BUILDING_COLLAPSE 저장
+      contentTypeName: selectedItem ? selectedItem.subName : '' // 건축물 붕괴 저장
     }));
   };
 
@@ -194,8 +201,12 @@ const BehaviorMethodDetail = () => {
     if (!window.confirm("저장하시겠습니까?")) return;
     try {
       await behaviorMethodService.updateBehaviorMethod(id, formData);
+      // 1. 원본 데이터 갱신
       setOriginData(formData);
+      // 2. 편집 모드 종료
       setIsEdit(false);
+      // 3. [추가] 수정된 제목으로 브레드크럼 즉시 업데이트!
+      setBreadcrumbTitle(formData.title); 
       alert("저장되었습니다.");
       setFormData(prev => ({ ...prev, fileIds: [] })); 
     } catch (error) { alert("저장 실패"); }
@@ -265,13 +276,13 @@ const BehaviorMethodDetail = () => {
                 </div>
               </div>
 
-              {/* 2. 재난 유형 (Sub Name / Desc) */}
+              {/* 2. 재난 유형 (Sub Name) */}
               <div className="flex flex-col gap-3 relative">
                 <label className="text-body-m-bold text-admin-text-secondary ml-1">재난 유형</label>
                 <div className="relative">
                   <select 
                     name="contentType"
-                    value={formData.contentType || ''}
+                    value={formData.contentType || ''} // "BUILDING_COLLAPSE"와 매칭됨
                     onChange={handleTypeChange}
                     disabled={!isEdit || !selectedGroupId}
                     className={`w-full h-14 pl-5 pr-10 rounded-lg border border-admin-border outline-none text-body-m appearance-none
@@ -279,12 +290,12 @@ const BehaviorMethodDetail = () => {
                   >
                     <option value="">선택하세요</option>
                     {typeList.map((item) => (
-                      <option key={item.subCode} value={item.desc}>
+                      <option key={item.subCode} value={item.subCode}> {/* value를 subCode로 설정 */}
                         {item.subName}
                       </option>
                     ))}
                   </select>
-                    <ChevronDown className={`absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none ${(!isEdit || !selectedGroupId) && 'hidden'}`} size={20} />
+                  <ChevronDown className={`absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none ${(!isEdit || !selectedGroupId) && 'hidden'}`} size={20} />
                 </div>
               </div>
 
@@ -292,7 +303,8 @@ const BehaviorMethodDetail = () => {
               <div className="flex flex-col gap-3">
                 <label className="text-body-m-bold text-admin-text-secondary ml-1">유형 코드 (desc)</label>
                 <input 
-                  value={formData.contentType || ''}
+                  // typeList에서 현재 선택된 contentType(subCode)과 일치하는 항목의 desc를 표시
+                  value={typeList.find(item => item.subCode === formData.contentType)?.desc || ''}
                   disabled
                   className="h-14 px-5 rounded-lg border border-admin-border bg-gray-100 text-gray-500 cursor-not-allowed outline-none text-body-m"
                 />
@@ -333,6 +345,20 @@ const BehaviorMethodDetail = () => {
                     />
                 )}
               </div>
+            </div>
+
+            {/* 콘텐츠 링크 입력 필드 */}
+            <div className="flex flex-col gap-3">
+                <label className="text-body-m-bold text-admin-text-secondary ml-1">관련 링크 (URL)</label>
+                <input 
+                  name="contentLink"
+                  value={formData.contentLink || ''}
+                  onChange={handleChange}
+                  disabled={!isEdit}
+                  placeholder="(예: https://example.com)"
+                  className={`h-14 px-5 rounded-lg border transition-all outline-none text-body-m
+                    ${isEdit ? 'border-admin-primary bg-white focus:ring-2 ring-blue-100' : 'border-admin-border bg-gray-50 text-gray-500 cursor-not-allowed'}`}
+                />
             </div>
 
             <div className="flex items-center gap-6 pt-4 border-t border-admin-border">

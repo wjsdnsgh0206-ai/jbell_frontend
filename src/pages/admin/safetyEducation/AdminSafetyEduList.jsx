@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { safetyEduService } from '@/services/api';
 import { ChevronDown } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 // [공통 컴포넌트]
 import AdminDataTable from '@/components/admin/AdminDataTable';
@@ -36,6 +37,19 @@ const ToggleSwitch = ({ isOn, onToggle }) => (
 const AdminSafetyEduList = () => {
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
+  const { user } = useAuth();
+
+  // ==================================================================================
+  // 0. 관리자 권한 체크 (진입 시 실행)
+  // ==================================================================================
+  useEffect(() => {
+    if (user) {
+        if (user.userGrade !== 'ADMIN') { 
+            alert('관리자 권한이 없습니다.');
+            navigate('/'); // 메인 페이지로 이동
+        }
+    }
+  }, [user, navigate]);
 
   // ==================================================================================
   // 1. 상태 관리 (State Management)
@@ -85,7 +99,7 @@ const AdminSafetyEduList = () => {
       setEduList(response.content);
       setTotalItems(response.totalElements);
     } catch (error) {
-      console.error("목록 조회 실패:", error);
+      //console.error("목록 조회 실패:", error);
       triggerToast("데이터를 불러오는데 실패했습니다.");
     }
   }, [currentPage, appliedKeyword, searchType, selectedPublicStatus]);
@@ -143,7 +157,7 @@ const AdminSafetyEduList = () => {
           triggerToast(`'${targetItem.title}' 노출 상태가 변경되었습니다.`);
           fetchList(); // 목록 새로고침
         } catch (error) {
-          console.error("상태 변경 실패:", error);
+          //console.error("상태 변경 실패:", error);
           alert("상태 변경 중 오류가 발생했습니다.");
         }
       }
@@ -172,7 +186,7 @@ const AdminSafetyEduList = () => {
           triggerToast(`일괄 ${status ? '노출' : '비노출'} 처리가 완료되었습니다.`);
           fetchList(); // 목록 새로고침
         } catch (error) {
-          console.error("일괄 변경 실패:", error);
+          //console.error("일괄 변경 실패:", error);
           alert("처리 중 오류가 발생했습니다.");
         }
       }
@@ -202,7 +216,7 @@ const AdminSafetyEduList = () => {
           triggerToast("삭제되었습니다."); 
           fetchList(); // 목록 새로고침
         } catch (error) {
-          console.error("삭제 실패:", error);
+          //console.error("삭제 실패:", error);
           alert("삭제 중 오류가 발생했습니다.");
         }
       }

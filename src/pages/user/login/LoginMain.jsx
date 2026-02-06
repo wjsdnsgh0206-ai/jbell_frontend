@@ -32,7 +32,7 @@ const LoginMain = () => {
 
           <div className="flex-[1.3] flex flex-col gap-4">
             {/* Social Login Button */}
-            <button onClick={() => navigate('/#')}
+            {/* <button onClick={() => navigate('/#')}
                     className="group flex items-center justify-between p-6 bg-gray-50 border border-transparent rounded-2xl transition-all hover:bg-gray-100 hover:border-gray-200 text-left">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-yellow-900">
@@ -44,7 +44,7 @@ const LoginMain = () => {
                 </div>
               </div>
               <ChevronRight className="text-gray-400 group-hover:translate-x-1 transition-transform" size={20} />
-            </button>
+            </button> */}
 
             {/* ID/PW Login Button */}
             <button  onClick={() => navigate('/idPwLogin')}

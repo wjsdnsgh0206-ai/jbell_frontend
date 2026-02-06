@@ -76,7 +76,7 @@ const QnAFormPage = () => {
         navigate('/qna');
       }, 1000);
     } catch (error) {
-      console.error("문의 등록 실패:", error);
+      //console.error("문의 등록 실패:", error);
       alert("문의 등록 중 오류가 발생했습니다.\n(관리자에게 문의해주세요)");
     }
   };

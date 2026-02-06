@@ -30,7 +30,7 @@ const BehaviorMethodList = () => {
   const [selectedType, setSelectedType] = useState("all");         // 유형 (2단)
 
   // [검색 상태] (AdminSearchBox 연동)
-  const [searchParams, setSearchParams] = useState({ keyword: '' });
+  const [searchParams, setSearchParams] = useState({ keyword: '', visibleYn: '' });
   const [appliedKeyword, setAppliedKeyword] = useState('');
 
   // [모달 상태]
@@ -98,19 +98,22 @@ const BehaviorMethodList = () => {
   // [필터링 실행]
   const filteredData = useMemo(() => {
     return guides.filter(item => {
-      // 1. 카테고리(groupName) 필터
+      // 1. 카테고리 필터
       const isCategoryMatch = selectedCategory === "all" || item.groupName === selectedCategory;
       
-      // 2. 유형(contentTypeName) 필터
+      // 2. 유형 필터
       const isTypeMatch = selectedType === "all" || item.contentTypeName === selectedType;
+
+      // [추가] 2-1. 공개 여부 필터
+      const isVisibleMatch = searchParams.visibleYn === "" || item.visibleYn === searchParams.visibleYn;
       
-      // 3. 검색어 필터 (제목 + 본문)
-      const plainBody = stripHtml(item.body); // 본문 태그 제거 후 검색
+      // 3. 검색어 필터
+      const plainBody = stripHtml(item.body);
       const matchesSearch = item.title.includes(appliedKeyword) || plainBody.includes(appliedKeyword);
 
-      return isCategoryMatch && isTypeMatch && matchesSearch;
+      return isCategoryMatch && isTypeMatch && isVisibleMatch && matchesSearch; // isVisibleMatch 추가
     });
-  }, [guides, selectedCategory, selectedType, appliedKeyword]);
+  }, [guides, selectedCategory, selectedType, appliedKeyword, searchParams.visibleYn]); // 의존성 추가
 
   // [페이지네이션]
   const currentData = useMemo(() => {
@@ -130,7 +133,7 @@ const BehaviorMethodList = () => {
 
   // 초기화 버튼 클릭
   const handleReset = () => {
-    setSearchParams({ keyword: '' });
+    setSearchParams({ keyword: '', visibleYn: '' }); // visibleYn 추가
     setAppliedKeyword('');
     setSelectedCategory("all");
     setSelectedType("all");
@@ -421,15 +424,34 @@ const BehaviorMethodList = () => {
                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
              </div>
 
+              {/* 3. 공개 여부 선택 */}
+              <div className="relative w-full md:w-40">
+                <select 
+                  name="visibleYn"
+                  value={searchParams.visibleYn} 
+                  onChange={(e) => setSearchParams(prev => ({ ...prev, visibleYn: e.target.value }))}
+                  className="w-full h-14 pl-5 pr-8 text-body-m border border-admin-border rounded-md bg-white text-admin-text-primary focus:border-admin-primary outline-none transition-all cursor-pointer appearance-none"
+                >
+                  <option value="">상태 전체</option>
+                  <option value="Y">공개</option>
+                  <option value="N">비공개</option>
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-graygray-40 pointer-events-none" size={18} />
+              </div>
+
              {/* 3. 과거 이력 토글 */}
-             <div className="flex items-center h-14 px-2">
-                {/* ... (기존 토글 코드) ... */}
-                <label className="relative inline-flex items-center cursor-pointer select-none">
-                  <input type="checkbox" checked={!onlyLatest} onChange={() => setOnlyLatest(!onlyLatest)} className="sr-only peer"/>
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-admin-primary transition-colors"></div>
-                  <span className="ml-3 text-body-m font-medium text-gray-700 whitespace-nowrap">과거 이력 포함</span>
-                </label>
-             </div>
+              <div className="flex items-center h-14 px-2">
+                <div className="flex items-center cursor-pointer" onClick={() => setOnlyLatest(!onlyLatest)}>
+                  <div className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${
+                    !onlyLatest ? 'bg-admin-primary' : 'bg-gray-300'
+                  }`}>
+                    <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
+                      !onlyLatest ? 'translate-x-6' : 'translate-x-0'
+                    }`} />
+                  </div>
+                  <span className="ml-3 text-gray-700 select-none">과거 이력 포함</span>
+                </div>
+              </div>
            </AdminSearchBox>
          </section>
 

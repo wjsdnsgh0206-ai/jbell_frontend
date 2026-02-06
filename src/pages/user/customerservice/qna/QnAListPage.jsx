@@ -32,10 +32,10 @@ const QnAListPage = () => {
     const fetchData = async () => {
       try {
         const data = await qnaService.getPublicQnaList();
-        console.log("서버 응답 데이터:", data); // [체크 1] 데이터가 잘 오는지 확인
+        //console.log("서버 응답 데이터:", data); // [체크 1] 데이터가 잘 오는지 확인
         setInquiries(data);
       } catch (error) {
-        console.error("목록 로드 실패 에러:", error); // [체크 2] 빨간색 에러가 뜨는지 확인
+        //console.error("목록 로드 실패 에러:", error); // [체크 2] 빨간색 에러가 뜨는지 확인
       }
     };
     fetchData();

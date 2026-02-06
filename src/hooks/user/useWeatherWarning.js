@@ -1,82 +1,136 @@
-import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import { useState, useEffect, useCallback } from "react";
+import { disasterApi } from "@/services/api";
 
-export const useWeatherWarning = (disasterType) => {
+export const useWeatherWarning = () => {
   const [warnings, setWarnings] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // 재난별 키워드
+  const DISASTER_KEYWORDS = {
+    지진: ["지진", "해일"],
+    호우홍수: ["호우", "대우", "홍수", "강우", "침수", "강수"],
+    산사태: ["산사태", "토사"],
+    태풍: ["태풍"],
+    산불: ["산불", "화재", "건조"],
+    한파: ["한파", "대설", "눈", "추위", "적설"],
+  };
 
   const fetchWarnings = useCallback(async () => {
     setIsLoading(true);
     try {
-      // 1. DB 조회 API 호출
-      const res = await axios.get('/api/disaster/dashboard/weatherWarnings');
-      
-      // 2. 응답 구조 확인 및 데이터 추출
-      const allRawData = res.data?.data || res.data || [];
-      console.log("검색 대상 데이터 수:", allRawData.length);
+      const response = await disasterApi.getSavedWeatherWarnings();
+      const list = response?.list || [];
 
-      if (allRawData.length > 0) {
-        // 3일 전 날짜 계산 (비교용)
-        const now = new Date();
-        const threeDaysAgo = new Date();
-        threeDaysAgo.setDate(now.getDate() - 3);
-        const limitDay = threeDaysAgo.toISOString().split('T')[0].replace(/-/g, '');
+      console.log("✅ [fetchWarnings] API 응답 확인:", list);
 
-        // 3. 필터링 시작
-        const filtered = allRawData.filter((item) => {
-          // 데이터가 대문자로 오기 때문에 대문자 필드 사용
-          const prsntnTm = String(item?.PRSNTN_TM || ""); 
-          const title = String(item?.TTL || "");
-          const content = String(item?.SPNE_FRMNT_PRCON_CN || ""); // 상세내용
-          const zone = String(item?.RLVT_ZONE || "");
+      const processedData = list
+        .map((item) => {
+          const title = item.TTL || "";
+          const rawContent = item.SPNE_FRMNT_PRCON_CN || item.content || "";
+          const visibleYn = (
+            item.visible_yn ||
+            item.visibleYn ||
+            "Y"
+          ).toUpperCase();
 
-          // [날짜 필터] 8자리 날짜가 limitDay(예: 20260125)보다 커야 함
-          if (prsntnTm.substring(0, 8) < limitDay) return false;
+          // 🔍 백엔드에서 내려오는 원본 값들 로그 출력
+          console.log(
+            `[데이터 확인] 제목: ${title} | 원본 is_manual: ${item.is_manual} | 원본 isManual: ${item.isManual} | visibleYn: ${visibleYn}`,
+          );
 
-          // [지역 필터] 전북, 전라북도, 전북자치도 키워드 포함 확인
-          const isJeonbuk = /전북|전라북도|전북자치도/.test(zone + content);
-          if (!isJeonbuk) return false;
+          // 관리자 등록 여부 판단 (보통 DB 컬럼명인 is_manual로 들어올 확률이 높음)
+          const isAdminCreated =
+            item.is_manual === "Y" || item.isManual === "Y";
 
-          // [재난 유형 필터] 키워드 매칭
-          const targetText = (title + content + zone).replace(/\s/g, "");
-          let matches = false;
-          
-          switch (disasterType) {
-            case 'earthquake': matches = /지진|해일/.test(targetText); break;
-            case 'flood':      matches = /호우|홍수|강수|비|침수/.test(targetText); break;
-            case 'landSlide':  matches = /산사태|대설|한파|눈|제설/.test(targetText); break;
-            case 'typhoon':    matches = /태풍|강풍|풍랑|바람/.test(targetText); break;
-            case 'forestFire': matches = /건조|산불|화재/.test(targetText); break;
-            default:           matches = false;
+          // 재난 카테고리 매칭
+          let matchedCategories = [];
+          for (const [key, keywords] of Object.entries(DISASTER_KEYWORDS)) {
+            if (
+              keywords.some(
+                (kw) => title.includes(kw) || rawContent.includes(kw),
+              )
+            ) {
+              matchedCategories.push(key);
+            }
           }
-          return matches;
+
+          return {
+            ...item,
+            CATEGORIES: matchedCategories,
+            level: item.level || item.lvl || '보통',
+            visibleYn,
+            isAdminCreated,
+          };
+        })
+
+//                   const processedData = list.map((item) => {
+//   // ... 생략
+//   return {
+//     ...item,
+//     level: item.level || item.lvl || '보통', // 👈 이 부분이 있는지 꼭 확인!
+//     visibleYn: (item.visible_yn || item.visibleYn || "Y").toUpperCase(),
+//     // ... 생략
+//   };
+// });
+
+
+
+        .filter((item) => {
+          // 🔥 관리자 생성 데이터는 무조건 통과
+          if (item.isAdminCreated === true) {
+            return true;
+          }
+
+          // 기존 필터 로직
+          const showItem =
+            item.is_manual === "N" ||
+            (item.CATEGORIES.length > 0 &&
+              item.RLVT_ZONE?.includes("전북") &&
+              item.visibleYn === "Y");
+
+          if (!showItem) {
+            console.log(
+              "❌ 필터링으로 제외됨:",
+              item.TTL,
+              "| visibleYn:",
+              item.visibleYn,
+              "| isAdminCreated:",
+              item.isAdminCreated,
+              "| 카테고리개수:",
+              item.CATEGORIES.length,
+            );
+          }
+
+          return showItem;
         });
 
-        // 4. 최신순 정렬
-        const sorted = filtered.sort((a, b) => {
-          const timeA = String(a?.PRSNTN_TM || "");
-          const timeB = String(b?.PRSNTN_TM || "");
-          if (timeA !== timeB) return timeB.localeCompare(timeA);
-          return (Number(b?.PRSNTN_SN) || 0) - (Number(a?.PRSNTN_SN) || 0);
-        });
+      // 최신 순 정렬
+      const sorted = [...processedData].sort((a, b) =>
+        b.PRSNTN_TM.localeCompare(a.PRSNTN_TM),
+      );
 
-        setWarnings(sorted);
-      } else {
-        setWarnings([]);
-      }
+      console.log(
+        "✅ [정렬 후 경보 목록]",
+        sorted.map((i) => ({
+          TTL: i.TTL,
+          visibleYn: i.visibleYn,
+          isAdminCreated: i.isAdminCreated,
+          level : i.level,
+        })),
+      );
+
+      setWarnings(sorted);
     } catch (error) {
-      console.error("기상 특보 fetch 에러:", error);
+      console.error("❌ [fetchWarnings] 기상특보 조회 실패:", error);
       setWarnings([]);
     } finally {
       setIsLoading(false);
     }
-  }, [disasterType]);
+  }, []);
 
   useEffect(() => {
-    if (disasterType && disasterType !== 'accident') {
-      fetchWarnings();
-    }
-  }, [fetchWarnings, disasterType]);
+    fetchWarnings();
+  }, [fetchWarnings]);
 
   return { warnings, isLoading, refetch: fetchWarnings };
 };
