@@ -9,8 +9,6 @@ import { WEATHER_OPTIONS } from "./WeatherTypeData";
 const WeatherNewsDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { setBreadcrumbTitle } = useOutletContext();
-
   const [isEdit, setIsEdit] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
@@ -29,8 +27,6 @@ const WeatherNewsDetail = () => {
     warningType: "",
   });
 
-  console.log("⭐>>>>", formData.visible_yn);
-
   const [originData, setOriginData] = useState(null);
 
   // 상세 데이터 로드
@@ -39,7 +35,6 @@ const WeatherNewsDetail = () => {
       setLoading(true);
       try {
         const response = await disasterApi.getWeatherDetail(id);
-        console.log("❤️>>>>>", response);
         if (response) {
           setFormData({
             ...response,
@@ -102,6 +97,7 @@ const WeatherNewsDetail = () => {
     try {
       await disasterApi.updateWeather(id, formData);
       alert("성공적으로 수정되었습니다.");
+            navigate("/admin/realtime/weatherNewsList"); 
       setOriginData(formData);
       setIsEdit(false);
       setSubmitted(false);
@@ -121,7 +117,6 @@ const WeatherNewsDetail = () => {
     주의: "bg-yellow-100 text-yellow-700 border-yellow-300",
     보통: "bg-green-100 text-green-700 border-green-300",
   };
-  
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
@@ -190,43 +185,41 @@ const WeatherNewsDetail = () => {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="flex flex-col gap-3">
-  <label className="text-body-m-bold text-admin-text-secondary font-bold ml-1">
-    특보 유형
-  </label>
+                  <label className="text-body-m-bold text-admin-text-secondary font-bold ml-1">
+                    특보 유형
+                  </label>
 
-  {/* 🔥 여기서 분기 */}
-  {!isEdit ? (
-    // 수정 전: input (읽기 전용)
-    <input
-      value={formData.warningType || ""}
-      disabled
-      className="w-full h-14 px-5 rounded-lg border outline-none text-body-m
+                  {!isEdit ? (
+                    // 수정 전: input (읽기 전용)
+                    <input
+                      value={formData.warningType || ""}
+                      disabled
+                      className="w-full h-14 px-5 rounded-lg border outline-none text-body-m
         border-admin-border bg-graygray-5 text-graygray-50 cursor-not-allowed"
-    />
-  ) : (
-    // 수정 모드: select
-    <div className="relative">
-      <select
-  name="warningType"
-  value={formData.warningType || ""}
-  onChange={handleChange}
-  className="w-full h-14 px-5 rounded-lg border outline-none text-body-m appearance-none border-admin-primary bg-white cursor-pointer"
->
-  <option value="">선택해주세요</option> {/* 기본값 추가 */}
-  {WEATHER_OPTIONS.WEATHER_TYPES.map((t) => (
-    <option key={t.value || t} value={t.value || t}>
-      {/* 데이터 구조에 따라 label 혹은 value를 출력 */}
-      {t.label || t.text || t.value || t}
-    </option>
-  ))}
-</select>
-      <ChevronDown
-        className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"
-        size={20}
-      />
-    </div>
-  )}
-</div>
+                    />
+                  ) : (
+                    // 수정 모드: select
+                    <div className="relative">
+                      <select
+                        name="warningType"
+                        value={formData.warningType || ""}
+                        onChange={handleChange}
+                        className="w-full h-14 px-5 rounded-lg border outline-none text-body-m appearance-none border-admin-primary bg-white cursor-pointer"
+                      >
+                        <option value="">선택해주세요</option>{" "}
+                        {WEATHER_OPTIONS.WEATHER_TYPES.map((t) => (
+                          <option key={t.value || t} value={t.value || t}>
+                            {t.label || t.text || t.value || t}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown
+                        className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"
+                        size={20}
+                      />
+                    </div>
+                  )}
+                </div>
 
                 <div className="flex flex-col gap-3">
                   <label className="text-body-m-bold text-admin-text-secondary ml-1 font-bold">
@@ -247,12 +240,6 @@ const WeatherNewsDetail = () => {
                   isEdit={isEdit}
                   onChange={handleChange}
                 />
-                {/* <DetailField 
-                  label="관리 번호 (ID)" 
-                  name="PRSNTN_SN" 
-                  value={formData.PRSNTN_SN} 
-                  isEdit={false} 
-                /> */}
               </div>
             </div>
 

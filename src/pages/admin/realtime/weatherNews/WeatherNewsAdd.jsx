@@ -84,10 +84,6 @@ const WeatherNewsAdd = () => {
         warningType: formData.type,
       };
 
-
-
-      console.log("⭐최종 전송 데이터(KST 반영):", payload);
-
       await disasterApi.createWeather(payload);
       
       alert("신규 특보가 성공적으로 등록되었습니다.");
