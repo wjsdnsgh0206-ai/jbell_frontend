@@ -4,6 +4,8 @@ import { codeService } from '@/services/api';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 import { Calendar } from 'lucide-react';
 
+// 관리자 상세코드 수정페이지 //
+
 const SuccessIcon = ({ fill = "#2563EB" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="8" cy="8" r="8" fill={fill}/>
@@ -21,7 +23,9 @@ const ErrorIcon = () => (
 const AdminSubCodeEdit = () => {
   const { groupId, itemId } = useParams(); 
   const navigate = useNavigate();
-  // context가 undefined일 경우를 대비한 안전한 접근
+
+  const [isGroupVisible, setIsGroupVisible] = useState(true);
+
   const context = useOutletContext() || {}; 
   const setBreadcrumbTitle = context.setBreadcrumbTitle || (() => {});
   
@@ -32,13 +36,12 @@ const AdminSubCodeEdit = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // [추가] 중복 상태 및 원본 명칭 관리
   const [isNameDuplicate, setIsNameDuplicate] = useState(false);
   const [originalName, setOriginalName] = useState('');
 
   const [formData, setFormData] = useState({
     groupCode: '',
-    groupName: '', // 그룹명 추가
+    groupName: '',
     subCodeId: '', 
     subCodeName: '', 
     desc: '', 
@@ -56,13 +59,15 @@ const AdminSubCodeEdit = () => {
   };
 
   // 데이터 로드 및 필드 매핑
-useEffect(() => {
+  useEffect(() => {
     const fetchDetail = async () => {
       if (!groupId || !itemId) return;
       try {
         setIsLoading(true);
         const data = await codeService.getCodeItem(groupId, itemId);
         
+        console.log("상세조회 응답 데이터:", data); 
+
         if (data) {
           const initialForm = {
             groupCode: data.groupCode,
@@ -76,8 +81,12 @@ useEffect(() => {
           };
           setFormData(initialForm);
           setOriginalData({ ...initialForm, visible: data.visible });
-          setOriginalName(data.subName); // 원본 명칭 저장
+          setOriginalName(data.subName);
           setIsRegistered(data.visible);
+
+          const gVisible = data.groupVisible !== undefined ? data.groupVisible : false; 
+          setIsGroupVisible(gVisible === true || gVisible === 'Y');
+
           setBreadcrumbTitle(data.subName);
         }
       } catch (error) {
@@ -89,7 +98,7 @@ useEffect(() => {
     fetchDetail();
   }, [groupId, itemId]);
 
-  // [추가] 상세 코드 명 중복 체크 useEffect
+  // 상세 코드 명 중복 체크
   useEffect(() => {
     const checkSubName = async () => {
       const name = formData.subCodeName.trim();
@@ -101,7 +110,6 @@ useEffect(() => {
       }
 
       try {
-        // 서버의 checkSubDup API 호출 (groupCode, subCode, subName 전달)
         const res = await codeService.checkSubDup({ 
           groupCode: groupId,
           subCode: itemId,
@@ -118,7 +126,6 @@ useEffect(() => {
     return () => clearTimeout(timer);
   }, [formData.subCodeName, originalName, groupId, itemId]);
 
-  // [추가] 중복 UI 판정 변수
   const isNameInvalid = useMemo(() => {
     const currentName = formData.subCodeName.trim();
     if (!currentName || currentName === originalName.trim()) return false;
@@ -189,20 +196,25 @@ const handleCancelClick = () => {
     if (!formData.subCodeName.trim() || isNameDuplicate) {
       return; 
     }
+    //상위 그룹이 미사용인데 사용으로 설정하려는 경우 차단
+    if (isGroupVisible === false && isRegistered === true) {
+      triggerToast("상위 그룹이 미사용 상태이므로 '사용'으로 저장할 수 없습니다.");
+      return;
+    }
+
     setIsModalOpen(true);
   };
 
   const handleConfirmSave = async () => {
     setIsModalOpen(false);
     try {
-      // 등록(AddItem) API와 필드명을 동일하게 맞추는 것이 핵심입니다.
       const payload = {
-        groupCode: groupId,      // URL 파라미터에서 온 값
-        subCode: itemId,        // URL 파라미터에서 온 값
+        groupCode: groupId, 
+        subCode: itemId,
         subName: formData.subCodeName.trim(),
         desc: formData.desc.trim(),
         order: Number(formData.order) || 1,
-        visible: isRegistered   // Add 페이지처럼 boolean 값으로 전송
+        visible: isRegistered
       };
 
       // API 호출
@@ -211,11 +223,9 @@ const handleCancelClick = () => {
       setToastMessage("상세코드가 성공적으로 수정되었습니다.");
       setShowToast(true);
       
-      // 이동하기 전 팝스테이트 이벤트 리스너 제거 (이탈 방지 방해 금지)
       window.removeEventListener('popstate', handlePopState);
 
       setTimeout(() => {
-        // 상세 페이지로 이동 (replace: true로 뒤로가기 시 수정페이지 진입 방지)
         navigate(`/admin/system/subCodeDetail/${groupId}/${itemId}`, { replace: true });
       }, 1500);
     } catch (error) {
@@ -227,7 +237,7 @@ const handleCancelClick = () => {
     }
   };
 
- // [추가] 토스트 트리거 함수 (코드의 일관성을 위해 추가)
+ // 토스트 트리거 함수
   const triggerToast = (msg) => {
     setToastMessage(msg);
     setShowToast(true);
@@ -235,23 +245,19 @@ const handleCancelClick = () => {
   };
 
   const confirmCancel = () => {
-    // 1. 모달 닫기
+
     setIsCancelModalOpen(false);
     
-    // 2. 취소 토스트 메시지 설정 및 표시
     setToastMessage("수정이 취소되었습니다.");
     setShowToast(true);
     
-    // 3. 이탈 방지 리스너 즉시 제거
     window.removeEventListener('popstate', handlePopState);
     
-    // 4. 토스트를 보여줄 시간을 준 뒤 상세 페이지로 이동
     setTimeout(() => {
       navigate(`/admin/system/subCodeDetail/${groupId}/${itemId}`, { replace: true });
-    }, 800); // 0.8초 정도 토스트 노출 후 이동
+    }, 800);
   };
 
-  // 1. 로딩 중일 때 메시지 표시
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center bg-[#F8F9FB] min-h-screen">
@@ -260,7 +266,6 @@ const handleCancelClick = () => {
     );
   }
 
-  // 2. 데이터 로드가 끝났는데 formData가 비어있는 경우 (API 오류 등)
   if (!formData.groupCode) {
     return (
       <div className="flex-1 flex items-center justify-center bg-[#F8F9FB] min-h-screen">
@@ -277,7 +282,6 @@ const handleCancelClick = () => {
       {showToast && (
         <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500">
           <div className="bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-gray-700">
-            {/* 메시지에 '취소'가 포함되지 않았을 때만 체크 아이콘 표시 (그룹수정 페이지와 동일 로직) */}
             {!toastMessage.includes("취소") && <SuccessIcon fill="#4ADE80" />}
             <span className="font-bold text-[16px]">{toastMessage}</span>
           </div>
@@ -290,7 +294,7 @@ const handleCancelClick = () => {
           <h3 className="text-[24px] font-extrabold mb-14 text-[#111] tracking-tight border-b-2 border-gray-100 pb-3">상세 코드 수정</h3>
           
           <div className="flex flex-col space-y-10">
-            {/* 그룹 정보 영역 (상세페이지와 동일한 형식) */}
+            {/* 그룹 정보 영역 */}
             <div className="w-full max-w-[500px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">그룹 코드</label>
               <input 
@@ -310,58 +314,56 @@ const handleCancelClick = () => {
               />
             </div>
 
-            {/* 수정 가능한 필드들... */}
             <div className="w-full max-w-[500px]">
-      <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 명 (필수)</label>
-      <input 
-        name="subCodeName" 
-        value={formData.subCodeName} 
-        onChange={handleChange} 
-        autoComplete="off"
-        placeholder="상세 코드 명을 입력하세요"
-        className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${
-          (isSubmitted && !formData.subCodeName.trim()) || isNameInvalid
-            ? 'border-[#E15141] ring-1 ring-red-50' 
-            : 'border-gray-300 focus:border-[#2563EB]'
-        }`} 
-      />
-      <div className="flex justify-between items-start mt-2">
-        <div className="flex-1 min-h-[20px]">
-          {isNameInvalid ? (
-            <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium">
-              <ErrorIcon /> 이미 존재하는 상세 코드명입니다.
+            <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 명 (필수)</label>
+            <input 
+              name="subCodeName" 
+              value={formData.subCodeName} 
+              onChange={handleChange} 
+              autoComplete="off"
+              placeholder="상세 코드 명을 입력하세요"
+              className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${
+                (isSubmitted && !formData.subCodeName.trim()) || isNameInvalid
+                  ? 'border-[#E15141] ring-1 ring-red-50' 
+                  : 'border-gray-300 focus:border-[#2563EB]'
+              }`} 
+            />
+            <div className="flex justify-between items-start mt-2">
+              <div className="flex-1 min-h-[20px]">
+                {isNameInvalid ? (
+                  <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium">
+                    <ErrorIcon /> 이미 존재하는 상세 코드명입니다.
+                  </div>
+                ) : (isSubmitted && !formData.subCodeName.trim()) ? (
+                  <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium">
+                    <ErrorIcon /> 상세 코드명을 입력해주세요.
+                  </div>
+                ) : (formData.subCodeName.trim() !== "" && formData.subCodeName.trim() !== originalName.trim()) ? (
+                  <div className="text-[#2563EB] text-sm flex items-center gap-2 font-medium">
+                    <SuccessIcon /> 사용 가능한 상세 코드명입니다.
+                  </div>
+                ) : (
+                  <p className="text-[13px] text-gray-400 font-medium">* 최대 100자까지 입력 가능</p>
+                )}
+              </div>
+              <span className="text-[12px] text-gray-400 font-medium ml-4 shrink-0">
+                {formData.subCodeName?.length || 0} / 100
+              </span>
             </div>
-          ) : (isSubmitted && !formData.subCodeName.trim()) ? (
-            <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium">
-              <ErrorIcon /> 상세 코드명을 입력해주세요.
-            </div>
-          ) : (formData.subCodeName.trim() !== "" && formData.subCodeName.trim() !== originalName.trim()) ? (
-            <div className="text-[#2563EB] text-sm flex items-center gap-2 font-medium">
-              <SuccessIcon /> 사용 가능한 상세 코드명입니다.
-            </div>
-          ) : (
-            <p className="text-[13px] text-gray-400 font-medium">* 최대 100자까지 입력 가능</p>
-          )}
-        </div>
-        <span className="text-[12px] text-gray-400 font-medium ml-4 shrink-0">
-          {formData.subCodeName?.length || 0} / 100
-        </span>
-      </div>
-    </div>
-
+          </div>
             <div className="w-full max-w-[600px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 설명</label>
               <textarea name="desc" value={formData.desc} onChange={handleChange} rows="2" className="w-full bg-white border border-gray-300 rounded-lg px-5 py-4 text-[#111] outline-none focus:border-[#2563EB] resize-none leading-relaxed transition-all font-medium" placeholder="코드 설명을 입력해주세요." />
               <div className="flex justify-end mt-2"><span className="text-[12px] text-gray-400 font-medium">{formData.desc?.length || 0} / 200</span></div>
             </div>
-            {/*  상세 코드 순서 영역 아직 구현 X  @@*/}
+            {/*  상세 코드 순서 수정 영역 구현 X  */}
             <div className="w-full">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">순서</label>
               <input 
                 name="order" 
                 type="number" 
                 value={formData.order} 
-                readOnly // 읽기 전용 추가
+                readOnly 
                 className="w-[100px] bg-[#F3F4F7] border border-gray-300 rounded-lg px-4 py-3 text-center text-[#666] cursor-not-allowed outline-none font-medium" 
                 title="순서는 등록 시 자동으로 할당되며, 수정 페이지에서는 변경할 수 없습니다."
               />
@@ -369,15 +371,33 @@ const handleCancelClick = () => {
               <p className="text-[13px] text-gray-400 font-medium">* 숫자가 낮을수록 리스트 상단에 노출됩니다.</p>
             </div>
 
-            <div className="flex items-center gap-5 pt-2">
+            {/* 사용 여부 영역 */}
+            <div className="flex flex-col gap-3 pt-2">
+            <div className="flex items-center gap-5">
               <label className="font-bold text-[16px] text-[#111]">사용 여부</label>
               <div className="flex items-center gap-3">
-                <button type="button" onClick={() => setIsRegistered(!isRegistered)} className={`w-[54px] h-[28px] flex items-center rounded-full p-1 transition-all ${isRegistered ? 'bg-[#2563EB]' : 'bg-gray-300'}`}>
+                <button 
+                  type="button" 
+                  onClick={() => setIsRegistered(!isRegistered)} 
+                  className={`w-[54px] h-[28px] flex items-center rounded-full p-1 transition-all ${isRegistered ? 'bg-[#2563EB]' : 'bg-gray-300'}`}
+                >
                   <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${isRegistered ? 'translate-x-[26px]' : 'translate-x-0'}`} />
                 </button>
-                <span className={`text-[14px] font-bold ${isRegistered ? 'text-[#2563EB]' : 'text-gray-400'}`}>{isRegistered ? '사용' : '미사용'}</span>
+                <span className={`text-[14px] font-bold ${isRegistered ? 'text-[#2563EB]' : 'text-gray-400'}`}>
+                  {isRegistered ? '사용' : '미사용'}
+                </span>
               </div>
             </div>
+
+            {/* 부모 그룹이 미사용일 때 안내 문구 */}
+            {isGroupVisible === false && isRegistered && (
+              <div className="mt-2 p-4 bg-amber-50 border border-amber-100 rounded-lg max-w-[600px]">
+                <p className="text-amber-600 text-[13px] font-bold flex items-center gap-2">
+                  <ErrorIcon /> 상위 그룹 코드가 '미사용' 상태입니다. 현재 상세 코드를 '사용'으로 설정해도 저장되지 않습니다.
+                </p>
+              </div>
+            )}
+          </div>
 
             {/* 날짜 정보 영역 */}
             <div className="pt-10 border-t border-gray-100 flex flex-col space-y-8">

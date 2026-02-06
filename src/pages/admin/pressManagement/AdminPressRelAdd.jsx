@@ -3,20 +3,16 @@ import { useNavigate, useOutletContext } from 'react-router-dom';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal'; 
 import { pressService } from '@/services/api';
 import { Paperclip, X } from 'lucide-react';
-
-// ReactQuill과 Quill 임포트 (중복 제거)
 import ReactQuill, { Quill } from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
-// [수정] 중복 등록 방지: Quill 등록 로직을 컴포넌트 외부에서 안전하게 처리
+// 관리자 보도자료 등록페이지 //
+
 const registerQuill = () => {
   const Block = Quill.import('blots/block');
   Block.tagName = 'P';
   Quill.register(Block, true);
   
-  // 이미 등록된 포맷은 다시 등록하지 않도록 방어 로직이 필요할 수 있습니다.
-  // 보통 React-Quill-new는 기본 포맷을 다 포함하고 있으므로, 
-  // 특별한 커스터마이징이 없다면 아래 register들은 생략해도 에러가 사라집니다.
 };
 registerQuill();
 
@@ -54,7 +50,7 @@ const AdminPressRelAdd = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
-  // 폼 데이터 초기 상태 (rawFiles 추가)
+  // 폼 데이터 초기 상태
   const [formData, setFormData] = useState({
     title: '',
     source: '',
@@ -71,7 +67,7 @@ const AdminPressRelAdd = () => {
   const allFormats = [
   'header', 'font', 'size',
   'bold', 'italic', 'underline', 'strike', 'blockquote',
-  'list', 'bullet', 'indent', 
+  'list', 'indent', 
   'link', 'image', 'color', 'background', 'align'
 ];
 
@@ -80,8 +76,6 @@ const AdminPressRelAdd = () => {
     setBreadcrumbTitle("보도자료 등록");
     return () => setBreadcrumbTitle("");
   }, [setBreadcrumbTitle]);
-
-
 
   // 메모리 해제
   useEffect(() => {
@@ -96,7 +90,6 @@ const AdminPressRelAdd = () => {
     };
   }, [formData.files]);
 
- // [수정] 이탈 방지 로직에서 mgmtId 참조 제거
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       const isDirty = formData.title.trim() || formData.content.replace(/<(.|\n)*?>/g, '').trim();
@@ -107,10 +100,9 @@ const AdminPressRelAdd = () => {
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [formData.title, formData.content]); // 의존성 배열 최적화
+  }, [formData.title, formData.content]);
 
-  // --- [핸들러 구역] ---
-
+  // 핸들러 구역 //
   const imageHandler = () => {
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
@@ -140,7 +132,6 @@ const AdminPressRelAdd = () => {
         return;
       }
 
-      // 등록 페이지 이미지 처리 (Base64 방식)
       const reader = new FileReader();
       reader.onload = (e) => {
         const base64Url = e.target.result;
@@ -153,7 +144,7 @@ const AdminPressRelAdd = () => {
           quill.focus();
         }, 100);
       };
-      reader.readAsDataURL(file); // tempUrl 대신 Base64 사용
+      reader.readAsDataURL(file);
       
       setToastMessage("이미지가 삽입되었습니다.");
       setShowToast(true);
@@ -179,16 +170,13 @@ const AdminPressRelAdd = () => {
   if (errors.content) setErrors(prev => ({ ...prev, content: false }));
 };
 
-  // [수정] handleChange에서 mgmtId 제한 제거
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const limits = { title: 100, source: 20 }; // mgmtId 삭제
+    const limits = { title: 100, source: 20 };
     if (limits[name] && value.length > limits[name]) return;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: false }));
   };
-
-  // --- [핸들러 구역 수정] ---
 
   const addFiles = (newFiles) => {
     if (!newFiles || newFiles.length === 0) return;
@@ -203,33 +191,33 @@ const AdminPressRelAdd = () => {
     const validFileObjects = [];  // 백엔드 전송용
 
     for (const file of incomingFiles) {
-      // 1. 중복 체크
+      // 중복 체크
       const isDuplicate = currentFiles.some(existingFile => existingFile.name === file.name);
       if (isDuplicate) {
         alert(`"${file.name}"은(는) 이미 추가된 파일입니다.`);
         continue; 
       }
 
-      // 2. 개수 체크
+      // 개수 체크
       if (currentFiles.length + validFilePreviews.length >= MAX_FILE_COUNT) {
         alert(`파일은 최대 ${MAX_FILE_COUNT}개까지만 등록 가능합니다.`);
         break; 
       }
 
-      // 3. 확장자 체크
+      // 확장자 체크
       const fileExt = file.name.split('.').pop().toLowerCase();
       if (!allowedExtensions.includes(fileExt)) {
         alert(`${file.name}은(는) 허용되지 않는 파일 형식입니다.`);
         continue; 
       }
 
-      // 4. 용량 체크
+      // 용량 체크
       if (file.size > MAX_FILE_SIZE) {
         alert(`${file.name}의 용량이 너무 큽니다. (최대 10MB)`);
         continue;
       }
 
-      // 검증 통과: 미리보기 데이터와 실제 파일 객체 각각 저장
+      // 검증 통과
       validFilePreviews.push({
         name: file.name,
         url: URL.createObjectURL(file), 
@@ -250,9 +238,7 @@ const AdminPressRelAdd = () => {
     }
   };
 
-  // 첨부파일 삭제 핸들러 (이후 코드는 동일)
-
-  // 첨부파일 삭제 핸들러
+// 첨부파일 삭제 핸들러
 const handleRemoveFile = (idx) => {
   const fileToRemove = formData.files[idx];
 
@@ -263,11 +249,10 @@ const handleRemoveFile = (idx) => {
   setFormData(prev => ({
     ...prev,
     files: prev.files.filter((_, i) => i !== idx),
-    rawFiles: prev.rawFiles.filter((_, i) => i !== idx) // rawFiles도 함께 삭제
+    rawFiles: prev.rawFiles.filter((_, i) => i !== idx)
   }));
 };
 
-  // [수정] 저장 시 필수값 체크에서 mgmtId 제외
   const handleSave = () => {
     const pureText = formData.content.replace(/<(.|\n)*?>/g, '').trim();
     const newErrors = {
@@ -284,34 +269,59 @@ const handleRemoveFile = (idx) => {
     setIsModalOpen(true);
   };
 
+const searchSpecificTags = () => {
+    const quill = quillRef.current.getEditor();
+    const editorRoot = quill.root; // 에디터의 컨텐츠 root DOM
+    console.log(editorRoot.innerHTML);
+    // li 태그 검색
+    const olList = editorRoot.querySelectorAll('ol');
+
+    olList.forEach(ol => {
+      const firstLi = ol.querySelector('li');
+      const type = firstLi.dataset.list;
+      
+      if(type === 'bullet'){
+        ol.classList.add('list-disc');
+        ol.classList.add('list-inside');
+      }
+      if(type === 'ordered'){
+        ol.classList.add('list-decimal');
+        ol.classList.add('list-inside');
+      }
+
+    });
+    
+    formData.content = editorRoot.innerHTML;
+    console.log(formData.content);
+    setFormData(formData);
+    
+  };
+
  const handleConfirmSave = async () => {
   setIsModalOpen(false);
-  
+  searchSpecificTags();
   try {
     const submitData = new FormData();
     
-    // 1. 백엔드 PressDTO 구조와 100% 일치하게 객체 생성
     const pressDto = {
       title: formData.title,
-      body: formData.content,          // DTO 필드명 body
+      body: formData.content,
       visibleYn: formData.isPublic ? 'Y' : 'N',
       source: formData.source,
-      contentLink: formData.sourceUrl, // DTO 필드명 contentLink
+      contentLink: formData.sourceUrl,
       userId: 'ADMIN_MASTER', 
       regType: '직접등록'
     };
 
-    // 2. 중요: 스프링 컨트롤러가 @RequestPart("data")로 받으므로 Blob 처리
     submitData.append("data", new Blob([JSON.stringify(pressDto)], { type: "application/json" }));
     
-    // 3. 파일 데이터 추가 (rawFiles에서 원본 파일 꺼내기)
     if (formData.rawFiles && formData.rawFiles.length > 0) {
       formData.rawFiles.forEach(file => {
-        submitData.append('files', file); // 컨트롤러의 @RequestPart("files")
+        submitData.append('files', file);
       });
     }
 
-    // 4. API 호출
+    // API 호출
     const response = await pressService.admin.create(submitData);
 
     if (response) {
@@ -325,7 +335,7 @@ const handleRemoveFile = (idx) => {
   }
 };
 
-// 1. 취소 실행 로직 (별도 함수 분리)
+// 취소 실행 로직
 const confirmCancel = () => {
   setIsCancelModalOpen(false);
   setToastMessage("등록이 취소되었습니다.");
@@ -336,15 +346,14 @@ const confirmCancel = () => {
   }, 1200);
 };
 
-// [수정] 취소 버튼 클릭 시 mgmtId 참조 제거
-  const handleCancel = () => {
-    const isStarted = formData.title.trim() || formData.content.replace(/<(.|\n)*?>/g, '').trim();
+ const handleCancel = () => {
+   const isStarted = formData.title.trim() || formData.content.replace(/<(.|\n)*?>/g, '').trim();
     if (isStarted) {
       setIsCancelModalOpen(true);
     } else {
       navigate(-1);
     }
-  };
+ };
 
   return (
     <div className="relative flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
@@ -388,7 +397,7 @@ const confirmCancel = () => {
                 value={formData.source}
                 onChange={handleChange}
                 maxLength={20}
-                placeholder="예: 행정안전부, 전북안전대책본부" // placeholder 추가
+                placeholder="예: 행정안전부, 전북안전대책본부"
                 className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${errors.source ? 'border-[#E15141] ring-1 ring-red-50' : 'border-gray-300 focus:border-[#2563EB]'}`}
               />
               <div className="flex justify-between mt-2 px-1 text-[13px]">
@@ -408,31 +417,29 @@ const confirmCancel = () => {
                 className="w-full border border-gray-300 rounded-lg px-5 py-4 outline-none focus:border-[#2563EB] transition-all font-medium resize-none"
               />
             </div>
-
-            {/* 등록 페이지 내용 부분 - 수정 페이지와 동일한 구조로 변경 */}
-<div className="mb-10 w-full text-left">
-  <label className="block font-bold text-[16px] mb-3 text-[#111]">내용 (필수)</label>
-  
-  {/* mb-[-40px] 대신 공통 클래스 custom-quill-wrapper 적용 */}
-  <div className={`custom-quill-wrapper ${errors.content ? 'error-border' : ''}`}> 
-    <ReactQuill 
-      ref={quillRef}
-      theme="snow" 
-      value={formData.content} 
-      onChange={handleEditorChange} 
-      modules={modules}
-      formats={allFormats}
-      placeholder="내용을 입력해주세요."
-      className="custom-quill bg-white" 
-    />
-  </div>
-  
-  {errors.content && (
-    <div className="text-[#E15141] text-[13px] flex items-center gap-1.5 font-medium mt-2 px-1">
-      <ErrorIcon />내용을 입력해주세요
-    </div>
-  )}
-</div>
+     
+            <div className="mb-10 w-full text-left">
+              <label className="block font-bold text-[16px] mb-3 text-[#111]">내용 (필수)</label>
+              
+              <div className={`custom-quill-wrapper ${errors.content ? 'error-border' : ''}`}> 
+                <ReactQuill 
+                  ref={quillRef}
+                  theme="snow" 
+                  value={formData.content} 
+                  onChange={handleEditorChange} 
+                  modules={modules}
+                  formats={allFormats}
+                  placeholder="내용을 입력해주세요."
+                  className="custom-quill bg-white" 
+                />
+              </div>
+              
+              {errors.content && (
+                <div className="text-[#E15141] text-[13px] flex items-center gap-1.5 font-medium mt-2 px-1">
+                  <ErrorIcon />내용을 입력해주세요
+                </div>
+              )}
+            </div>
 
             <div className="mb-10 w-full">
               <label className="block font-bold text-[16px] mb-3">첨부파일</label>
@@ -445,15 +452,15 @@ const confirmCancel = () => {
                   <Paperclip className="text-gray-400 group-hover:text-[#2563EB] mb-3" size={32} />
                   <span className="text-[16px] font-bold text-gray-600">파일을 마우스로 끌어오거나 클릭하세요</span>
                   <input 
-  type="file" 
-  multiple 
-  className="hidden" 
-  accept=".jpg,.jpeg,.png,.webp,.pdf,.hwp,.docx,.xlsx,.zip" 
-  onChange={(e) => {
-    addFiles(e.target.files);
-    e.target.value = ''; // "중복" 알람
-  }} 
-/>
+                    type="file" 
+                    multiple 
+                    className="hidden" 
+                    accept=".jpg,.jpeg,.png,.webp,.pdf,.hwp,.docx,.xlsx,.zip" 
+                    onChange={(e) => {
+                      addFiles(e.target.files);
+                      e.target.value = ''; // "중복" 알람
+                    }} 
+                  />
                 </label>
               </div>
               <div className="flex flex-col gap-3 mt-4">
@@ -492,11 +499,10 @@ const confirmCancel = () => {
           </div>
         </section>
 
-        {/* 하단 버튼 구역 */}
-<div className="flex justify-end gap-2 mt-12 max-w-[1000px]">
-  <button type="button" onClick={handleCancel} className="px-8 py-3.5 border border-gray-300 rounded-lg font-bold text-[16px] text-gray-500 bg-white hover:bg-gray-50">취소</button>
-  <button type="button" onClick={handleSave} className="px-8 py-3.5 bg-[#2563EB] text-white rounded-lg font-bold text-[16px] hover:bg-blue-700">저장</button>
-</div>
+        <div className="flex justify-end gap-2 mt-12 max-w-[1000px]">
+          <button type="button" onClick={handleCancel} className="px-8 py-3.5 border border-gray-300 rounded-lg font-bold text-[16px] text-gray-500 bg-white hover:bg-gray-50">취소</button>
+          <button type="button" onClick={handleSave} className="px-8 py-3.5 bg-[#2563EB] text-white rounded-lg font-bold text-[16px] hover:bg-blue-700">저장</button>
+        </div>
       </main>
 
       <AdminConfirmModal 
@@ -509,13 +515,13 @@ const confirmCancel = () => {
       />
 
       <AdminConfirmModal 
-  isOpen={isCancelModalOpen} 
-  onClose={() => setIsCancelModalOpen(false)} 
-  onConfirm={confirmCancel} 
-  title="등록을 취소하시겠습니까?" 
-  message="작성 중인 내용이 저장되지 않고 목록으로 이동합니다." 
-  type="delete" 
-/>
+        isOpen={isCancelModalOpen} 
+        onClose={() => setIsCancelModalOpen(false)} 
+        onConfirm={confirmCancel} 
+        title="등록을 취소하시겠습니까?" 
+        message="작성 중인 내용이 저장되지 않고 목록으로 이동합니다." 
+        type="delete" 
+      />
     </div>
   );
 };
