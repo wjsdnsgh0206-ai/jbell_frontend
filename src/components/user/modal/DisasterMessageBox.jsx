@@ -97,28 +97,32 @@ const DisasterMessage = () => {
   /**
    * 외부 API로부터 최신 데이터를 수집하도록 서버에 요청한 후 목록을 갱신하는 함수
    */
-  const handleRefresh = async () => {
-    try {
-      setIsLoading(true);
-      const now = new Date();
-      const fetchDate = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")}`;
+const handleRefresh = async () => {
+  try {
+    setIsLoading(true);
+    const now = new Date();
+    // 일주일 전 날짜 계산
+    const weekAgo = new Date(now.setDate(now.getDate() - 7)); 
+    const fetchDate = `${weekAgo.getFullYear()}/${String(weekAgo.getMonth() + 1).padStart(2, "0")}/${String(weekAgo.getDate()).padStart(2, "0")}`;
 
-      await axios.post("/api/disaster/dashboard/disasterMessageInfo", {
-        crtDt: `${fetchDate} 00:00:00`,
-        rgnNm: "전북",
-        numOfRows: 30,
-        pageNo: 1,
-        type: "json",
-      });
+    await axios.post("/api/disaster/dashboard/disasterMessageInfo", {
+      crtDt: `${fetchDate} 00:00:00`, // 오늘 대신 7일 전부터 가져오도록 변경
+      rgnNm: "전북",
+      numOfRows: 100, // 7일치니까 넉넉하게 요청
+      pageNo: 1,
+      type: "json",
+    });
 
-      await fetchMessages();
-    } catch (error) {
-      console.error("데이터 갱신 실패:", error);
-      alert("최신 데이터를 가져오는 데 실패했습니다.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    await fetchMessages(); // 리스트 새로고침
+    
+    // 만약 DisasterMessageList와 같은 페이지에 있다면 
+    // 부모나 공통 상태를 통해 List 컴포넌트의 데이터도 다시 불러와야 해!
+  } catch (error) {
+    console.error("데이터 갱신 실패:", error);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   // 컴포넌트 마운트 시 데이터 호출
   useEffect(() => {
