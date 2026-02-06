@@ -4,9 +4,33 @@ import { Map, MapMarker, CustomOverlayMap } from "react-kakao-maps-sdk";
 const CommonMap = ({ markers = [], center, level, selectedMarker }) => {
   // 현재 열려있는 마커의 고유 ID 저장
   const [openMarkerId, setOpenMarkerId] = useState(null);
+  const [position, setPosition] = useState({
+    lat: 35.8242, 
+    lng: 127.1480
+  });
+
+  const searchLocation = () => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        const location = {
+            lat: latitude, 
+            lng: longitude
+        }
+        setPosition(location);
+        console.log("📍 위도:", latitude);
+        console.log("📍 경도:", longitude);
+      },
+      (error) => {
+        console.error("❌ 위치 가져오기 실패:", error.message);
+      }
+    );
+  }
 
   // 리스트에서 항목 선택 시 해당 마커만 열리도록 설정
   useEffect(() => {
+    searchLocation();
     if (selectedMarker) {
       // 부모에서 넘겨받은 고유 ID(id)를 그대로 사용 (time 대신)
       setOpenMarkerId(selectedMarker.id);
@@ -15,7 +39,7 @@ const CommonMap = ({ markers = [], center, level, selectedMarker }) => {
 
   return (
     <Map
-      center={center || { lat: 35.8242, lng: 127.1480 }}
+      center={center || { lat: position.lat, lng: position.lng }}
       level={level || 8}
       style={{ width: "100%", height: "100%" }}
     >

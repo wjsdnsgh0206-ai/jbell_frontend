@@ -39,15 +39,15 @@ const DisasterManagementList = () => {
       visibleYn: "Y",
       updatedAt: "-",
     },
-    {
-      id: "WTH_WATR_001",
-      apiName: "한강홍수통제소 댐/하천 수위 정보",
-      category: "댐수위",
-      requestUrl: "/disaster/fetch/water-level-list",
-      apiStatus: "체크중",
-      visibleYn: "Y",
-      updatedAt: "-",
-    },
+    // {
+    //   id: "WTH_WATR_001",
+    //   apiName: "한강홍수통제소 댐/하천 수위 정보",
+    //   category: "댐수위",
+    //   requestUrl: "/disaster/fetch/water-level-list",
+    //   apiStatus: "체크중",
+    //   visibleYn: "Y",
+    //   updatedAt: "-",
+    // },
     // --- 기존 항목 유지 ---
     {
       id: "WTH_COLD_001",

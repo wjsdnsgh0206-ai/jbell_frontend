@@ -10,12 +10,14 @@ import {
   TrendingDown,
 } from "lucide-react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import DisasterSummarySection from "@/pages/admin/realtime/dashboard/DisasterSummarySection";
 import TimeRangeSelectorSection from "@/pages/admin/realtime/dashboard/TimeRangeSelectorSection";
 import FrequentlyUsedMenuSection from "@/pages/admin/realtime/dashboard/FrequentlyUsedMenuSection";
 import MapAndRecentMessagesSection from "@/pages/admin/realtime/dashboard/MapAndRecentMessagesSection";
 
 export const RealTimeDashboard = () => {
+  const navigate = useNavigate();
   const [timeRange, setTimeRange] = useState("최근 24시간");
   const [allMessages, setAllMessages] = useState([]);
   const [allWarnings, setAllWarnings] = useState([]);
@@ -137,16 +139,23 @@ export const RealTimeDashboard = () => {
     [allWarnings, timeRange],
   );
 
+  // statCards 클릭시 해당 페이지로 이동
+  const handleStatCardClick = (path) => {
+    if (!path) return;
+    navigate(path);
+  };
+
   const statCards = [
     {
       id: "disaster",
       icon: <AlertTriangle className="w-6 h-6 text-red-600" />,
       bg: "bg-red-50",
-      title: "재난 발생",
+      title: "재난 API",
       count: `${disasterStats.count}건`,
       statType: disasterStats.type,
       statValue: disasterStats.diff,
       statColor: disasterStats.type === "up" ? "text-red-600" : "text-blue-600",
+      path: "/admin/realtime/disasterManagementList",
     },
     {
       id: "weather",
@@ -194,6 +203,7 @@ export const RealTimeDashboard = () => {
         {statCards.map((card) => (
           <article
             key={card.id}
+            onClick={() => handleStatCardClick(card.path)}
             className="flex-1 h-32 flex items-center gap-5 p-6 bg-white rounded-xl border border-solid border-gray-200 shadow-sm hover:shadow-md transition-shadow relative min-w-0"
           >
             <div

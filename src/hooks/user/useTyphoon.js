@@ -8,6 +8,7 @@ const useTyphoon = () => {
   const [disasterStatus, setDisasterStatus] = useState({});
   const [markers, setMarkers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [typhoonCount, setTyphoonCount] = useState(0);
 
   const formatTime = (timeStr) => {
     if (!timeStr) return "-";
@@ -45,6 +46,9 @@ setTyphoonList(formattedPath);
 
       // [해결 2] rawData.map 에러 방지: 데이터가 배열인지 확실히 체크
       const itemList = Array.isArray(response?.data) ? response.data : [];
+
+      // ✅ 태풍 특보 발생 건수
+setTyphoonCount(itemList.length);
 
       if (itemList.length === 0) {
         setDisasterStatus({});
@@ -92,7 +96,7 @@ setTyphoonList(formattedPath);
     }
   }, []);
 
-  return { typhoonList, disasterStatus, markers, isLoading, fetchTyphoonData };
+  return { typhoonList, disasterStatus, markers,typhoonCount, isLoading, fetchTyphoonData };
 };
 
 export default useTyphoon;

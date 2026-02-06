@@ -4,23 +4,29 @@ import { disasterModalService } from "@/services/api";
 const useEarthquake = () => {
   const [eqMarkers, setEqMarkers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [earthquakeCount, setEarthquakeCount] = useState(0);
 
   // 전주시청 좌표 (기준점)
-  const JEONJU_CITY_HALL = { lat: 35.8242, lng: 127.1480 };
+  const JEONJU_CITY_HALL = { lat: 35.8242, lng: 127.148 };
 
   // 거리 계산 함수
   const getDistance = (p1, p2) => {
-    return Math.sqrt(Math.pow(p2.lat - p1.lat, 2) + Math.pow(p2.lng - p1.lng, 2));
+    return Math.sqrt(
+      Math.pow(p2.lat - p1.lat, 2) + Math.pow(p2.lng - p1.lng, 2),
+    );
   };
 
+  // console.log("earthquakeCount>>>>", earthquakeCount);
   const fetchEarthquakeData = useCallback(async () => {
     setIsLoading(true);
+
     try {
       const response = await disasterModalService.getEarthquakeList();
-      // 백엔드 응답 구조에 따라 res.data.data 또는 res.data 확인
+
       const items = response?.data?.data || response?.data || response || [];
 
       if (!Array.isArray(items)) {
+        // console.warn("⚠️ 지진 데이터가 배열이 아님:", items);
         setEqMarkers([]);
         return;
       }
@@ -33,9 +39,11 @@ const useEarthquake = () => {
           if (isNaN(latNum) || isNaN(lngNum)) return null;
 
           const locationName = eq.loc || "";
-          
-          // 전북 필터링
-          if (!locationName.includes("전북") && !locationName.includes("전라북도")) {
+
+          if (
+            !locationName.includes("전북") &&
+            !locationName.includes("전라북도")
+          ) {
             return null;
           }
 
@@ -44,19 +52,29 @@ const useEarthquake = () => {
           let formattedTime = "정보 없음";
 
           if (rawTime.length >= 8) {
-            formattedDate = `${rawTime.substring(0, 4)}-${rawTime.substring(4, 6)}-${rawTime.substring(6, 8)}`;
+            formattedDate = `${rawTime.substring(0, 4)}-${rawTime.substring(
+              4,
+              6,
+            )}-${rawTime.substring(6, 8)}`;
+
             if (rawTime.length >= 12) {
-              formattedTime = `${rawTime.substring(8, 10)}:${rawTime.substring(10, 12)}`;
+              formattedTime = `${rawTime.substring(8, 10)}:${rawTime.substring(
+                10,
+                12,
+              )}`;
             }
           }
 
-          const distance = getDistance(JEONJU_CITY_HALL, { lat: latNum, lng: lngNum });
+          const distance = getDistance(JEONJU_CITY_HALL, {
+            lat: latNum,
+            lng: lngNum,
+          });
 
           return {
             id: eq.seq || `eq-${idx}`,
             lat: latNum,
             lng: lngNum,
-            distance: distance,
+            distance,
             title: `[규모 ${eq.mt || "0.0"}] 지진발생`,
             rawTime,
             content: `
@@ -70,7 +88,9 @@ const useEarthquake = () => {
                   <p style="margin:4px 0;"><b>발생날짜:</b> ${formattedDate}</p>
                   <p style="margin:4px 0;"><b>발생시각:</b> ${formattedTime}</p>
                   <p style="margin:4px 0;"><b>발생위치:</b> ${locationName}</p>
-                  <p style="margin:4px 0;"><b>참고사항:</b> ${eq.rem || "없음"}</p>
+                  <p style="margin:4px 0;"><b>참고사항:</b> ${
+                    eq.rem || "없음"
+                  }</p>
                 </div>
               </div>
             `,
@@ -78,6 +98,8 @@ const useEarthquake = () => {
         })
         .filter(Boolean);
 
+      // console.log("📍 전북 지진 데이터 개수:", formattedData.length);
+      setEarthquakeCount(formattedData.length);
       setEqMarkers(formattedData);
     } catch (error) {
       console.error("🔥 지진 데이터 로드 실패:", error);
@@ -99,7 +121,7 @@ const useEarthquake = () => {
       }
       return JEONJU_CITY_HALL;
     },
-    [nearestEq]
+    [nearestEq],
   );
 
   const clearMarkers = useCallback(() => {
@@ -110,6 +132,7 @@ const useEarthquake = () => {
     eqMarkers,
     fetchEarthquakeData,
     clearMarkers,
+    earthquakeCount,
     isLoading,
     getMapCenter,
     selectedMarker: nearestEq,
