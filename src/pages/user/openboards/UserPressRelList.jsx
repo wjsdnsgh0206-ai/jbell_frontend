@@ -24,7 +24,16 @@ const UserPressRelList = () => {
   const fetchList = useCallback(async () => {
     try {
       const offset = (currentPage - 1) * itemsPerPage;
-      const data = await pressService.getPressList({ offset, limit: itemsPerPage });
+
+      const params = {
+        offset,
+        limit: itemsPerPage,
+        searchCategory: activeSearch.category,
+        searchTerm: activeSearch.term,
+        roleType: 'user'
+      };
+           
+      const data = await pressService.getPressList(params);
      
       const formatted = data.map((item, index) => {
         const fileArray = item.fileList && item.fileList.length > 0 
@@ -35,8 +44,8 @@ const UserPressRelList = () => {
           ...item,
           id: item.contentId,
           date: item.createdAt ? item.createdAt.split('T')[0] : '', 
-          writer: '관리자', 
-          author: '관리자',          
+          writer: item.userName, 
+          author: item.userName,          
           files: fileArray,           
           displayNo: offset + index + 1 
         };
@@ -51,13 +60,18 @@ const UserPressRelList = () => {
       })));
 
       setPressList(formatted);
-      
-      if(totalItems === 0 && data.length > 0) setTotalItems(data.length); 
+
+      if (activeSearch.term) {
+          setTotalItems(data.length); 
+      } else {
+
+          if (totalItems === 0) setTotalItems(data.length); 
+      }
 
     } catch (error) {
       console.error("보도자료 로딩 실패:", error);
     }
-  }, [currentPage, activeSearch, totalItems]);
+  }, [currentPage, activeSearch, itemsPerPage]);
 
   useEffect(() => {
     fetchList();
