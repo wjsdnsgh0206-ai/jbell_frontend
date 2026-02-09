@@ -21,7 +21,9 @@ const SuccessIcon = ({ fill = "#4ADE80" }) => (
 // 줄임말 검색 지원용 사전 (필요할 때마다 추가 가능)
 const SEARCH_ALIAS = {
   "행안부": "행정안전부",
-  "전북": "전북안전대책본부",
+  "전북": "전북재난안전대책본부",
+  "전북안전": "전북재난안전대책본부",
+  "전북안전대책본부" : "전북재난안전대책본부",
   "복지부": "보건복지부",
 };
 
@@ -56,31 +58,47 @@ const AdminPressRelList = () => {
   const [toastMessage, setToastMessage] = useState("");
 
   /// ==================================================================================
-  //  데이터 불러오기 (API 호출) ★ 추가
+  //  데이터 불러오기 (API 호출)
   // ==================================================================================
   // 
 // 데이터 불러오기
 const fetchList = useCallback(async () => {
   try {
+    // 입력된 검색어에서 공백을 제거한 값으로 별칭 확인
+    const rawTerm = appliedKeyword.trim();
+    const processedTerm = SEARCH_ALIAS[rawTerm.replace(/\s+/g, "")] || rawTerm;
+
     const params = {
       offset: (currentPage - 1) * itemsPerPage,
       limit: itemsPerPage,
-      roleType: 'admin' 
+      roleType: 'admin',
+      searchCategory: searchType === 'all' ? '' : searchType,
+      searchTerm: processedTerm,
+      startDate: startDate,
+      endDate: endDate,
+      visibleYn: selectedPublicStatus === 'all' ? '' : (selectedPublicStatus === 'visible' ? 'Y' : 'N') 
     };
     
     const response = await pressService.getPressList(params);
-if (response) {
-  const mappedData = response.map(item => ({
+
+if (response && response.list) {
+  const mappedData = response.list.map(item => ({
     ...item,
     id: item.contentId
   }));
+
   setPressRels(mappedData);
-  setTotalCount(response.length); 
-}
+   setTotalCount(response.totalCount || 0);
+    } else {
+      setPressRels([]);
+      setTotalCount(0);    
+    }
   } catch (error) {
     console.error("데이터 로드 실패:", error);
+    setPressRels([]);
+    setTotalCount(0);
   }
-}, [currentPage]);
+}, [currentPage, appliedKeyword, searchType, startDate, endDate, selectedPublicStatus]);
 
   useEffect(() => {
     fetchList();
@@ -92,7 +110,7 @@ if (response) {
 
   
   // ==================================================================================
-  //  필터링 로직 (Filtering Logic) @@
+  //  필터링 로직 (Filtering Logic)
   // ==================================================================================
 
   // 상세 이동 함수
@@ -171,11 +189,10 @@ const filteredData = useMemo(() => {
 
   // 현재 페이지 슬라이싱
   const currentData = useMemo(() => {
-    const size = 10; 
-    const page = Number(currentPage) || 1;
-    const startIndex = (page - 1) * size;
-    return filteredData.slice(startIndex, startIndex + size);
-}, [currentPage, filteredData]);
+  return filteredData;
+}, [filteredData]);
+
+  const displayTotalCount = totalCount;
 
 // ==================================================================================
 //  테이블 컬럼 정의
@@ -186,10 +203,20 @@ const columns = useMemo(() => [
     header: 'NO',
     width: '60px',
     className: 'text-center',
-    render: (_, row) => {
-      const index = currentData.findIndex(item => item.contentId === row.contentId);
-      const total = filteredData.length;
-      const calculatedNo = total - (currentPage - 1) * itemsPerPage - index;
+    render: (val, row) => {
+      // 1. 현재 페이지의 데이터 리스트에서 해당 행의 인덱스를 직접 찾습니다.
+      const indexInCurrentPage = currentData.findIndex(item => item.contentId === row.contentId);
+      
+      // 2. 인덱스를 찾지 못한 경우(데이터 로딩 중 등)를 대비해 기본값 0 설정
+      const safeIndex = indexInCurrentPage === -1 ? 0 : indexInCurrentPage;
+
+      const total = Number(totalCount) || 0;
+      const page = Number(currentPage) || 1;
+      const perPage = Number(itemsPerPage) || 10;
+
+      // 역순 번호 계산 공식
+      const calculatedNo = total - (page - 1) * perPage - safeIndex;
+      
       return <span>{calculatedNo}</span>;
     }
   },
@@ -319,7 +346,7 @@ const columns = useMemo(() => [
       </button>
     )
   }
-], [filteredData.length, currentPage, itemsPerPage, currentData, hoveredFileId, goDetail]);
+], [totalCount, currentPage, itemsPerPage, currentData, hoveredFileId, goDetail]);
   // ==================================================================================
   // 5. 이벤트 핸들러 (Event Handlers)
   // ==================================================================================
@@ -402,47 +429,49 @@ const columns = useMemo(() => [
   };
 
 // 일괄 상태 변경 핸들러
-  const handleBatchStatus = (status) => {
-    if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
-    
-    // 선택된 항목들의 데이터 추출
-    const selectedItems = pressRels.filter(item => selectedIds.includes(item.id));
-    const selectedTitles = selectedItems.map(item => item.title);
+const handleBatchStatus = (status) => {
+  if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
+  
+  const selectedItems = pressRels.filter(item => selectedIds.includes(item.id));
+  const selectedTitles = selectedItems.map(item => item.title);
 
-    setModalConfig({
-      title: `일괄 ${status ? '노출' : '비노출'} 처리`,
-      message: (
-        <div className="flex flex-col gap-3 text-left">
-          <p>선택하신 <span className="text-admin-primary font-bold">[{selectedItems.length}개]</span> 항목을 일괄 <span className="font-bold underline">{status ? '노출' : '비노출'}</span> 처리하시겠습니까?</p>
-          <div className="bg-gray-50 p-3 rounded-md border border-gray-200 max-h-40 overflow-y-auto">
-            {selectedTitles.map((title, idx) => (
-              <p key={idx} className="text-sm text-gray-600 mb-1 flex items-start gap-2">
-                <span className="shrink-0 mt-1.5 w-1 h-1 bg-blue-400 rounded-full"></span>
-                {title}
-              </p>
-            ))}
-          </div>
+  setModalConfig({
+    title: `일괄 ${status ? '노출' : '비노출'} 처리`,
+    message: (
+      <div className="flex flex-col gap-3 text-left">
+        <p>선택하신 <span className="text-admin-primary font-bold">[{selectedItems.length}개]</span> 항목을 일괄 <span className="font-bold underline">{status ? '노출' : '비노출'}</span> 처리하시겠습니까?</p>
+        <div className="bg-gray-50 p-3 rounded-md border border-gray-200 max-h-40 overflow-y-auto">
+          {selectedTitles.map((title, idx) => (
+            <p key={idx} className="text-sm text-gray-600 mb-1 flex items-start gap-2">
+              <span className="shrink-0 mt-1.5 w-1 h-1 bg-blue-400 rounded-full"></span>
+              {title}
+            </p>
+          ))}
         </div>
-      ),
-      type: status ? 'confirm' : 'delete',
-      onConfirm: async () => {
-        try {
-          // API 연동 로직
-          setPressRels(prev => prev.map(item => 
-            selectedIds.includes(item.id) 
-              ? { ...item, visibleYn: status ? 'Y' : 'N' } 
-              : item
-          ));
-          setSelectedIds([]); 
-          setIsModalOpen(false);
-          triggerToast(`선택한 항목이 ${status ? '노출' : '비노출'} 처리되었습니다.`);
-        } catch (error) {
-          alert("상태 변경 실패");
-        }
+      </div>
+    ),
+    type: status ? 'confirm' : 'delete',
+    onConfirm: async () => {
+      try {
+
+        await pressService.admin.updateVisibleStatus({
+          ids: selectedIds,
+          visibleYn: status ? 'Y' : 'N'
+        });
+
+        setSelectedIds([]); 
+        setIsModalOpen(false);
+        triggerToast(`선택한 항목이 ${status ? '노출' : '비노출'} 처리되었습니다.`);
+        
+        fetchList(); 
+      } catch (error) {
+        console.error("상태 변경 실패:", error);
+        alert("상태 변경에 실패했습니다. 다시 시도해주세요.");
       }
-    });
-    setIsModalOpen(true);
-  };
+    } // onConfirm 종료
+  });
+  setIsModalOpen(true);
+};
   
   // ==================================================================================
   // 6. UI 렌더링
@@ -564,7 +593,7 @@ const columns = useMemo(() => [
                 {selectedIds.length > 0 ? (
                   <span className="text-admin-primary">{selectedIds.length}개 선택됨</span>
                 ) : (
-                  `전체 ${filteredData.length}건`
+                  `전체 ${totalCount}건`
                 )}
               </span>
 
