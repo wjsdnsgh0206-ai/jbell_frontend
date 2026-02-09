@@ -60,17 +60,11 @@ const ActionTipBox = ({ type = "지진" }) => {
       { id: "03", text: "전신주, 공사장 근처는 위험합니다.", icon: Icons.Typhoon[2] },
       { id: "04", text: "TV/라디오 기상 상황을 확인하세요.", icon: Icons.Typhoon[3] },
     ],
-    호우: [
-      { id: "01", text: "하천변이나 지하 주차장에서 대피하세요.", icon: Icons.Rain[0] },
-      { id: "02", text: "공사장, 축대 근처는 피하세요.", icon: Icons.Rain[1] },
-      { id: "03", text: "맨홀, 배수구 근처는 주의하세요.", icon: Icons.Rain[2] },
-      { id: "04", text: "비상시 응급 용품을 챙겨두세요.", icon: Icons.Rain[3] },
-    ],
-    홍수: [
-      { id: "01", text: "침수 위험 시 높은 곳으로 이동하세요.", icon: Icons.Flood[0] },
-      { id: "02", text: "전기 차단 및 가스 밸브를 잠그세요.", icon: Icons.Flood[1] },
-      { id: "03", text: "침수된 도로에서 차량 운행 금지.", icon: Icons.Flood[2] },
-      { id: "04", text: "지정된 대피소 위치를 파악하세요.", icon: Icons.Flood[3] },
+    "호우·홍수": [
+      { id: "01", text: "개울가, 하천변, 해안가 등 위험 지역은 접근하지 마세요.", icon: Icons.Rain[0] },
+      { id: "02", text: "침수된 도로, 교량, 지하차도는 절대 지나가지 마세요.", icon: Icons.Flood[2] },
+      { id: "03", text: "저지대나 상습 침수지역 주민은 신속히 대피하세요.", icon: Icons.Flood[0] },
+      { id: "04", text: "비탈면이나 산사태 위험 지역 근처는 피하세요.", icon: Icons.Rain[1] },
     ],
     산사태: [
       { id: "01", text: "산 근처 주민은 대피 준비를 하세요.", icon: Icons.Landslide[0] },

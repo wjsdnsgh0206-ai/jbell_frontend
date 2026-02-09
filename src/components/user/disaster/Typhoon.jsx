@@ -15,8 +15,8 @@ const Typhoon = () => {
   const JEONBUK_OFFICE = { lat: 35.8202, lng: 127.1088 };
 
   const mapTabs = [
+    // { id: "태풍특보", label: "태풍특보" },
     { id: "태풍특보", label: "태풍특보" },
-    { id: "태풍경로도", label: "태풍경로도" },
     { id: "대피소", label: "대피소" },
   ];
 
@@ -74,14 +74,14 @@ const Typhoon = () => {
   // 3. 탭에 따른 지도 확대 레벨 결정
   const mapLevel = useMemo(() => {
     if (activeTab === "대피소") return 5;
-    if (activeTab === "태풍경로도") return 11; // 경로도는 더 넓게
+    if (activeTab === "태풍특보") return 11; // 경로도는 더 넓게
     return 8;
   }, [activeTab]);
 
   // 4. 현재 탭에 따라 표시할 마커 결정
   const displayMarkers = useMemo(() => {
     if (activeTab === "대피소") return shelterMarkers;
-    if (activeTab === "태풍경로도") {
+    if (activeTab === "태풍특보") {
       return recentMonthTyphoonList.map(t => ({...t, lat: t.typhoonLat, lng: t.typhoonLon}));
     }
     return markers; // 태풍특보 마커
@@ -118,14 +118,12 @@ const Typhoon = () => {
             />
           </div>
 
-          {/* 오버레이 리스트 (태풍특보, 태풍경로도일 때만 표시) */}
-          {(activeTab === "태풍특보" || activeTab === "태풍경로도") && (
+          {(activeTab === "태풍특보") && (
             <div className="absolute inset-0 z-10 bg-black/10 backdrop-blur-[2px] p-4 pl-[120px] lg:pl-[180px] overflow-y-auto no-scrollbar pointer-events-none">
               <div className="flex flex-col gap-4 max-w-4xl pointer-events-auto">
                 <div className="bg-white/95 p-3 rounded-xl shadow-md border border-blue-200 self-start backdrop-blur-md">
                   <p className="text-detail-s-bold text-blue-700 flex items-center gap-2">
-                    <span className="animate-pulse">🌀</span> 
-                    {activeTab === "태풍특보" ? "전북지역 태풍특보 현황" : "최근 한 달 태풍 경로"}
+                    {activeTab === "태풍특보" ? "전북지역 태풍특보 현황" : "최근 한 달 태풍 특보"}
                   </p>
                 </div>
 
@@ -136,31 +134,8 @@ const Typhoon = () => {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {activeTab === "태풍특보" && markers.map((item) => (
-                      <div key={item.id} className="bg-white p-5 rounded-2xl shadow-xl border-2 border-blue-500 ring-4 ring-blue-50 transition-all hover:scale-[1.01]">
-                        <div className="flex justify-between items-start mb-3">
-                          <div className="flex items-center gap-1.5">
-                            <span className="bg-blue-600 text-white text-[9px] px-1.5 py-0.5 rounded font-bold">전북</span>
-                            <h4 className="text-body-m-bold text-gray-900">{item.region}</h4>
-                          </div>
-                          <span className={`text-[11px] px-2 py-1 rounded-lg font-bold text-white shadow-sm`} style={{ backgroundColor: item.color }}>
-                            {item.level}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-1 gap-2 mt-4 text-detail-s">
-                          <div className="flex justify-between items-center p-2 bg-slate-50 rounded-lg">
-                            <span className="text-gray-500 font-medium">발표시각</span>
-                            <span className="text-gray-900">{item.publishTime}</span>
-                          </div>
-                          <div className="flex justify-between items-center p-2 bg-blue-50 rounded-lg border border-blue-100 font-bold">
-                            <span className="text-blue-700 font-bold">발효시각</span>
-                            <span className="text-blue-700 font-bold">{item.startTime}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-
-                    {activeTab === "태풍경로도" && recentMonthTyphoonList.map((tp) => {
+    
+                    {activeTab === "태풍특보" && recentMonthTyphoonList.map((tp) => {
                       const isClosed = tp.typhoonActiveYn !== "Y";
                       return (
                         <div key={tp.id} className={`bg-white p-5 rounded-2xl shadow-xl border-2 transition-all hover:scale-[1.01] ${
@@ -199,10 +174,10 @@ const Typhoon = () => {
                     })}
 
                     {((activeTab === "태풍특보" && markers.length === 0) || 
-                      (activeTab === "태풍경로도" && recentMonthTyphoonList.length === 0)) && (
+                      (activeTab === "태풍특보" && recentMonthTyphoonList.length === 0)) && (
                       <div className="col-span-full py-20 bg-white/60 rounded-3xl text-center border-2 border-dashed border-gray-200 flex flex-col items-center gap-3">
                         <p className="text-gray-500 text-detail-s font-medium">
-                          {activeTab === "태풍경로도" ? "최근 한 달 이내 발생한 태풍 정보가 없습니다." : "현재 발령된 태풍 특보가 없습니다."}
+                          {activeTab === "태풍특보" ? "최근 한 달 이내 발생한 태풍 정보가 없습니다." : "현재 발령된 태풍 특보가 없습니다."}
                         </p>
                       </div>
                     )}

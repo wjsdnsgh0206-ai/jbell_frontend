@@ -16,9 +16,9 @@ const ForestFire = () => {
   // 3. 대피소 관련 훅 추가
   const { shelterMarkers, fetchShelters, setShelterMarkers } = useShelter();
 
-  const [activeTab, setActiveTab] = useState("실시간 산불정보");
+  const [activeTab, setActiveTab] = useState("산불위험지수");
 
-  const tabs = ["실시간 산불정보", "산불위험예보", "대피소"];
+  const tabs = ["산불위험지수", "산불위험예보", "대피소"];
 
   // 탭 변경 시 데이터 로딩 로직
   useEffect(() => {
@@ -96,10 +96,9 @@ const ForestFire = () => {
               </button>
             ))}
           </div>
-
-          {/* 📌 [실시간 산불정보] 상황판 - riskData(DB) 사용 */}
-          {activeTab === "실시간 산불정보" && (
-            <div className="absolute z-10 bottom-6 left-1/2 -translate-x-1/2 w-[320px] md:w-[360px] p-6 rounded-[28px] bg-white shadow-2xl border border-gray-100 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          
+          {activeTab === "산불위험지수" && (
+            <div className="absolute z-10 bottom-11 left-2/3 -translate-x-1/2 w-[320px] md:w-[360px] p-6 rounded-[28px] bg-white shadow-2xl border border-gray-100 animate-in fade-in slide-in-from-bottom-4 duration-300">
               {riskData ? (
                 <div className="flex flex-col gap-5">
                   <div className="flex items-center justify-between border-b border-gray-100 pb-4">
@@ -137,11 +136,11 @@ const ForestFire = () => {
           {/* 📌 [산불위험예보] 리스트 모달 - warningData(공공데이터) 사용 */}
           {activeTab === "산불위험예보" && (
             <div className="absolute inset-0 z-[100] flex items-center justify-center p-4 lg:p-6">
-              <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={() => setActiveTab("실시간 산불정보")} />
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={() => setActiveTab("산불위험지수")} />
               <div className="relative bg-white w-full max-w-5xl h-[100%] mt-2 rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-top-4 duration-300 pointer-events-auto">
                 <div className="px-8 py-3 border-b border-gray-100 flex justify-between items-start bg-white">
                   <h4 className="text-[16px] font-bold text-gray-900">전북 산불 위험 예보 기록</h4>
-                  <button onClick={() => setActiveTab("실시간 산불정보")} className="group p-1.5 bg-gray-50 hover:bg-gray-900 rounded-xl transition-all shadow-sm">
+                  <button onClick={() => setActiveTab("산불위험지수")} className="group p-1.5 bg-gray-50 hover:bg-gray-900 rounded-xl transition-all shadow-sm">
                     <X size={21} className="text-gray-400 group-hover:text-white transition-colors" />
                   </button>
                 </div>

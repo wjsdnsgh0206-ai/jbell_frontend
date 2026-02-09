@@ -151,7 +151,9 @@ const DisasterMessageList = () => {
 
     setModalConfig({
       title: "노출 상태 변경",
-      message: <p>해당 항목을 [{nextStatus ? "노출" : "비노출"}] 처리하시겠습니까?</p>,
+      message: <p>해당 항목을  <span className={`font-bold ${nextStatus ? "text-admin-primary" : "text-[#FF003E]"}`}>
+            [{nextStatus ? "노출" : "비노출"}]
+          </span> 처리하시겠습니까?</p>,
       type: nextStatus ? "confirm" : "delete",
       onConfirm: async () => {
         try {

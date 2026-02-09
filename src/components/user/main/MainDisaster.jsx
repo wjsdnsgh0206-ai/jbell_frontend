@@ -1,121 +1,99 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-/*
-  MainDisaster 컴포넌트
-  > 작성자 : 최지영
-  > 컴포넌트 이름 : 메인화면의 재난사고속보
-  > 컴포넌트 설명 : 메인화면(pages/user/UserPageMain.jsx)에 들어갈 재난사고속보 컴포넌트로, 
-    공지사항 / 보도자료 / 시민안전교육의 게시판 내용을 일부 표시함. 
-*/
+import { disasterModalService } from "@/services/api";
 
 const MainDisaster = () => {
   const navigate = useNavigate();
+  const [disasterList, setDisasterList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const disasterList = [
-    {
-      id: 1,
-      type: "태풍",
-      title: "제14호 태풍 '카이로스' 북상에 따른 전북 지역 비상 대응 단계 격상",
-      date: "2025.12.05",
-      path: "/disaster/typhoon",
-    },
-    {
-      id: 2,
-      type: "지진",
-      title:
-        "전북 장수군 북쪽 17km 지역 규모 3.5 지진 발생 (유감 신고 접수 중)",
-      date: "2025.12.04",
-      path: "/disaster/earthquake",
-    },
-    {
-      id: 3,
-      type: "산불",
-      title:
-        "건조주의보 발령 중, 입산 시 화기 소지 금지 및 산불 예방 수칙 준수",
-      date: "2025.12.03",
-      path: "/disaster/forestFire",
-    },
-    {
-      id: 4,
-      type: "산불",
-      title:
-        "건조주의보 발령 중, 입산 시 화기 소지 금지 및 산불 예방 수칙 준수",
-      date: "2025.12.02",
-      path: "/disaster/forestFire", // 산불 탭으로 이동
-    },
-    {
-      id: 5,
-      type: "사고",
-      title:
-        "서해안고속도로 하행선 부근 다중 추돌 사고 발생, 우회 도로 이용 권장",
-      date: "2025.12.01",
-      path: "/disaster/accident",
-    },
-  ];
+  const loadDisasterData = async () => {
+    try {
+      setLoading(true);
+      const data = await disasterModalService.fetchCombinedDisasterList();
+      if (data && Array.isArray(data)) {
+        setDisasterList(data);
+      }
+    } catch (error) {
+      console.error("재난 데이터를 불러오는데 실패했습니다.", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadDisasterData();
+  }, []);
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "-";
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+    } catch (e) {
+      return dateStr;
+    }
+  };
+
+  const getBadgeStyle = (category) => {
+    if (!category) return "border-gray-200 text-gray-500 bg-gray-50";
+    if (category.includes("태풍")) return "border-blue-200 text-blue-500 bg-blue-50";
+    if (category.includes("지진")) return "border-amber-200 text-amber-600 bg-amber-50";
+    if (category.includes("호우")) return "border-indigo-200 text-indigo-500 bg-indigo-50";
+    if (category.includes("산불")) return "border-orange-200 text-orange-600 bg-orange-50";
+    if (category.includes("경보") || category.includes("재난")) return "border-red-200 text-red-500 bg-red-50";
+    return "border-gray-200 text-gray-500 bg-gray-50";
+  };
 
   return (
-    <div className="w-full">
+    // max-w-2xl 정도를 줘서 너무 옆으로 퍼지는 걸 방지해
+    <div className="w-full max-w-[700px]"> 
       <div className="flex justify-between items-end mb-4 sm:mb-6">
-        {/*=== 재난 사고속보 헤더 영역 === */}
         <div className="flex items-center gap-2 sm:gap-3">
-          <h2 className="text-title-m sm:text-title-l text-graygray-90 transition-all">
-            재난사고속보
-          </h2>
-          <span className="bg-red-50 text-red-600 text-detail-m font-bold px-2 py-0.5 rounded-full animate-pulse">
-            LIVE
-          </span>
+          <h2 className="text-title-m sm:text-title-l text-graygray-90">재난사고속보</h2>
+          <span className="bg-red-50 text-red-600 text-detail-m font-bold px-2 py-0.5 rounded-full animate-pulse">LIVE</span>
         </div>
-        {/* 더보기 버튼 클릭시, 재난사고속보 모달 페이지 오픈 */}
         <button
           className="text-detail-m text-graygray-50 hover:text-secondary-50 transition-colors p-1"
-          onClick={() => navigate(window.location.hostname === 'localhost'? "/disaster/accident": "/disaster/earthquake")}
+          onClick={() => navigate("/disaster/earthquake")}
         >
           더보기 +
         </button>
       </div>
 
-      {/* === 게시물 리스트 영역 === */}
-      <div className="flex flex-col gap-2 sm:gap-1">
-        {disasterList.map((item) => (
-          <div
-            key={item.id}
-            onClick={() => navigate(item.path)}
-            className="flex flex-col sm:flex-row sm:items-center justify-between group cursor-pointer 
-                       bg-white sm:bg-transparent hover:bg-secondary-5 
-                       p-4 sm:p-3 rounded-xl transition-all duration-200 
-                       border border-graygray-10 sm:border-0 sm:border-b sm:last:border-0 
-                       gap-2 sm:gap-4 shadow-sm sm:shadow-none"
-          >
-            {/* 뱃지 + 제목 영역 */}
-            <div className="flex items-center gap-3 overflow-hidden w-full">
-              <span
-                className={`shrink-0 w-12 text-center py-1 rounded-md text-detail-s md:text-detail-m font-bold border transition-colors
-                ${
-                  item.type === "태풍"
-                    ? "border-blue-200 text-blue-500 bg-blue-50"
-                    : item.type === "지진"
-                    ? "border-amber-200 text-amber-600 bg-amber-50"
-                    : item.type === "호우"
-                    ? "border-indigo-200 text-indigo-500 bg-indigo-50"
-                    : "border-gray-200 text-gray-500 bg-gray-50"
-                }`}
-              >
-                {item.type}
-              </span>
+      <div className="flex flex-col">
+        {loading ? (
+          <div className="py-10 text-center text-gray-400 text-body-s">데이터 로딩 중...</div>
+        ) : disasterList.length > 0 ? (
+          disasterList.map((item, index) => (
+            <div
+              key={index}
+              onClick={() => navigate(`/disaster/earthquake`)}
+              className="flex items-center justify-between group cursor-pointer 
+                         hover:bg-secondary-5 
+                         py-3 px-1 /* 패딩을 살짝 늘려 가독성 확보 */
+                         border-b border-graygray-10 last:border-0 
+                         gap-4 transition-all duration-200"
+            >
+              <div className="flex items-center gap-4 overflow-hidden flex-1">
+                <span className={`shrink-0 w-12 text-center py-0.5 rounded-md text-detail-s font-bold border ${getBadgeStyle(item.category)}`}>
+                  {item.category.substring(0, 2)}
+                </span>
+                {/* 제목 영역이 너무 길어지지 않게 유지 */}
+                <span className="text-body-s md:text-body-m text-graygray-80 group-hover:text-secondary-50 transition-colors truncate">
+                  {item.title}
+                </span>
+              </div>
 
-              {/* 제목 */}
-              <span className="text-body-s md:text-body-m text-graygray-80 group-hover:text-secondary-50 transition-colors truncate flex-1">
-                {item.title}
+              <span className="shrink-0 text-detail-m text-graygray-50 tabular-nums ml-4">
+                {formatDate(item.eventDate)}
               </span>
             </div>
-
-            {/* 날짜 영역 */}
-            <span className="text-detail-m text-graygray-50 tabular-nums self-end sm:self-auto">
-              {item.date}
-            </span>
-          </div>
-        ))}
+          ))
+        ) : (
+          <div className="py-10 text-center text-gray-400 text-body-s">조회된 데이터가 없습니다.</div>
+        )}
       </div>
     </div>
   );

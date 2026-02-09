@@ -11,7 +11,7 @@ const useForestFireRisk = () => {
 
     try {
       const res = await axios.get(targetUrl);
-      
+
       // ✅ 중요: 콘솔 사진상 실제 데이터는 res.data.data 안에 있어!
       const actualData = res.data.data; 
 

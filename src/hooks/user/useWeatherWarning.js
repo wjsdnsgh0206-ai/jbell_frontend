@@ -21,7 +21,7 @@ export const useWeatherWarning = () => {
       const response = await disasterApi.getSavedWeatherWarnings();
       const list = response?.list || [];
 
-      console.log("✅ [fetchWarnings] API 응답 확인:", list);
+      // console.log("✅ [fetchWarnings] API 응답 확인:", list);
 
       const processedData = list
         .map((item) => {
@@ -34,9 +34,9 @@ export const useWeatherWarning = () => {
           ).toUpperCase();
 
           // 🔍 백엔드에서 내려오는 원본 값들 로그 출력
-          console.log(
-            `[데이터 확인] 제목: ${title} | 원본 is_manual: ${item.is_manual} | 원본 isManual: ${item.isManual} | visibleYn: ${visibleYn}`,
-          );
+          // console.log(
+          //   `[데이터 확인] 제목: ${title} | 원본 is_manual: ${item.is_manual} | 원본 isManual: ${item.isManual} | visibleYn: ${visibleYn}`,
+          // );
 
           // 관리자 등록 여부 판단 (보통 DB 컬럼명인 is_manual로 들어올 확률이 높음)
           const isAdminCreated =
@@ -109,15 +109,15 @@ export const useWeatherWarning = () => {
         b.PRSNTN_TM.localeCompare(a.PRSNTN_TM),
       );
 
-      console.log(
-        "✅ [정렬 후 경보 목록]",
-        sorted.map((i) => ({
-          TTL: i.TTL,
-          visibleYn: i.visibleYn,
-          isAdminCreated: i.isAdminCreated,
-          level : i.level,
-        })),
-      );
+      // console.log(
+      //   "✅ [정렬 후 경보 목록]",
+      //   sorted.map((i) => ({
+      //     TTL: i.TTL,
+      //     visibleYn: i.visibleYn,
+      //     isAdminCreated: i.isAdminCreated,
+      //     level : i.level,
+      //   })),
+      // );
 
       setWarnings(sorted);
     } catch (error) {
