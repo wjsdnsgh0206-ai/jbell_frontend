@@ -79,11 +79,12 @@ const mjAdminRoutes = [
             element: <AdminMemberRegister />,
             nowPage: "회원 등록",
       },
-      // {
-      //       path: "/admin/member/adminMemberEdit/:memberId", 
-      //       element: <AdminMemberEdit />,
-      //       nowPage: "회원 수정",
-      // },
+      /*{
+            path: "/admin/member/adminMemberEdit/:memberId", 
+            element: <AdminMemberEdit />,
+            nowPage: "회원 수정",
+      },
+      */
 
 ];
 

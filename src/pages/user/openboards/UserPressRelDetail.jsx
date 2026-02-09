@@ -4,18 +4,17 @@ import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
 import { pressService } from '@/services/api';
 import { Button } from '@/components/shared/Button';
 
-// 보도자료 상세페이지 //
+// 사용자 보도자료 상세페이지 //
 
 const UserPressRelDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-// --- 서버 데이터 상태 관리 ---
+// 서버 데이터 상태 관리
   const [data, setData] = React.useState(null);
   const [loading, setLoading] = React.useState(true);  
 
-  // --- 라이프사이클 관리 --- //
-  // 페이지 진입 시 스크롤을 최상단으로 이동
+  // 라이프사이클 관리
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -28,6 +27,7 @@ const UserPressRelDetail = () => {
         window.scrollTo(0, 0);
         // 서버 API 호출
         const result = await pressService.getPressDetail(id);
+        
         setData(result);
       } catch (error) {
         console.error("데이터 로딩 실패:", error);
@@ -84,7 +84,7 @@ const UserPressRelDetail = () => {
         <div className="py-8 px-2 text-left">
           <h3 className="text-[20px] font-bold text-black mb-6">제목 : {data.title}</h3>
           <div className="flex items-center gap-x-6 text-[14px] text-[#222]">
-          <div><span className="text-[#444]">등록인 :</span> 관리자</div>
+          <div><span className="text-[#444]">등록인 :</span> {data.userName} </div>
           <div className="w-[1px] h-3 bg-gray-300"></div>
           <div><span className="text-[#444]">등록일 :</span> {data.createdAt?.split('T')[0]}</div>
         </div>

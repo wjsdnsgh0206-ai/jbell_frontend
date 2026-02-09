@@ -138,10 +138,6 @@ const AdminBoardDetail = () => {
                 <span>수정일: {post.updatedAt}</span>
               </div>
             )}
-            <div className="flex items-center gap-2">
-              <Eye size={16} />
-              <span>조회수: {(post.views ?? 0).toLocaleString()}</span>
-            </div>
           </div>
         </div>
 
@@ -174,12 +170,13 @@ const AdminBoardDetail = () => {
                     ({(file.fileSize / 1024).toFixed(1)} KB)
                   </span>
                 </div>
-                <button 
-                  onClick={() => handleDownload(file.fileId)}
-                  className="text-[13px] text-admin-primary font-bold hover:underline"
+                <a 
+                  href={file.filePath} 
+                  download={file.fileRealName} 
+                  className="text-blue-600 hover:underline font-medium"
                 >
                   다운로드
-                </button>
+                </a>
               </li>
             ))}
           </ul>

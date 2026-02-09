@@ -4,7 +4,9 @@ import { codeService } from '@/services/api';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 import { Calendar } from 'lucide-react';
 
-// 토스트용 성공 아이콘 컴포넌트 (유지)
+// 관리자 그룹코드 상세페이지 //
+
+// 토스트용 성공 아이콘 컴포넌트
 const SuccessIcon = ({ fill = "#4ADE80" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
     <circle cx="8" cy="8" r="8" fill={fill}/>
@@ -13,7 +15,7 @@ const SuccessIcon = ({ fill = "#4ADE80" }) => (
 );
 
 const AdminGroupCodeDetail = () => {
-  const { id } = useParams(); // 목록에서 navigate 시 id로 groupCode를 넘겨줌
+  const { id } = useParams();
   const { setBreadcrumbTitle } = useOutletContext();
   const navigate = useNavigate();
   const [formData, setFormData] = useState(null);
@@ -27,10 +29,9 @@ const AdminGroupCodeDetail = () => {
     return dateTimeStr.replace('T', ' ');
   };
 
-  // 데이터 로드 로직 (codeService 사용)
+  // 데이터 로드 로직
   const fetchDetail = useCallback(async () => {
     try {
-      // codeService.getCodeGroup(id) 사용
       const data = await codeService.getCodeGroup(id);
       setFormData(data);
       setBreadcrumbTitle(data.groupName);
@@ -47,13 +48,12 @@ const AdminGroupCodeDetail = () => {
 
   if (!formData) return null;
 
-  // 삭제 로직 (codeService 사용)
+  // 삭제 로직
   const handleDelete = async () => {
     setIsDeleting(true);
     setIsDeleteModalOpen(false);
 
     try {
-      // codeService.deleteGroup(id) 사용
       await codeService.deleteGroup(id);
       setShowToast(true);
       setTimeout(() => {
@@ -164,7 +164,6 @@ const AdminGroupCodeDetail = () => {
                 <label className="text-[14px] font-bold text-gray-400">등록 일시</label>
                 <div className="flex items-center gap-2 text-[#999] font-medium px-1">
                   <Calendar size={16} className="text-gray-300" /> 
-                  {/* [수정] formatDateTime 적용 */}
                   {formatDateTime(formData.createdAt)}
                 </div>
               </div>
@@ -173,7 +172,6 @@ const AdminGroupCodeDetail = () => {
                 <label className="text-[14px] font-bold text-gray-400">수정 일시</label>
                 <div className="flex items-center gap-2 text-[#999] font-medium px-1">
                   <Calendar size={16} className="text-gray-300" /> 
-                  {/* [수정] formatDateTime 적용 */}
                   {formatDateTime(formData.updatedAt || formData.createdAt)}
                 </div>
               </div>
@@ -187,7 +185,15 @@ const AdminGroupCodeDetail = () => {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}
         title="그룹 코드를 삭제하시겠습니까?"
-        message="삭제된 데이터는 복구할 수 없으며 즉시 삭제됩니다."
+        message={
+          <div className="flex flex-col gap-2 text-left">
+            <p>선택하신 <span className="text-red-600 font-bold">[{formData.groupName}]</span> 그룹 코드를 삭제하시겠습니까?</p>
+            <p className="text-[14px] text-red-500 font-bold bg-red-50 p-2 rounded mt-1">
+              ⚠️ 주의: 그룹코드 삭제 시 해당 그룹 내 모든 상세코드가 먼저 삭제됩니다.
+            </p>
+            <p className="text-[13px] text-gray-500">* 삭제된 데이터는 복구할 수 없습니다.</p>
+          </div>
+        }
         type="delete"
       />
     </div>

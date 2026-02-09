@@ -1,25 +1,50 @@
 import React from 'react';
 import { Settings, Trophy, Edit3, ClipboardCheck, Map as MapIcon } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 const FrequentlyUsedMenuSection = () => {
+  const navigate = useNavigate();
+  
   const menus = [
-    { id: 1, title: "재난 발생 관리", icon: <Trophy size={32} className="text-blue-500"/> },
-    { id: 2, title: "기상 특보 관리", icon: <Edit3 size={32} className="text-blue-500"/> },
-    { id: 3, title: "안전정책 관리", icon: <ClipboardCheck size={32} className="text-blue-500"/> },
-    { id: 4, title: "안전 정보 지도", icon: <MapIcon size={32} className="text-blue-500"/> },
+    { 
+      id: 1, 
+      title: "재난 문자이력 관리", 
+      icon: <Trophy size={32} className="text-blue-500"/>,
+      path: "/admin/realtime/disasterMessageList" 
+    },
+    { 
+      id: 2, 
+      title: "기상 특보 관리", 
+      icon: <Edit3 size={32} className="text-blue-500"/>,
+      path: "/admin/realtime/weatherNewsList"
+    },
+    { 
+      id: 3, 
+      title: "행동요령 관리", 
+      icon: <ClipboardCheck size={32} className="text-blue-500"/>,
+      path: "/admin/contents/behaviorMethodList"
+    },
+    { 
+      id: 4, 
+      title: "회원 관리", 
+      icon: <MapIcon size={32} className="text-blue-500"/>,
+      path: "/admin/member/adminMemberList"
+    },
   ];
 
   return (
     <section className="absolute top-[712px] left-[50px] right-[50px]">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-[32px] font-bold text-[#1d1d1d]">자주찾는 메뉴</h2>
-        <button className="flex items-center gap-2 text-gray-600 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
-          <Settings size={18}/> <span className="text-sm font-bold">설정하기</span>
-        </button>
+        <h2 className="text-[32px] font-bold text-[#1d1d1d]">주요 메뉴</h2>
+
       </div>
       <div className="flex gap-8">
         {menus.map((menu) => (
-          <div key={menu.id} className="flex-1 flex items-center gap-5 p-6 bg-slate-50 rounded-2xl border border-gray-100 hover:shadow-md transition-shadow cursor-pointer group min-w-0 overflow-hidden">
+          <div 
+            key={menu.id} 
+            onClick={() => navigate(menu.path)}
+            className="flex-1 flex items-center gap-5 p-6 bg-slate-50 rounded-2xl border border-gray-100 hover:shadow-md transition-shadow cursor-pointer group min-w-0 overflow-hidden"
+          >
             <div className="w-20 h-20 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform shrink-0">
               {menu.icon}
             </div>

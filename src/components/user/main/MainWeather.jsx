@@ -1,11 +1,37 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import useWeather from "@/hooks/user/useWeather";
+import { useNavigate } from "react-router-dom";
+import { disasterModalService } from "@/services/api";
 
 const MainWeather = () => {
-  // 훅에서 dust 데이터도 함께 가져와
-  const { weather, dust, address, isLoading, error, getWeatherDesc } = useWeather();
+  const navigate = useNavigate();
+  const { weather, dust, address, isLoading: weatherLoading, error, getWeatherDesc } = useWeather();
+  
+  // 최신 재난 데이터 상태 추가
+  const [latestDisaster, setLatestDisaster] = useState(null);
+  const [disasterLoading, setDisasterLoading] = useState(true);
 
-  if (isLoading) {
+  // 최신 재난 데이터 1개만 가져오기
+  const loadLatestDisaster = async () => {
+    try {
+      setDisasterLoading(true);
+      const data = await disasterModalService.fetchCombinedDisasterList();
+      if (data && Array.isArray(data) && data.length > 0) {
+        // 가장 첫 번째(최신) 데이터 저장
+        setLatestDisaster(data[0]);
+      }
+    } catch (err) {
+      console.error("최신 재난 정보를 가져오는데 실패했습니다.", err);
+    } finally {
+      setDisasterLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadLatestDisaster();
+  }, []);
+
+  if (weatherLoading) {
     return (
       <div className="flex-1 bg-gradient-to-br from-[#70a8e9] to-[#426cb9] rounded-xl flex items-center justify-center text-white animate-pulse min-h-[300px]">
         날씨 연결 중...
@@ -21,10 +47,7 @@ const MainWeather = () => {
     );
   }
 
-  // 미세먼지 데이터 및 등급 계산 (데이터가 있을 때만 실행)
   const pm10 = dust?.list[0].components.pm10;
-  const pm2_5 = dust?.list[0].components.pm2_5;
-
   const getDustStatus = (val) => {
     if (val <= 30) return "좋음";
     if (val <= 80) return "보통";
@@ -33,7 +56,8 @@ const MainWeather = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full h-full">
+    <div className="flex flex-col gap-4 w-full h-full"> {/* 간격을 4로 살짝 줄임 */}
+      {/* 날씨 카드 영역 */}
       <div className="flex-1 bg-gradient-to-br from-[#70a8e9] to-[#426cb9] rounded-xl border border-white/20 p-5 sm:p-8 relative overflow-hidden flex flex-col justify-between min-h-[300px]">
         <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/20 rounded-full blur-2xl pointer-events-none" />
         
@@ -66,7 +90,6 @@ const MainWeather = () => {
           </div>
         </div>
 
-        {/* 미세먼지 포함 상세 그리드 영역 */}
         <div className="grid grid-cols-1 gap-2.5 relative z-10">
           {[
             { 
@@ -94,15 +117,31 @@ const MainWeather = () => {
         </div>
       </div>
       
-      {/* 하단 경보 카드 (기존 유지) */}
-      <div className="bg-white border-l-4 border-l-orange-500 border border-graygray-10 rounded-[24px] p-4 flex items-center gap-4 shadow-1 hover:translate-y-[-2px] transition-all">
+      {/* 하단 경보 카드 (실제 데이터 연동) */}
+      <div 
+        onClick={() => navigate(`/disaster/detail`)}
+        className="bg-white border-l-4 border-l-orange-500 border border-graygray-10 rounded-[24px] p-4 flex items-center gap-4 shadow-sm hover:translate-y-[-2px] transition-all cursor-pointer"
+      >
         <div className="bg-orange-500 text-white w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 font-bold shadow-md">
-          <span className="text-[9px] opacity-80 leading-none mb-0.5">LV</span>
-          <span className="text-xl leading-none">03</span>
+          <span className="text-[9px] opacity-80 leading-none mb-0.5">NEW</span>
+          <span className="text-sm leading-none">속보</span>
         </div>
+        
         <div className="min-w-0 flex-1">
-          <p className="text-detail-m font-bold text-orange-600 mb-0.5">태풍 주의보 발령</p>
-          <h4 className="text-body-m-bold text-graygray-90 truncate">강풍 동반 집중호우 주의</h4>
+          {disasterLoading ? (
+            <p className="text-detail-m text-gray-400">불러오는 중...</p>
+          ) : latestDisaster ? (
+            <>
+              <p className="text-detail-m font-bold text-orange-600 mb-0.5">
+                {latestDisaster.category}
+              </p>
+              <h4 className="text-body-s-bold text-graygray-90 truncate">
+                {latestDisaster.title}
+              </h4>
+            </>
+          ) : (
+            <p className="text-body-m-bold text-gray-400">현재 새로운 속보가 없습니다.</p>
+          )}
         </div>
       </div>
     </div>

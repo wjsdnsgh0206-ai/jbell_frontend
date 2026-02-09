@@ -16,17 +16,16 @@ const useEarthquake = () => {
     );
   };
 
-  // console.log("earthquakeCount>>>>", earthquakeCount);
   const fetchEarthquakeData = useCallback(async () => {
     setIsLoading(true);
 
     try {
       const response = await disasterModalService.getEarthquakeList();
 
+      // API 구조에 맞춰 데이터 추출
       const items = response?.data?.data || response?.data || response || [];
 
       if (!Array.isArray(items)) {
-        // console.warn("⚠️ 지진 데이터가 배열이 아님:", items);
         setEqMarkers([]);
         return;
       }
@@ -40,28 +39,21 @@ const useEarthquake = () => {
 
           const locationName = eq.loc || "";
 
-          if (
-            !locationName.includes("전북") &&
-            !locationName.includes("전라북도")
-          ) {
-            return null;
-          }
+          // ✅ 1. 지역 필터링 제거: 전북이 아니어도 null을 반환하지 않음
+          // 대신 전북 여부를 불리언 값으로 저장해서 정렬에 사용
+          const isJeonbuk = 
+            locationName.includes("전북") || 
+            locationName.includes("전라북도");
 
           const rawTime = String(eq.tmFc || "");
           let formattedDate = "정보 없음";
           let formattedTime = "정보 없음";
 
           if (rawTime.length >= 8) {
-            formattedDate = `${rawTime.substring(0, 4)}-${rawTime.substring(
-              4,
-              6,
-            )}-${rawTime.substring(6, 8)}`;
+            formattedDate = `${rawTime.substring(0, 4)}-${rawTime.substring(4, 6)}-${rawTime.substring(6, 8)}`;
 
             if (rawTime.length >= 12) {
-              formattedTime = `${rawTime.substring(8, 10)}:${rawTime.substring(
-                10,
-                12,
-              )}`;
+              formattedTime = `${rawTime.substring(8, 10)}:${rawTime.substring(10, 12)}`;
             }
           }
 
@@ -75,8 +67,10 @@ const useEarthquake = () => {
             lat: latNum,
             lng: lngNum,
             distance,
+            isJeonbuk, // 정렬을 위한 기준값
             title: `[규모 ${eq.mt || "0.0"}] 지진발생`,
             rawTime,
+            locationName,
             content: `
               <div style="line-height:1.6; padding:10px; min-width:200px; font-family:sans-serif;">
                 <div style="border-bottom:2px solid #f3f4f6; padding-bottom:8px; margin-bottom:8px;">
@@ -88,17 +82,23 @@ const useEarthquake = () => {
                   <p style="margin:4px 0;"><b>발생날짜:</b> ${formattedDate}</p>
                   <p style="margin:4px 0;"><b>발생시각:</b> ${formattedTime}</p>
                   <p style="margin:4px 0;"><b>발생위치:</b> ${locationName}</p>
-                  <p style="margin:4px 0;"><b>참고사항:</b> ${
-                    eq.rem || "없음"
-                  }</p>
+                  <p style="margin:4px 0;"><b>참고사항:</b> ${eq.rem || "없음"}</p>
                 </div>
               </div>
             `,
           };
         })
-        .filter(Boolean);
+        .filter(Boolean)
+        // ✅ 2. 정렬 로직: 전북 우선 배치 후 최신 시간순 정렬
+        .sort((a, b) => {
+          // 전북 지역 데이터인 경우 최상단으로 (true가 앞으로)
+          if (a.isJeonbuk && !b.isJeonbuk) return -1;
+          if (!a.isJeonbuk && b.isJeonbuk) return 1;
 
-      // console.log("📍 전북 지진 데이터 개수:", formattedData.length);
+          // 동일 조건(둘 다 전북이거나 아니거나)일 때는 최신 시간순 정렬
+          return b.rawTime - a.rawTime;
+        });
+
       setEarthquakeCount(formattedData.length);
       setEqMarkers(formattedData);
     } catch (error) {
@@ -111,6 +111,7 @@ const useEarthquake = () => {
 
   const nearestEq = useMemo(() => {
     if (eqMarkers.length === 0) return null;
+    // 리스트 중 전주시청과 가장 가까운 지진 반환
     return [...eqMarkers].sort((a, b) => a.distance - b.distance)[0];
   }, [eqMarkers]);
 
