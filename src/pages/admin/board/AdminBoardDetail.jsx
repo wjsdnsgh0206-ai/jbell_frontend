@@ -138,10 +138,6 @@ const AdminBoardDetail = () => {
                 <span>수정일: {post.updatedAt}</span>
               </div>
             )}
-            <div className="flex items-center gap-2">
-              <Eye size={16} />
-              <span>조회수: {(post.views ?? 0).toLocaleString()}</span>
-            </div>
           </div>
         </div>
 
