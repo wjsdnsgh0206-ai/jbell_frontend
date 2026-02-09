@@ -52,9 +52,9 @@ const DisasterEventManagementList = () => {
     try {
       const [kmaRes, fireRes, eqRes, floodRes, typhoonRes] = await Promise.all([
         axios.get("/api/disaster/fetch/weather-list?type=3"),
+        axios.get("/api/disaster/fetch/weather-list?type=2"),
         axios.get("/api/disaster/fetch/forest-fire-list"),
         axios.get("/api/disaster/fetch/earthquake-list"),
-        axios.get("/api/disaster/fetch/weather-list?type=2"),
         axios.get("/api/disaster/fetch/weather-list?type=7"),
       ]);
 

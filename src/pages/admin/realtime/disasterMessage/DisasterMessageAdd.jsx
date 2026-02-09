@@ -32,7 +32,6 @@ const DisasterMessageAdd = () => {
     sender: "",
     content: "",
     region: "전라북도 전주시",
-    // .replace('T', ' ')를 제거하고 표준 ISO 형식으로 유지하거나,
     dateTime: getNowDateTime(),
     isVisible: true,
   });
@@ -95,7 +94,7 @@ const DisasterMessageAdd = () => {
           RCPTN_RGN_NM: formData.region, // @JsonProperty("RCPTN_RGN_NM")
           EMRG_STEP_NM: formData.category, // @JsonProperty("EMRG_STEP_NM")
           DST_SE_NM: formData.type, // @JsonProperty("DST_SE_NM") !! (dstType이 아님)
-          visibleYn: formData.isVisible ? "Y" : "N", // 얘는 @JsonProperty가 없으니 그대로
+          visible_yn: formData.isVisible ? "Y" : "N", // 얘는 @JsonProperty가 없으니 그대로
         };
         console.log("🚀 서버로 쏘는 데이터 확인:", postData);
 

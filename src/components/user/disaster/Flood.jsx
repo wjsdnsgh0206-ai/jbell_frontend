@@ -15,7 +15,7 @@ const Flood = () => {
 
   const mapTabs = [
     { id: "호우특보", label: "호우특보" },
-    { id: "댐수문", label: "댐수문" },
+    // { id: "댐수문", label: "댐수문" },
     { id: "대피소", label: "대피소" },
   ];
 
@@ -109,7 +109,7 @@ const Flood = () => {
               <div className="flex flex-col gap-4 max-w-4xl pointer-events-auto">
                 <div className="bg-white/95 p-3 rounded-xl shadow-md border border-blue-200 self-start backdrop-blur-md">
                   <p className="text-detail-s-bold text-blue-700 flex items-center gap-2">
-                    <span className="animate-pulse">☔</span> 전북지역 호우특보 현황
+                     전북지역 호우특보 현황
                   </p>
                 </div>
                 {loading ? (

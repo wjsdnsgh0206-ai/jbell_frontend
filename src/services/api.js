@@ -782,6 +782,19 @@ export const weatherService = {
 ========================================================= */
 
 export const disasterModalService = {
+/* -----------------------------
+      통합 재난 목록 조회 (DB)
+  ----------------------------- */
+  fetchCombinedDisasterList: async () => {
+    try {
+      // 백엔드 컨트롤러에서 만든 주소와 일치해야 해!
+      const response = await axios.get('/api/disaster/dashboard/fetch/combined-list');
+      return response.data; // 받은 리스트를 호출한 곳으로 반환
+    } catch (error) {
+      console.error("통합 재난 목록 로딩 실패:", error);
+      throw error; // 에러를 밖으로 던져서 컴포넌트에서도 알게 해줘
+    }
+  },
   /* -----------------------------
      재난문자 (CBS)
   ----------------------------- */

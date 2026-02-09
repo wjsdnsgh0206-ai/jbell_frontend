@@ -2,12 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import {
-  Activity,
-  RefreshCw,
-  Link as LinkIcon,
-  AlertCircle,
-} from "lucide-react";
+import { RefreshCw, Link as LinkIcon } from "lucide-react";
 import axios from "axios";
 
 import AdminDataTable from "@/components/admin/AdminDataTable";
@@ -39,16 +34,6 @@ const DisasterManagementList = () => {
       visibleYn: "Y",
       updatedAt: "-",
     },
-    {
-      id: "WTH_WATR_001",
-      apiName: "한강홍수통제소 댐/하천 수위 정보",
-      category: "댐수위",
-      requestUrl: "/disaster/fetch/water-level-list",
-      apiStatus: "체크중",
-      visibleYn: "Y",
-      updatedAt: "-",
-    },
-    // --- 기존 항목 유지 ---
     {
       id: "WTH_COLD_001",
       apiName: "기상청 한파 영향예보 조회 서비스",
@@ -367,7 +352,6 @@ const DisasterManagementList = () => {
             </div>
           </div>
 
-          {/* 🛠️ [수정] 테이블에 선택 로직 연결 */}
           <AdminDataTable
             columns={columns}
             data={disasters}
