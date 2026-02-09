@@ -1,5 +1,4 @@
-"use no memo";
-
+// src\pages\admin\realtime\disasterManagement\DisasterManagementList.jsx
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import {
