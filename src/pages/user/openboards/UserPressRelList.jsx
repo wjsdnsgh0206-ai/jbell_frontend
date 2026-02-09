@@ -8,6 +8,15 @@ import { pressService } from '@/services/api';
 
 //사용자 보도자료 목록 페이지 //
 
+// 줄임말 검색 지원용 사전 (필요할 때마다 추가 가능)
+const SEARCH_ALIAS = {
+  "행안부": "행정안전부",
+  "전북": "전북재난안전대책본부",
+  "전북안전": "전북재난안전대책본부",
+  "전북안전대책본부" : "전북재난안전대책본부",
+  "복지부": "보건복지부",
+};
+
 const UserPressRelList = () => {
   const navigate = useNavigate();
 
@@ -25,20 +34,29 @@ const UserPressRelList = () => {
     try {
       const offset = (currentPage - 1) * itemsPerPage;
 
+      const rawTerm = (activeSearch.term || '').trim();
+      const processedTerm = SEARCH_ALIAS[rawTerm.replace(/\s+/g, "")] || rawTerm;
+
+
       const params = {
         offset,
         limit: itemsPerPage,
-        searchCategory: activeSearch.category,
-        searchTerm: activeSearch.term,
+        searchCategory: activeSearch.category === '선택' ? '' : activeSearch.category,
+        searchTerm: processedTerm,
         roleType: 'user'
       };
            
-      const data = await pressService.getPressList(params);
+      const response = await pressService.getPressList(params);
      
-      const formatted = data.map((item, index) => {
-        const fileArray = item.fileList && item.fileList.length > 0 
-          ? item.fileList 
-          : new Array(item.fileCount || 0).fill({});
+       if (response && response.list) {
+        const formatted = response.list.map((item, index) => {
+          const fileArray = item.fileList && item.fileList.length > 0 
+            ? item.fileList 
+            : new Array(item.fileCount || 0).fill({});
+            
+          const offset = (currentPage - 1) * itemsPerPage;
+          const sequentialNo = offset + index + 1;
+
 
         return {
           ...item,
@@ -47,7 +65,7 @@ const UserPressRelList = () => {
           writer: item.userName, 
           author: item.userName,          
           files: fileArray,           
-          displayNo: offset + index + 1 
+          displayNo: sequentialNo 
         };
       })
    
@@ -59,14 +77,20 @@ const UserPressRelList = () => {
         파일리스트_길이: f.fileList.length
       })));
 
-      setPressList(formatted);
-
-      if (activeSearch.term) {
-          setTotalItems(data.length); 
+       setPressList(formatted);
+       setTotalItems(response.totalCount || 0);
       } else {
-
-          if (totalItems === 0) setTotalItems(data.length); 
+        // 데이터가 없는 경우 처리
+        setPressList([]);
+        setTotalItems(0);
       }
+
+      // if (activeSearch.term) {
+      //     setTotalItems(data.length); 
+      // } else {
+
+      //     if (totalItems === 0) setTotalItems(data.length); 
+      // }
 
     } catch (error) {
       console.error("보도자료 로딩 실패:", error);

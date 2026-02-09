@@ -221,7 +221,7 @@ const AdminPressRelDetail = () => {
                   <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${formData.visibleYn === 'Y' ? 'translate-x-[26px]' : 'translate-x-0'}`}></div>
                 </div>
                 <span className={`text-[14px] font-bold ${formData.visibleYn === 'Y' ? 'text-[#2563EB]' : 'text-gray-400'}`}>
-                  {formData.visibleYn === 'Y' ? '노출' : '미노출'}
+                  {formData.visibleYn === 'Y' ? '노출' : '비노출'}
                 </span>
               </div>
             </div>
