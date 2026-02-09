@@ -181,7 +181,7 @@ export const RealTimeDashboard = () => {
   ];
 
   return (
-    <div className="relative w-full h-[950px] overflow-hidden mx-auto border border-gray-100 font-sans bg-white">
+    <div className="relative w-full h-[950px] overflow-hidden mx-auto border border-gray-100 font-sans">
       <header className="absolute top-[35px] left-[50px] right-[50px] flex items-center justify-between font-bold text-[#1d1d1d] tracking-tight">
         <h1 className="text-[36px]">대시보드</h1>
         <TimeRangeSelectorSection

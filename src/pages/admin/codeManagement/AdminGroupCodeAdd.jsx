@@ -184,7 +184,7 @@ const AdminGroupCodeAdd = () => {
   };
 
   return (
-    <div className="relative flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
+    <div className="relative flex-1 flex flex-col min-h-screen font-['Pretendard_GOV'] antialiased text-[#111]">
       {showToast && (
         <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500">
           <div className="bg-[#111] text-white px-8 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-gray-700">

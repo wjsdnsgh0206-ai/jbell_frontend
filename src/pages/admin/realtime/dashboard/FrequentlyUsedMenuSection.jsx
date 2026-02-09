@@ -19,7 +19,7 @@ const FrequentlyUsedMenuSection = () => {
       </div>
       <div className="flex gap-8">
         {menus.map((menu) => (
-          <div key={menu.id} className="flex-1 flex items-center gap-5 p-6 bg-slate-50 rounded-2xl border border-gray-100 hover:shadow-md transition-shadow cursor-pointer group min-w-0 overflow-hidden">
+          <div key={menu.id} className="flex-1 flex items-center gap-5 p-6 bg-slate-50 rounded-2xl border border-solid border-gray-200  hover:shadow-md transition-shadow cursor-pointer group min-w-0 overflow-hidden">
             <div className="w-20 h-20 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform shrink-0">
               {menu.icon}
             </div>

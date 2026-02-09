@@ -90,7 +90,7 @@ const AdminSafetyEduDetail = () => {
   // 3. UI 렌더링
   // ==================================================================================
   return (
-    <div className="relative flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
+    <div className="relative flex-1 flex flex-col min-h-screen font-['Pretendard_GOV'] antialiased text-[#111]">
 
       {/* Toast Notification */}
       {showToast && (
