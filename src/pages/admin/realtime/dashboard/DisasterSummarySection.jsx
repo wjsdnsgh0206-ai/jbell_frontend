@@ -93,7 +93,6 @@ const DisasterSummarySection = () => {
           ))}
         </div>
 
-
       </div>
     </section>
   );
