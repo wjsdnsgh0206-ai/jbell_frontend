@@ -182,7 +182,7 @@ const AdminPressRelAdd = () => {
   const addFiles = (newFiles) => {
     if (!newFiles || newFiles.length === 0) return;
 
-    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'pdf', 'hwp', 'docx', 'xlsx', 'zip'];
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'pdf', 'hwp', 'hwpx', 'docx', 'xlsx', 'zip'];
     const MAX_FILE_COUNT = 5;
     const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
     const currentFiles = formData.files || [];
@@ -193,7 +193,9 @@ const AdminPressRelAdd = () => {
 
     for (const file of incomingFiles) {
       // 중복 체크
-      const isDuplicate = currentFiles.some(existingFile => existingFile.name === file.name);
+      const isDuplicate = currentFiles.some(existingFile =>
+        (existingFile.name === file.name) || (existingFile.realName === file.name)
+      );
       if (isDuplicate) {
         alert(`"${file.name}"은(는) 이미 추가된 파일입니다.`);
         continue;
@@ -456,7 +458,7 @@ const AdminPressRelAdd = () => {
                     type="file"
                     multiple
                     className="hidden"
-                    accept=".jpg,.jpeg,.png,.webp,.pdf,.hwp,.docx,.xlsx,.zip"
+                    accept=".jpg,.jpeg,.png,.webp,.pdf,.hwp,.hwpx,.docx,.xlsx,.zip"
                     onChange={(e) => {
                       addFiles(e.target.files);
                       e.target.value = ''; // "중복" 알람

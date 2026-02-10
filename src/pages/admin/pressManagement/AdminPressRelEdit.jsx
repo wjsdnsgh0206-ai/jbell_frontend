@@ -167,7 +167,7 @@ const AdminPressRelEdit = () => {
 
   const addFiles = (newFiles) => {
     if (!newFiles || newFiles.length === 0) return;
-    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'pdf', 'hwp', 'docx', 'xlsx', 'zip'];
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'pdf', 'hwp', 'hwpx', 'docx', 'xlsx', 'zip'];
     const MAX_FILE_COUNT = 5;
     const MAX_FILE_SIZE = 10 * 1024 * 1024;
     const currentFiles = formData.files || [];
@@ -177,10 +177,17 @@ const AdminPressRelEdit = () => {
     const validRawFiles = [];
 
     for (const file of incomingFiles) {
-      if (currentFiles.some(f => f.name === file.name)) {
+      // 중복 체크 로직
+      // 중복 체크 통합 (서버 파일 realName + 신규 파일 name 모두 체크)
+      const isDuplicate = currentFiles.some(f =>
+        (f.realName === file.name) || (f.name === file.name)
+      );
+
+      if (isDuplicate) {
         alert(`"${file.name}"은(는) 이미 추가된 파일입니다.`);
         continue;
       }
+
       if (currentFiles.length + validPreviews.length >= MAX_FILE_COUNT) {
         alert(`파일은 최대 ${MAX_FILE_COUNT}개까지만 등록 가능합니다.`);
         break;
@@ -458,7 +465,7 @@ const AdminPressRelEdit = () => {
                     type="file"
                     multiple
                     className="hidden"
-                    accept=".jpg,.jpeg,.png,.webp,.pdf,.hwp,.docx,.xlsx,.zip"
+                    accept=".jpg,.jpeg,.png,.webp,.pdf,.hwp,.hwpx,.docx,.xlsx,.zip"
                     onChange={(e) => {
                       addFiles(e.target.files);
                       e.target.value = ''; // "중복" 알람

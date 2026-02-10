@@ -24,6 +24,9 @@ const SEARCH_ALIAS = {
   "전북": "전북재난안전대책본부",
   "전북안전": "전북재난안전대책본부",
   "전북안전대책본부": "전북재난안전대책본부",
+  "전북안전본부": "전북재난안전대책본부",
+  "전북재난본부": "전북재난안전대책본부",
+  "전북재난대책": "전북재난안전대책본부",
   "복지부": "보건복지부",
 };
 
@@ -162,7 +165,8 @@ const AdminPressRelList = () => {
           isSearchMatch = title.includes(searchTerm) ||
             source.includes(searchTerm) ||
             id.includes(searchTerm) ||
-            content.includes(searchTerm);
+            content.includes(searchTerm) ||
+            (item.userName || "").toLowerCase().includes(searchTerm);
         } else if (searchType === "title") {
           isSearchMatch = title.includes(searchTerm);
         } else if (searchType === "source") {
