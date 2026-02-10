@@ -80,7 +80,7 @@ const DisasterEventManagementList = () => {
 
       // 1. 한파
       const mappedKma = kmaRaw.map((item, idx) => ({
-        id: `WTH_3_${item.tmSeq}_${item.stnId}_${idx}`,
+        id: `WTH_${item.id}`, // 서버에서 받은 고유 ID만 사용 (식별자 prefix만 유지)
         serialNumber: String(item.tmSeq),
         type: "한파",
         region: item.areaName || "전북전역",
@@ -90,7 +90,7 @@ const DisasterEventManagementList = () => {
           ? `${item.tmFc.substring(0, 4)}-${item.tmFc.substring(4, 6)}-${item.tmFc.substring(6, 8)} ${item.tmFc.substring(8, 10)}:00`
           : "-",
         status: "진행중",
-        isVisible: item.exposeYn ? item.exposeYn === 'Y' : true,
+        isVisible: item.isVisible,
       }));
 
       // 2. 호우
@@ -105,7 +105,7 @@ const DisasterEventManagementList = () => {
           ? `${item.tmFc.substring(0, 4)}-${item.tmFc.substring(4, 6)}-${item.tmFc.substring(6, 8)} ${item.tmFc.substring(8, 10)}:00`
           : "-",
         status: "진행중",
-        isVisible: item.exposeYn ? item.exposeYn === 'Y' : true,
+        isVisible: item.isVisible,
       }));
 
       // 3. 태풍
@@ -120,19 +120,19 @@ const DisasterEventManagementList = () => {
           ? `${item.tmFc.substring(0, 4)}-${item.tmFc.substring(4, 6)}-${item.tmFc.substring(6, 8)} ${item.tmFc.substring(8, 10)}:00`
           : "-",
         status: "진행중",
-        isVisible: item.exposeYn ? item.exposeYn === 'Y' : true,
+        isVisible: item.isVisible,
       }));
 
       // 4. 산불 (여긴 DB 포맷에 따라 다르지만 T제거 로직 유지)
       const mappedFire = fireRaw.map((item, idx) => ({
-        id: `FIRE_${item.fireId}_${idx}`,
+        id: `FIRE_${item.id}`,
         serialNumber: String(item.fireId),
         type: "산불",
         region: item.fireLocVillage || "지역정보 없음",
         content: `[산불위험] ${item.fireLocVillage} 인근 산불 위험`,
         dateTime: item.fireStartTime ? item.fireStartTime.replace("T", " ") : "-",
         status: "진행중",
-        isVisible: item.fireExposeYn ? item.fireExposeYn === 'Y' : true,
+        isVisible: item.isVisible,
       }));
 
       // 5. 지진
@@ -148,14 +148,14 @@ const DisasterEventManagementList = () => {
         }
 
         return {
-          id: `EQK_${seq}_${idx}`,
+          id: `EQK_${item.id}`,
           serialNumber: String(seq),
           type: "지진",
           region: item.loc || "지역정보 없음",
           content: `[지진발생] 규모 ${item.mt || "0.0"} / ${item.loc}`,
           dateTime: formattedDate,
           status: "진행중",
-          isVisible: item.exposeYn ? item.exposeYn === 'Y' : true,
+          isVisible: item.isVisible,
         };
       });
 
