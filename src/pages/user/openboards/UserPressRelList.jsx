@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react'; 
+// src/pages/user/openboards/UserPressRelList.jsx
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import PageBreadcrumb from '@/components/shared/PageBreadcrumb';
@@ -13,14 +14,14 @@ const SEARCH_ALIAS = {
   "행안부": "행정안전부",
   "전북": "전북재난안전대책본부",
   "전북안전": "전북재난안전대책본부",
-  "전북안전대책본부" : "전북재난안전대책본부",
+  "전북안전대책본부": "전북재난안전대책본부",
   "복지부": "보건복지부",
 };
 
 const UserPressRelList = () => {
   const navigate = useNavigate();
 
-  // --- 상태 관리 ---
+  // 상태 관리 
   const [pressList, setPressList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
@@ -37,7 +38,6 @@ const UserPressRelList = () => {
       const rawTerm = (activeSearch.term || '').trim();
       const processedTerm = SEARCH_ALIAS[rawTerm.replace(/\s+/g, "")] || rawTerm;
 
-
       const params = {
         offset,
         limit: itemsPerPage,
@@ -45,40 +45,39 @@ const UserPressRelList = () => {
         searchTerm: processedTerm,
         roleType: 'user'
       };
-           
+
       const response = await pressService.getPressList(params);
-     
-       if (response && response.list) {
+
+      if (response && response.list) {
         const formatted = response.list.map((item, index) => {
-          const fileArray = item.fileList && item.fileList.length > 0 
-            ? item.fileList 
+          const fileArray = item.fileList && item.fileList.length > 0
+            ? item.fileList
             : new Array(item.fileCount || 0).fill({});
-            
+
           const offset = (currentPage - 1) * itemsPerPage;
           const sequentialNo = offset + index + 1;
 
+          return {
+            ...item,
+            id: item.contentId,
+            date: item.createdAt ? item.createdAt.split('T')[0] : '',
+            writer: item.userName,
+            author: item.userName,
+            files: fileArray,
+            displayNo: sequentialNo
+          };
+        })
 
-        return {
-          ...item,
-          id: item.contentId,
-          date: item.createdAt ? item.createdAt.split('T')[0] : '', 
-          writer: item.userName, 
-          author: item.userName,          
-          files: fileArray,           
-          displayNo: sequentialNo 
-        };
-      })
-   
-      console.table(formatted.map(f => ({
-        ID: f.id,
-        제목: f.title.substring(0, 10) + "...",
-        파일수_files: f.files,
-        파일수_fileCount: f.fileCount,
-        파일리스트_길이: f.fileList.length
-      })));
+        console.table(formatted.map(f => ({
+          ID: f.id,
+          제목: f.title.substring(0, 10) + "...",
+          파일수_files: f.files,
+          파일수_fileCount: f.fileCount,
+          파일리스트_길이: f.fileList.length
+        })));
 
-       setPressList(formatted);
-       setTotalItems(response.totalCount || 0);
+        setPressList(formatted);
+        setTotalItems(response.totalCount || 0);
       } else {
         // 데이터가 없는 경우 처리
         setPressList([]);
@@ -128,7 +127,7 @@ const UserPressRelList = () => {
         {/* 페이지 상단 경로 안내 */}
         <PageBreadcrumb items={breadcrumbItems} />
         <h1 className="text-heading-xl text-graygray-90 pb-20">보도자료</h1>
-        
+
         {/* --- 검색바 영역 --- */}
         <SearchBarTemplate
           keyword={searchTerm}
@@ -139,8 +138,8 @@ const UserPressRelList = () => {
         >
           {/* 보도자료 전용 필터: 카테고리 선택 */}
           <div className="relative w-full col-span-2 lg:col-span-1 lg:w-32">
-            <select 
-              value={searchCategory} 
+            <select
+              value={searchCategory}
               onChange={(e) => setSearchCategory(e.target.value)}
               className="w-full h-14 px-4 pr-10 bg-white border border-graygray-30 rounded-lg text-body-s text-graygray-90 outline-none focus:border-secondary-50 cursor-pointer appearance-none"
             >
@@ -157,10 +156,10 @@ const UserPressRelList = () => {
 
         {/* --- 리스트 테이블 및 페이지네이션 컴포넌트 --- */}
         <div className="mt-2">
-          <BoardListSection 
+          <BoardListSection
             items={pressList}
             currentPage={currentPage}
-            totalPages={Math.ceil(totalItems / itemsPerPage) || 1} 
+            totalPages={Math.ceil(totalItems / itemsPerPage) || 1}
             onPageChange={setCurrentPage}
             onRowClick={(id) => {
               if (id) {
@@ -168,7 +167,7 @@ const UserPressRelList = () => {
               } else {
                 console.error("ID 값이 넘어오지 않았습니다.");
               }
-            }} 
+            }}
           />
         </div>
       </main>
