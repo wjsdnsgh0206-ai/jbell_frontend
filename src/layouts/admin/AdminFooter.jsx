@@ -23,7 +23,7 @@ const AdminFooter = () => {
         <div className="flex flex-col xl:flex-row justify-between gap-8">
           {/* 로고 영역 */}
           <div className="shrink-0">
-            <Link to="/admin/dashboard">
+            <Link to="/admin/realtime/realtimeDashboard">
               <img
                 className="w-36 opacity-80 hover:opacity-100 transition-opacity mb-2"
                 alt="전북안전누리 관리자 로고"

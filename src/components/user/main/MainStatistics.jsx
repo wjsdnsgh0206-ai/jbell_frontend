@@ -63,19 +63,8 @@ const MainStatistics = ({ totalCount }) => {
               </p>
             </div>
 
-            {/* 구분선 */}
-            <div className="w-[1px] h-10 bg-graygray-10" />
 
-            {/* 사망 건수 (임시값) */}
-            <div className="text-center flex flex-col gap-1 min-w-[80px]">
-              <p className="text-detail-m text-red-500 font-bold">
-                사망 건수
-              </p>
-              <p className="text-heading-m sm:text-heading-l font-black text-red-500 flex items-baseline justify-center gap-0.5">
-                5
-                <span className="text-detail-m font-bold opacity-60">건</span>
-              </p>
-            </div>
+           
           </div>
         </div>
 
