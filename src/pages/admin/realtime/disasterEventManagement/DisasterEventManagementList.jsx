@@ -351,6 +351,7 @@ const DisasterEventManagementList = () => {
           </div>
         ),
       },
+      /* 미비된 기능
       {
         key: "actions",
         header: "관리",
@@ -370,6 +371,7 @@ const DisasterEventManagementList = () => {
           // <button onClick={() => navigate(`/admin/realtime/disasterEventManagementDetail/${row.id}`)} className="text-admin-primary hover:underline text-sm font-medium">관리</button>
         ),
       },
+      */
     ],
     [navigate, isUpdating],
   );
@@ -507,6 +509,7 @@ const DisasterEventManagementList = () => {
               </div>
               </div>
             {/* <button onClick={() => navigate("/admin/realtime/disasterEventManagementAdd")} className="px-6 h-12 bg-admin-primary text-white rounded-md font-bold hover:opacity-90 transition-all shadow-sm text-sm">신규 등록</button> */}
+            {/* 미비된 기능
             <button
               onClick={() =>
                 navigate("/admin/realtime/disasterEventManagementAdd")
@@ -515,6 +518,7 @@ const DisasterEventManagementList = () => {
             >
               등록
             </button>
+            */}
           </div>
 
           <AdminDataTable
