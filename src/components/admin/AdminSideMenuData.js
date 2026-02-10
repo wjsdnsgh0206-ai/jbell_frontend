@@ -29,6 +29,7 @@ export const ADMIN_MENU_DATA = {
         { name: "재난문자이력 관리", path: "/admin/realtime/disasterMessageList"},
       ],
     },
+    /* 추후 구현 예정
     {
       title: "재난통계",
       path: "/admin/realtime/disasterStatisticsList",
@@ -37,6 +38,7 @@ export const ADMIN_MENU_DATA = {
         { name: "재난통계 관리", path: "/admin/realtime/disasterStatisticsList"},
       ],
     },
+    */
   ],
   // 콘텐츠 관리
   contents: [
