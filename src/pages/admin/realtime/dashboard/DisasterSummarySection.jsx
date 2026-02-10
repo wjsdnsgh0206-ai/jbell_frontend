@@ -1,3 +1,4 @@
+// src\pages\admin\realtime\dashboard\DisasterSummarySection.jsx
 import React from 'react';
 import { Maximize2, Minimize2, Map as MapIcon } from 'lucide-react';
 

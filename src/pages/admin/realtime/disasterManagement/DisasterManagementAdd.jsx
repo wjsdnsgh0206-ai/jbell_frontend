@@ -1,5 +1,4 @@
-'use no memo';
-
+// src\pages\admin\realtime\disasterManagement\DisasterManagementAdd.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Map, Activity, ChevronDown, List, ShieldCheck } from 'lucide-react';

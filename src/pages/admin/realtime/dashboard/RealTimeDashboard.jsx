@@ -1,5 +1,4 @@
-"use no memo";
-
+// src\pages\admin\realtime\dashboard\RealTimeDashboard.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import {
   AlertTriangle,
