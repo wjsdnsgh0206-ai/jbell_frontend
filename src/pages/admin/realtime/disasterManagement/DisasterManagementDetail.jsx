@@ -1,12 +1,14 @@
-'use no memo';
-
+// src\pages\admin\realtime\disasterManagement\DisasterManagementDetail.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useOutletContext } from "react-router-dom";
 import { MapPin, Activity, Clock, ChevronDown, List, ShieldCheck } from 'lucide-react';
 
-// [데이터] 아까 만든 재난 관리 더미 데이터 임포트
+// [데이터] 재난 관리 더미 데이터
 import { DisasterManagementData } from './DisasterManagementData';
 
+/**
+ * 실시간 재난 정보 관리 상세 및 수정 페이지
+ */
 const DisasterManagementDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -16,12 +18,12 @@ const DisasterManagementDetail = () => {
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   
-  // 데이터 구조 규칙 (CamelCase 적용)
+  // 폼 데이터 초기 상태
   const [formData, setFormData] = useState({
     id: '',
-    category: '',    // 재난유형 (지진, 호우·홍수 등)
-    dataSource: '',  // 연동 API 소스 명칭
-    mapLayer: '',    // 지도 레이어 설정 정보
+    category: '',    // 재난유형
+    dataSource: '',  // API 소스
+    mapLayer: '',    // 지도 레이어
     apiStatus: '',   // 정상 / 점검중
     visibleYn: 'Y',  // 노출 여부
     updatedAt: ''    // 최종 수정일
@@ -29,66 +31,105 @@ const DisasterManagementDetail = () => {
 
   const [originData, setOriginData] = useState(null);
 
+  /**
+   * [데이터 로드] URL 파라미터의 ID로 데이터 소스에서 상세 정보를 찾아옴
+   */
   useEffect(() => {
     const getDetailData = () => {
       setLoading(true);
+      
+      // 디버깅: 현재 접근한 ID와 전체 데이터 확인
+      console.log("🔍 [Debug] 찾는 ID:", id);
+      console.log("🔍 [Debug] 전체 데이터 리스트:", DisasterManagementData);
+
       try {
+        // ID 타입을 엄격하게 따지지 않기 위해 String으로 형변환 후 비교
         const found = DisasterManagementData.find(item => String(item.id) === String(id));
+        
         if (found) {
+          console.log("✅ [Debug] 데이터 조회 성공:", found);
           setFormData(found);
           setOriginData(found);
           if (setBreadcrumbTitle) setBreadcrumbTitle(`${found.category} 관리 상세`);
         } else {
+          console.warn("⚠️ [Debug] 데이터를 찾지 못함 (found is undefined)");
           alert("해당 재난 정보를 찾을 수 없습니다.");
           navigate(-1);
         }
       } catch (error) {
-        console.error("데이터 로드 실패:", error);
+        console.error("❌ [Debug] 데이터 로드 중 예외 발생:", error);
       } finally {
         setLoading(false);
       }
     };
+
     getDetailData();
     return () => setBreadcrumbTitle && setBreadcrumbTitle("");
   }, [id, setBreadcrumbTitle, navigate]);
 
+  /**
+   * [입력값 변경] input 및 select 박스 값 동기화
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
+    console.log(`📝 [Edit] 필드명: ${name}, 변경값: ${value}`);
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  /**
+   * [노출 토글] 노출 여부(Y/N) 스위치 제어
+   */
   const handleToggle = () => {
     if (!isEdit) return; 
-    setFormData(prev => ({ ...prev, visibleYn: prev.visibleYn === 'Y' ? 'N' : 'Y' }));
+    const nextStatus = formData.visibleYn === 'Y' ? 'N' : 'Y';
+    console.log(`🔄 [Toggle] 노출 상태 변경: ${formData.visibleYn} -> ${nextStatus}`);
+    setFormData(prev => ({ ...prev, visibleYn: nextStatus }));
   };
 
+  /**
+   * [수정 취소] 수정된 내용을 버리고 초기 데이터로 복구
+   */
   const handleCancel = () => {
     if (window.confirm("수정 중인 내용을 취소하고 원래대로 되돌리시겠습니까?")) {
+      console.log("⏪ [Cancel] 수정 취소, 원본 데이터로 복구");
       setFormData(originData);
       setIsEdit(false);
       setSubmitted(false);
     }
   };
 
+  /**
+   * [유효성 검사] 필수 입력 항목 체크
+   */
   const isFormValid = () => {
-    // id와 updatedAt을 제외한 주요 필드 체크
     const { category, dataSource, mapLayer, apiStatus } = formData;
-    return category && dataSource && mapLayer && apiStatus;
+    const isValid = !!(category && dataSource && mapLayer && apiStatus);
+    console.log("📋 [Validation] 필수값 체크 결과:", isValid);
+    return isValid;
   };
 
+  /**
+   * [저장] 수정된 데이터를 서버에 반영 (현재는 Mocking)
+   */
   const handleSave = async () => {
     setSubmitted(true);
+    
     if (!isFormValid()) {
+      console.warn("⚠️ [Save] 유효성 검사 실패: 필수값 누락");
       alert("입력되지 않은 필수 값이 있습니다.");
       return;
     }
+
     try {
-      // 실제 서비스 시에는 여기서 API 통신
+      console.log("🚀 [Save] 저장 요청 데이터:", formData);
+      // 실제 API 호출 로직 들어갈 자리 (await api.update...)
+      
       setOriginData(formData);
       alert("성공적으로 저장되었습니다.");
       setIsEdit(false);
       setSubmitted(false);
     } catch (error) {
+      console.error("❌ [Save] 저장 실패:", error);
       alert("저장 중 오류가 발생했습니다.");
     }
   };
@@ -99,30 +140,30 @@ const DisasterManagementDetail = () => {
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
       <main className="p-10">
         
-        {/* 헤더 영역 */}
+        {/* 헤더 영역: 수정 모드에 따른 버튼 렌더링 */}
         <div className="flex justify-between items-end mb-10">
           <div>
-            <h2 className="text-heading-l text-admin-text-primary tracking-tight">
+            <h2 className="text-heading-l text-admin-text-primary tracking-tight font-bold">
               실시간 재난 정보 {isEdit ? '수정' : '상세 정보'}
             </h2>
           </div>
           <div className="flex gap-3">
             {!isEdit ? (
               <>
-                <button onClick={() => navigate(-1)} className="px-6 h-12 border border-graygray-30 bg-white text-graygray-70 rounded-md font-bold hover:bg-graygray-10 transition-all">목록으로</button>
-                <button onClick={() => setIsEdit(true)} className="px-8 h-12 bg-admin-primary text-white rounded-md font-bold hover:opacity-90 transition-all shadow-sm">수정하기</button>
+                <button onClick={() => navigate(-1)} className="px-6 h-12 border border-graygray-30 bg-white text-graygray-70 rounded-md font-bold hover:bg-graygray-10 transition-all cursor-pointer">목록으로</button>
+                <button onClick={() => setIsEdit(true)} className="px-8 h-12 bg-admin-primary text-white rounded-md font-bold hover:opacity-90 transition-all shadow-sm cursor-pointer">수정하기</button>
               </>
             ) : (
               <div className="flex gap-2">
-                <button onClick={handleCancel} className="px-6 h-12 border border-graygray-30 bg-white text-graygray-70 rounded-md font-bold hover:bg-graygray-10 transition-all">취소</button>
-                <button onClick={handleSave} className="px-8 h-12 bg-[#22C55E] text-white rounded-md font-bold hover:opacity-90 transition-all shadow-md">저장하기</button>
+                <button onClick={handleCancel} className="px-6 h-12 border border-graygray-30 bg-white text-graygray-70 rounded-md font-bold hover:bg-graygray-10 transition-all cursor-pointer">취소</button>
+                <button onClick={handleSave} className="px-8 h-12 bg-[#22C55E] text-white rounded-md font-bold hover:opacity-90 transition-all shadow-md cursor-pointer">저장하기</button>
               </div>
             )}
           </div>
         </div>
 
         <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard overflow-hidden">
-          {/* 재난 유형 강조 영역 */}
+          {/* 재난 유형 요약 정보 */}
           <div className="p-8 border-b border-admin-border bg-white flex flex-col gap-2">
             <div className="flex items-center gap-3">
               <ShieldCheck className="text-admin-primary" size={24} />
@@ -139,13 +180,12 @@ const DisasterManagementDetail = () => {
 
           <div className="p-10 space-y-12 bg-white">
             
-            {/* 1. 기본 분류 정보 */}
+            {/* 1. 기본 분류 정보 섹션 */}
             <div className="space-y-6">
               <h3 className="flex items-center gap-2 text-body-m-bold text-admin-text-primary pb-2 border-b border-admin-border">
                 <List size={18} /> 기본 분류 정보
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* 재난유형 Select 박스 */}
                 <div className="flex flex-col gap-3">
                   <label className="text-body-m-bold text-admin-text-secondary ml-1">재난 유형</label>
                   <div className="relative">
@@ -171,7 +211,6 @@ const DisasterManagementDetail = () => {
                   {submitted && !formData.category && <p className="text-red-500 text-xs ml-1 font-medium">필수로 선택해야 합니다.</p>}
                 </div>
 
-                {/* API 상태 Select 박스 */}
                 <div className="flex flex-col gap-3">
                   <label className="text-body-m-bold text-admin-text-secondary ml-1">연동 상태</label>
                   <div className="relative">
@@ -196,7 +235,7 @@ const DisasterManagementDetail = () => {
               </div>
             </div>
 
-            {/* 2. 연동 및 지도 설정 */}
+            {/* 2. 연동 및 지도 설정 섹션 */}
             <div className="space-y-6">
               <h3 className="flex items-center gap-2 text-body-m-bold text-admin-text-primary pb-2 border-b border-admin-border">
                 <Activity size={18} /> 데이터 및 지도 설정
@@ -223,7 +262,7 @@ const DisasterManagementDetail = () => {
               </div>
             </div>
 
-            {/* 3. 기타 정보 및 노출 설정 */}
+            {/* 3. 시스템 정보 섹션 */}
             <div className="space-y-6">
               <h3 className="flex items-center gap-2 text-body-m-bold text-admin-text-primary pb-2 border-b border-admin-border">
                 <Clock size={18} /> 시스템 관리
@@ -233,7 +272,7 @@ const DisasterManagementDetail = () => {
                   label="최종 수정 일시" 
                   name="updatedAt" 
                   value={formData.updatedAt} 
-                  isEdit={false} // 날짜는 자동 기록되므로 수정 불가
+                  isEdit={false} 
                   onChange={handleChange} 
                 />
 
@@ -266,7 +305,9 @@ const DisasterManagementDetail = () => {
   );
 };
 
-// 공통 필드 컴포넌트
+/**
+ * [공통 필드 컴포넌트] 개별 입력란 레이아웃 및 유효성 메시지 처리
+ */
 const DetailField = ({ label, name, value, isEdit, onChange, placeholder, showError = false }) => (
   <div className="flex flex-col gap-3">
     <label className="text-body-m-bold text-admin-text-secondary ml-1">{label}</label>

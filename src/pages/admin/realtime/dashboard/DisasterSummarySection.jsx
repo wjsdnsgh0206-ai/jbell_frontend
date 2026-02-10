@@ -1,32 +1,99 @@
-import React from 'react';
-import { Maximize2, Minimize2, Map as MapIcon } from 'lucide-react';
+// src\pages\admin\realtime\dashboard\DisasterSummarySection.jsx
+import React, { useState, useEffect, useMemo } from "react";
+import { Maximize2, Minimize2 } from "lucide-react";
+import CommonMap from "@/components/user/modal/CommonMap"; 
+import useColdWave from "@/hooks/user/useColdWave"; 
+import useEarthquake from "@/hooks/user/useEarthquake";
+import useShelter from "@/hooks/user/useShelter";
 
 const DisasterSummarySection = () => {
-  const mapMarkers = [
-    { id: 1, top: "128px", left: "152px", color: "#de3412", label: "주의" },
-    { id: 2, top: "315px", left: "464px", color: "#de3412", label: "주의" },
-    { id: 3, top: "110px", left: "454px", color: "#0b78cb", label: "위급" },
-  ];
+  const [activeTab, setActiveTab] = useState("실시간 특보");
+  
+  const { disasterStatus, markers: waveMarkers, isLoading: isWaveLoading, fetchColdWaveData } = useColdWave();
+  const { eqMarkers, fetchEarthquakeData, clearMarkers: clearEqMarkers, isLoading: isEqLoading } = useEarthquake();
+  const { shelterMarkers, fetchShelters, setShelterMarkers } = useShelter();
+
+  const mapTabs = ["실시간 특보", "대피소"];
+
+  // 1. 데이터 로드 로직
+  useEffect(() => {
+    if (activeTab === "실시간 특보") {
+      setShelterMarkers([]);
+      fetchColdWaveData();
+      fetchEarthquakeData();
+    } else if (activeTab === "대피소") {
+      clearEqMarkers();
+      fetchShelters("EARTHQUAKE_SHELTER");
+    }
+  }, [activeTab]);
+
+  // 2. 마커 색상별 이미지 경로 설정 (카카오 기본 리소스나 외부 CDN 활용)
+  const MARKER_IMAGES = {
+    EARTHQUAKE: "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png", // 지진 (빨강)
+    COLDWAVE: "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_blue.png",  // 한파 (파랑)
+    SHELTER: "https://t1.daumcdn.net/localimg/localimages/07/2018/pc/img/marker_spot.png", // 대피소 (기본/노랑계열)
+  };
+
+  // 3. 통합 마커 생성 및 색상 주입
+  const displayMarkers = useMemo(() => {
+    if (activeTab === "실시간 특보") {
+      // 한파 마커에 파란색 이미지 주입
+      const blueWaves = waveMarkers.map(m => ({ ...m, image: MARKER_IMAGES.COLDWAVE }));
+      // 지진 마커에 빨간색 이미지 주입
+      const redEqs = eqMarkers.map(m => ({ ...m, image: MARKER_IMAGES.EARTHQUAKE }));
+      
+      return [...blueWaves, ...redEqs];
+    }
+    
+    // 대피소 마커 주입
+    return shelterMarkers.map(m => ({ ...m, image: MARKER_IMAGES.SHELTER }));
+  }, [activeTab, waveMarkers, eqMarkers, shelterMarkers]);
+
+  // 4. 지도 중심 및 레벨 설정
+  const mapCenter = useMemo(() => {
+    if (activeTab === "실시간 특보" && eqMarkers.length > 0) {
+      return { lat: Number(eqMarkers[0].lat), lng: Number(eqMarkers[0].lng) };
+    }
+    return { lat: 35.82422, lng: 127.14795 };
+  }, [activeTab, eqMarkers]);
+
+  const mapLevel = useMemo(() => (activeTab === "대피소" ? 5 : 8), [activeTab]);
+  const isLoading = isWaveLoading || isEqLoading;
 
   return (
-    <section className="flex-1 h-[416px] relative rounded-xl border border-solid border-gray-200 bg-slate-50 flex flex-col items-center justify-center shadow-sm">
-      <MapIcon size={180} className="text-slate-200" />
-      {mapMarkers.map((marker) => (
-        <div key={marker.id} className="absolute flex flex-col items-center" style={{ top: marker.top, left: marker.left }}>
-          <div className="w-4 h-4 rounded-full shadow-lg animate-pulse" style={{ backgroundColor: marker.color }} />
+    <section className="flex-1 h-[416px] relative rounded-xl border border-solid border-gray-200 bg-slate-50 overflow-hidden shadow-sm flex flex-col">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white/30 z-50">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
-      ))}
-      <div className="absolute top-4 right-4 flex gap-2">
-        <button className="p-1.5 bg-white border rounded shadow-sm hover:bg-gray-50"><Maximize2 size={16}/></button>
-        <button className="p-1.5 bg-white border rounded shadow-sm hover:bg-gray-50"><Minimize2 size={16}/></button>
-      </div>
-      <div className="text-center z-10 mt-4">
-        <h2 className="font-bold text-[#1d1d1d] text-[17px]">지도 영역</h2>
-        <p className="text-gray-400 text-sm">(카카오 API 연동 예정)</p>
-      </div>
-      <div className="absolute bottom-6 right-6 bg-white p-3 rounded-lg border border-gray-200 shadow-sm flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-xs font-medium"><div className="w-3 h-3 rounded-full bg-[#0B78CB]" /> 위급(재난)</div>
-        <div className="flex items-center gap-2 text-xs font-medium"><div className="w-3 h-3 rounded-full bg-[#DE3412]" /> 주의(특보)</div>
+      )}
+
+      <div className="w-full h-full relative">
+        {/* CommonMap 내부에서 marker.image가 있으면 적용하도록 구현되어 있어야 함 */}
+        <CommonMap 
+          markers={displayMarkers} 
+          regionStatus={activeTab === "실시간 특보" ? disasterStatus : null} 
+          center={mapCenter}
+          level={mapLevel}
+        />
+
+        {/* 탭 버튼 */}
+        <div className="absolute top-4 left-4 flex flex-col gap-2 z-10 w-[110px]">
+          {mapTabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-3 py-2.5 rounded-lg text-detail-m font-bold shadow-md transition-all border ${
+                activeTab === tab
+                  ? "bg-blue-600 text-white border-blue-600 shadow-blue-100"
+                  : "bg-white/95 text-gray-600 border-gray-100 hover:bg-gray-50"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
       </div>
     </section>
   );

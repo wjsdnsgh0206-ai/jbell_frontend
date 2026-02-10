@@ -1,48 +1,67 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import ActionTipBox from "../modal/ActionTipBox";
-import FacilityCheckGroup from "../modal/FacilityCheckGroup";
 import CommonMap from "@/components/user/modal/CommonMap";
-import FloodGeometryMap from "@/components/user/modal/FloodGeometryMap";
 import { useSluiceData } from "@/hooks/user/useSluiceData";
+import useShelter from "@/hooks/user/useShelter"; // 대피소 훅 추가
 
 const Flood = () => {
   const [activeTab, setActiveTab] = useState("호우특보");
-  const [facilities, setFacilities] = useState({
-    shelter: true,
-    hospital: false,
-    pharmacy: false,
-  });
-
+  
+  // 댐, 강우 관련 데이터 훅
   const { damData, rainMarkers, rainStatus, loading, fetchDamData, fetchRainfallWarning } = useSluiceData();
+  
+  // 대피소 관련 훅 추가
+  const { shelterMarkers, fetchShelters, setShelterMarkers } = useShelter();
 
   const mapTabs = [
-    { id: "호우특보", label: "호우특보" }, // 새 버튼 추가
-    { id: "댐수문", label: "댐수문" },
-    { id: "재난안전시설", label: "재난안전시설" },
+    { id: "호우특보", label: "호우특보" },
+    // { id: "댐수문", label: "댐수문" },
+    { id: "대피소", label: "대피소" },
   ];
 
-  const floodItems = [
-    { id: "shelter", label: "대피소" },
-    { id: "hospital", label: "병원" },
-    { id: "pharmacy", label: "약국" },
-  ];
+  // 탭 변경 시 데이터 로딩 로직
+  useEffect(() => {
+    if (activeTab === "댐수문") {
+      setShelterMarkers([]); // 탭 이동 시 대피소 데이터 초기화
+      fetchDamData();
+    } else if (activeTab === "호우특보") {
+      setShelterMarkers([]);
+      fetchRainfallWarning();
+    } else if (activeTab === "대피소") {
+      // 호우·홍수 전용 대피소 데이터 로드 (민방위 대피소 등)
+      fetchShelters("CIVIL_DEFENSE_DISASTER");
+    }
+  }, [activeTab, fetchDamData, fetchRainfallWarning, fetchShelters, setShelterMarkers]);
+
+  // 1. 탭에 따른 지도 중심점 결정
+  const mapCenter = useMemo(() => {
+    if (activeTab === "대피소") {
+      // 대피소 탭 클릭 시 전주시청 중심으로 이동
+      return { lat: 35.82422, lng: 127.14795 };
+    }
+    // 기본 전주 중심 (혹은 필요에 따라 데이터의 첫번째 마커로 설정 가능)
+    return { lat: 35.82422, lng: 127.14795 };
+  }, [activeTab]);
+
+  // 2. 탭에 따른 지도 확대 레벨 결정
+  const mapLevel = useMemo(() => {
+    // 대피소는 골목단위로 봐야하니 레벨 5로 확대, 나머지는 전북 전체를 위해 8~9
+    return activeTab === "대피소" ? 5 : 8;
+  }, [activeTab]);
+
+  // 3. 현재 탭에 따라 표시할 마커 결정
+  const displayMarkers = useMemo(() => {
+    if (activeTab === "대피소") return shelterMarkers;
+    if (activeTab === "호우특보") return rainMarkers;
+    return []; // 댐수문은 카드로 정보를 보여주므로 마커는 빈 배열
+  }, [activeTab, shelterMarkers, rainMarkers]);
 
   const handleTabClick = (tabId) => {
     setActiveTab(tabId);
-    if (tabId === "댐수문") {
-      fetchDamData();
-    } else if (tabId === "호우특보") {
-      fetchRainfallWarning(); // 2번 요청 실행
-    }
   };
 
-  const handleCheck = (key) => {
-    setFacilities((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  // 댐 수위 위험 판단 (저수율 90% 이상)
+  // 위험 판단 로직
   const isDangerous = damData.some((dam) => parseFloat(dam.storageRate) >= 90);
-  // 호우특보 위험 판단 (경보/주의보 마커 존재 시)
   const isRainWarning = rainMarkers.length > 0;
 
   return (
@@ -76,20 +95,21 @@ const Flood = () => {
         {/* 지도 및 오버레이 영역 */}
         <div className="relative flex-1 bg-slate-50 rounded-2xl border border-gray-100 overflow-hidden min-h-[300px] md:min-h-[400px] lg:min-h-0">
           <div className="absolute inset-0 z-0">
-            {activeTab === "호우특보" ? (
-              <CommonMap markers={rainMarkers} regionStatus={rainStatus} />
-            ) : (
-              <CommonMap markers={[]} />
-            )}
+            {/* 공통 지도 컴포넌트 사용 */}
+            <CommonMap 
+              markers={displayMarkers} 
+              center={mapCenter} 
+              level={mapLevel} 
+            />
           </div>
 
           {/* 호우특보 카드 오버레이 */}
           {activeTab === "호우특보" && (
-            <div className="absolute inset-0 z-10 bg-black/10 backdrop-blur-[2px] p-4 pl-[120px] lg:pl-[180px] overflow-y-auto no-scrollbar">
-              <div className="flex flex-col gap-4 max-w-4xl">
+            <div className="absolute inset-0 z-10 bg-black/10 backdrop-blur-[2px] p-4 pl-[120px] lg:pl-[180px] overflow-y-auto no-scrollbar pointer-events-none">
+              <div className="flex flex-col gap-4 max-w-4xl pointer-events-auto">
                 <div className="bg-white/95 p-3 rounded-xl shadow-md border border-blue-200 self-start backdrop-blur-md">
                   <p className="text-detail-s-bold text-blue-700 flex items-center gap-2">
-                    <span className="animate-pulse">☔</span> 전북지역 호우특보 현황
+                     전북지역 호우특보 현황
                   </p>
                 </div>
                 {loading ? (
@@ -132,10 +152,10 @@ const Flood = () => {
             </div>
           )}
 
-          {/* 댐수문 카드 오버레이 (기존 유지) */}
+          {/* 댐수문 카드 오버레이 */}
           {activeTab === "댐수문" && (
-            <div className="absolute inset-0 z-10 bg-black/10 backdrop-blur-[2px] p-4 pl-[120px] lg:pl-[180px] overflow-y-auto no-scrollbar">
-              <div className="flex flex-col gap-4 max-w-4xl">
+            <div className="absolute inset-0 z-10 bg-black/10 backdrop-blur-[2px] p-4 pl-[120px] lg:pl-[180px] overflow-y-auto no-scrollbar pointer-events-none">
+              <div className="flex flex-col gap-4 max-w-4xl pointer-events-auto">
                 <div className="bg-white/95 p-3 rounded-xl shadow-md border border-blue-200 self-start backdrop-blur-md">
                   <p className="text-detail-s-bold text-blue-700 flex items-center gap-2">
                     <span className="animate-pulse">🌊</span> 전북 및 전국 주요 댐 현황
@@ -179,12 +199,6 @@ const Flood = () => {
                   </div>
                 )}
               </div>
-            </div>
-          )}
-
-          {activeTab === "재난안전시설" && (
-            <div className="absolute top-5 left-[115px] lg:left-[180px] z-20 scale-[0.8] md:scale-100 origin-left">
-              <FacilityCheckGroup items={floodItems} facilities={facilities} onCheck={handleCheck} />
             </div>
           )}
 

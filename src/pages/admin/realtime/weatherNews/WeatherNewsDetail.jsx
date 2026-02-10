@@ -1,46 +1,56 @@
-'use no memo';
-
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useOutletContext } from "react-router-dom";
-import { Activity, Clock, ChevronDown, List, ShieldCheck } from 'lucide-react';
-import { disasterApi } from "@/services/api";  // 작성하신 api.js 임포트
+// src\pages\admin\realtime\weatherNews\WeatherNewsDetail.jsx
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Activity, Clock, List, ShieldCheck, ChevronDown } from "lucide-react";
+import { disasterApi } from "@/services/api";
+import { WEATHER_OPTIONS } from "./WeatherTypeData";
 
 const WeatherNewsDetail = () => {
-  const { id } = useParams(); // URL의 prsntn_sn 값
+  const { id } = useParams();
   const navigate = useNavigate();
-  const { setBreadcrumbTitle } = useOutletContext();
-
   const [isEdit, setIsEdit] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
-  
-  // 백엔드 DTO 구조에 맞춘 초기 상태
+
   const [formData, setFormData] = useState({
-    PRSNTN_SN: '',
-    TTL: '',
-    PRSNTN_TM: '',
-    RLVT_ZONE: '',
-    SPNE_FRMNT_PRCON_CN: '',
-    TIME_TXT: '',
-    MAAS_OBNT_DT: '',
-    visibleYn: 'Y',
-    level: '보통',
-    newsType: ''
+    PRSNTN_SN: "",
+    TTL: "",
+    PRSNTN_TM: "",
+    RLVT_ZONE: "",
+    SPNE_FRMNT_PRCON_CN: "",
+    TIME_TXT: "",
+    MAAS_OBNT_DT: "",
+    visible_yn: "Y",
+    is_manual: "N",
+    level: "보통",
+    warningType: "",
   });
 
   const [originData, setOriginData] = useState(null);
 
-  // 1. 상세 데이터 로드 (백엔드 연동)
+  // 상세 데이터 로드
   useEffect(() => {
     const fetchDetail = async () => {
       setLoading(true);
       try {
         const response = await disasterApi.getWeatherDetail(id);
-        console.log("진짜 응답:", response); // 여기서 데이터가 보일 겁니다!
-
-        if (response) { 
-            setFormData(response); // response.data가 아니라 response를 바로 세팅
-            setOriginData(response);
+        if (response) {
+          setFormData({
+            ...response,
+            warningType:
+              response.warningType ||
+              response.warning_type ||
+              response.WARNING_TYPE ||
+              "",
+          });
+          setOriginData({
+            ...response,
+            warningType:
+              response.warningType ||
+              response.warning_type ||
+              response.WARNING_TYPE ||
+              "",
+          });
         }
       } catch (error) {
         console.error("데이터 로드 실패:", error);
@@ -51,16 +61,22 @@ const WeatherNewsDetail = () => {
       }
     };
     fetchDetail();
-  }, [id, navigate, setBreadcrumbTitle]);
+  }, [id, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleToggle = () => {
-    if (!isEdit) return; 
-    setFormData(prev => ({ ...prev, visibleYn: prev.visibleYn === 'Y' ? 'N' : 'Y' }));
+    if (!isEdit) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      visible_yn: prev.visible_yn === "Y" ? "N" : "Y",
+    }));
+
+    console.log("formData>>", formData.visible_yn);
   };
 
   const handleCancel = () => {
@@ -70,7 +86,6 @@ const WeatherNewsDetail = () => {
     }
   };
 
-  // 2. 수정 데이터 저장 (백엔드 연동)
   const handleSave = async () => {
     setSubmitted(true);
     if (!formData.TTL || !formData.SPNE_FRMNT_PRCON_CN) {
@@ -79,10 +94,9 @@ const WeatherNewsDetail = () => {
     }
 
     try {
-      // API 호출 (키값은 id, 데이터는 formData)
       await disasterApi.updateWeather(id, formData);
-      
       alert("성공적으로 수정되었습니다.");
+      navigate("/admin/realtime/weatherNewsList");
       setOriginData(formData);
       setIsEdit(false);
       setSubmitted(false);
@@ -92,7 +106,43 @@ const WeatherNewsDetail = () => {
     }
   };
 
-  if (loading) return <div className="p-10 text-center">데이터를 불러오는 중입니다...</div>;
+  if (loading)
+    return (
+      <div className="p-10 text-center">데이터를 불러오는 중입니다...</div>
+    );
+
+  const LEVEL_STYLE = {
+    위험: "bg-red-100 text-red-700 border-red-300",
+    주의: "bg-yellow-100 text-yellow-700 border-yellow-300",
+    보통: "bg-green-100 text-green-700 border-green-300",
+  };
+
+  const handleToggleVisible = async (id, currentStatus) => {
+    const nextStatus = !currentStatus;
+    const visibleYn = nextStatus ? "Y" : "N";
+
+    setModalConfig({
+      title: "노출 상태 변경",
+      message: (
+        <p>해당 항목을 [{nextStatus ? "노출" : "비노출"}] 처리하시겠습니까?</p>
+      ),
+      type: nextStatus ? "confirm" : "delete",
+      onConfirm: async () => {
+        try {
+          await disasterApi.updateMessageVisibility([id], visibleYn);
+          setMessages((prev) =>
+            prev.map((item) =>
+              item.id === id ? { ...item, isVisible: nextStatus } : item,
+            ),
+          );
+        } catch (error) {
+          alert("서버 통신에 실패했습니다.");
+        }
+        setIsModalOpen(false);
+      },
+    });
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-admin-bg font-sans antialiased text-graygray-90">
@@ -100,19 +150,39 @@ const WeatherNewsDetail = () => {
         <div className="flex justify-between items-end mb-10">
           <div>
             <h2 className="text-heading-l text-admin-text-primary tracking-tight font-bold">
-              기상 특보 {isEdit ? '수정' : '상세 정보'}
+              기상 특보 {isEdit ? "수정" : "상세 정보"}
             </h2>
           </div>
           <div className="flex gap-3">
             {!isEdit ? (
               <>
-                <button onClick={() => navigate(-1)} className="px-6 h-12 border border-graygray-30 bg-white text-graygray-70 rounded-md font-bold hover:bg-graygray-10 transition-all">목록으로</button>
-                <button onClick={() => setIsEdit(true)} className="px-8 h-12 bg-admin-primary text-white rounded-md font-bold hover:opacity-90 transition-all shadow-sm">수정하기</button>
+                <button
+                  onClick={() => navigate(-1)}
+                  className="px-6 h-12 border border-graygray-30 bg-white text-graygray-70 rounded-md font-bold hover:bg-graygray-10 transition-all"
+                >
+                  목록으로
+                </button>
+                <button
+                  onClick={() => setIsEdit(true)}
+                  className="px-8 h-12 bg-admin-primary text-white rounded-md font-bold hover:opacity-90 transition-all shadow-sm"
+                >
+                  수정하기
+                </button>
               </>
             ) : (
               <div className="flex gap-2">
-                <button onClick={handleCancel} className="px-6 h-12 border border-graygray-30 bg-white text-graygray-70 rounded-md font-bold hover:bg-graygray-10 transition-all">취소</button>
-                <button onClick={handleSave} className="px-8 h-12 bg-[#22C55E] text-white rounded-md font-bold hover:opacity-90 transition-all shadow-md">저장하기</button>
+                <button
+                  onClick={handleCancel}
+                  className="px-6 h-12 border border-graygray-30 bg-white text-graygray-70 rounded-md font-bold hover:bg-graygray-10 transition-all"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="px-8 h-12 bg-[#22C55E] text-white rounded-md font-bold hover:opacity-90 transition-all shadow-md"
+                >
+                  저장하기
+                </button>
               </div>
             )}
           </div>
@@ -125,91 +195,154 @@ const WeatherNewsDetail = () => {
               <div className="text-2xl font-bold text-graygray-50">
                 {formData.TTL}
               </div>
-              <span className={`ml-4 px-3 py-1 rounded-full text-xs font-bold border ${
-                formData.level === '위험' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-gray-50 text-gray-600 border-gray-100'
-              }`}>
-                수준: {formData.level || '보통'}
+              <span
+                className={`ml-4 px-5 py-2 rounded-xl text-sm font-extrabold border tracking-wide shadow-sm ${LEVEL_STYLE[formData.level] || LEVEL_STYLE["보통"]}`}
+              >
+                {formData.level || "보통"}
               </span>
             </div>
           </div>
 
           <div className="p-10 space-y-12 bg-white">
+            {/* 특보 기본 정보 */}
             <div className="space-y-6">
               <h3 className="flex items-center gap-2 text-body-m-bold text-admin-text-primary pb-2 border-b border-admin-border font-bold">
                 <List size={18} /> 특보 기본 정보
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="flex flex-col gap-3">
-                  <label className="text-body-m-bold text-admin-text-secondary ml-1 font-bold">발생 지역</label>
-                  <input 
+                  <label className="text-body-m-bold text-admin-text-secondary font-bold ml-1">
+                    특보 유형
+                  </label>
+
+                  {!isEdit ? (
+                    // 수정 전: input (읽기 전용)
+                    <input
+                      value={formData.warningType || ""}
+                      disabled
+                      className="w-full h-14 px-5 rounded-lg border outline-none text-body-m
+        border-admin-border bg-graygray-5 text-graygray-50 cursor-not-allowed"
+                    />
+                  ) : (
+                    // 수정 모드: select
+                    <div className="relative">
+                      <select
+                        name="warningType"
+                        value={formData.warningType || ""}
+                        onChange={handleChange}
+                        className="w-full h-14 px-5 rounded-lg border outline-none text-body-m appearance-none border-admin-primary bg-white cursor-pointer"
+                      >
+                        <option value="">선택해주세요</option>{" "}
+                        {WEATHER_OPTIONS.WEATHER_TYPES.map((t) => (
+                          <option key={t.value || t} value={t.value || t}>
+                            {t.label || t.text || t.value || t}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown
+                        className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"
+                        size={20}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <label className="text-body-m-bold text-admin-text-secondary ml-1 font-bold">
+                    발생 지역
+                  </label>
+                  <input
                     name="RLVT_ZONE"
-                    value={formData.RLVT_ZONE || ''}
+                    value={formData.RLVT_ZONE || ""}
                     onChange={handleChange}
                     disabled={!isEdit}
-                    className={`h-14 px-5 rounded-lg border outline-none font-medium ${isEdit ? 'border-admin-primary bg-white' : 'border-admin-border bg-graygray-5'}`}
+                    className={`h-14 px-5 rounded-lg border outline-none font-medium transition-all ${isEdit ? "border-admin-primary bg-white focus:ring-2 ring-blue-50" : "border-admin-border bg-graygray-5 text-graygray-50 cursor-not-allowed"}`}
                   />
                 </div>
-                <DetailField 
-                  label="발효 일시" 
-                  name="TIME_TXT" 
-                  value={formData.TIME_TXT} 
-                  isEdit={isEdit} 
-                  onChange={handleChange} 
-                />
-                <DetailField 
-                  label="관리 번호 (ID)" 
-                  name="PRSNTN_SN" 
-                  value={formData.PRSNTN_SN} 
-                  isEdit={false} 
+                <DetailField
+                  label="발효 일시"
+                  name="TIME_TXT"
+                  value={formData.TIME_TXT}
+                  isEdit={isEdit}
+                  onChange={handleChange}
                 />
               </div>
             </div>
 
+            {/* 특보 상세 내용 */}
             <div className="space-y-6">
               <h3 className="flex items-center gap-2 text-body-m-bold text-admin-text-primary pb-2 border-b border-admin-border font-bold">
                 <Activity size={18} /> 특보 상세 내용
               </h3>
               <div className="grid grid-cols-1 gap-8">
-                <DetailField 
-                  label="특보 제목" 
-                  name="TTL" 
-                  value={formData.TTL} 
-                  isEdit={isEdit} 
-                  onChange={handleChange} 
-                  showError={submitted && !formData.TTL} 
+                <DetailField
+                  label="특보 제목"
+                  name="TTL"
+                  value={formData.TTL}
+                  isEdit={isEdit}
+                  onChange={handleChange}
+                  showError={submitted && !formData.TTL}
                 />
                 <div className="flex flex-col gap-3">
-                  <label className="text-body-m-bold text-admin-text-secondary ml-1 font-bold">상세 통보문 내용</label>
-                  <textarea 
+                  <label className="text-body-m-bold text-admin-text-secondary ml-1 font-bold">
+                    상세 통보문 내용
+                  </label>
+                  <textarea
                     name="SPNE_FRMNT_PRCON_CN"
-                    value={formData.SPNE_FRMNT_PRCON_CN || ''}
+                    value={formData.SPNE_FRMNT_PRCON_CN || ""}
                     onChange={handleChange}
                     disabled={!isEdit}
                     rows={5}
-                    className={`p-5 rounded-lg border transition-all outline-none text-body-m resize-none ${isEdit ? 'border-admin-primary bg-white focus:ring-2' : 'border-admin-border bg-graygray-5 text-graygray-50'}`}
+                    className={`p-5 rounded-lg border transition-all outline-none text-body-m resize-none ${isEdit ? "border-admin-primary bg-white focus:ring-2 ring-blue-50" : "border-admin-border bg-graygray-5 text-graygray-50"}`}
                   />
                 </div>
               </div>
             </div>
 
+            {/* 시스템 관리 설정 */}
             <div className="space-y-6">
               <h3 className="flex items-center gap-2 text-body-m-bold text-admin-text-primary pb-2 border-b border-admin-border font-bold">
                 <Clock size={18} /> 시스템 관리 설정
               </h3>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                {/* 노출 상태 설정 */}
                 <div className="flex flex-col gap-3">
-                  <label className="text-body-m-bold text-admin-text-secondary ml-1 font-bold">사용자 화면 노출 상태</label>
-                  <div className="flex items-center gap-6 h-14 px-2">
+                  <label className="text-body-m-bold text-admin-text-secondary ml-1 font-bold">
+                    노출 상태 설정
+                  </label>
+                  <div
+                    className={`flex items-center gap-6 h-14 px-1 transition-all ${isEdit ? "border-admin-primary bg-white" : "border-admin-border"}`}
+                  >
                     <button
                       type="button"
                       onClick={handleToggle}
-                      className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${formData.visibleYn === 'Y' ? 'bg-admin-primary' : 'bg-gray-300'} ${isEdit ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}
+                      disabled={!isEdit}
+                      className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${formData.visible_yn === "Y" ? "bg-admin-primary" : "bg-gray-300"} ${!isEdit ? "cursor-not-allowed opacity-80" : "cursor-pointer hover:opacity-90"}`}
                     >
-                      <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${formData.visibleYn === 'Y' ? 'translate-x-6' : 'translate-x-0'}`} />
+                      <div
+                        className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${formData.visible_yn === "Y" ? "translate-x-6" : "translate-x-0"}`}
+                      />
                     </button>
-                    <span className={`text-body-s-bold ${formData.visibleYn === 'Y' ? 'text-admin-primary' : 'text-graygray-40'} font-bold`}>
-                      {formData.visibleYn === 'Y' ? "현재 노출 중" : "미노출 (숨김)"}
+                    <span
+                      className={`text-body-m font-bold transition-colors ${formData.visible_yn === "Y" ? "text-admin-primary" : "text-graygray-40"}`}
+                    >
+                      {formData.visible_yn === "Y"
+                        ? "활성화 (Y)"
+                        : "비활성화 (N)"}
                     </span>
+                  </div>
+                </div>
+
+                {/* 등록 유형 (읽기 전용) */}
+                <div className="flex flex-col gap-3">
+                  <label className="text-body-m-bold text-admin-text-secondary ml-1 font-bold">
+                    등록 유형
+                  </label>
+                  <div className="h-14 px-5 flex items-center rounded-lg border border-admin-border bg-graygray-5 font-bold text-graygray-50">
+                    {formData.is_manual === "Y"
+                      ? "관리자 직접 등록"
+                      : "시스템 API 자동 수집"}
                   </div>
                 </div>
               </div>
@@ -221,21 +354,35 @@ const WeatherNewsDetail = () => {
   );
 };
 
-const DetailField = ({ label, name, value, isEdit, onChange, placeholder, showError = false }) => (
+// 재사용 가능한 필드 컴포넌트
+const DetailField = ({
+  label,
+  name,
+  value,
+  isEdit,
+  onChange,
+  placeholder,
+  showError = false,
+}) => (
   <div className="flex flex-col gap-3">
-    <label className="text-body-m-bold text-admin-text-secondary ml-1 font-bold">{label}</label>
-    <input 
+    <label className="text-body-m-bold text-admin-text-secondary ml-1 font-bold">
+      {label}
+    </label>
+    <input
       name={name}
-      value={value || ''}
+      value={value || ""}
       onChange={onChange}
       disabled={!isEdit}
       placeholder={placeholder}
       className={`h-14 px-5 rounded-lg border transition-all outline-none text-body-m font-medium
-        ${isEdit ? 'border-admin-primary bg-white focus:ring-2 ring-blue-100' : `border-admin-border bg-graygray-5 text-graygray-50 cursor-not-allowed`} 
-        ${showError && isEdit ? 'border-red-500 ring-red-50' : ''}
-      `}
+        ${isEdit ? "border-admin-primary bg-white focus:ring-2 ring-blue-50" : `border-admin-border bg-graygray-5 text-graygray-50 cursor-not-allowed`} 
+        ${showError && isEdit ? "border-red-500 ring-red-50" : ""}`}
     />
-    {showError && isEdit && <p className="text-red-500 text-xs ml-1 font-medium">필수로 입력해야 하는 값입니다.</p>}
+    {showError && isEdit && (
+      <p className="text-red-500 text-xs ml-1 font-medium">
+        필수로 입력해야 하는 값입니다.
+      </p>
+    )}
   </div>
 );
 

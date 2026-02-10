@@ -18,7 +18,7 @@ const QnADetailPage = () => {
         const data = await qnaService.getPublicQnaDetail(id);
         setItem(data);
       } catch (error) {
-        console.error("상세 조회 실패:", error);
+        //console.error("상세 조회 실패:", error);
         alert("문의 내용을 불러올 수 없습니다.");
         navigate('/qna');
       } finally {

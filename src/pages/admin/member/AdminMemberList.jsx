@@ -156,8 +156,8 @@ const AdminMemberList = () => {
     const customInputStyle = "h-14 px-3 text-body-m border border-admin-border rounded-md bg-white focus:border-admin-primary outline-none transition-all";
 
     return (
-        <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased text-[#111]">
-            <div className="p-6 bg-gray-50 min-h-screen">
+        <div className="flex-1 flex flex-col min-h-screen font-['Pretendard_GOV'] antialiased text-[#111]">
+            <div className="p-6 min-h-screen">
                 <h1 className="text-2xl font-bold mb-6">회원 조회</h1>
                 
                 <section className="bg-admin-surface border border-admin-border rounded-xl shadow-adminCard p-8 mb-8">

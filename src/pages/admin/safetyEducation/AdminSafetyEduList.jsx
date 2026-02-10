@@ -99,7 +99,7 @@ const AdminSafetyEduList = () => {
       setEduList(response.content);
       setTotalItems(response.totalElements);
     } catch (error) {
-      console.error("목록 조회 실패:", error);
+      //console.error("목록 조회 실패:", error);
       triggerToast("데이터를 불러오는데 실패했습니다.");
     }
   }, [currentPage, appliedKeyword, searchType, selectedPublicStatus]);
@@ -157,7 +157,7 @@ const AdminSafetyEduList = () => {
           triggerToast(`'${targetItem.title}' 노출 상태가 변경되었습니다.`);
           fetchList(); // 목록 새로고침
         } catch (error) {
-          console.error("상태 변경 실패:", error);
+          //console.error("상태 변경 실패:", error);
           alert("상태 변경 중 오류가 발생했습니다.");
         }
       }
@@ -186,7 +186,7 @@ const AdminSafetyEduList = () => {
           triggerToast(`일괄 ${status ? '노출' : '비노출'} 처리가 완료되었습니다.`);
           fetchList(); // 목록 새로고침
         } catch (error) {
-          console.error("일괄 변경 실패:", error);
+          //console.error("일괄 변경 실패:", error);
           alert("처리 중 오류가 발생했습니다.");
         }
       }
@@ -216,7 +216,7 @@ const AdminSafetyEduList = () => {
           triggerToast("삭제되었습니다."); 
           fetchList(); // 목록 새로고침
         } catch (error) {
-          console.error("삭제 실패:", error);
+          //console.error("삭제 실패:", error);
           alert("삭제 중 오류가 발생했습니다.");
         }
       }
@@ -321,7 +321,7 @@ const AdminSafetyEduList = () => {
   // 5. UI 렌더링
   // ==================================================================================
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-sans antialiased text-gray-900">
+    <div className="flex-1 flex flex-col min-h-screen font-sans antialiased text-gray-900">
       {/* Toast Notification */}
       {showToast && (
         <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[9999]">

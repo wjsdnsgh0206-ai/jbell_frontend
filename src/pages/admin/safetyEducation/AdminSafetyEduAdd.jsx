@@ -199,14 +199,14 @@ const AdminSafetyEduAdd = () => {
      setShowToast(true);
      setTimeout(() => navigate('/admin/contents/safetyEduList'), 1500);
    } catch (error) {
-     console.error("등록 실패:", error);
+     //console.error("등록 실패:", error);
      alert("등록 중 오류가 발생했습니다.");
      setIsModalOpen(false);
    }
 };
 
   return (
-    <div className="relative flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased">
+    <div className="relative flex-1 flex flex-col min-h-screen  font-['Pretendard_GOV'] antialiased">
       {/* Toast Notification */}
       {showToast && (
         <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100]">

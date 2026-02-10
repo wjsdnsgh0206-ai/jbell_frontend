@@ -16,7 +16,8 @@ const AdminDataTable = ({
   selectedIds = [], 
   onSelectionChange, 
   onRowClick,
-  rowKey = 'id'
+  rowKey = 'id',
+  selectable = true
 }) => {
 
   // [로직] 전체 선택/해제 핸들러
@@ -44,7 +45,7 @@ const AdminDataTable = ({
   };
 
   // 데이터가 없을 때 테이블을 가득 채우기 위한 컬럼 수 계산 (체크박스 컬럼 + 데이터 컬럼들)
-  const colSpanCount = columns.length + 1;
+  const colSpanCount = selectable ? columns.length + 1 : columns.length;
 
   // [디자인] 체크박스 공통 스타일 
   const checkboxClass = `
@@ -63,16 +64,17 @@ const AdminDataTable = ({
           {/* 1. 테이블 헤더 영역 */}
           <thead className="bg-graygray-5 border-b border-admin-border text-admin-text-secondary">
             <tr>
-              {/* 전체 선택 체크박스 */}
-              <th className="px-6 py-4 w-12 text-center">
-                <input
-                  type="checkbox"
-                  onChange={handleSelectAll}
-                  // 모든 데이터가 선택되었을 때만 체크 표시
-                  checked={data.length > 0 && selectedIds.length === data.length}
-                  className={checkboxClass}
-                />
-              </th>
+              {/* ★ 수정: selectable이 true일 때만 체크박스 헤더 렌더링 */}
+              {selectable && (
+                <th className="px-6 py-4 w-12 text-center">
+                  <input
+                    type="checkbox"
+                    onChange={handleSelectAll}
+                    checked={data.length > 0 && selectedIds.length === data.length}
+                    className={checkboxClass}
+                  />
+                </th>
+              )}
               {/* 동적 컬럼 헤더 생성 */}
               {columns.map((col) => (
                 <th 
@@ -103,18 +105,22 @@ const AdminDataTable = ({
 
                 return (
                   <tr 
-                    key={currentRowId}  // ★ row.id 대신 사용
-                    className={`hover:bg-blue-50 transition-colors group ${selectedIds.includes(currentRowId) ? 'bg-blue-100' : ''}`}
+                    key={currentRowId}
+                    className={`hover:bg-blue-50 transition-colors group ${
+                      selectable && selectedIds.includes(currentRowId) ? 'bg-blue-100' : ''
+                    }`}
                     onClick={() => onRowClick && onRowClick(row)}
                   >
-                    <td className="px-6 py-4 text-center" onClick={(e) => e.stopPropagation()}>
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.includes(currentRowId)} // ★ 식별자 일치
-                        onChange={(e) => handleSelectRow(e, currentRowId)} // ★ 식별자 일치
-                        className={checkboxClass}
-                      />
-                    </td>
+                    {selectable && (
+                      <td className="px-6 py-4 text-center" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(currentRowId)}
+                          onChange={(e) => handleSelectRow(e, currentRowId)}
+                          className={checkboxClass}
+                        />
+                      </td>
+                    )}
                     {columns.map((col) => (
                       <td key={`${currentRowId}-${col.key}`} className={`px-6 py-4 text-admin-text-primary text-detail-m ${col.className || 'text-center'}`}>
                         {col.render ? col.render(row[col.key], row) : row[col.key]}

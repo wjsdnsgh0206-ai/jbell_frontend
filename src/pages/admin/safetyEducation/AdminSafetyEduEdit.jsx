@@ -94,7 +94,7 @@ const AdminSafetyEduEdit = () => {
         
         setBreadcrumbTitle(`${detailData.title} 수정`);
       } catch (error) {
-        console.error("데이터 로드 실패:", error);
+        //console.error("데이터 로드 실패:", error);
         alert("해당 데이터를 찾을 수 없습니다.");
         navigate('/admin/contents/safetyEduList');
       }
@@ -239,7 +239,7 @@ const AdminSafetyEduEdit = () => {
       setShowToast(true);
       setTimeout(() => navigate(`/admin/contents/safetyEduList`), 1500);
     } catch (error) {
-      console.error("수정 실패:", error);
+      //console.error("수정 실패:", error);
       alert("수정 중 오류가 발생했습니다.");
       setIsModalOpen(false);
     }
@@ -260,7 +260,7 @@ const AdminSafetyEduEdit = () => {
   // 5. UI 렌더링
   // ==================================================================================
   return (
-    <div className="relative flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased">
+    <div className="relative flex-1 flex flex-col min-h-screen  font-['Pretendard_GOV'] antialiased">
 
       {/* Toast Notification */}
       {showToast && (
