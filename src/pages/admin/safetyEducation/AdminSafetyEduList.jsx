@@ -321,7 +321,7 @@ const AdminSafetyEduList = () => {
   // 5. UI 렌더링
   // ==================================================================================
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-sans antialiased text-gray-900">
+    <div className="flex-1 flex flex-col min-h-screen font-sans antialiased text-gray-900">
       {/* Toast Notification */}
       {showToast && (
         <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[9999]">

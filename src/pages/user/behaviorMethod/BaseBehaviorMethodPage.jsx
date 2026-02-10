@@ -1,3 +1,4 @@
+// src\pages\user\behaviorMethod\BaseBehaviorMethodPage.jsx
 import React, { useEffect, useState } from 'react';
 import BehaviorMethodPageTemplate from '@/components/user/behaviorMethod/BehaviorMethodPageTemplate';
 import BehaviorContentRenderer from '@/pages/user/behaviorMethod/BehaviorContentRenderer';

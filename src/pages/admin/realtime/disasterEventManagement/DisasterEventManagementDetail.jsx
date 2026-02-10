@@ -1,5 +1,4 @@
-'use no memo';
-
+// src\pages\admin\realtime\disasterEventManagement\DisasterEventManagementDetail.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useOutletContext } from "react-router-dom";
 import { MapPin, AlertTriangle, Clock, ChevronDown, List, Info } from 'lucide-react';

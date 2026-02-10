@@ -1020,12 +1020,43 @@ export const disasterModalService = {
      ✅ [추가] 백엔드 DB 저장 데이터 조회 API (한파/호우/태풍 리스트)
      우리 스프링부트 서버(8080)에서 데이터를 가져옵니다.
   ---------------------------------------------------------- */
-  // src/services/api.js 내 수정 확인
+  // [공통] 기상 특보 조회 (호우:2, 한파:3, 태풍:7)
   getWeatherList: async (type) => {
+    // Backend: /api/disaster/fetch/weather-list?type=X
     const response = await api.get("/disaster/fetch/weather-list", {
       params: { type },
     });
-    return response.data; // 여기서 실제 데이터 배열이 담긴 ApiResponse가 와야 함
+    return response.data; // ApiResponse 객체 리턴
+  },
+
+  // [산불]
+  getForestFireList: async () => {
+    // Backend: /api/disaster/fetch/forest-fire-list
+    const response = await api.get("/disaster/fetch/forest-fire-list");
+    return response.data;
+  },
+
+  // [지진]
+  getEarthquakeList: async () => {
+    // Backend: /api/disaster/fetch/earthquake-list
+    const response = await api.get("/disaster/fetch/earthquake-list");
+    return response.data;
+  },
+
+  // [태풍] (필요 시 별도 호출, 현재 구조상 getWeatherList(7)로 커버 가능하나 별도 API가 있다면 유지)
+  getTyphoonList: async () => {
+     const response = await api.get("/disaster/fetch/typhoon-list");
+     return response.data;
+  },
+
+  // [상태 변경] 노출/비노출 일괄 처리
+  updateDisasterStatus: async (ids, isVisible) => {
+    // Backend: /api/disaster/manage/status
+    const response = await api.post("/disaster/manage/status", {
+      ids: ids,
+      isVisible: isVisible,
+    });
+    return response.data;
   },
 };
 
@@ -1159,3 +1190,5 @@ export const safetyPolicyService = {
     return response.data;
   },
 };
+
+export default api;

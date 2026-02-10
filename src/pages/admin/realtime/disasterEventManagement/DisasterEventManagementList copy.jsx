@@ -1,9 +1,9 @@
-// src\pages\admin\realtime\disasterEventManagement\DisasterEventManagementList.jsx
+"use no memo";
+
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { ChevronDown, RefreshCw, AlertCircle, Info } from "lucide-react";
-// import api from "@/services/api";
-import api, { disasterModalService } from "@/services/api";
+import axios from "axios";
 
 // [공통 컴포넌트]
 import AdminDataTable from "@/components/admin/AdminDataTable";
@@ -27,7 +27,6 @@ const DisasterEventManagementList = () => {
   const [selectedIds, setSelectedIds] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false); // 업데이트 로딩 상태
   const itemsPerPage = 10;
 
   const [filters, setFilters] = useState({
@@ -51,20 +50,18 @@ const DisasterEventManagementList = () => {
   const fetchAllDisasters = useCallback(async () => {
     setIsLoading(true);
     try {
-      // [API 호출]
       const [kmaRes, fireRes, eqRes, floodRes, typhoonRes] = await Promise.all([
-        disasterModalService.getWeatherList(3), // 한파
-        disasterModalService.getForestFireList(), // 산불
-        disasterModalService.getEarthquakeList(), // 지진
-        disasterModalService.getWeatherList(2), // 호우
-        disasterModalService.getWeatherList(7), // 태풍
+        axios.get("/api/disaster/fetch/weather-list?type=3"),
+        axios.get("/api/disaster/fetch/forest-fire-list"),
+        axios.get("/api/disaster/fetch/earthquake-list"),
+        axios.get("/api/disaster/fetch/weather-list?type=2"),
+        axios.get("/api/disaster/fetch/weather-list?type=7"),
       ]);
 
-      // [데이터 추출 헬퍼] 
-      // api.js가 ApiResponse 객체({status, data: [], ...})를 반환하므로 res.data가 실제 리스트입니다.
       const getRawData = (res) => {
-        if (res?.data && Array.isArray(res.data)) return res.data; 
-        if (Array.isArray(res)) return res; 
+        if (res.data?.data && Array.isArray(res.data.data))
+          return res.data.data;
+        if (Array.isArray(res.data)) return res.data;
         return [];
       };
 
@@ -74,88 +71,74 @@ const DisasterEventManagementList = () => {
       const floodRaw = getRawData(floodRes);
       const typhoonRaw = getRawData(typhoonRes);
 
-      // -----------------------------------------------------------
-      // [수정] 날짜 포맷팅 로직 복구 (YYYYMMDDHHMM -> YYYY-MM-DD HH:MM:ss)
-      // -----------------------------------------------------------
-
-      // 1. 한파
       const mappedKma = kmaRaw.map((item, idx) => ({
         id: `WTH_3_${item.tmSeq}_${item.stnId}_${idx}`,
         serialNumber: String(item.tmSeq),
         type: "한파",
         region: item.areaName || "전북전역",
         content: `[한파특보] ${item.areaName} 지역 주의보 발령`,
-        // ✨ 포맷팅 복구
-        dateTime: item.tmFc && item.tmFc.length >= 10
+        dateTime: item.tmFc
           ? `${item.tmFc.substring(0, 4)}-${item.tmFc.substring(4, 6)}-${item.tmFc.substring(6, 8)} ${item.tmFc.substring(8, 10)}:00`
           : "-",
         status: "진행중",
-        isVisible: item.exposeYn ? item.exposeYn === 'Y' : true,
+        isVisible: true,
       }));
 
-      // 2. 호우
       const mappedFlood = floodRaw.map((item, idx) => ({
         id: `WTH_2_${item.tmSeq}_${item.stnId}_${idx}`,
         serialNumber: String(item.tmSeq),
         type: "호우",
         region: item.areaName || "전북전역",
         content: `[호우특보] ${item.areaName} 지역 특보 발령`,
-        // ✨ 포맷팅 복구
-        dateTime: item.tmFc && item.tmFc.length >= 10
+        dateTime: item.tmFc
           ? `${item.tmFc.substring(0, 4)}-${item.tmFc.substring(4, 6)}-${item.tmFc.substring(6, 8)} ${item.tmFc.substring(8, 10)}:00`
           : "-",
         status: "진행중",
-        isVisible: item.exposeYn ? item.exposeYn === 'Y' : true,
+        isVisible: true,
       }));
 
-      // 3. 태풍
       const mappedTyphoon = typhoonRaw.map((item, idx) => ({
         id: `WTH_7_${item.tmSeq}_${item.stnId}_${idx}`,
         serialNumber: String(item.tmSeq),
         type: "태풍",
         region: item.areaName || "전북전역",
-        content: `[태풍특보] ${item.areaName} 태풍 특보`,
-        // ✨ 포맷팅 복구
-        dateTime: item.tmFc && item.tmFc.length >= 10
+        content: `[태풍특보] ${item.areaName} 지역 태풍 특보 발령`,
+        dateTime: item.tmFc
           ? `${item.tmFc.substring(0, 4)}-${item.tmFc.substring(4, 6)}-${item.tmFc.substring(6, 8)} ${item.tmFc.substring(8, 10)}:00`
           : "-",
         status: "진행중",
-        isVisible: item.exposeYn ? item.exposeYn === 'Y' : true,
+        isVisible: true,
       }));
 
-      // 4. 산불 (여긴 DB 포맷에 따라 다르지만 T제거 로직 유지)
       const mappedFire = fireRaw.map((item, idx) => ({
         id: `FIRE_${item.fireId}_${idx}`,
         serialNumber: String(item.fireId),
         type: "산불",
         region: item.fireLocVillage || "지역정보 없음",
-        content: `[산불위험] ${item.fireLocVillage} 인근 산불 위험`,
-        dateTime: item.fireStartTime ? item.fireStartTime.replace("T", " ") : "-",
+        content: `[산불위험] ${item.fireLocVillage} 인근 산불 위험 예보`,
+        dateTime: item.fireStartTime
+          ? item.fireStartTime.replace("T", " ").substring(0, 16)
+          : "-",
         status: "진행중",
-        isVisible: item.fireExposeYn ? item.fireExposeYn === 'Y' : true,
+        isVisible: true,
       }));
 
-      // 5. 지진
       const mappedEq = eqRaw.map((item, idx) => {
-        const seq = item.seq || idx;
-        // ✨ 포맷팅 복구
-        const rawTime = String(item.tmFc || "");
+        const earthquakeSeq = item.TM_SEQ || item.SEQ || item.seq || idx;
+        const rawTime = String(item.TM_EQK || item.tmEqk || item.tmFc || "");
         let formattedDate = "-";
         if (rawTime.length >= 12) {
-             formattedDate = `${rawTime.substring(0, 4)}-${rawTime.substring(4, 6)}-${rawTime.substring(6, 8)} ${rawTime.substring(8, 10)}:${rawTime.substring(10, 12)}`;
-        } else if (rawTime.length >= 8) {
-             formattedDate = `${rawTime.substring(0, 4)}-${rawTime.substring(4, 6)}-${rawTime.substring(6, 8)}`;
+          formattedDate = `${rawTime.substring(0, 4)}-${rawTime.substring(4, 6)}-${rawTime.substring(6, 8)} ${rawTime.substring(8, 10)}:${rawTime.substring(10, 12)}`;
         }
-
         return {
-          id: `EQK_${seq}_${idx}`,
-          serialNumber: String(seq),
+          id: `EQK_${earthquakeSeq}_${idx}`,
+          serialNumber: String(earthquakeSeq),
           type: "지진",
-          region: item.loc || "지역정보 없음",
-          content: `[지진발생] 규모 ${item.mt || "0.0"} / ${item.loc}`,
+          region: item.LOC || item.loc || "지역정보 없음",
+          content: `[지진발생] 규모 ${item.MT || item.mt || "0.0"} / 위치: ${item.LOC || item.loc}`,
           dateTime: formattedDate,
           status: "진행중",
-          isVisible: item.exposeYn ? item.exposeYn === 'Y' : true,
+          isVisible: true,
         };
       });
 
@@ -206,31 +189,6 @@ const DisasterEventManagementList = () => {
     return filteredData.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredData, currentPage]);
 
-
-  // [기능 구현] 상태 변경 API 호출
-  const processStatusUpdate = async (ids, isVisible) => {
-    try {
-        setIsUpdating(true);
-        // [변경] disasterModalService 사용
-        const response = await disasterModalService.updateDisasterStatus(ids, isVisible);
-
-        if (response.status === "SUCCESS" || response.code === 200) {
-            // UI 낙관적 업데이트
-            setWeatherList(prev => prev.map(item => 
-                ids.includes(item.id) ? { ...item, isVisible: isVisible } : item
-            ));
-            setSelectedIds([]); 
-            return true;
-        }
-    } catch (error) {
-        console.error("상태 변경 실패:", error);
-        alert("상태 변경 중 오류가 발생했습니다.");
-        return false;
-    } finally {
-        setIsUpdating(false);
-    }
-  };
-
   const handleSearch = () => setCurrentPage(1);
   const handleReset = () => {
     setFilters({
@@ -244,34 +202,33 @@ const DisasterEventManagementList = () => {
     setCurrentPage(1);
   };
 
-  // [추가] 개별 토글 핸들러
-  const handleToggleVisible = async (id, currentVisible) => {
-      // 즉시 UI 낙관적 업데이트 혹은 확인 절차 없이 API 호출
-      // 여기서는 사용자 경험을 위해 API 호출 후 반영
-      await processStatusUpdate([id], !currentVisible);
-  };
 
-  // 일괄 처리 핸들러
+  // --------------------------------------------------------------------------
+  // [새로 추가] 일괄 처리 관련 핸들러
+  // --------------------------------------------------------------------------
   const handleBatchStatus = (status) => {
-    if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요.");
+    if (selectedIds.length === 0) return alert("항목을 먼저 선택해주세요."); // ✨ 추가
     
     setModalConfig({
       title: `일괄 ${status ? "노출" : "비노출"} 처리`,
       message: (
         <div className="flex flex-col gap-2 text-left">
+          {/* ✨ 선택된 개수 정확히 반영 */}
           <p>선택하신 <span className="text-admin-primary font-bold">[{selectedIds.length}개]</span> 항목을</p>
           <p>일괄 <span className="font-bold underline">{status ? "노출" : "비노출"}</span> 처리하시겠습니까?</p>
         </div>
       ),
       type: status ? "confirm" : "delete",
       onConfirm: async () => {
-        const success = await processStatusUpdate(selectedIds, status);
-        if(success) setIsModalOpen(false);
+        console.log(`${status ? "노출" : "비노출"} 처리 완료:`, selectedIds);
+        setIsModalOpen(false);
+        setSelectedIds([]);
+        // fetchAllDisasters(); // 🛠️ 필요시 주석 해제하여 데이터 갱신
       },
     });
     setIsModalOpen(true);
   };
-
+  
   // 4. 테이블 컬럼 정의 (디자인 동기화)
   const columns = useMemo(
     () => [
@@ -335,14 +292,12 @@ const DisasterEventManagementList = () => {
         width: "100px",
         render: (visible, row) => (
           <div className="flex justify-center">
-             {/* 토글 버튼 구현 */}
               <button
               onClick={(e) => {
                 e.stopPropagation();
-                handleToggleVisible(row.id, visible);
+                // handleToggleVisible(row.id, visible); ‼️추후 토글버튼 핸들러 정의 필요‼️
               }}
-              disabled={isUpdating}
-              className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${visible ? "bg-admin-primary" : "bg-gray-300"} ${isUpdating ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${visible ? "bg-admin-primary" : "bg-gray-300"}`}
             >
               <div
                 className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${visible ? "translate-x-6" : "translate-x-0"}`}
@@ -351,7 +306,6 @@ const DisasterEventManagementList = () => {
           </div>
         ),
       },
-      /* 미비된 기능
       {
         key: "actions",
         header: "관리",
@@ -371,9 +325,8 @@ const DisasterEventManagementList = () => {
           // <button onClick={() => navigate(`/admin/realtime/disasterEventManagementDetail/${row.id}`)} className="text-admin-primary hover:underline text-sm font-medium">관리</button>
         ),
       },
-      */
     ],
-    [navigate, isUpdating],
+    [navigate],
   );
 
   return (
@@ -509,7 +462,6 @@ const DisasterEventManagementList = () => {
               </div>
               </div>
             {/* <button onClick={() => navigate("/admin/realtime/disasterEventManagementAdd")} className="px-6 h-12 bg-admin-primary text-white rounded-md font-bold hover:opacity-90 transition-all shadow-sm text-sm">신규 등록</button> */}
-            {/* 미비된 기능
             <button
               onClick={() =>
                 navigate("/admin/realtime/disasterEventManagementAdd")
@@ -518,7 +470,6 @@ const DisasterEventManagementList = () => {
             >
               등록
             </button>
-            */}
           </div>
 
           <AdminDataTable

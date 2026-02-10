@@ -1,5 +1,4 @@
-"use no memo";
-
+// src\pages\admin\realtime\weatherNews\WeatherNewsDetail.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Activity, Clock, List, ShieldCheck, ChevronDown } from "lucide-react";

@@ -1,3 +1,4 @@
+// src\pages\admin\realtime\dashboard\DisasterSummarySection.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import { Maximize2, Minimize2 } from "lucide-react";
 import CommonMap from "@/components/user/modal/CommonMap"; 
