@@ -4,20 +4,25 @@ import { disasterModalService } from "@/services/api";
 const useEarthquake = () => {
   const [eqMarkers, setEqMarkers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [earthquakeCount, setEarthquakeCount] = useState(0);
 
   // 전주시청 좌표 (기준점)
-  const JEONJU_CITY_HALL = { lat: 35.8242, lng: 127.1480 };
+  const JEONJU_CITY_HALL = { lat: 35.8242, lng: 127.148 };
 
   // 거리 계산 함수
   const getDistance = (p1, p2) => {
-    return Math.sqrt(Math.pow(p2.lat - p1.lat, 2) + Math.pow(p2.lng - p1.lng, 2));
+    return Math.sqrt(
+      Math.pow(p2.lat - p1.lat, 2) + Math.pow(p2.lng - p1.lng, 2),
+    );
   };
 
   const fetchEarthquakeData = useCallback(async () => {
     setIsLoading(true);
+
     try {
       const response = await disasterModalService.getEarthquakeList();
-      // 백엔드 응답 구조에 따라 res.data.data 또는 res.data 확인
+
+      // API 구조에 맞춰 데이터 추출
       const items = response?.data?.data || response?.data || response || [];
 
       if (!Array.isArray(items)) {
@@ -33,11 +38,12 @@ const useEarthquake = () => {
           if (isNaN(latNum) || isNaN(lngNum)) return null;
 
           const locationName = eq.loc || "";
-          
-          // 전북 필터링
-          if (!locationName.includes("전북") && !locationName.includes("전라북도")) {
-            return null;
-          }
+
+          // ✅ 1. 지역 필터링 제거: 전북이 아니어도 null을 반환하지 않음
+          // 대신 전북 여부를 불리언 값으로 저장해서 정렬에 사용
+          const isJeonbuk = 
+            locationName.includes("전북") || 
+            locationName.includes("전라북도");
 
           const rawTime = String(eq.tmFc || "");
           let formattedDate = "정보 없음";
@@ -45,20 +51,26 @@ const useEarthquake = () => {
 
           if (rawTime.length >= 8) {
             formattedDate = `${rawTime.substring(0, 4)}-${rawTime.substring(4, 6)}-${rawTime.substring(6, 8)}`;
+
             if (rawTime.length >= 12) {
               formattedTime = `${rawTime.substring(8, 10)}:${rawTime.substring(10, 12)}`;
             }
           }
 
-          const distance = getDistance(JEONJU_CITY_HALL, { lat: latNum, lng: lngNum });
+          const distance = getDistance(JEONJU_CITY_HALL, {
+            lat: latNum,
+            lng: lngNum,
+          });
 
           return {
             id: eq.seq || `eq-${idx}`,
             lat: latNum,
             lng: lngNum,
-            distance: distance,
+            distance,
+            isJeonbuk, // 정렬을 위한 기준값
             title: `[규모 ${eq.mt || "0.0"}] 지진발생`,
             rawTime,
+            locationName,
             content: `
               <div style="line-height:1.6; padding:10px; min-width:200px; font-family:sans-serif;">
                 <div style="border-bottom:2px solid #f3f4f6; padding-bottom:8px; margin-bottom:8px;">
@@ -76,8 +88,18 @@ const useEarthquake = () => {
             `,
           };
         })
-        .filter(Boolean);
+        .filter(Boolean)
+        // ✅ 2. 정렬 로직: 전북 우선 배치 후 최신 시간순 정렬
+        .sort((a, b) => {
+          // 전북 지역 데이터인 경우 최상단으로 (true가 앞으로)
+          if (a.isJeonbuk && !b.isJeonbuk) return -1;
+          if (!a.isJeonbuk && b.isJeonbuk) return 1;
 
+          // 동일 조건(둘 다 전북이거나 아니거나)일 때는 최신 시간순 정렬
+          return b.rawTime - a.rawTime;
+        });
+
+      setEarthquakeCount(formattedData.length);
       setEqMarkers(formattedData);
     } catch (error) {
       console.error("🔥 지진 데이터 로드 실패:", error);
@@ -89,6 +111,7 @@ const useEarthquake = () => {
 
   const nearestEq = useMemo(() => {
     if (eqMarkers.length === 0) return null;
+    // 리스트 중 전주시청과 가장 가까운 지진 반환
     return [...eqMarkers].sort((a, b) => a.distance - b.distance)[0];
   }, [eqMarkers]);
 
@@ -99,7 +122,7 @@ const useEarthquake = () => {
       }
       return JEONJU_CITY_HALL;
     },
-    [nearestEq]
+    [nearestEq],
   );
 
   const clearMarkers = useCallback(() => {
@@ -110,6 +133,7 @@ const useEarthquake = () => {
     eqMarkers,
     fetchEarthquakeData,
     clearMarkers,
+    earthquakeCount,
     isLoading,
     getMapCenter,
     selectedMarker: nearestEq,

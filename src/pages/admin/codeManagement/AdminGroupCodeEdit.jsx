@@ -1,3 +1,4 @@
+// src/pages/admin/codeManagement/AdminGroupCodeEdit.jsx
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { codeService } from '@/services/api';
@@ -8,31 +9,31 @@ import { Calendar } from 'lucide-react';
 
 const SuccessIcon = ({ fill = "#2563EB" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="8" cy="8" r="8" fill={fill}/>
-    <path d="M11 6L7 10L5 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="8" cy="8" r="8" fill={fill} />
+    <path d="M11 6L7 10L5 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const ErrorIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="8" cy="8" r="8" fill="#E15141"/>
-    <path d="M10 6L6 10M6 6L10 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="8" cy="8" r="8" fill="#E15141" />
+    <path d="M10 6L6 10M6 6L10 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const AdminGroupCodeEdit = () => {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const { setBreadcrumbTitle } = useOutletContext();
   const navigate = useNavigate();
 
   const [errors, setErrors] = useState({ groupName: false });
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState(''); 
+  const [toastMessage, setToastMessage] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRegistered, setIsRegistered] = useState(true);
   const [originalName, setOriginalName] = useState('');
-  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false); 
-  const [originalData, setOriginalData] = useState(null); 
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [originalData, setOriginalData] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const [loading, setLoading] = useState(false);
@@ -48,7 +49,7 @@ const AdminGroupCodeEdit = () => {
     updatedAt: ''
   });
 
-   // 토스트 트리거 함수 (코드 하단에서 사용 중이므로 정의 필요)
+  // 토스트 트리거 함수
   const triggerToast = (msg) => {
     setToastMessage(msg);
     setShowToast(true);
@@ -61,12 +62,12 @@ const AdminGroupCodeEdit = () => {
     return dateTimeStr.replace('T', ' ');
   };
 
- // 데이터 로드 (DB 연동)
+  // 데이터 로드 (DB 연동)
   useEffect(() => {
     const fetchDetail = async () => {
       try {
         setLoading(true);
-        const data = await codeService.getCodeGroup(id); 
+        const data = await codeService.getCodeGroup(id);
 
         const initialForm = {
           groupCode: data.groupCode,
@@ -92,9 +93,9 @@ const AdminGroupCodeEdit = () => {
       }
     };
     fetchDetail();
-  }, [id, setBreadcrumbTitle]); // groupCode -> id로 변경
+  }, [id, setBreadcrumbTitle]);
 
-  // 변경 사항 체크 (더티 체크)
+  // 변경 사항 체크
   const isDirty = useMemo(() => {
     if (!originalData) return false;
     return (
@@ -105,43 +106,43 @@ const AdminGroupCodeEdit = () => {
     );
   }, [formData, originalData, isRegistered]);
 
-// 이름 변경 시 서버에 중복 체크 요청
-useEffect(() => {
-  const checkName = async () => {
-    const name = formData.groupName.trim();
-    
-    // 입력값이 없거나 기존 이름(DB에서 가져온 이름)과 같다면 중복 아님
-    if (!name || name === originalName.trim()) {
-      setIsNameDuplicate(false);
-      return;
-    }
+  // 이름 변경 시 서버에 중복 체크 요청
+  useEffect(() => {
+    const checkName = async () => {
+      const name = formData.groupName.trim();
 
-    try {
-      const res = await codeService.checkGroupDup({ 
-        groupCode: id, // 현재 수정 중인 그룹의 ID
-        groupName: name 
-      });
-      
-      const data = res.data || res;
-      
-      setIsNameDuplicate(!!data.isNameDup);
-      
-    } catch (e) {
-      console.error("중복 체크 실패", e);
-    }
-  };
-  
-  const timer = setTimeout(checkName, 400);
-  return () => clearTimeout(timer);
-}, [formData.groupName, originalName, id]);
+      // 입력값이 없거나 기존 이름(DB에서 가져온 이름)과 같다면 중복 아님
+      if (!name || name === originalName.trim()) {
+        setIsNameDuplicate(false);
+        return;
+      }
+
+      try {
+        const res = await codeService.checkGroupDup({
+          groupCode: id, // 현재 수정 중인 그룹의 ID
+          groupName: name
+        });
+
+        const data = res.data || res;
+
+        setIsNameDuplicate(!!data.isNameDup);
+
+      } catch (e) {
+        console.error("중복 체크 실패", e);
+      }
+    };
+
+    const timer = setTimeout(checkName, 400);
+    return () => clearTimeout(timer);
+  }, [formData.groupName, originalName, id]);
 
   // 중복 체크
-const checkDuplicateName = useMemo(() => {
+  const checkDuplicateName = useMemo(() => {
     const currentInputName = formData.groupName.trim();
-    
+
     if (!currentInputName || currentInputName === originalName.trim()) return false;
 
-    return isNameDuplicate; 
+    return isNameDuplicate;
   }, [formData.groupName, originalName, isNameDuplicate]);
 
   // 브라우저 뒤로가기 방지
@@ -168,8 +169,8 @@ const checkDuplicateName = useMemo(() => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "groupName") {
-       if (value.length <= 100) setFormData(prev => ({ ...prev, [name]: value }));
-    } 
+      if (value.length <= 100) setFormData(prev => ({ ...prev, [name]: value }));
+    }
     /* 백엔드 미구현으로 인한 순서(order) 수정 기능 일시 차단
     else if (name === "order") {
       const val = value.replace(/[^0-9]/g, "");
@@ -186,10 +187,10 @@ const checkDuplicateName = useMemo(() => {
 
   };
 
- const handleSave = () => {
+  const handleSave = () => {
     setIsSubmitted(true);
     const isGroupNameEmpty = !formData.groupName.trim();
-    
+
     setErrors({ groupName: isGroupNameEmpty });
 
     // 필수값 체크
@@ -202,16 +203,16 @@ const checkDuplicateName = useMemo(() => {
     if (isNameDuplicate) {
       return;
     }
-    
+
     setIsModalOpen(true);
   };
 
   // 저장 로직
- const handleConfirmSave = async () => {
+  const handleConfirmSave = async () => {
     try {
       const payload = { ...formData, visible: isRegistered };
       await codeService.updateGroup(id, payload);
-      
+
       setIsModalOpen(false);
       triggerToast("그룹코드가 성공적으로 수정되었습니다.");
 
@@ -258,7 +259,7 @@ const checkDuplicateName = useMemo(() => {
 
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-14 w-full max-w-[1000px]">
           <h3 className="text-[24px] font-extrabold mb-14 text-[#111] tracking-tight border-b-2 border-gray-100 pb-3">그룹 코드 수정</h3>
-          
+
           <div className="flex flex-col space-y-10">
             {/* 그룹 코드 ID (Read Only) */}
             <div className="w-full max-w-[500px]">
@@ -270,17 +271,16 @@ const checkDuplicateName = useMemo(() => {
             {/* 그룹 코드 명 (필수) */}
             <div className="w-full max-w-[500px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">그룹 코드 명 (필수)</label>
-              <input 
-                name="groupName" 
-                value={formData.groupName} 
-                onChange={handleChange} 
+              <input
+                name="groupName"
+                value={formData.groupName}
+                onChange={handleChange}
                 autoComplete="off"
                 placeholder="그룹 코드 명을 입력하세요"
-                className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${
-                  errors.groupName || checkDuplicateName 
-                    ? 'border-[#E15141] ring-1 ring-red-50' 
+                className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${errors.groupName || checkDuplicateName
+                    ? 'border-[#E15141] ring-1 ring-red-50'
                     : 'border-gray-300 focus:border-[#2563EB]'
-                }`} 
+                  }`}
               />
               <div className="flex justify-between items-start mt-2">
                 <div className="flex-1 min-h-[20px]">
@@ -312,11 +312,11 @@ const checkDuplicateName = useMemo(() => {
             {/* 그룹 코드 순서 영역 아직 구현 X */}
             <div className="w-full">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">순서</label>
-              <input 
-                type="number" 
-                name="order" 
-                value={formData.order} 
-                onChange={handleChange} 
+              <input
+                type="number"
+                name="order"
+                value={formData.order}
+                onChange={handleChange}
                 readOnly
                 className="w-[100px] bg-[#F3F4F7] border border-gray-300 rounded-lg px-4 py-3 text-center text-[#666] cursor-not-allowed outline-none font-medium"
                 title="순서는 등록 시 자동으로 할당되며, 수정 페이지에서는 변경할 수 없습니다."
@@ -332,9 +332,9 @@ const checkDuplicateName = useMemo(() => {
               <div className="flex items-center gap-5 mb-4">
                 <label className="font-bold text-[16px] text-[#111]">사용 여부</label>
                 <div className="flex items-center gap-3">
-                  <button 
-                    type="button" 
-                    onClick={() => setIsRegistered(!isRegistered)} 
+                  <button
+                    type="button"
+                    onClick={() => setIsRegistered(!isRegistered)}
                     className={`w-[54px] h-[28px] flex items-center rounded-full p-1 transition-all duration-300 ${isRegistered ? 'bg-[#2563EB]' : 'bg-gray-300'}`}
                   >
                     <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${isRegistered ? 'translate-x-[26px]' : 'translate-x-0'}`} />
@@ -355,24 +355,24 @@ const checkDuplicateName = useMemo(() => {
               )}
             </div>
 
-          {/* 등록/수정 정보 */}
+            {/* 등록/수정 정보 */}
             <div className="pt-10 border-t border-gray-100 flex flex-col space-y-8">
               <div className="flex flex-col gap-2">
                 <label className="text-[14px] font-bold text-gray-400">등록 일시</label>
                 <div className="flex items-center gap-2 text-[#999] font-medium px-1">
-                  <Calendar size={16} className="text-gray-300" /> 
+                  <Calendar size={16} className="text-gray-300" />
                   {formatDateTime(formData.createdAt)}
                 </div>
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-[14px] font-bold text-gray-400">수정 일시</label>
                 <div className="flex items-center gap-2 text-[#999] font-medium px-1">
-                  <Calendar size={16} className="text-gray-300" /> 
+                  <Calendar size={16} className="text-gray-300" />
                   {formatDateTime(formData.updatedAt || formData.createdAt)}
                 </div>
               </div>
             </div>
-          </div>  
+          </div>
         </section>
 
         <div className="flex justify-end gap-2 mt-12 max-w-[1000px]">

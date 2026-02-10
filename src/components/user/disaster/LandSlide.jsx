@@ -107,8 +107,8 @@ const LandSlide = () => {
                     }`}
                   >
                     {hasActiveNotice
-                      ? "⚠️ 전북 지역 산사태 발령 현황"
-                      : "✅ 현재 유효한 산사태 특보가 없습니다."}
+                      ? "전북 지역 산사태 발령 현황"
+                      : "현재 유효한 산사태 특보가 없습니다."}
                   </p>
                 </div>
 
@@ -142,7 +142,7 @@ const LandSlide = () => {
                             <span className="text-[10px] text-gray-400 font-medium">{item.info.date}</span>
                           </div>
                           <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-50">
-                            <span className="text-detail-s text-gray-500">📞 연락처: <span className="text-gray-800 font-semibold">{item.info.tel}</span></span>
+                            <span className="text-detail-s text-gray-500">연락처: <span className="text-gray-800 font-semibold">{item.info.tel}</span></span>
                             <span className={`text-detail-s font-extrabold ${item.isActiveWarning ? "text-red-600 animate-pulse" : "text-blue-500"}`}>
                               {item.info.status}
                             </span>

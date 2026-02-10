@@ -1,3 +1,4 @@
+// src/pages/admin/codeManagement/AdminGroupCodeDetail.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { codeService } from '@/services/api';
@@ -9,8 +10,8 @@ import { Calendar } from 'lucide-react';
 // 토스트용 성공 아이콘 컴포넌트
 const SuccessIcon = ({ fill = "#4ADE80" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-    <circle cx="8" cy="8" r="8" fill={fill}/>
-    <path d="M11 6L7 10L5 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="8" cy="8" r="8" fill={fill} />
+    <path d="M11 6L7 10L5 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
@@ -80,23 +81,23 @@ const AdminGroupCodeDetail = () => {
 
       <main className="p-10 text-left">
         <h2 className="text-[32px] font-bold mt-2 mb-2 tracking-tight">공통코드관리</h2>
-        
+
         <div className="flex justify-end gap-2 mb-6 max-w-[1000px]">
-          <button 
+          <button
             onClick={() => navigate('/admin/system/commonCodeList')}
             className="px-6 py-2 border border-gray-300 bg-white text-[#333] rounded-md font-bold text-[15px] hover:bg-gray-50 shadow-sm transition-all disabled:opacity-50"
-            disabled={isDeleting} 
+            disabled={isDeleting}
           >
             목록
           </button>
-          <button 
+          <button
             onClick={() => setIsDeleteModalOpen(true)}
             className="px-6 py-2 bg-[#E1421F] text-white rounded-md font-bold text-[15px] hover:bg-[#c1381a] shadow-sm transition-all disabled:opacity-50"
             disabled={isDeleting}
           >
             삭제
           </button>
-          <button 
+          <button
             onClick={() => navigate(`/admin/system/groupCodeEdit/${id}`)}
             className="px-6 py-2 bg-[#2563EB] text-white rounded-md font-bold text-[15px] hover:bg-blue-700 shadow-sm transition-all disabled:opacity-50"
             disabled={isDeleting}
@@ -109,42 +110,42 @@ const AdminGroupCodeDetail = () => {
           <h3 className="text-[24px] font-extrabold mb-14 text-[#111] tracking-tight border-b-2 border-gray-100 pb-3">
             그룹 코드 정보
           </h3>
-          
+
           <div className="flex flex-col space-y-10">
             <div>
               <label className="block font-bold text-[16px] mb-3 text-[#111]">그룹 코드 ID</label>
-              <input 
-                value={formData.groupCode || ''} 
-                readOnly 
-                className="w-full max-w-[500px] bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] outline-none cursor-default transition-all" 
+              <input
+                value={formData.groupCode || ''}
+                readOnly
+                className="w-full max-w-[500px] bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] outline-none cursor-default transition-all"
               />
             </div>
 
             <div>
               <label className="block font-bold text-[16px] mb-3 text-[#111]">그룹 코드 명</label>
-              <input 
-                value={formData.groupName || ''} 
-                readOnly 
-                className="w-full max-w-[500px] bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] outline-none cursor-default transition-all" 
+              <input
+                value={formData.groupName || ''}
+                readOnly
+                className="w-full max-w-[500px] bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] outline-none cursor-default transition-all"
               />
             </div>
 
             <div>
               <label className="block font-bold text-[16px] mb-3 text-[#111]">그룹 코드 설명</label>
-              <textarea 
-                value={formData.desc || '설명이 없습니다.'} 
-                readOnly 
-                rows="2" 
-                className="w-full max-w-[600px] bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] outline-none resize-none leading-[22px] cursor-default transition-all" 
+              <textarea
+                value={formData.desc || '설명이 없습니다.'}
+                readOnly
+                rows="2"
+                className="w-full max-w-[600px] bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] outline-none resize-none leading-[22px] cursor-default transition-all"
               />
             </div>
 
             <div>
               <label className="block font-bold text-[16px] mb-3 text-[#111]">순서</label>
-              <input 
-                value={formData.order || '0'} 
-                readOnly 
-                className="w-[100px] bg-[#F9FAFB] border border-gray-300 rounded-lg px-4 py-3 text-[#666] text-center outline-none cursor-default" 
+              <input
+                value={formData.order || '0'}
+                readOnly
+                className="w-[100px] bg-[#F9FAFB] border border-gray-300 rounded-lg px-4 py-3 text-[#666] text-center outline-none cursor-default"
               />
               <p className="text-[13px] text-gray-400 mt-3 font-medium">* 숫자가 낮을수록 리스트 상단에 노출됩니다.</p>
             </div>
@@ -152,10 +153,10 @@ const AdminGroupCodeDetail = () => {
             <div className="flex items-center gap-5 pt-2">
               <label className="font-bold text-[16px] text-[#111]">사용 여부</label>
               <div className={`w-[54px] h-[28px] flex items-center rounded-full p-1 transition-colors duration-300 ${formData.visible ? 'bg-[#2563EB]' : 'bg-gray-300'}`}>
-                  <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${formData.visible ? 'translate-x-[26px]' : 'translate-x-0'}`}></div>
+                <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${formData.visible ? 'translate-x-[26px]' : 'translate-x-0'}`}></div>
               </div>
               <span className={`text-[14px] font-bold ${formData.visible ? 'text-[#2563EB]' : 'text-gray-400'}`}>
-                  {formData.visible ? '사용' : '미사용'}
+                {formData.visible ? '사용' : '미사용'}
               </span>
             </div>
 
@@ -163,7 +164,7 @@ const AdminGroupCodeDetail = () => {
               <div className="flex flex-col gap-2">
                 <label className="text-[14px] font-bold text-gray-400">등록 일시</label>
                 <div className="flex items-center gap-2 text-[#999] font-medium px-1">
-                  <Calendar size={16} className="text-gray-300" /> 
+                  <Calendar size={16} className="text-gray-300" />
                   {formatDateTime(formData.createdAt)}
                 </div>
               </div>
@@ -171,7 +172,7 @@ const AdminGroupCodeDetail = () => {
               <div className="flex flex-col gap-2">
                 <label className="text-[14px] font-bold text-gray-400">수정 일시</label>
                 <div className="flex items-center gap-2 text-[#999] font-medium px-1">
-                  <Calendar size={16} className="text-gray-300" /> 
+                  <Calendar size={16} className="text-gray-300" />
                   {formatDateTime(formData.updatedAt || formData.createdAt)}
                 </div>
               </div>
@@ -180,7 +181,7 @@ const AdminGroupCodeDetail = () => {
         </section>
       </main>
 
-      <AdminConfirmModal 
+      <AdminConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}

@@ -34,20 +34,22 @@ const MainBoard = () => {
             isPin: item.isPinned === 'Y'
           }));
         setNoticeData(formatted);
-      } else {
-        const response = await pressService.getPressList({ offset: 0, limit: 5 });
-        const formatted = response.map(item => ({
-          id: item.contentId,
-          title: item.title,
-          date: item.createdAt ? item.createdAt.split('T')[0].replace(/-/g, '.') : "",
-          isPin: false
-        }));
-        setPressData(formatted);
-      }
-    } catch (error) {
-      console.error("데이터 로드 실패:", error);
+      }  else {
+      // 보도자료 API 호출
+      const response = await pressService.getPressList({ offset: 0, limit: 5 });
+      const dataList = response?.list || [];
+      const formatted = dataList.map(item => ({
+        id: item.contentId,
+        title: item.title,
+        date: item.createdAt ? item.createdAt.split('T')[0].replace(/-/g, '.') : "",
+        isPin: false
+      }));
+      setPressData(formatted);
     }
-  }, [activeTab]);
+  } catch (error) {
+    console.error("데이터 로드 실패:", error);
+  }
+}, [activeTab]);
 
 useEffect(() => {
   fetchBoardData();

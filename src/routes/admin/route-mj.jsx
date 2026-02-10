@@ -1,3 +1,4 @@
+
 import { lazy } from "react";
 // import AdminMemberEdit from "../../pages/admin/member/AdminMemberEdit";
 import AdminMemberDetail from "../../pages/admin/member/AdminMemberDetail";
@@ -89,3 +90,4 @@ const mjAdminRoutes = [
 
 
 export { mjAdminRoutes };
+

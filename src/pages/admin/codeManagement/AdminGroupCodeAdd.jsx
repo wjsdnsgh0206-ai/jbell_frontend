@@ -1,3 +1,4 @@
+// src/pages/admin/codeManagement/AdminGroupCodeAdd.jsx
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { codeService } from '@/services/api';
@@ -7,22 +8,22 @@ import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
 const SuccessIcon = ({ fill = "#2563EB" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="8" cy="8" r="8" fill={fill}/>
-    <path d="M11 6L7 10L5 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="8" cy="8" r="8" fill={fill} />
+    <path d="M11 6L7 10L5 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const ErrorIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="8" cy="8" r="8" fill="#E15141"/>
-    <path d="M10 6L6 10M6 6L10 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="8" cy="8" r="8" fill="#E15141" />
+    <path d="M10 6L6 10M6 6L10 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const AdminGroupCodeAdd = () => {
   const navigate = useNavigate();
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState(""); 
+  const [toastMessage, setToastMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isRegistered, setIsRegistered] = useState(true);
@@ -42,8 +43,8 @@ const AdminGroupCodeAdd = () => {
       const groups = response.data || response;
       if (Array.isArray(groups)) {
         // 기존 그룹 중 가장 큰 order 값을 찾거나, 데이터가 없으면 0
-        const maxOrder = groups.length > 0 
-          ? Math.max(...groups.map(g => Number(g.order) || 0)) 
+        const maxOrder = groups.length > 0
+          ? Math.max(...groups.map(g => Number(g.order) || 0))
           : 0;
         // 다음 순번인 maxOrder + 1을 화면에 표시
         setFormData(prev => ({ ...prev, order: maxOrder + 1 }));
@@ -90,7 +91,7 @@ const AdminGroupCodeAdd = () => {
           groupName: formData.groupName.trim()
         });
         const data = res.data || res;
-        setIsDuplicate({ 
+        setIsDuplicate({
           id: !!data.isIdDup,
           name: !!data.isNameDup
         });
@@ -104,32 +105,32 @@ const AdminGroupCodeAdd = () => {
   }, [formData.groupCodeId, formData.groupName]);
 
   const handleChange = (e) => {
-  const { name, value } = e.target;
-  
-  if (name === 'groupCodeId') {
-    // 그룹 코드 ID: 50자 제한
-    if (value.length <= 50) {
-      const filteredValue = value.replace(/[^a-zA-Z0-9_]/g, '');
-      setFormData(prev => ({ ...prev, [name]: filteredValue }));
+    const { name, value } = e.target;
+
+    if (name === 'groupCodeId') {
+      // 그룹 코드 ID: 50자 제한
+      if (value.length <= 50) {
+        const filteredValue = value.replace(/[^a-zA-Z0-9_]/g, '');
+        setFormData(prev => ({ ...prev, [name]: filteredValue }));
+      }
+    } else if (name === 'groupName') {
+      // 그룹 코드 명: 100자 제한
+      if (value.length <= 100) {
+        setFormData(prev => ({ ...prev, [name]: value }));
+      }
+    } else if (name === 'desc') {
+      // 그룹 코드 설명: 200자 제한
+      if (value.length <= 200) {
+        setFormData(prev => ({ ...prev, [name]: value }));
+      }
     }
-  } else if (name === 'groupName') {
-    // 그룹 코드 명: 100자 제한
-    if (value.length <= 100) {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
-  } else if (name === 'desc') {
-    // 그룹 코드 설명: 200자 제한
-    if (value.length <= 200) {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
-  }
-};
+  };
 
   const handleSaveClick = () => {
     setIsSubmitted(true);
     if (!formData.groupCodeId.trim() || !formData.groupName.trim()) return;
     if (isDuplicate.id || isDuplicate.name) return;
-    
+
     setIsModalOpen(true);
   };
 
@@ -138,7 +139,7 @@ const AdminGroupCodeAdd = () => {
     setIsSaving(true); // 저장 프로세스 시작 (이탈 방지 비활성화)
 
     try {
-       // 현재 전체 그룹 목록을 조회하여 다음 순번 계산
+      // 현재 전체 그룹 목록을 조회하여 다음 순번 계산
       const response = await codeService.getCodeGroups();
       const groups = response.data || response;
       const nextOrder = groups.length + 1; // 현재 개수 + 1
@@ -198,16 +199,15 @@ const AdminGroupCodeAdd = () => {
         <h2 className="text-[32px] font-bold mt-2 mb-10 tracking-tight">공통 코드 관리</h2>
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-14 w-full max-w-[1000px]">
           <h3 className="text-[24px] font-extrabold mb-14 text-[#111] tracking-tight border-b-2 border-gray-100 pb-3">그룹 코드 등록</h3>
-          
+
           <div className="flex flex-col space-y-10">
             {/* 그룹 코드 ID */}
             <div className="w-full max-w-[500px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">그룹 코드 ID (필수)</label>
-              <input 
+              <input
                 name="groupCodeId" value={formData.groupCodeId} onChange={handleChange} autoComplete="off" placeholder="예: SYSTEM_AUTH"
-                className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${
-                  (isSubmitted && !formData.groupCodeId.trim()) || isDuplicate.id ? 'border-[#E15141] ring-1 ring-red-50' : 'border-gray-300 focus:border-[#2563EB]'
-                }`}
+                className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${(isSubmitted && !formData.groupCodeId.trim()) || isDuplicate.id ? 'border-[#E15141] ring-1 ring-red-50' : 'border-gray-300 focus:border-[#2563EB]'
+                  }`}
               />
               <div className="flex justify-between items-start mt-2">
                 <div className="flex-1 min-h-[20px]">
@@ -228,11 +228,10 @@ const AdminGroupCodeAdd = () => {
             {/* 그룹 코드 명 */}
             <div className="w-full max-w-[500px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">그룹 코드 명 (필수)</label>
-              <input 
+              <input
                 name="groupName" value={formData.groupName} onChange={handleChange} autoComplete="off" placeholder="예: 시스템 권한 코드"
-                className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${
-                  (isSubmitted && !formData.groupName.trim()) || isDuplicate.name ? 'border-[#E15141] ring-1 ring-red-50' : 'border-gray-300 focus:border-[#2563EB]'
-                }`}
+                className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${(isSubmitted && !formData.groupName.trim()) || isDuplicate.name ? 'border-[#E15141] ring-1 ring-red-50' : 'border-gray-300 focus:border-[#2563EB]'
+                  }`}
               />
               <div className="flex justify-between items-start mt-2">
                 <div className="flex-1 min-h-[20px]">

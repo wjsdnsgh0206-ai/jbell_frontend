@@ -1,6 +1,7 @@
+// src/pages/admin/pressManagement/AdminPressRelDetail.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { pressService } from '@/services/api'; 
+import { pressService } from '@/services/api';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 import { Paperclip, ExternalLink, Calendar, Eye, Download } from 'lucide-react';
 import 'react-quill-new/dist/quill.snow.css';
@@ -9,8 +10,8 @@ import 'react-quill-new/dist/quill.snow.css';
 
 const SuccessIcon = ({ fill = "#4ADE80" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-    <circle cx="8" cy="8" r="8" fill={fill}/>
-    <path d="M11 6L7 10L5 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="8" cy="8" r="8" fill={fill} />
+    <path d="M11 6L7 10L5 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
@@ -18,7 +19,7 @@ const AdminPressRelDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { setBreadcrumbTitle } = useOutletContext();
-  
+
   const [formData, setFormData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -31,7 +32,7 @@ const AdminPressRelDetail = () => {
       try {
         setLoading(true);
         const response = await pressService.getPressDetail(id);
-        
+
         if (response) {
           const data = response.data || response;
 
@@ -55,11 +56,11 @@ const AdminPressRelDetail = () => {
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
-      await pressService.admin.delete([id]); 
-      
+      await pressService.admin.delete([id]);
+
       setIsDeleteModalOpen(false);
       setShowToast(true);
-      
+
       setTimeout(() => {
         navigate('/admin/contents/pressRelList');
       }, 1500);
@@ -91,16 +92,16 @@ const AdminPressRelDetail = () => {
       )}
       <main className="p-10 text-left">
         <h2 className="text-[32px] font-bold mt-2 mb-2 tracking-tight">보도자료 관리</h2>
-        
+
         <div className="flex justify-end gap-2 mb-6 max-w-[1000px]">
-          <button 
+          <button
             onClick={() => navigate('/admin/contents/pressRelList')}
             className="px-6 py-2 border border-gray-300 bg-white text-[#333] rounded-md font-bold text-[15px] hover:bg-gray-50 shadow-sm transition-all"
             disabled={isDeleting}
           >
             목록
           </button>
-          <button 
+          <button
             onClick={() => setIsDeleteModalOpen(true)}
             className="px-6 py-2 bg-[#E1421F] text-white rounded-md font-bold text-[15px] hover:bg-[#c1381a] shadow-sm transition-all
             disabled:opacity-50"
@@ -108,7 +109,7 @@ const AdminPressRelDetail = () => {
           >
             삭제
           </button>
-          <button 
+          <button
             onClick={() => navigate(`/admin/contents/pressRelEdit/${id}`)}
             className="px-6 py-2 bg-[#2563EB] text-white rounded-md font-bold text-[15px] hover:bg-blue-700 shadow-sm transition-all disabled:opacity-50" // disabled:opacity-50 추가
             disabled={isDeleting}
@@ -136,7 +137,7 @@ const AdminPressRelDetail = () => {
             <div className="flex flex-col">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">제목</label>
               <div className="w-full bg-[#F9FAFB] border border-gray-300 rounded-lg px-5 py-4 text-[#666] font-medium leading-relaxed">
-                {formData.title || formData.contentTitle} 
+                {formData.title || formData.contentTitle}
               </div>
             </div>
 
@@ -150,9 +151,9 @@ const AdminPressRelDetail = () => {
             <div className="flex flex-col">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">원문 링크</label>
               {formData.contentLink ? (
-                <a 
-                  href={formData.contentLink} 
-                  target="_blank" 
+                <a
+                  href={formData.contentLink}
+                  target="_blank"
                   rel="noreferrer"
                   className="flex items-start justify-between w-full bg-blue-50 border border-blue-200 rounded-lg px-5 py-4 text-[#2563EB] font-bold hover:bg-blue-100 transition-all group"
                 >
@@ -168,9 +169,9 @@ const AdminPressRelDetail = () => {
               <label className="block font-bold text-[16px] mb-3 text-[#111]">내용</label>
               <div className="w-full bg-[#F9FAFB] border border-200 rounded-xl min-h-[400px] h-auto shadow-sm overflow-hidden">
                 <div className="ql-snow !border-none">
-                  <div 
-                    className="ql-editor !p-10 !leading-relaxed text-[17px] text-[#333]" 
-                    dangerouslySetInnerHTML={{ __html: formData.body || formData.contentBody }} 
+                  <div
+                    className="ql-editor !p-10 !leading-relaxed text-[17px] text-[#333]"
+                    dangerouslySetInnerHTML={{ __html: formData.body || formData.contentBody }}
                   />
                 </div>
               </div>
@@ -183,10 +184,10 @@ const AdminPressRelDetail = () => {
               <div className="space-y-3">
                 {formData.fileList && formData.fileList.length > 0 ? (
                   formData.fileList.map((file, index) => (
-                    <a 
-                      key={index} 
-                      href={file.url} 
-                      download={file.realName} 
+                    <a
+                      key={index}
+                      href={file.url}
+                      download={file.realName}
                       className="flex items-center justify-between w-full max-w-[800px] bg-white border border-gray-200 px-5 py-4 rounded-lg shadow-sm group hover:border-blue-300 transition-all cursor-pointer"
                     >
                       <div className="flex items-center gap-4 flex-1 overflow-hidden">
@@ -221,7 +222,7 @@ const AdminPressRelDetail = () => {
                   <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${formData.visibleYn === 'Y' ? 'translate-x-[26px]' : 'translate-x-0'}`}></div>
                 </div>
                 <span className={`text-[14px] font-bold ${formData.visibleYn === 'Y' ? 'text-[#2563EB]' : 'text-gray-400'}`}>
-                  {formData.visibleYn === 'Y' ? '노출' : '미노출'}
+                  {formData.visibleYn === 'Y' ? '노출' : '비노출'}
                 </span>
               </div>
             </div>
@@ -234,17 +235,17 @@ const AdminPressRelDetail = () => {
                 </div>
               </div>
               <div className="flex flex-col gap-1">
-              <label className="text-[14px] font-bold text-gray-400">수정 일시</label>
-              <div className="flex items-center gap-2 text-[#666] font-medium px-1">
-                <Calendar size={16} /> 
-                {(formData.lastUpdateDate || formData.createdAt)?.replace('T', ' ')}
+                <label className="text-[14px] font-bold text-gray-400">수정 일시</label>
+                <div className="flex items-center gap-2 text-[#666] font-medium px-1">
+                  <Calendar size={16} />
+                  {(formData.lastUpdateDate || formData.createdAt)?.replace('T', ' ')}
+                </div>
               </div>
-             </div>       
-           </div>
+            </div>
           </div>
         </section>
-      
-        <AdminConfirmModal 
+
+        <AdminConfirmModal
           isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
           onConfirm={handleDelete}
@@ -253,7 +254,7 @@ const AdminPressRelDetail = () => {
           type="delete"
         />
       </main>
-    </div>  
+    </div>
   );
 };
 

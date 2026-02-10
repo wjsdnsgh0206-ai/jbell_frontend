@@ -190,7 +190,7 @@ const WeatherWarningBox = ({ disasterType }) => {
       </div>
 
       <p className="text-[10px] text-gray-400 text-center px-4 mt-auto">
-        본 정보는 기상청 API를 통해 실시간으로 제공되며, 실제 상황과 다를 수 있습니다.
+        본 정보는 기상청 실시간 API 데이터입니다.
       </p>
     </div>
   );
