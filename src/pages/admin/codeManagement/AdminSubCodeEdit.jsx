@@ -1,6 +1,7 @@
+// src/pages/admin/codeManagement/AdminSubCodeEdit.jsx
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { codeService } from '@/services/api'; 
+import { codeService } from '@/services/api';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 import { Calendar } from 'lucide-react';
 
@@ -8,29 +9,29 @@ import { Calendar } from 'lucide-react';
 
 const SuccessIcon = ({ fill = "#2563EB" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="8" cy="8" r="8" fill={fill}/>
-    <path d="M11 6L7 10L5 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="8" cy="8" r="8" fill={fill} />
+    <path d="M11 6L7 10L5 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const ErrorIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="8" cy="8" r="8" fill="#E15141"/>
-    <path d="M10 6L6 10M6 6L10 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="8" cy="8" r="8" fill="#E15141" />
+    <path d="M10 6L6 10M6 6L10 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const AdminSubCodeEdit = () => {
-  const { groupId, itemId } = useParams(); 
+  const { groupId, itemId } = useParams();
   const navigate = useNavigate();
 
   const [isGroupVisible, setIsGroupVisible] = useState(true);
 
-  const context = useOutletContext() || {}; 
-  const setBreadcrumbTitle = context.setBreadcrumbTitle || (() => {});
-  
+  const context = useOutletContext() || {};
+  const setBreadcrumbTitle = context.setBreadcrumbTitle || (() => { });
+
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState(''); 
+  const [toastMessage, setToastMessage] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -42,11 +43,11 @@ const AdminSubCodeEdit = () => {
   const [formData, setFormData] = useState({
     groupCode: '',
     groupName: '',
-    subCodeId: '', 
-    subCodeName: '', 
-    desc: '', 
-    order: 1, 
-    createdAt: '', 
+    subCodeId: '',
+    subCodeName: '',
+    desc: '',
+    order: 1,
+    createdAt: '',
     updatedAt: ''
   });
 
@@ -65,8 +66,8 @@ const AdminSubCodeEdit = () => {
       try {
         setIsLoading(true);
         const data = await codeService.getCodeItem(groupId, itemId);
-        
-        console.log("상세조회 응답 데이터:", data); 
+
+        console.log("상세조회 응답 데이터:", data);
 
         if (data) {
           const initialForm = {
@@ -84,7 +85,7 @@ const AdminSubCodeEdit = () => {
           setOriginalName(data.subName);
           setIsRegistered(data.visible);
 
-          const gVisible = data.groupVisible !== undefined ? data.groupVisible : false; 
+          const gVisible = data.groupVisible !== undefined ? data.groupVisible : false;
           setIsGroupVisible(gVisible === true || gVisible === 'Y');
 
           setBreadcrumbTitle(data.subName);
@@ -102,7 +103,7 @@ const AdminSubCodeEdit = () => {
   useEffect(() => {
     const checkSubName = async () => {
       const name = formData.subCodeName.trim();
-      
+
       // 입력값이 없거나 기존 이름과 같다면 체크 안함
       if (!name || name === originalName.trim()) {
         setIsNameDuplicate(false);
@@ -110,10 +111,10 @@ const AdminSubCodeEdit = () => {
       }
 
       try {
-        const res = await codeService.checkSubDup({ 
+        const res = await codeService.checkSubDup({
           groupCode: groupId,
           subCode: itemId,
-          subName: name 
+          subName: name
         });
         const data = res.data || res;
         setIsNameDuplicate(!!data.isNameDup);
@@ -170,7 +171,7 @@ const AdminSubCodeEdit = () => {
     */
 
     const { name, value } = e.target;
-    
+
     if (name === "subCodeName") {
       // 상세 코드 명: 100자 제한
       if (value.length <= 100) setFormData(prev => ({ ...prev, [name]: value }));
@@ -181,20 +182,20 @@ const AdminSubCodeEdit = () => {
   };
 
   // 취소 버튼 클릭 핸들러 추가
-const handleCancelClick = () => {
-  if (isDirty) {
-    // 수정된 내용이 있으면 확인 모달 오픈
-    setIsCancelModalOpen(true);
-  } else {
-    // 수정된 내용이 없으면 즉시 이전 페이지(상세)로 이동
-    navigate(`/admin/system/subCodeDetail/${groupId}/${itemId}`, { replace: true });
-  }
-};
+  const handleCancelClick = () => {
+    if (isDirty) {
+      // 수정된 내용이 있으면 확인 모달 오픈
+      setIsCancelModalOpen(true);
+    } else {
+      // 수정된 내용이 없으면 즉시 이전 페이지(상세)로 이동
+      navigate(`/admin/system/subCodeDetail/${groupId}/${itemId}`, { replace: true });
+    }
+  };
 
   const handleSave = () => {
     setIsSubmitted(true);
     if (!formData.subCodeName.trim() || isNameDuplicate) {
-      return; 
+      return;
     }
     //상위 그룹이 미사용인데 사용으로 설정하려는 경우 차단
     if (isGroupVisible === false && isRegistered === true) {
@@ -209,7 +210,7 @@ const handleCancelClick = () => {
     setIsModalOpen(false);
     try {
       const payload = {
-        groupCode: groupId, 
+        groupCode: groupId,
         subCode: itemId,
         subName: formData.subCodeName.trim(),
         desc: formData.desc.trim(),
@@ -222,7 +223,7 @@ const handleCancelClick = () => {
 
       setToastMessage("상세코드가 성공적으로 수정되었습니다.");
       setShowToast(true);
-      
+
       window.removeEventListener('popstate', handlePopState);
 
       setTimeout(() => {
@@ -237,7 +238,7 @@ const handleCancelClick = () => {
     }
   };
 
- // 토스트 트리거 함수
+  // 토스트 트리거 함수
   const triggerToast = (msg) => {
     setToastMessage(msg);
     setShowToast(true);
@@ -247,12 +248,12 @@ const handleCancelClick = () => {
   const confirmCancel = () => {
 
     setIsCancelModalOpen(false);
-    
+
     setToastMessage("수정이 취소되었습니다.");
     setShowToast(true);
-    
+
     window.removeEventListener('popstate', handlePopState);
-    
+
     setTimeout(() => {
       navigate(`/admin/system/subCodeDetail/${groupId}/${itemId}`, { replace: true });
     }, 800);
@@ -292,65 +293,64 @@ const handleCancelClick = () => {
         <h2 className="text-[32px] font-bold mt-2 mb-10 tracking-tight">공통 코드 관리</h2>
         <section className="bg-white border border-gray-200 rounded-xl shadow-sm p-14 w-full max-w-[1000px]">
           <h3 className="text-[24px] font-extrabold mb-14 text-[#111] tracking-tight border-b-2 border-gray-100 pb-3">상세 코드 수정</h3>
-          
+
           <div className="flex flex-col space-y-10">
             {/* 그룹 정보 영역 */}
             <div className="w-full max-w-[500px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">그룹 코드</label>
-              <input 
-                value={`${formData.groupCode} (${formData.groupName})`} 
-                readOnly 
-                className="w-full bg-[#F3F4F7] border border-gray-300 rounded-lg px-5 py-4 text-[#666] cursor-not-allowed outline-none font-medium" 
+              <input
+                value={`${formData.groupCode} (${formData.groupName})`}
+                readOnly
+                className="w-full bg-[#F3F4F7] border border-gray-300 rounded-lg px-5 py-4 text-[#666] cursor-not-allowed outline-none font-medium"
               />
             </div>
 
             {/* 상세 코드 ID 영역 */}
             <div className="w-full max-w-[500px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 ID</label>
-              <input 
-                value={formData.subCodeId} 
-                readOnly 
-                className="w-full bg-[#F3F4F7] border border-gray-300 rounded-lg px-5 py-4 text-[#666] cursor-not-allowed outline-none font-medium" 
+              <input
+                value={formData.subCodeId}
+                readOnly
+                className="w-full bg-[#F3F4F7] border border-gray-300 rounded-lg px-5 py-4 text-[#666] cursor-not-allowed outline-none font-medium"
               />
             </div>
 
             <div className="w-full max-w-[500px]">
-            <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 명 (필수)</label>
-            <input 
-              name="subCodeName" 
-              value={formData.subCodeName} 
-              onChange={handleChange} 
-              autoComplete="off"
-              placeholder="상세 코드 명을 입력하세요"
-              className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${
-                (isSubmitted && !formData.subCodeName.trim()) || isNameInvalid
-                  ? 'border-[#E15141] ring-1 ring-red-50' 
-                  : 'border-gray-300 focus:border-[#2563EB]'
-              }`} 
-            />
-            <div className="flex justify-between items-start mt-2">
-              <div className="flex-1 min-h-[20px]">
-                {isNameInvalid ? (
-                  <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium">
-                    <ErrorIcon /> 이미 존재하는 상세 코드명입니다.
-                  </div>
-                ) : (isSubmitted && !formData.subCodeName.trim()) ? (
-                  <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium">
-                    <ErrorIcon /> 상세 코드명을 입력해주세요.
-                  </div>
-                ) : (formData.subCodeName.trim() !== "" && formData.subCodeName.trim() !== originalName.trim()) ? (
-                  <div className="text-[#2563EB] text-sm flex items-center gap-2 font-medium">
-                    <SuccessIcon /> 사용 가능한 상세 코드명입니다.
-                  </div>
-                ) : (
-                  <p className="text-[13px] text-gray-400 font-medium">* 최대 100자까지 입력 가능</p>
-                )}
+              <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 명 (필수)</label>
+              <input
+                name="subCodeName"
+                value={formData.subCodeName}
+                onChange={handleChange}
+                autoComplete="off"
+                placeholder="상세 코드 명을 입력하세요"
+                className={`w-full border rounded-lg px-5 py-4 outline-none transition-all font-medium ${(isSubmitted && !formData.subCodeName.trim()) || isNameInvalid
+                    ? 'border-[#E15141] ring-1 ring-red-50'
+                    : 'border-gray-300 focus:border-[#2563EB]'
+                  }`}
+              />
+              <div className="flex justify-between items-start mt-2">
+                <div className="flex-1 min-h-[20px]">
+                  {isNameInvalid ? (
+                    <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium">
+                      <ErrorIcon /> 이미 존재하는 상세 코드명입니다.
+                    </div>
+                  ) : (isSubmitted && !formData.subCodeName.trim()) ? (
+                    <div className="text-[#E15141] text-sm flex items-center gap-2 font-medium">
+                      <ErrorIcon /> 상세 코드명을 입력해주세요.
+                    </div>
+                  ) : (formData.subCodeName.trim() !== "" && formData.subCodeName.trim() !== originalName.trim()) ? (
+                    <div className="text-[#2563EB] text-sm flex items-center gap-2 font-medium">
+                      <SuccessIcon /> 사용 가능한 상세 코드명입니다.
+                    </div>
+                  ) : (
+                    <p className="text-[13px] text-gray-400 font-medium">* 최대 100자까지 입력 가능</p>
+                  )}
+                </div>
+                <span className="text-[12px] text-gray-400 font-medium ml-4 shrink-0">
+                  {formData.subCodeName?.length || 0} / 100
+                </span>
               </div>
-              <span className="text-[12px] text-gray-400 font-medium ml-4 shrink-0">
-                {formData.subCodeName?.length || 0} / 100
-              </span>
             </div>
-          </div>
             <div className="w-full max-w-[600px]">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">상세 코드 설명</label>
               <textarea name="desc" value={formData.desc} onChange={handleChange} rows="2" className="w-full bg-white border border-gray-300 rounded-lg px-5 py-4 text-[#111] outline-none focus:border-[#2563EB] resize-none leading-relaxed transition-all font-medium" placeholder="코드 설명을 입력해주세요." />
@@ -359,12 +359,12 @@ const handleCancelClick = () => {
             {/*  상세 코드 순서 수정 영역 구현 X  */}
             <div className="w-full">
               <label className="block font-bold text-[16px] mb-3 text-[#111]">순서</label>
-              <input 
-                name="order" 
-                type="number" 
-                value={formData.order} 
-                readOnly 
-                className="w-[100px] bg-[#F3F4F7] border border-gray-300 rounded-lg px-4 py-3 text-center text-[#666] cursor-not-allowed outline-none font-medium" 
+              <input
+                name="order"
+                type="number"
+                value={formData.order}
+                readOnly
+                className="w-[100px] bg-[#F3F4F7] border border-gray-300 rounded-lg px-4 py-3 text-center text-[#666] cursor-not-allowed outline-none font-medium"
                 title="순서는 등록 시 자동으로 할당되며, 수정 페이지에서는 변경할 수 없습니다."
               />
               <p className="text-[12px] text-gray-400 mt-2 font-medium">* 순서는 등록 시 자동으로 할당되며, 수정 페이지에서는 변경할 수 없습니다.</p>
@@ -373,31 +373,31 @@ const handleCancelClick = () => {
 
             {/* 사용 여부 영역 */}
             <div className="flex flex-col gap-3 pt-2">
-            <div className="flex items-center gap-5">
-              <label className="font-bold text-[16px] text-[#111]">사용 여부</label>
-              <div className="flex items-center gap-3">
-                <button 
-                  type="button" 
-                  onClick={() => setIsRegistered(!isRegistered)} 
-                  className={`w-[54px] h-[28px] flex items-center rounded-full p-1 transition-all ${isRegistered ? 'bg-[#2563EB]' : 'bg-gray-300'}`}
-                >
-                  <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${isRegistered ? 'translate-x-[26px]' : 'translate-x-0'}`} />
-                </button>
-                <span className={`text-[14px] font-bold ${isRegistered ? 'text-[#2563EB]' : 'text-gray-400'}`}>
-                  {isRegistered ? '사용' : '미사용'}
-                </span>
+              <div className="flex items-center gap-5">
+                <label className="font-bold text-[16px] text-[#111]">사용 여부</label>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsRegistered(!isRegistered)}
+                    className={`w-[54px] h-[28px] flex items-center rounded-full p-1 transition-all ${isRegistered ? 'bg-[#2563EB]' : 'bg-gray-300'}`}
+                  >
+                    <div className={`bg-white w-[20px] h-[20px] rounded-full shadow-md transform transition-transform duration-300 ${isRegistered ? 'translate-x-[26px]' : 'translate-x-0'}`} />
+                  </button>
+                  <span className={`text-[14px] font-bold ${isRegistered ? 'text-[#2563EB]' : 'text-gray-400'}`}>
+                    {isRegistered ? '사용' : '미사용'}
+                  </span>
+                </div>
               </div>
-            </div>
 
-            {/* 부모 그룹이 미사용일 때 안내 문구 */}
-            {isGroupVisible === false && isRegistered && (
-              <div className="mt-2 p-4 bg-amber-50 border border-amber-100 rounded-lg max-w-[600px]">
-                <p className="text-amber-600 text-[13px] font-bold flex items-center gap-2">
-                  <ErrorIcon /> 상위 그룹 코드가 '미사용' 상태입니다. 현재 상세 코드를 '사용'으로 설정해도 저장되지 않습니다.
-                </p>
-              </div>
-            )}
-          </div>
+              {/* 부모 그룹이 미사용일 때 안내 문구 */}
+              {isGroupVisible === false && isRegistered && (
+                <div className="mt-2 p-4 bg-amber-50 border border-amber-100 rounded-lg max-w-[600px]">
+                  <p className="text-amber-600 text-[13px] font-bold flex items-center gap-2">
+                    <ErrorIcon /> 상위 그룹 코드가 '미사용' 상태입니다. 현재 상세 코드를 '사용'으로 설정해도 저장되지 않습니다.
+                  </p>
+                </div>
+              )}
+            </div>
 
             {/* 날짜 정보 영역 */}
             <div className="pt-10 border-t border-gray-100 flex flex-col space-y-8">
@@ -409,22 +409,22 @@ const handleCancelClick = () => {
                 <label className="text-[14px] font-bold text-gray-400">수정 일시</label>
                 <div className="flex items-center gap-2 text-[#999] font-medium px-1"><Calendar size={16} className="text-gray-300" /> {formatDateTime(formData.updatedAt || formData.createdAt)}</div>
               </div>
-            </div>          
-          </div> 
+            </div>
+          </div>
         </section>
 
         {/* 하단 버튼 구역 수정 */}
         <div className="flex justify-end gap-2 mt-12 max-w-[1000px]">
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={handleCancelClick}
             className="px-8 py-3.5 border border-gray-300 bg-white text-gray-500 rounded-lg font-bold text-[16px] hover:bg-gray-50 transition-colors shadow-sm"
           >
             취소
           </button>
-          <button 
-            type="button" 
-            onClick={handleSave} 
+          <button
+            type="button"
+            onClick={handleSave}
             className="px-8 py-3.5 bg-[#2563EB] text-white rounded-lg font-bold text-[16px] hover:bg-blue-700 shadow-md transition-colors"
           >
             저장

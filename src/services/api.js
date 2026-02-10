@@ -510,9 +510,8 @@ export const pressService = {
   },
 
   // --- [관리자 전용 기능] ---
-  // 서비스 내부에서 admin 객체로 한 번 더 감싸서 실수를 방지합니다.
   admin: {
-    // [수정] URL을 /admin/press에서 /press로 변경 (서버 @RequestMapping과 일치)
+
     create: async (formData) => {
       const response = await api.post("/press", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -520,17 +519,21 @@ export const pressService = {
       return response.data;
     },
 
-    // [수정] 삭제 URL도 서버와 일치하게 변경
     delete: async (ids) => {
       const response = await api.delete("/press", { data: ids });
       return response.data;
     },
 
-    // [수정] 수정 URL도 서버 주소 규칙에 맞춰 변경 필요 (필요 시)
     update: async (id, formData) => {
       const response = await api.put(`/press/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+      return response.data;
+    },
+    //  일괄 노출/비노출 상태 변경
+    updateVisibleStatus: async (statusData) => {
+      // statusData 예시: { ids: [4481, 7631], visibleYn: 'N' }
+      const response = await api.patch("/press/visible-status", statusData);
       return response.data;
     },
   },

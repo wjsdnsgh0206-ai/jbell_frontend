@@ -1,6 +1,7 @@
+// src/pages/admin/codeManagement/AdminSubCodeDetail.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { codeService } from '@/services/api'; 
+import { codeService } from '@/services/api';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 import { Calendar } from 'lucide-react';
 
@@ -8,16 +9,16 @@ import { Calendar } from 'lucide-react';
 
 const SuccessIcon = ({ fill = "#4ADE80" }) => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-    <circle cx="8" cy="8" r="8" fill={fill}/>
-    <path d="M11 6L7 10L5 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="8" cy="8" r="8" fill={fill} />
+    <path d="M11 6L7 10L5 8" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const AdminSubCodeDetail = () => {
-  const { groupId, itemId } = useParams(); 
+  const { groupId, itemId } = useParams();
   const { setBreadcrumbTitle } = useOutletContext();
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState(null);
   const [groupVisible, setGroupVisible] = useState(true);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -27,40 +28,40 @@ const AdminSubCodeDetail = () => {
 
   const displayVisible = React.useMemo(() => {
     if (!formData) return false;
-    
+
     // 1. 그룹 자체가 미사용(false)이면 상세코드 설정과 관계없이 무조건 '미사용'
     if (formData.groupVisible === false) {
       return false;
     }
-    
+
     // 2. 그룹이 사용중일 때만 상세코드 본연의 visible 값을 따름
     return formData.visible;
   }, [formData]);
 
-  
+
 
   const formatDateTime = (dateTimeStr) => {
     if (!dateTimeStr) return '-';
-    return dateTimeStr.replace('T', ' ').split('.')[0]; 
+    return dateTimeStr.replace('T', ' ').split('.')[0];
   };
 
   const fetchDetail = useCallback(async () => {
     console.log("현재 파라미터:", { groupId, itemId });
-    
+
     if (!groupId || !itemId) {
-        console.error("groupId 또는 itemId가 없습니다.");
-        return;
+      console.error("groupId 또는 itemId가 없습니다.");
+      return;
     }
-    
+
     try {
       setIsLoading(true);
-      
+
       const response = await codeService.getCodeItem(groupId, itemId);
-      
+
       console.log("서버 응답 데이터:", response);
 
-      const actualData = response.data || response; 
-      
+      const actualData = response.data || response;
+
       if (actualData) {
         setFormData(actualData);
         setBreadcrumbTitle(actualData.subName || "상세 코드 정보");
@@ -99,7 +100,7 @@ const AdminSubCodeDetail = () => {
   }
 
   const handleDelete = async () => {
-    setIsDeleting(true); 
+    setIsDeleting(true);
     setIsDeleteModalOpen(false);
 
     try {
@@ -129,23 +130,23 @@ const AdminSubCodeDetail = () => {
 
       <main className="p-10 text-left">
         <h2 className="text-[32px] font-bold mt-2 mb-2 tracking-tight">공통 코드 관리</h2>
-        
+
         <div className="flex justify-end gap-2 mb-6 max-w-[1000px]">
-          <button 
+          <button
             onClick={() => navigate('/admin/system/commonCodeList')}
             className="px-6 py-2 border border-gray-300 bg-white text-[#333] rounded-md font-bold text-[15px] hover:bg-gray-50 shadow-sm transition-all"
             disabled={isDeleting}
           >
             목록
           </button>
-          <button 
+          <button
             onClick={() => setIsDeleteModalOpen(true)}
             className="px-6 py-2 bg-[#E1421F] text-white rounded-md font-bold text-[15px] hover:bg-[#c1381a] shadow-sm transition-all"
             disabled={isDeleting}
           >
             삭제
           </button>
-          <button 
+          <button
             onClick={() => navigate(`/admin/system/subCodeEdit/${groupId}/${itemId}`)}
             className="px-6 py-2 bg-[#2563EB] text-white rounded-md font-bold text-[15px] hover:bg-blue-700 shadow-sm transition-all"
             disabled={isDeleting}
@@ -158,7 +159,7 @@ const AdminSubCodeDetail = () => {
           <h3 className="text-[24px] font-extrabold mb-14 text-[#111] tracking-tight border-b-2 border-gray-100 pb-3">
             상세 코드 정보
           </h3>
-          
+
           <div className="flex flex-col space-y-10">
             <div>
               <label className="block font-bold text-[16px] mb-3 text-[#111]">그룹 코드</label>
@@ -207,7 +208,7 @@ const AdminSubCodeDetail = () => {
                   {displayVisible ? '사용' : '미사용'}
                 </span>
               </div>
-              
+
               {/* 그룹 때문에 강제로 미사용된 경우 사용자에게 이유를 알려줌 */}
               {formData?.groupVisible === false && formData?.visible === true && (
                 <span className="text-[12px] text-red-500 font-medium">
@@ -220,7 +221,7 @@ const AdminSubCodeDetail = () => {
               <div className="flex flex-col gap-2">
                 <label className="text-[14px] font-bold text-gray-400">등록 일시</label>
                 <div className="flex items-center gap-2 text-[#999] font-medium px-1">
-                  <Calendar size={16} className="text-gray-300" /> 
+                  <Calendar size={16} className="text-gray-300" />
                   {formatDateTime(formData.createdAt)}
                 </div>
               </div>
@@ -228,16 +229,16 @@ const AdminSubCodeDetail = () => {
               <div className="flex flex-col gap-2">
                 <label className="text-[14px] font-bold text-gray-400">수정 일시</label>
                 <div className="flex items-center gap-2 text-[#999] font-medium px-1">
-                  <Calendar size={16} className="text-gray-300" /> 
+                  <Calendar size={16} className="text-gray-300" />
                   {formatDateTime(formData.updatedAt || formData.createdAt)}
                 </div>
               </div>
             </div>
-          </div> 
+          </div>
         </section>
       </main>
 
-      <AdminConfirmModal 
+      <AdminConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}
