@@ -1,5 +1,4 @@
-"use no memo";
-
+// src\pages\admin\realtime\disasterMessage\DisasterMessageDetail.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useOutletContext } from "react-router-dom";
 import {

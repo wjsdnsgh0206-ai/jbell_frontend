@@ -1,5 +1,4 @@
-"use no memo";
-
+// src\pages\admin\realtime\disasterMessage\DisasterMessageAdd.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Clock, ChevronDown, List, FileText, Send } from "lucide-react";
