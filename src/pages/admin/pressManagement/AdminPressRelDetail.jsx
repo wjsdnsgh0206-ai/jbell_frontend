@@ -36,7 +36,7 @@ const AdminPressRelDetail = () => {
         if (response) {
           const data = response.data || response;
 
-          console.log(response)
+          // console.log(response)
           setFormData(data);
           setBreadcrumbTitle(data.title || data.contentTitle || "보도자료 상세");
         }

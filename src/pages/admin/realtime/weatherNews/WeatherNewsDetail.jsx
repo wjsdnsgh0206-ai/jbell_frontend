@@ -76,7 +76,7 @@ const WeatherNewsDetail = () => {
       visible_yn: prev.visible_yn === "Y" ? "N" : "Y",
     }));
 
-    console.log("formData>>", formData.visible_yn);
+    // console.log("formData>>", formData.visible_yn);
   };
 
   const handleCancel = () => {

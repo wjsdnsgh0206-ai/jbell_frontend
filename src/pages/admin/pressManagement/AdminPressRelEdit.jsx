@@ -209,14 +209,14 @@ const AdminPressRelEdit = () => {
         size: formatBytes(file.size),
         isNew: true // 신규 파일임을 표시
       });
-      console.log(validPreviews);
+      // console.log(validPreviews);
       validRawFiles.push(file);
     }
 
     if (validPreviews.length > 0) {
 
       setFormData(prev => ({ ...prev, files: [...prev.files, ...validPreviews] }));
-      console.log("formData", formData);
+      // console.log("formData", formData);
       setRawFiles(prev => [...prev, ...validRawFiles]); // 실제 파일 보관
       setIsDirty(true);
     }
@@ -282,7 +282,7 @@ const AdminPressRelEdit = () => {
   const searchSpecificTags = () => {
     const quill = quillRef.current.getEditor();
     const editorRoot = quill.root; // 에디터의 컨텐츠 root DOM
-    console.log(editorRoot.innerHTML);
+    // console.log(editorRoot.innerHTML);
     // li 태그 검색
     const olList = editorRoot.querySelectorAll('ol');
 
@@ -302,7 +302,7 @@ const AdminPressRelEdit = () => {
     });
 
     formData.content = editorRoot.innerHTML;
-    console.log(formData.content);
+    // console.log(formData.content);
     setFormData(formData);
 
   };

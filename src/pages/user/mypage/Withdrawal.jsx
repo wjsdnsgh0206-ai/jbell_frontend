@@ -52,7 +52,7 @@ const Withdrawal = () => {
         userResidenceArea: user.userResidenceArea || "L1060100"
       };
 
-      console.log("📍 [탈퇴 요청 최종 데이터]:", payload);
+      // console.log("📍 [탈퇴 요청 최종 데이터]:", payload);
 
       const response = await userService.updateProfile(payload);
       
