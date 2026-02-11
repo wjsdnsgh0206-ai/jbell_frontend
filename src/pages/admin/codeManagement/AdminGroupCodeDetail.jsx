@@ -37,7 +37,7 @@ const AdminGroupCodeDetail = () => {
       setFormData(data);
       setBreadcrumbTitle(data.groupName);
     } catch (error) {
-      console.error("그룹코드 상세 로드 실패:", error);
+      //console.error("그룹코드 상세 로드 실패:", error);
       alert("데이터를 불러오는데 실패했습니다.");
     }
   }, [id, setBreadcrumbTitle]);
@@ -62,7 +62,7 @@ const AdminGroupCodeDetail = () => {
         navigate('/admin/system/commonCodeList');
       }, 1500);
     } catch (error) {
-      console.error("삭제 실패:", error);
+      // console.error("삭제 실패:", error);
       alert(error.response?.data?.message || "삭제 중 오류가 발생했습니다.");
       setIsDeleting(false);
     }

@@ -4,7 +4,7 @@ import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 import { pressService } from '@/services/api';
 import { Paperclip, X, Calendar } from 'lucide-react';
-// React-Quill 및 Quill 내부 설정 임포트
+// React-Quill 및 Quill 내부
 import ReactQuill, { Quill } from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
@@ -73,7 +73,7 @@ const AdminPressRelEdit = () => {
           setBreadcrumbTitle(data.title);
         }
       } catch (error) {
-        console.error("Data Load Error:", error);
+        // console.error("Data Load Error:", error);
         alert("해당 데이터를 찾을 수 없거나 불러오는데 실패했습니다.");
         navigate('/admin/contents/pressRelList', { replace: true });
       }
@@ -209,14 +209,14 @@ const AdminPressRelEdit = () => {
         size: formatBytes(file.size),
         isNew: true // 신규 파일임을 표시
       });
-      console.log(validPreviews);
+      // console.log(validPreviews);
       validRawFiles.push(file);
     }
 
     if (validPreviews.length > 0) {
 
       setFormData(prev => ({ ...prev, files: [...prev.files, ...validPreviews] }));
-      console.log("formData", formData);
+      // console.log("formData", formData);
       setRawFiles(prev => [...prev, ...validRawFiles]); // 실제 파일 보관
       setIsDirty(true);
     }
@@ -282,7 +282,7 @@ const AdminPressRelEdit = () => {
   const searchSpecificTags = () => {
     const quill = quillRef.current.getEditor();
     const editorRoot = quill.root; // 에디터의 컨텐츠 root DOM
-    console.log(editorRoot.innerHTML);
+    //console.log(editorRoot.innerHTML);
     // li 태그 검색
     const olList = editorRoot.querySelectorAll('ol');
 
@@ -302,7 +302,7 @@ const AdminPressRelEdit = () => {
     });
 
     formData.content = editorRoot.innerHTML;
-    console.log(formData.content);
+    // console.log(formData.content);
     setFormData(formData);
 
   };
@@ -347,7 +347,7 @@ const AdminPressRelEdit = () => {
       setShowToast(true);
       setTimeout(() => navigate(`/admin/contents/pressRelDetail/${id}`, { replace: true }), 1200);
     } catch (error) {
-      console.error("Update Error:", error);
+      // console.error("Update Error:", error);
       alert("수정 저장 중 오류가 발생했습니다. (사유: " + error.message + ")");
     }
   };

@@ -58,7 +58,7 @@ const AdminCommonCodeList = () => {
       }));
       setCodes(dataWithId);
     } catch (error) {
-      console.error("데이터 로드 실패:", error);
+      //console.error("데이터 로드 실패:", error);
     } finally {
       setLoading(false);
     }
@@ -354,7 +354,7 @@ const AdminCommonCodeList = () => {
           setIsModalOpen(false);
           triggerToast("선택한 항목이 삭제되었습니다.");
         } catch (error) {
-          console.error("삭제 중 오류 발생:", error);
+          //console.error("삭제 중 오류 발생:", error);
           alert(error.response?.data?.message || "삭제 중 오류가 발생했습니다.");
         }
       }
@@ -423,7 +423,7 @@ const AdminCommonCodeList = () => {
           setIsModalOpen(false);
           triggerToast(`선택한 항목이 ${status ? '사용' : '미사용'} 처리되었습니다.`);
         } catch (error) {
-          console.error("상태 변경 중 오류 발생:", error);
+          //console.error("상태 변경 중 오류 발생:", error);
           alert(error.response?.data?.message || "서버 통신 중 오류가 발생했습니다.");
         }
       }

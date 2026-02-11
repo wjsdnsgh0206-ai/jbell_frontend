@@ -59,7 +59,7 @@ const AdminSubCodeAdd = () => {
       const data = response.data || response;
       setGroupOptions(data);
     } catch (error) {
-      console.error('그룹 코드 로드 실패:', error);
+     //console.error('그룹 코드 로드 실패:', error);
     }
   }, []);
 
@@ -99,7 +99,7 @@ const AdminSubCodeAdd = () => {
           subName: data.isNameDup || false
         });
       } catch (err) {
-        console.error("중복 체크 실패:", err);
+       // console.error("중복 체크 실패:", err);
       }
     };
 
@@ -218,7 +218,7 @@ const AdminSubCodeAdd = () => {
           }
         }
       } catch (e) {
-        console.error("최종 순번 계산 실패:", e);
+        //console.error("최종 순번 계산 실패:", e);
         targetOrder = 1;
       }
 
@@ -243,7 +243,7 @@ const AdminSubCodeAdd = () => {
       }, 1500);
 
     } catch (error) {
-      console.error('저장 실패 상세:', error);
+      //console.error('저장 실패 상세:', error);
       const serverMsg = error.response?.data?.message || "저장 중 오류가 발생했습니다. 관리자에게 문의하세요.";
       setToastMessage(serverMsg);
       setShowToast(true);
