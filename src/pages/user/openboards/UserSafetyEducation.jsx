@@ -44,7 +44,7 @@ const UserSafetyEducation = () => {
         // 백엔드 쿼리에서 이미 ordering ASC로 정렬되어 오지만, 필요 시 추가 정렬 가능
         setEduList(response.content || []);
       } catch (error) {
-        console.error("안전교육 목록 조회 실패:", error);
+        //console.error("안전교육 목록 조회 실패:", error);
       } finally {
         setIsLoading(false);
       }

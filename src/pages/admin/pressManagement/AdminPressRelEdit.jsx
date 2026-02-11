@@ -4,7 +4,7 @@ import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 import { pressService } from '@/services/api';
 import { Paperclip, X, Calendar } from 'lucide-react';
-// React-Quill 및 Quill 내부 설정 임포트
+// React-Quill 및 Quill 내부
 import ReactQuill, { Quill } from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
@@ -73,7 +73,7 @@ const AdminPressRelEdit = () => {
           setBreadcrumbTitle(data.title);
         }
       } catch (error) {
-        console.error("Data Load Error:", error);
+        // console.error("Data Load Error:", error);
         alert("해당 데이터를 찾을 수 없거나 불러오는데 실패했습니다.");
         navigate('/admin/contents/pressRelList', { replace: true });
       }
@@ -347,7 +347,7 @@ const AdminPressRelEdit = () => {
       setShowToast(true);
       setTimeout(() => navigate(`/admin/contents/pressRelDetail/${id}`, { replace: true }), 1200);
     } catch (error) {
-      console.error("Update Error:", error);
+      // console.error("Update Error:", error);
       alert("수정 저장 중 오류가 발생했습니다. (사유: " + error.message + ")");
     }
   };

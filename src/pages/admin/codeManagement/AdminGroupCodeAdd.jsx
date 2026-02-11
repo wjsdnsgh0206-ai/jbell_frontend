@@ -50,7 +50,7 @@ const AdminGroupCodeAdd = () => {
         setFormData(prev => ({ ...prev, order: maxOrder + 1 }));
       }
     } catch (error) {
-      console.error("순번 로드 실패:", error);
+      // console.error("순번 로드 실패:", error);
     }
   }, []);
 
@@ -96,7 +96,7 @@ const AdminGroupCodeAdd = () => {
           name: !!data.isNameDup
         });
       } catch (err) {
-        console.error("중복 체크 실패", err);
+        // console.error("중복 체크 실패", err);
       }
     };
 

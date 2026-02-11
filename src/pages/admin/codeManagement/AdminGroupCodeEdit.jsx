@@ -87,7 +87,7 @@ const AdminGroupCodeEdit = () => {
           setBreadcrumbTitle(data.groupName);
         }
       } catch (error) {
-        console.error("로드 실패:", error);
+        //console.error("로드 실패:", error);
       } finally {
         setLoading(false);
       }
@@ -128,7 +128,7 @@ const AdminGroupCodeEdit = () => {
         setIsNameDuplicate(!!data.isNameDup);
 
       } catch (e) {
-        console.error("중복 체크 실패", e);
+        //console.error("중복 체크 실패", e);
       }
     };
 
@@ -221,7 +221,7 @@ const AdminGroupCodeEdit = () => {
         navigate(`/admin/system/groupCodeDetail/${id}`, { replace: true });
       }, 1500);
     } catch (error) {
-      console.error("수정 실패:", error);
+      //console.error("수정 실패:", error);
       alert("수정 중 오류가 발생했습니다.");
     }
   };

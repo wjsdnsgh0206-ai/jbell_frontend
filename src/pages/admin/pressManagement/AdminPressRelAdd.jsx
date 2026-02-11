@@ -333,7 +333,7 @@ const AdminPressRelAdd = () => {
         setTimeout(() => navigate('/admin/contents/pressRelList'), 1500);
       }
     } catch (error) {
-      console.error("등록 실패:", error);
+      //console.error("등록 실패:", error);
       alert("등록 중 서버 오류가 발생했습니다.");
     }
   };
