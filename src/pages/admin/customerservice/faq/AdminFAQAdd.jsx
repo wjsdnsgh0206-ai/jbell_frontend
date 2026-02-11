@@ -3,11 +3,19 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Save, X } from 'lucide-react';
-import ReactQuill from 'react-quill-new';
+import ReactQuill, {Quill} from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { faqService } from '@/services/api';
 import { useAuth } from '@/contexts/AuthContext';
 
+
+const registerQuill = () => {
+  const Block = Quill.import('blots/block');
+  Block.tagName = 'P';
+  Quill.register(Block, true);
+
+};
+registerQuill();
 /**
  * FAQ 신규 등록 전용 컴포넌트
  */
@@ -69,8 +77,7 @@ const FaqRegisterPage = ({ onCancel }) => {
   const formats = [
     'header',
     'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet',
-    'link', 'image',
+    'list', 'link', 'image',
     'color', 'background',
   ];
 
