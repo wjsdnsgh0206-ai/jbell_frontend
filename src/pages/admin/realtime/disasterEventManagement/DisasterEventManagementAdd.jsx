@@ -51,7 +51,7 @@ const DisasterEventManagementAdd = () => {
 
     try {
       // 실제 구현 시 여기서 API POST 요청을 보냄
-      console.log("등록 데이터:", formData);
+      // console.log("등록 데이터:", formData);
       alert("성공적으로 등록되었습니다.");
       navigate("/admin/realtime/disaster"); // 등록 후 리스트로 이동
     } catch (error) {

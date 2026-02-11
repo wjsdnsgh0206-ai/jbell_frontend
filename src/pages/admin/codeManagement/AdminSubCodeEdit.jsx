@@ -67,7 +67,7 @@ const AdminSubCodeEdit = () => {
         setIsLoading(true);
         const data = await codeService.getCodeItem(groupId, itemId);
 
-        //console.log("상세조회 응답 데이터:", data);
+        // console.log("상세조회 응답 데이터:", data);
 
         if (data) {
           const initialForm = {

@@ -282,7 +282,7 @@ const AdminPressRelEdit = () => {
   const searchSpecificTags = () => {
     const quill = quillRef.current.getEditor();
     const editorRoot = quill.root; // 에디터의 컨텐츠 root DOM
-    //console.log(editorRoot.innerHTML);
+    // console.log(editorRoot.innerHTML);
     // li 태그 검색
     const olList = editorRoot.querySelectorAll('ol');
 

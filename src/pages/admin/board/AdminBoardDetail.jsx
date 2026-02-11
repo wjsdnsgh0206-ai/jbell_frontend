@@ -20,7 +20,7 @@ const AdminBoardDetail = () => {
     // noticeId가 없으면(undefined, null, 빈 값이면), 아무것도 하지 말고 그냥 끝냄
     axios.get(`/api/notice/${noticeId}`)
       .then(res => {
-        console.log("받은 데이터:", res.data);
+        // console.log("받은 데이터:", res.data);
         setPost(res.data);
       })
       .catch(err => {

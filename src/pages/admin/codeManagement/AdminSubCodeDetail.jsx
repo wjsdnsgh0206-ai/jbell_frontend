@@ -46,7 +46,7 @@ const AdminSubCodeDetail = () => {
   };
 
   const fetchDetail = useCallback(async () => {
-    //console.log("현재 파라미터:", { groupId, itemId });
+    // console.log("현재 파라미터:", { groupId, itemId });
 
     if (!groupId || !itemId) {
       //console.error("groupId 또는 itemId가 없습니다.");
@@ -58,7 +58,7 @@ const AdminSubCodeDetail = () => {
 
       const response = await codeService.getCodeItem(groupId, itemId);
 
-      //console.log("서버 응답 데이터:", response);
+      // console.log("서버 응답 데이터:", response);
 
       const actualData = response.data || response;
 

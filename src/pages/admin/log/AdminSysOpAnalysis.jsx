@@ -55,7 +55,7 @@ const AdminSysOpAnalysis = () => {
   // 3. 핸들러 함수
   const handleSearch = () => {
     setCurrentPage(1);
-    console.log('검색 실행:', searchParams);
+    // console.log('검색 실행:', searchParams);
   };
 
   const handleReset = () => {
@@ -69,7 +69,7 @@ const AdminSysOpAnalysis = () => {
   };
 
   const confirmDelete = () => {
-    console.log('삭제 ID 목록:', selectedIds);
+    // console.log('삭제 ID 목록:', selectedIds);
     setIsModalOpen(false);
     setSelectedIds([]);
   };

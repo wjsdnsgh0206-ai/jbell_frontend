@@ -39,15 +39,15 @@ const DisasterManagementDetail = () => {
       setLoading(true);
       
       // 디버깅: 현재 접근한 ID와 전체 데이터 확인
-      console.log("🔍 [Debug] 찾는 ID:", id);
-      console.log("🔍 [Debug] 전체 데이터 리스트:", DisasterManagementData);
+      // console.log("🔍 [Debug] 찾는 ID:", id);
+      // console.log("🔍 [Debug] 전체 데이터 리스트:", DisasterManagementData);
 
       try {
         // ID 타입을 엄격하게 따지지 않기 위해 String으로 형변환 후 비교
         const found = DisasterManagementData.find(item => String(item.id) === String(id));
         
         if (found) {
-          console.log("✅ [Debug] 데이터 조회 성공:", found);
+          // console.log("✅ [Debug] 데이터 조회 성공:", found);
           setFormData(found);
           setOriginData(found);
           if (setBreadcrumbTitle) setBreadcrumbTitle(`${found.category} 관리 상세`);
@@ -72,7 +72,7 @@ const DisasterManagementDetail = () => {
    */
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(`📝 [Edit] 필드명: ${name}, 변경값: ${value}`);
+    // console.log(`📝 [Edit] 필드명: ${name}, 변경값: ${value}`);
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
@@ -82,7 +82,7 @@ const DisasterManagementDetail = () => {
   const handleToggle = () => {
     if (!isEdit) return; 
     const nextStatus = formData.visibleYn === 'Y' ? 'N' : 'Y';
-    console.log(`🔄 [Toggle] 노출 상태 변경: ${formData.visibleYn} -> ${nextStatus}`);
+    // console.log(`🔄 [Toggle] 노출 상태 변경: ${formData.visibleYn} -> ${nextStatus}`);
     setFormData(prev => ({ ...prev, visibleYn: nextStatus }));
   };
 
@@ -91,7 +91,7 @@ const DisasterManagementDetail = () => {
    */
   const handleCancel = () => {
     if (window.confirm("수정 중인 내용을 취소하고 원래대로 되돌리시겠습니까?")) {
-      console.log("⏪ [Cancel] 수정 취소, 원본 데이터로 복구");
+      // console.log("⏪ [Cancel] 수정 취소, 원본 데이터로 복구");
       setFormData(originData);
       setIsEdit(false);
       setSubmitted(false);
@@ -104,7 +104,7 @@ const DisasterManagementDetail = () => {
   const isFormValid = () => {
     const { category, dataSource, mapLayer, apiStatus } = formData;
     const isValid = !!(category && dataSource && mapLayer && apiStatus);
-    console.log("📋 [Validation] 필수값 체크 결과:", isValid);
+    // console.log("📋 [Validation] 필수값 체크 결과:", isValid);
     return isValid;
   };
 
@@ -121,7 +121,7 @@ const DisasterManagementDetail = () => {
     }
 
     try {
-      console.log("🚀 [Save] 저장 요청 데이터:", formData);
+      // console.log("🚀 [Save] 저장 요청 데이터:", formData);
       // 실제 API 호출 로직 들어갈 자리 (await api.update...)
       
       setOriginData(formData);
