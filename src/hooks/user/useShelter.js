@@ -7,14 +7,14 @@ const useShelter = () => {
   const [shelterMarkers, setShelterMarkers] = useState([]);
 
   const fetchShelters = useCallback(async (type) => {
-    // console.log("1. fetchShelters 함수 시작, type:", type); // 로그 추가
+    // // console.log("1. fetchShelters 함수 시작, type:", type); // 로그 추가
     try {
       const response = await facilityApi.getShelters(type);
-      // console.log("2. API 전체 응답:", response); // 응답 전체 구조 확인
+      // // console.log("2. API 전체 응답:", response); // 응답 전체 구조 확인
 
       // 백엔드 응답 규격(ApiResponse)에 따라 데이터 추출 경로 수정
       const list = response?.items || [];
-      // console.log("3. 추출된 리스트:", list);
+      // // console.log("3. 추출된 리스트:", list);
 
       const markers = list.map((s) => ({
         id: s.fcltId || s.fclt_id,
@@ -32,7 +32,7 @@ const useShelter = () => {
         type: "shelter",
       }));
 
-      // console.log("4. 가공된 마커:", markers);
+      // // console.log("4. 가공된 마커:", markers);
       setShelterMarkers(markers);
     } catch (error) {
       console.error("대피소 로딩 중 진짜 에러 발생:", error);

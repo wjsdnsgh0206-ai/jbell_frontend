@@ -60,7 +60,7 @@ const AccidentNewsAdd = () => {
 
     try {
       // 1. 데이터 확인 (콘솔)
-      console.log("DB 전송 데이터:", formData);
+      // console.log("DB 전송 데이터:", formData);
       
       // 2. 성공 알림창
       alert("새 사고속보가 등록되었습니다.");

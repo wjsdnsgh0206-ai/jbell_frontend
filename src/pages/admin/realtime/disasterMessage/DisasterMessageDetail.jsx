@@ -39,7 +39,7 @@ const DisasterMessageDetail = () => {
   const fetchDetail = useCallback(async () => {
     setLoading(true);
     try {
-      console.log("🔍 상세 조회 요청 ID:", id);
+      // console.log("🔍 상세 조회 요청 ID:", id);
       const response = await disasterApi.getDisasterDetail(id);
 
       // 백엔드 공통 DTO 구조를 고려 (response.list가 아닌 단일 객체 대응)
@@ -59,7 +59,7 @@ const DisasterMessageDetail = () => {
           isVisible: (item.visibleYn || item.VISIBLE_YN) === "Y",
         };
 
-        console.log("✅ 매핑 완료 데이터:", mapped);
+        // console.log("✅ 매핑 완료 데이터:", mapped);
         setFormData(mapped);
         setOriginData(mapped);
         if (setBreadcrumbTitle) setBreadcrumbTitle("재난 문자 상세 정보");
@@ -104,7 +104,7 @@ const DisasterMessageDetail = () => {
         visibleYn: formData.isVisible ? "Y" : "N", // No Annotation -> 소문자
       };
 
-      console.log("🚀 업데이트 전송 데이터:", updateData);
+      // console.log("🚀 업데이트 전송 데이터:", updateData);
       await disasterApi.updateDisaster(formData.id, updateData);
 
       setOriginData(formData);

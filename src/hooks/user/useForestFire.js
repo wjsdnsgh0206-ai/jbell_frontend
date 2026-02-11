@@ -18,7 +18,7 @@ const useForestFire = () => {
       // 산불 발생 건수 저장
       setFireCount(items.length);
 
-      console.log("산불!@!!!>", items.length);
+      // console.log("산불!@!!!>", items.length);
       if (items.length === 0) {
         console.warn("⚠️ DB에 산불 데이터가 없습니다.");
       }
@@ -35,7 +35,7 @@ const useForestFire = () => {
       console.error("산불 데이터 로드 실패:", error);
     } finally {
       setIsFireLoading(false);
-      console.log("산불 API 작업 종료");
+      // console.log("산불 API 작업 종료");
     }
   }, []);
 

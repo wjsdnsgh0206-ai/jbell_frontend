@@ -19,8 +19,8 @@ const CommonMap = ({ markers = [], center, level, selectedMarker }) => {
             lng: longitude
         }
         setPosition(location);
-        console.log("📍 위도:", latitude);
-        console.log("📍 경도:", longitude);
+        // console.log("📍 위도:", latitude);
+        // console.log("📍 경도:", longitude);
       },
       (error) => {
         console.error("❌ 위치 가져오기 실패:", error.message);

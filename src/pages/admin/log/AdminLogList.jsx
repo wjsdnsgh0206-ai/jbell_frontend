@@ -24,7 +24,7 @@ const AdminLogList = () => {
     useEffect(() => {
         axios.get('/api/logs/login')
         .then(res => {
-            console.log(res.data.data);
+            // console.log(res.data.data);
         });
     }, []);
     */
