@@ -144,7 +144,7 @@ const AdminBoardList = () => {
         setPosts(res.data);
       })
       .catch(err => {
-        console.error("데이터 초기화 로드 실패:", err);
+        // console.error("데이터 초기화 로드 실패:", err);
       });
   };
 
@@ -171,7 +171,7 @@ const AdminBoardList = () => {
         setIsModalOpen(false);
         alert("삭제되었습니다.");
       } catch (err) {
-        console.error("삭제 중 에러 발생:", err);
+        // console.error("삭제 중 에러 발생:", err);
         alert("삭제에 실패했습니다. 서버 상태를 확인하세요.");
       }
     }

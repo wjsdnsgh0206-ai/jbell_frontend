@@ -20,11 +20,11 @@ const AdminBoardDetail = () => {
     // noticeId가 없으면(undefined, null, 빈 값이면), 아무것도 하지 말고 그냥 끝냄
     axios.get(`/api/notice/${noticeId}`)
       .then(res => {
-        console.log("받은 데이터:", res.data);
+        // console.log("받은 데이터:", res.data);
         setPost(res.data);
       })
       .catch(err => {
-        console.error("데이터 로딩 실패:", err);
+        // console.error("데이터 로딩 실패:", err);
         alert("게시글을 불러오는 중 오류가 발생했습니다.");
       });
   }, [noticeId]);
@@ -73,7 +73,7 @@ const AdminBoardDetail = () => {
         link.remove();
         window.URL.revokeObjectURL(url);
       } catch (error) {
-        console.error('다운로드 실패:', error);
+        // console.error('다운로드 실패:', error);
         alert('파일 다운로드에 실패했습니다.');
       }
   };

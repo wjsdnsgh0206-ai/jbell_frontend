@@ -50,7 +50,7 @@ const AdminBoardManagement = () => {
             }
           }
         } catch (error) {
-                console.error("데이터 로드 실패:", error);
+                // console.error("데이터 로드 실패:", error);
                 setError("내용을 불러오지 못했습니다.");
                 alert("내용을 불러오지 못했습니다.");
                 navigate('/admin/contents/adminBoardList');  // 목록으로 이동
@@ -136,7 +136,7 @@ const handleSubmit = async (e) => {
     }
     navigate('/admin/contents/adminBoardList');
   } catch (error) {
-    console.error('저장 실패:', error);
+    // console.error('저장 실패:', error);
     alert(isEditMode ? '수정 중 오류가 발생했습니다.' : '등록 중 오류가 발생했습니다.');
   }
 };
