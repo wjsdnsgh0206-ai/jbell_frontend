@@ -26,7 +26,7 @@ const UserNoticeDetail = () => {
         setLoading(true);
         const response = await axios.get(`/api/notice/${id}`);
         const notice = response.data;
-        console.log(notice)
+        //console.log(notice)
         notice.date = dayjs(notice.createdAt).format('YYYY-MM-DD HH:mm:ss');
         notice.updatedDate = notice.updatedAt
           ? dayjs(notice.updatedAt).format('YYYY-MM-DD HH:mm:ss')
@@ -34,7 +34,7 @@ const UserNoticeDetail = () => {
         
         setData(notice);
       } catch (err) {
-        console.error("상세 데이터 로드 실패:", err);
+        //console.error("상세 데이터 로드 실패:", err);
       } finally {
         setLoading(false);
       }

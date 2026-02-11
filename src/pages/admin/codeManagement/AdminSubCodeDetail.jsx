@@ -46,10 +46,10 @@ const AdminSubCodeDetail = () => {
   };
 
   const fetchDetail = useCallback(async () => {
-    console.log("현재 파라미터:", { groupId, itemId });
+    //console.log("현재 파라미터:", { groupId, itemId });
 
     if (!groupId || !itemId) {
-      console.error("groupId 또는 itemId가 없습니다.");
+      //console.error("groupId 또는 itemId가 없습니다.");
       return;
     }
 
@@ -58,7 +58,7 @@ const AdminSubCodeDetail = () => {
 
       const response = await codeService.getCodeItem(groupId, itemId);
 
-      console.log("서버 응답 데이터:", response);
+      //console.log("서버 응답 데이터:", response);
 
       const actualData = response.data || response;
 
@@ -67,7 +67,7 @@ const AdminSubCodeDetail = () => {
         setBreadcrumbTitle(actualData.subName || "상세 코드 정보");
       }
     } catch (error) {
-      console.error("상세코드 로드 실패:", error);
+      //console.error("상세코드 로드 실패:", error);
     } finally {
       setIsLoading(false);
     }
@@ -111,7 +111,7 @@ const AdminSubCodeDetail = () => {
         navigate('/admin/system/commonCodeList');
       }, 1500);
     } catch (error) {
-      console.error("삭제 실패:", error);
+      //console.error("삭제 실패:", error);
       alert("삭제 중 오류가 발생했습니다.");
       setIsDeleting(false);
     }
