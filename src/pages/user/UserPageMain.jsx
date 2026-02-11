@@ -84,7 +84,7 @@ const UserPageMain = () => {
     <div className="w-full min-h-screen bg-white text-graygray-90">
       {/* 1. 재난사고속보 & 날씨 */}
       <section className="w-full mt-[10px] lg:mt-[20px]">
-        <div className="mx-auto max-w-[1200px] px-4 sm:px-6 py-4 lg:py-6">
+        <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-4 lg:py-6">
           <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
             {/* 재난사고속보 */}
             <div className="flex-1 bg-white border border-graygray-10 rounded-xl p-5 sm:p-8">
@@ -101,14 +101,14 @@ const UserPageMain = () => {
 
       {/* 2. 통계 */}
       <section className="w-full">
-        <div className="mx-auto max-w-[1200px] px-4 sm:px-6 py-2 lg:py-0">
+        <div className="mx-auto max-w-[1280px] px-4 sm:px-6 py-2 lg:py-0">
           <MainStatistics totalCount={totalDisasterCount} />
         </div>
       </section>
 
       {/* 3. 공지사항 & 행동요령 */}
       <section className="w-full">
-        <div className="mx-auto max-w-[1200px] px-4 sm:px-6 pt-4 lg:pt-6 pb-12 lg:pb-28">
+        <div className="mx-auto max-w-[1280px] px-4 sm:px-6 pt-4 lg:pt-6 pb-12 lg:pb-28">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-6">
             <div className="w-full">
               <MainBoard />

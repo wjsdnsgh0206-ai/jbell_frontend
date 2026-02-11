@@ -29,6 +29,15 @@ const VideoCard = ({ title, description, image, videoLink }) => {
           />
         ) : (
           <>
+            {/* [수정] 이미지가 있을 경우 렌더링하는 코드 추가 */}
+            {image && (
+              <img 
+                src={image} 
+                alt={title || "참고 이미지"} 
+                className="w-full h-full object-cover"
+              />
+            )}
+            
             {videoLink && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/30 transition-colors">
                 <div className="w-14 h-14 rounded-full bg-secondary-50/90 text-white flex items-center justify-center shadow-xl backdrop-blur-sm transform group-hover:scale-110 transition-transform duration-300">
