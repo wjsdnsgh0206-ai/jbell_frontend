@@ -50,11 +50,13 @@ const DisasterManagementAdd = () => {
     }
 
     try {
+      /*
       // 실제 서비스 시 API 연동 (POST)
       console.log("DB 등록 데이터:", {
         ...formData,
         createdAt: new Date().toISOString().split('T')[0] // 오늘 날짜 할당
       });
+      */
       
       alert("새로운 재난 API 관리 정보가 등록되었습니다.");
       navigate("/admin/realtime/disasterManagementList"); // 목록으로 이동

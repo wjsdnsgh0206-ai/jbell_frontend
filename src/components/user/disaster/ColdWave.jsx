@@ -42,14 +42,14 @@ const ColdWave = () => {
   const displayMarkers = useMemo(() => {
     return activeTab === "대피소" ? shelterMarkers : waveMarkers;
   }, [activeTab, shelterMarkers, waveMarkers]);
-
+  /*
   // ✅ [로그 체크]
   useEffect(() => {
     if (displayMarkers && displayMarkers.length > 0) {
       console.log("📍 지도에 표시될 마커 데이터:", displayMarkers);
     }
   }, [displayMarkers]);
-
+  */
   const handleTabClick = (tabId) =>
     setActiveTab((prev) => (prev === tabId ? null : tabId));
 

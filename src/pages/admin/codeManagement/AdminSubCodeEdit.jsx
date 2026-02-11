@@ -67,7 +67,7 @@ const AdminSubCodeEdit = () => {
         setIsLoading(true);
         const data = await codeService.getCodeItem(groupId, itemId);
 
-        console.log("상세조회 응답 데이터:", data);
+        // console.log("상세조회 응답 데이터:", data);
 
         if (data) {
           const initialForm = {
@@ -91,7 +91,7 @@ const AdminSubCodeEdit = () => {
           setBreadcrumbTitle(data.subName);
         }
       } catch (error) {
-        console.error("데이터 로드 실패:", error);
+        //console.error("데이터 로드 실패:", error);
       } finally {
         setIsLoading(false);
       }
@@ -119,7 +119,7 @@ const AdminSubCodeEdit = () => {
         const data = res.data || res;
         setIsNameDuplicate(!!data.isNameDup);
       } catch (e) {
-        console.error("상세코드 중복 체크 실패", e);
+        //console.error("상세코드 중복 체크 실패", e);
       }
     };
 
@@ -230,7 +230,7 @@ const AdminSubCodeEdit = () => {
         navigate(`/admin/system/subCodeDetail/${groupId}/${itemId}`, { replace: true });
       }, 1500);
     } catch (error) {
-      console.error("수정 실패:", error);
+      //console.error("수정 실패:", error);
       const serverMsg = error.response?.data?.message || "저장 중 오류가 발생했습니다.";
       setToastMessage(`오류: ${serverMsg}`);
       setShowToast(true);

@@ -23,7 +23,7 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    console.log(`[API Request] ${config.method.toUpperCase()} ${config.url}`);
+    // console.log(`[API Request] ${config.method.toUpperCase()} ${config.url}`);
     return config;
   },
   (error) => {
@@ -35,7 +35,7 @@ apiClient.interceptors.request.use(
 // 응답 인터셉터
 apiClient.interceptors.response.use(
   (response) => {
-    console.log(`[API Response] ${response.config.url}`, response.status);
+    // console.log(`[API Response] ${response.config.url}`, response.status);
     return response.data;
   },
   async (error) => {
@@ -173,7 +173,7 @@ export const configUtils = {
   // baseURL 변경
   setBaseURL: (newBaseURL) => {
     apiClient.defaults.baseURL = newBaseURL;
-    console.log(`[API Config] baseURL 변경: ${newBaseURL}`);
+    // console.log(`[API Config] baseURL 변경: ${newBaseURL}`);
   },
 
   // 현재 baseURL 조회
@@ -184,13 +184,13 @@ export const configUtils = {
   // timeout 변경
   setTimeout: (newTimeout) => {
     apiClient.defaults.timeout = newTimeout;
-    console.log(`[API Config] timeout 변경: ${newTimeout}ms`);
+    // console.log(`[API Config] timeout 변경: ${newTimeout}ms`);
   },
 
   // withCredentials 설정 변경
   setWithCredentials: (value) => {
     apiClient.defaults.withCredentials = value;
-    console.log(`[API Config] withCredentials 변경: ${value}`);
+    // console.log(`[API Config] withCredentials 변경: ${value}`);
   },
 
   // 기본 헤더 추가/변경
@@ -211,7 +211,7 @@ export const configUtils = {
     apiClient.defaults.headers = {
       'Content-Type': 'application/json',
     };
-    console.log('[API Config] 설정 초기화 완료');
+    // console.log('[API Config] 설정 초기화 완료');
   },
 };
 

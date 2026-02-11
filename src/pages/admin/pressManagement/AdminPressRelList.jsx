@@ -8,7 +8,6 @@ import AdminPagination from '@/components/admin/AdminPagination';
 import AdminSearchBox from '@/components/admin/AdminSearchBox';
 import AdminConfirmModal from '@/components/admin/AdminConfirmModal';
 
-
 // 관리자 보도자료 목록 페이지 //
 
 // 토스트용 성공 아이콘 컴포넌트
@@ -93,7 +92,7 @@ const AdminPressRelList = () => {
         setTotalCount(0);
       }
     } catch (error) {
-      console.error("데이터 로드 실패:", error);
+      //console.error("데이터 로드 실패:", error);
       setPressRels([]);
       setTotalCount(0);
     }
@@ -450,7 +449,7 @@ const AdminPressRelList = () => {
 
           fetchList();
         } catch (error) {
-          console.error("상태 변경 실패:", error);
+          //console.error("상태 변경 실패:", error);
           alert("상태 변경에 실패했습니다. 다시 시도해주세요.");
         }
       } // onConfirm 종료

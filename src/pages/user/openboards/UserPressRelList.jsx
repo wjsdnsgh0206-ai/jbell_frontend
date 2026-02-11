@@ -68,13 +68,13 @@ const UserPressRelList = () => {
           };
         })
 
-        console.table(formatted.map(f => ({
-          ID: f.id,
-          제목: f.title.substring(0, 10) + "...",
-          파일수_files: f.files,
-          파일수_fileCount: f.fileCount,
-          파일리스트_길이: f.fileList.length
-        })));
+        // console.table(formatted.map(f => ({
+        //   ID: f.id,
+        //   제목: f.title.substring(0, 10) + "...",
+        //   파일수_files: f.files,
+        //   파일수_fileCount: f.fileCount,
+        //   파일리스트_길이: f.fileList.length
+        // })));
 
         setPressList(formatted);
         setTotalItems(response.totalCount || 0);
@@ -92,7 +92,7 @@ const UserPressRelList = () => {
       // }
 
     } catch (error) {
-      console.error("보도자료 로딩 실패:", error);
+      //console.error("보도자료 로딩 실패:", error);
     }
   }, [currentPage, activeSearch, itemsPerPage]);
 
@@ -165,7 +165,7 @@ const UserPressRelList = () => {
               if (id) {
                 navigate(`/userPressRelDetail/${id}`);
               } else {
-                console.error("ID 값이 넘어오지 않았습니다.");
+                //console.error("ID 값이 넘어오지 않았습니다.");
               }
             }}
           />

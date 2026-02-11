@@ -1036,13 +1036,6 @@ export const disasterModalService = {
     return response.data;
   },
 
-  // [지진]
-  getEarthquakeList: async () => {
-    // Backend: /api/disaster/fetch/earthquake-list
-    const response = await api.get("/disaster/fetch/earthquake-list");
-    return response.data;
-  },
-
   // [태풍] (필요 시 별도 호출, 현재 구조상 getWeatherList(7)로 커버 가능하나 별도 API가 있다면 유지)
   getTyphoonList: async () => {
      const response = await api.get("/disaster/fetch/typhoon-list");
@@ -1052,7 +1045,7 @@ export const disasterModalService = {
   // [상태 변경] 노출/비노출 일괄 처리
   updateDisasterStatus: async (ids, isVisible) => {
     // Backend: /api/disaster/manage/status
-    const response = await api.post("/disaster/manage/status", {
+    const response = await api.post("/disaster/fetch/manage/status", {
       ids: ids,
       isVisible: isVisible,
     });

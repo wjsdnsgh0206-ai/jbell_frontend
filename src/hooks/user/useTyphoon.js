@@ -39,7 +39,7 @@ setTyphoonList(formattedPath);
 
       }
 
-      console.log("태풍 >>>>", typhoonRes);
+      // console.log("태풍 >>>>", typhoonRes);
 
       // 2. 기상특보 7번(태풍) 데이터
       const response = await disasterModalService.getWeatherList(7);
