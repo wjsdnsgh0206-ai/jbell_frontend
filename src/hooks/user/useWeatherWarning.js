@@ -21,7 +21,7 @@ export const useWeatherWarning = () => {
       const response = await disasterApi.getSavedWeatherWarnings();
       const list = response?.list || [];
 
-      // console.log("✅ [fetchWarnings] API 응답 확인:", list);
+      // // console.log("✅ [fetchWarnings] API 응답 확인:", list);
 
       const processedData = list
         .map((item) => {
@@ -34,7 +34,7 @@ export const useWeatherWarning = () => {
           ).toUpperCase();
 
           // 🔍 백엔드에서 내려오는 원본 값들 로그 출력
-          // console.log(
+          // // console.log(
           //   `[데이터 확인] 제목: ${title} | 원본 is_manual: ${item.is_manual} | 원본 isManual: ${item.isManual} | visibleYn: ${visibleYn}`,
           // );
 
@@ -87,9 +87,9 @@ export const useWeatherWarning = () => {
             (item.CATEGORIES.length > 0 &&
               item.RLVT_ZONE?.includes("전북") &&
               item.visibleYn === "Y");
-
+          /*
           if (!showItem) {
-            console.log(
+             console.log(
               "❌ 필터링으로 제외됨:",
               item.TTL,
               "| visibleYn:",
@@ -100,6 +100,7 @@ export const useWeatherWarning = () => {
               item.CATEGORIES.length,
             );
           }
+            */
 
           return showItem;
         });
@@ -109,7 +110,7 @@ export const useWeatherWarning = () => {
         b.PRSNTN_TM.localeCompare(a.PRSNTN_TM),
       );
 
-      // console.log(
+      // // console.log(
       //   "✅ [정렬 후 경보 목록]",
       //   sorted.map((i) => ({
       //     TTL: i.TTL,

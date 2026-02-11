@@ -58,7 +58,7 @@ const Earthquake = () => {
   // 현재 탭에 따라 지도에 표시할 마커 결정
   const displayMarkers = useMemo(() => {
     const data = activeTab === "지진발생정보" ? eqMarkers : shelterMarkers;
-    // console.log("지도에 전달되는 최종 markers:", data);
+    // // console.log("지도에 전달되는 최종 markers:", data);
     return data;
   }, [activeTab, eqMarkers, shelterMarkers]);
 
