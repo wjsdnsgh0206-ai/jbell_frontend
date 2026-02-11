@@ -148,7 +148,7 @@ const DisasterEventManagementList = () => {
         }
 
         return {
-          id: `EQK_${item.id}`,
+          id: `EQK_${item.seq}`,
           serialNumber: String(seq),
           type: "지진",
           region: item.loc || "지역정보 없음",
