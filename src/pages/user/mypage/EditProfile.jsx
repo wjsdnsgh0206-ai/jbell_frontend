@@ -59,7 +59,7 @@ const EditProfile = () => {
   // 3. 수정 완료 처리 (SignupForm의 onSubmit 로직 참고)
   const onSubmit = async (data) => {
   // 🔍 콘솔 3: 사용자가 입력한 순수 폼 데이터 (비밀번호 포함)
-  console.log("📍 [3. 수정 버튼 클릭 - 원본 데이터]:", data);
+  // console.log("📍 [3. 수정 버튼 클릭 - 원본 데이터]:", data);
 
   if (!isAuthVerified) {
     alert("이메일 인증을 완료해주세요.");
@@ -71,18 +71,18 @@ const EditProfile = () => {
     
     // 비밀번호가 비어있으면 전송 객체에서 삭제하는 로직 확인용
     if (!payload.userPw || payload.userPw === "") {
-      console.log("💡 알림: 비밀번호 변경 없음 - 비밀번호 필드 제외");
+      // console.log("💡 알림: 비밀번호 변경 없음 - 비밀번호 필드 제외");
       delete payload.userPw;
       delete payload.confirmPassword;
     }
 
     // 🔍 콘솔 4: 실제 서버로 날아가는 최종 JSON 객체
-    console.log("📍 [4. 서버 전송 최종 Payload]:", payload);
+    // console.log("📍 [4. 서버 전송 최종 Payload]:", payload);
 
     const response = await userService.updateProfile(payload);
     
     // 🔍 콘솔 5: 서버의 응답 결과
-    console.log("📍 [5. 서버 응답 결과]:", response);
+    // console.log("📍 [5. 서버 응답 결과]:", response);
 
     if (response.status === "SUCCESS" || response.data === 1) {
       alert("회원 정보가 수정되었습니다.");

@@ -63,7 +63,7 @@ const WeatherNewsList = () => {
       // 백엔드 컨트롤러에서 Map에 담아 보내주므로 response.list 참조
       const rawList = response.list || response.data || [];
 
-      console.log("response>>>", response);
+      // console.log("response>>>", response);
 
       const mappedData = rawList.map((item) => {
         // 1. ID 추출 (백엔드 DTO @JsonProperty 및 DB 별칭 대응)

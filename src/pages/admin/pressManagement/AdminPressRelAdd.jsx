@@ -275,7 +275,7 @@ const AdminPressRelAdd = () => {
   const searchSpecificTags = () => {
     const quill = quillRef.current.getEditor();
     const editorRoot = quill.root; // 에디터의 컨텐츠 root DOM
-    console.log(editorRoot.innerHTML);
+    // console.log(editorRoot.innerHTML);
     // li 태그 검색
     const olList = editorRoot.querySelectorAll('ol');
 
@@ -295,7 +295,7 @@ const AdminPressRelAdd = () => {
     });
 
     formData.content = editorRoot.innerHTML;
-    console.log(formData.content);
+    // console.log(formData.content);
     setFormData(formData);
 
   };
@@ -333,7 +333,7 @@ const AdminPressRelAdd = () => {
         setTimeout(() => navigate('/admin/contents/pressRelList'), 1500);
       }
     } catch (error) {
-      console.error("등록 실패:", error);
+      //console.error("등록 실패:", error);
       alert("등록 중 서버 오류가 발생했습니다.");
     }
   };

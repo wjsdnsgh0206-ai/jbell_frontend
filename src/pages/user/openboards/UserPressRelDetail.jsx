@@ -31,7 +31,7 @@ const UserPressRelDetail = () => {
 
         setData(result);
       } catch (error) {
-        console.error("데이터 로딩 실패:", error);
+        //console.error("데이터 로딩 실패:", error);
         alert("게시글을 찾을 수 없습니다.");
         navigate('/userPressRelList');
       } finally {

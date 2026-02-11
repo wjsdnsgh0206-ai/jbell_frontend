@@ -36,7 +36,7 @@ useEffect(() => {
         axios.get("/api/press", config),
       ]);
 
-      console.log("rrrr", msgRes);
+      // console.log("rrrr", msgRes);
 
       const getListData = (res) => res.data?.list || res.data?.data || res.data || [];
 

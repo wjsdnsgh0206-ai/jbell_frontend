@@ -34,7 +34,7 @@ const UserNoticeDetail = () => {
         
         setData(notice);
       } catch (err) {
-        // console.error("상세 데이터 로드 실패:", err);
+        //console.error("상세 데이터 로드 실패:", err);
       } finally {
         setLoading(false);
       }

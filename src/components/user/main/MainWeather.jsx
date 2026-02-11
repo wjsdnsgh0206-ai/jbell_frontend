@@ -119,7 +119,6 @@ const MainWeather = () => {
       
       {/* 하단 경보 카드 (실제 데이터 연동) */}
       <div 
-        onClick={() => navigate(`/disaster/detail`)}
         className="bg-white border-l-4 border-l-orange-500 border border-graygray-10 rounded-[24px] p-4 flex items-center gap-4 shadow-sm hover:translate-y-[-2px] transition-all cursor-pointer"
       >
         <div className="bg-orange-500 text-white w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 font-bold shadow-md">

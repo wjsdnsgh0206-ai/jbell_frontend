@@ -29,8 +29,8 @@ const MainStatistics = ({ totalCount }) => {
   // ✅ 최종 발생 건수
   // const totalIncidentCount = baseIncidentCount + Number(totalCount || 0);
 
-  // console.log("발생건수>>>>",totalIncidentCount);
-    // console.log("발생건수>>>>",totalIncidentCount);
+  // // console.log("발생건수>>>>",totalIncidentCount);
+    // // console.log("발생건수>>>>",totalIncidentCount);
 
   return (
     <section className="w-full">

@@ -95,7 +95,7 @@ const DisasterMessageAdd = () => {
           DST_SE_NM: formData.type, // @JsonProperty("DST_SE_NM") !! (dstType이 아님)
           visible_yn: formData.isVisible ? "Y" : "N", // 얘는 @JsonProperty가 없으니 그대로
         };
-        console.log("🚀 서버로 쏘는 데이터 확인:", postData);
+        // console.log("🚀 서버로 쏘는 데이터 확인:", postData);
 
         await disasterApi.createDisaster(postData);
 
