@@ -138,6 +138,9 @@ const TAB_LABEL_MAP = {
   "DEFAULT": "상세 행동요령"
 };
 
+/**
+ * 탭 라벨 결정 함수
+ */
 const getTabLabel = (item, tabKey) => {
   if (TAB_LABEL_MAP[tabKey]) return TAB_LABEL_MAP[tabKey];
   return TAB_LABEL_MAP["DEFAULT"];
@@ -152,30 +155,17 @@ const getItemType = (item) => {
   return 'TEXT';
 };
 
+/**
+ * 텍스트 파싱 로직 (Q&A 및 단계별 번호 강조)
+ */
 const parseBodyText = (text) => {
-  if (!text) return { content: "", question: null, answer: null, isQA: false, isStep: false };
+  if (!text) return { content: "", isQA: false, isStep: false };
   
-  // Q&A 패턴 정규식
-  const qaRegex = /Q\s*[:.]\s*([\s\S]+?)\s*A\s*[:.]\s*([\s\S]+)/i;
-  const match = text.match(qaRegex);
-
-  if (match) {
-    return {
-      content: text,
-      question: match[1].trim(),
-      answer: match[2].trim(),
-      isQA: true,
-      isStep: false
-    };
-  }
-
   const isQA = text.startsWith('Q :') || text.includes('A :');
-  const isStep = /^[0-9①-⑩]\.?/.test(text);
+  const isStep = /^[0-9①-⑩]\.?/.test(text); // 숫자나 원문자로 시작하는 경우
 
   return {
-    content: text.replace(/Q\s*[:.]|A\s*[:.]/g, '').trim(),
-    question: null,
-    answer: null,
+    content: text.replace(/Q :|A :/g, '').trim(),
     isQA,
     isStep
   };
@@ -185,7 +175,7 @@ export const transformData = (dbList) => {
   if (!dbList || dbList.length === 0) return null;
 
   const pageTitle = dbList[0].contentTypeName || "행동요령";
-  const lastUpdated = dbList[0].createdAt || dbList[0].created_at || new Date().toISOString().slice(0, 10).replace(/-/g, '.');
+  const lastUpdated = dbList[0].created_at || new Date().toISOString().slice(0, 10).replace(/-/g, '.');
 
   const groupedByTab = dbList.reduce((acc, item) => {
     const fullOrder = String(item.ordering || "0000000000").replace(/,/g, '');
@@ -224,7 +214,7 @@ export const transformData = (dbList) => {
 
       section.rawItems.forEach(item => {
         const type = getItemType(item);
-        const { content, question, answer, isQA } = parseBodyText(item.body);
+        const { content, isQA, isStep } = parseBodyText(item.body);
 
         if (type === 'VIDEO' || type === 'IMAGE') {
             currentGroupCard = null; 
@@ -235,16 +225,17 @@ export const transformData = (dbList) => {
                 images: type === 'IMAGE' ? [item.contentLink] : [],
                 mediaTitle: content
             });
-        } else {
-            if (isQA && question && answer) {
+        } else if (content) {
+            // Q&A이거나 새로운 단계가 시작되면 카드를 분리하거나 그룹화 전략 결정
+            // 여기서는 QA는 단독 카드로, 일반 가이드는 그룹으로 묶음
+            if (isQA) {
               steps.push({
                 id: item.contentId,
                 type: 'QA',
-                question: question,
-                answer: answer
+                content: content
               });
               currentGroupCard = null;
-            } else if (content) {
+            } else {
               if (!currentGroupCard) {
                   currentGroupCard = {
                       id: item.contentId,

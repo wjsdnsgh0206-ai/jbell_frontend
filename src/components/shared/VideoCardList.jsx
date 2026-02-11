@@ -11,7 +11,7 @@ const VideoCard = ({ title, description, image, videoLink }) => {
   };
 
   const hasContent = title || description;
-  const fallbackImage = "https://dummyimage.com/600x400/e0e0e0/757575.png&text=No+Image";
+  // const fallbackImage = "https://dummyimage.com/600x400/e0e0e0/757575.png&text=No+Image";
 
   return (
     <article className="w-full max-w-[500px] mx-auto flex flex-col bg-white rounded-2xl border border-graygray-20 overflow-hidden hover:shadow-md transition-shadow group h-full">
@@ -29,13 +29,6 @@ const VideoCard = ({ title, description, image, videoLink }) => {
           />
         ) : (
           <>
-            <img
-              src={image || fallbackImage}
-              alt={title || "이미지"}
-              className={`w-full h-full object-cover transition-transform duration-500 ${videoLink ? 'group-hover:scale-105' : ''}`}
-              referrerPolicy="no-referrer"
-              onError={(e) => { e.target.src = fallbackImage; }}
-            />
             {videoLink && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/30 transition-colors">
                 <div className="w-14 h-14 rounded-full bg-secondary-50/90 text-white flex items-center justify-center shadow-xl backdrop-blur-sm transform group-hover:scale-110 transition-transform duration-300">

@@ -1,3 +1,4 @@
+// src\pages\admin\realtime\dashboard\FrequentlyUsedMenuSection.jsx
 import React from 'react';
 import { Settings, Trophy, Edit3, ClipboardCheck, Map as MapIcon } from 'lucide-react';
 import { useNavigate } from "react-router-dom";

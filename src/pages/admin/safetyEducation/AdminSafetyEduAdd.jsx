@@ -206,7 +206,7 @@ const AdminSafetyEduAdd = () => {
 };
 
   return (
-    <div className="relative flex-1 flex flex-col min-h-screen bg-[#F8F9FB] font-['Pretendard_GOV'] antialiased">
+    <div className="relative flex-1 flex flex-col min-h-screen  font-['Pretendard_GOV'] antialiased">
       {/* Toast Notification */}
       {showToast && (
         <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100]">

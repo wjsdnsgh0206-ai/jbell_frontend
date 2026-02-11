@@ -1,3 +1,4 @@
+// src\components\admin\AdminConfirmModal.jsx
 import React from 'react';
 
 const AdminConfirmModal = ({ 

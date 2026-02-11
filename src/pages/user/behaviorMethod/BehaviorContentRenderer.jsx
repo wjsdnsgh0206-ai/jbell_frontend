@@ -1,4 +1,5 @@
 // src\pages\user\behaviorMethod\BehaviorContentRenderer.jsx
+import React from 'react';
 import VideoCardList from '@/components/shared/VideoCardList';
 
 /**
@@ -37,22 +38,39 @@ const BehaviorContentRenderer = ({ content }) => {
                 step.images.forEach(img => mediaItems.push({ image: img }));
                 
                 return (
-                  <div key={`step-${stepIdx}`} className="w-full"> {/* 단순 w-full로 복구 */}
+                  <div key={`step-${stepIdx}`} className="w-full">
                     <VideoCardList videos={mediaItems} />
                   </div>
                 );
               }
 
-              // 2. [추가] Q&A 타입 렌더링 (질문과 답변 스타일)
+              // 2. [수정됨] Q&A 타입 렌더링
               if (step.type === 'QA') {
                 return (
                   <div key={`step-${stepIdx}`} className="bg-primary-5 rounded-2xl p-6 border-l-4 border-primary-50">
-                    <div className="flex gap-3">
-                      <span className="text-primary-60 font-black text-xl italic">Q.</span>
-                      <div 
-                        className="text-body-m text-graygray-90 font-semibold leading-relaxed"
-                        dangerouslySetInnerHTML={{ __html: step.content }} 
-                      />
+                    <div className="flex flex-col gap-4">
+                      
+                      {/* 질문 (Question) */}
+                      <div className="flex gap-3 items-start">
+                        <span className="text-primary-60 font-black text-xl italic shrink-0">Q.</span>
+                        <div 
+                          className="text-body-l text-graygray-90 font-bold leading-relaxed pt-0.5"
+                          dangerouslySetInnerHTML={{ __html: step.question }} 
+                        />
+                      </div>
+
+                      {/* 구분선 (선택사항, 필요 없으면 삭제 가능) */}
+                      <hr className="border-primary-10" />
+
+                      {/* 답변 (Answer) */}
+                      <div className="flex gap-3 items-start">
+                        <span className="text-secondary-50 font-black text-xl italic shrink-0">A.</span>
+                        <div 
+                          className="text-body-m text-graygray-80 leading-relaxed pt-0.5"
+                          dangerouslySetInnerHTML={{ __html: step.answer }} 
+                        />
+                      </div>
+
                     </div>
                   </div>
                 );
@@ -65,7 +83,7 @@ const BehaviorContentRenderer = ({ content }) => {
                     <ul className="flex flex-col gap-4">
                       {step.guidelines.map((text, txtIdx) => (
                         <li key={txtIdx} className="flex gap-3 text-body-m text-graygray-80 leading-relaxed">
-                          {/* 리스트 불렛 포인트 (커스텀) */}
+                          {/* 리스트 불렛 포인트 */}
                           <span className="shrink-0 w-1.5 h-1.5 mt-2.5 bg-graygray-30 rounded-full" />
                           <div 
                              dangerouslySetInnerHTML={{ __html: text }} 
