@@ -5,6 +5,9 @@ import AdminLayout from "@/layouts/admin/AdminLayout";
 import DisasterModalLayout from "@/layouts/user/disasterModal/DisasterModalLayout";
 import { SIDE_MENU_DATA } from "@/components/user/sideBar/SideMenuData";
 
+// 포트폴리오 포털 페이지 import 
+import JbellPortal from "@/pages/user/JbellPortal";
+
 // 팀원별 라우트 파일 import (user)
 import { jyUserRoutes, disasterModal } from "@/routes/user/route-jy";
 import { shUserRoutes } from "@/routes/user/route-sh";
@@ -35,7 +38,6 @@ const AllRoutes = (props) => {
   
   // 2. 관리자 페이지 라우트 병합
   const allAdminRoutes = [
-    // ...jyAdminRoutes,
     ...shAdminRoutes,
     ...ehAdminRoutes,
     ...mjAdminRoutes,
@@ -88,6 +90,12 @@ const AllRoutes = (props) => {
 
   return (
     <Routes>
+      {/* --------------------------------------------------------- */}
+      {/* 포트폴리오 메인화면 (단독 레이아웃) */}
+      {/* --------------------------------------------------------- */}
+      {/* UserLayout이나 AdminLayout에 얽매이지 않도록 단독으로 렌더링합니다. */}
+      <Route path="/projectInfo" element={<JbellPortal />} />
+      
       {/* --------------------------------------------------------- */}
       {/* 관리자 레이아웃 그룹 (URL 기반 연동) */}
       {/* --------------------------------------------------------- */}

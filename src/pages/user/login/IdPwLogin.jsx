@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, Info, User, Lock, Check } from 'lucide-react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { userService } from '@/services/api'; 
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -10,16 +10,25 @@ const IdPwLogin = () => {
   const [password, setPassword] = useState('');
   const [rememberId, setRememberId] = useState(false); // 아이디 저장 및 자동 로그인 통합 상태
   const navigate = useNavigate();
+  const location = useLocation(); // location 객체 초기화
   const { login } = useAuth();
 
-  // 페이지 로드 시 '아이디 저장'이 되어 있다면 불러오기
+  // 3. 포털에서 넘어온 state 확인 및 '아이디 저장' 로직 통합
   useEffect(() => {
-    const savedId = localStorage.getItem('rememberedId');
-    if (savedId) {
-      setUserId(savedId);
-      setRememberId(true);
+    // 포트폴리오 메인(Portal)에서 전달한 자동입력 데이터가 최우선
+    if (location.state?.autoId && location.state?.autoPw) {
+      setUserId(location.state.autoId);
+      setPassword(location.state.autoPw);
+    } else {
+      // 페이지 로드 시 '아이디 저장'이 되어 있다면 불러오기
+      // 일반적인 접근 시 로컬 스토리지의 아이디 불러오기
+      const savedId = localStorage.getItem('rememberedId');
+      if (savedId) {
+        setUserId(savedId);
+        setRememberId(true);
+      }
     }
-  }, []);
+  }, [location.state]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -36,36 +45,39 @@ const IdPwLogin = () => {
       });
 
       if (response.data && response.data.data) {
-        // 백엔드 응답 데이터 구조에 따라 userGrade(또는 role)를 가져옵니다.
-        // 백엔드 Map에 담긴 키값이 'userGrade'라고 가정합니다.
         const { accessToken, refreshToken, userName, userGrade } = response.data.data;
 
         if (rememberId) {
           localStorage.setItem('rememberedId', userId);
         } else {
-          // 체크 해제 상태로 로그인하면 저장된 아이디 삭제
           localStorage.removeItem('rememberedId');
         }
 
-
-        // 1. 토큰 및 세션 정보 저장
+        // 1. 토큰 및 세션 정보 저장 (localStorage는 새 탭과 공유됨)
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('refreshToken', refreshToken);
         sessionStorage.setItem('isLoggedIn', 'true');
 
-        // 2. AuthContext의 login 함수 호출 (userId, userName, userGrade 전달)
-        // 이 함수 내부에서 localStorage에 userId, userName, userGrade를 저장합니다.
+        // 2. AuthContext 상태 업데이트
         login(userId, userName || userId, userGrade);
 
         alert(`환영합니다, ${userName || userId}님!`);
 
-        // 4. 권한(userGrade)에 따른 페이지 이동
-        // 관리자 등급 문자열이 'ADMIN'인 경우 dashboard로 이동
+        // -----------------------------------------------------
+        // 4. 권한(userGrade)에 따른 페이지 이동 로직 개선 (새 창 띄우기)
+        // -----------------------------------------------------
         if (userGrade === 'ADMIN') {
-          navigate('/admin/realtime/realtimeDashboard');
+          // 관리자 화면은 새 탭(_blank)으로 엽니다.
+          window.open('/admin/realtime/realtimeDashboard', '_blank');
+          
+          // 현재 창은 사용자 화면 메인으로 이동합니다.
+          navigate('/');
         } else {
+          // 일반 사용자는 현재 창에서 메인으로 이동합니다.
           navigate('/');
         }
+        // -----------------------------------------------------
+
       }
     } catch (error) {
       const serverMsg = error.response?.data?.message;
@@ -79,7 +91,7 @@ const IdPwLogin = () => {
       setPassword('');
     }
   };
-
+  
   return (
     <div className="min-h-screen bg-white flex justify-center py-10 px-5 sm:py-20 font-sans text-gray-900">
       <div className="max-w-3xl w-full">
